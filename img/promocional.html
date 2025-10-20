@@ -97,7 +97,8 @@ h6{
     
     #cabecario{
             max-width: 800px;
-            background-color: rgb(36, 175, 180);
+           
+            background: linear-gradient(45deg, rgb(11, 198, 231) , rgb(19, 139, 160));
             margin:auto;
             display: flex;
             align-items: center;
@@ -114,6 +115,9 @@ h6{
         .tamlogo{
             width: inherit;
             border-radius: 100px;
+            border:solid 3px white;
+            box-shadow: 0px 0px 1px 4px rgb(16, 80, 219);
+          
         }
         h1{
             color:white;
@@ -138,12 +142,15 @@ h6{
             flex-direction: column;
         }
 
+    
+ 
+
         #screenn{
             background-color: rgba(0,0,0,0.8);
-            position: absolute;
+            position: fixed;
             top:0px;
             left: 0px;
-            bottom: 0px;
+            min-height: 100vh;
             right: 0px;
             display: none;
             align-items: center;
@@ -160,6 +167,8 @@ h6{
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            border: solid white 4px;
+            box-shadow: 0px 0px 30px #ccc;
         }
         ol li,p{
             font-size: 30px;
@@ -188,6 +197,7 @@ h6{
             font-size: 50px;
             color:white;
             margin-bottom: 25px;
+            margin-top: 30px;
         }
 
         .mapa {
@@ -246,15 +256,18 @@ div ol p{
     height: 40px;
     background-color: white;
     border: solid 2px black;
+    border-radius: 6px;
 }
 .texto{
 font-size: 30px;
+font-family: cursive;
 margin-bottom: 10px;
 text-align: center;
 }
 .infor{
     font-size: 20px;
     margin-top: 20px;
+    text-align: center;
 }
 u{
     font-size: 20px;
@@ -316,6 +329,21 @@ u{
       h1{font-size: 25px;
       margin-bottom: 30px;}
       .off{width: 80px;}
+
+      strong{
+        font-size: 30px;
+        margin-top: 30px;
+      }
+
+      div ol p{
+        width: 80%;
+      }
+      #voltar{
+        width: auto;
+        height: auto;
+        font-size: 18px;
+        margin: 2px;
+      }
 
         #cabecario{
             flex-direction: column;
