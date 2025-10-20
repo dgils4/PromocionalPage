@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>'Promocional Page'</title>
+    
+    <style>
+        *{
+            margin: 0;
+            box-sizing: border-box;
+            margin: auto;
+            max-width: 800px;
+        }
+/*---------------------------ared do calendario-------*/
+         .container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+    }
+
+    input{
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 20px;
+      width: 400px;
+      margin: 0%;
+      height: 45px;
+    }
+
+    #btnAgendar {
+      margin-top: 20px;
+      padding: 10px 40px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2b8a3e;
+      color: white;
+      transition: 0.3s;
+    }
+
+    #btnAgendar:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #d32f2f;
+    } /*--------------------------- fim area do calendario-------*/
+        
+/*-----------------------area css compartilhamento-----------*/
+    
+h6{
+    font-size: 30px;
+    font-weight: bold;
+}
+.container2 {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 800px;
+      margin:auto;
+      
+    }
+
+    .button1 {
+      margin-top: 15px;
+      margin-bottom: 20px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2b8a3e;
+      color: white;
+      transition: 0.3s;
+    }
+
+    .button1:hover {
+      background-color: #237030;
+    }
+
+    
+    
+    #cabecario{
+            max-width: 800px;
+            background-color: rgb(36, 175, 180);
+            margin:auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+
+        #logo{
+            
+            width: 200px;
+            height: 200px;
+            margin: 15px 0px 15px 40px;
+        }
+        .tamlogo{
+            width: inherit;
+            border-radius: 100px;
+        }
+        h1{
+            color:white;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 30px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h2{
+            margin-bottom: 10px;
+        }
+
+        .poscabecario{
+            max-width: 800px;
+            margin: auto;
+            margin-bottom: 10px;
+            background-color: rgb(185, 185, 185);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-direction: column;
+        }
+
+        #screenn{
+            background-color: rgba(0,0,0,0.8);
+            position: absolute;
+            top:0px;
+            left: 0px;
+            bottom: 0px;
+            right: 0px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            
+           transition: opacity 0.5s ease-out
+        }
+        .wind{
+            width: 80%;
+            height: 80%;
+            border-radius: 20px;
+            background-color: rgb(20, 206, 206);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        ol li,p{
+            font-size: 30px;
+            margin-bottom: 15px;
+
+        }
+        div ol{display: flex;
+            flex-direction: column;
+        }
+        #voltar{
+            width: 100px;
+            height: 40px;
+            color :white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+           position:absolute;
+           top:0px;
+           left:0px;
+           font-size: 40px;
+           
+        }
+
+        strong{
+            font-size: 50px;
+            color:white;
+            margin-bottom: 25px;
+        }
+
+        .mapa {
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    iframe {
+      max-width: 800px;
+      margin: auto;
+      height: 250px;
+      border: none;
+    }
+
+    h4,h5{color:white;
+    text-align:center;
+    padding: 10px;
+    font-size: 20px;}
+
+    h5{font-size: 15px;}
+
+    footer{
+    
+        background-color: black;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    footer a .zapi, .insta{
+        width: 40px;
+        margin-right: 50px;
+        
+    }
+
+    footer a{
+        margin: 0%;
+        margin-left: 100px;
+        
+        align-items: center;
+        display: flex;
+        flex-direction: initial;
+    }
+    
+div ol p{
+    font-size: 30px;
+    width: 100%;
+    height: 40px;
+    background-color: white;
+    border: solid 2px black;
+}
+.texto{
+font-size: 30px;
+margin-bottom: 10px;
+}
+.infor{
+    font-size: 20px;
+    margin-top: 20px;
+}
+u{
+    font-size: 20px;
+    margin-top: 20px;
+    
+}
+
+ #Yes {
+      margin-top: 15px;
+      margin-bottom: 20px;
+      padding: 14px 70px;
+      
+      font-size: 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2b8a3e;
+      color: white;
+      transition: 0.3s;
+    }
+
+    #Yes:hover {
+      background-color: #237030;
+    }
+
+    @media only screen and (min-width:300px) and (max-width:800px) {
+     #logo{
+        display: flex;
+        width: 150px;
+        align-items: center;
+        margin-left: 10px;
+     } 
+    .off{
+        max-width: 150px;
+        border-radius: 70px;
+       
+    }
+    #cabecario{
+        height: 200px;
+    }
+    
+    
+    footer a{
+        margin: 0%;
+        margin-left: 20px;
+        display: flex;
+        flex-direction: initial;
+        margin-bottom: 30px;
+        font-size: 27px;
+        color: white;
+        text-decoration: none;
+    }
+    }
+    </style>
+
+ 
+
+
+</head>
+<body>
+<!---------------------------Tela oculta-------------------------------------------->
+    <div id="screenn">
+        <div id="voltar" onclick="fechar()">voltar</div>
+        <div class="wind">
+            <ol style="padding: 0px;">
+                <strong>Tudo Certo?</strong>
+                <div class="texto">Seu Nome</div>
+                <p>:<u id="N"></u></p>
+                <div class="texto">Data de Comparecimento</div>
+                <p>:<u id="D"></u></p>
+                <u>Promoção única por cliente</u>
+                <div class="infor">Atendimento por ondem de chegada<br/>horario 8:00h as 18:00h</div>
+            </ol>
+              <a  href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, Segue meus dados para receber 20% de desconto, meu é nome:" onclick="ur(),location.href=this.href+' '+nome+'.'+' '+ 'comparecerei na data'+' '+datt+'.'+' '+'  ';return false;"><button id="Yes">Sim</button></a>
+        
+            
+        </div>
+
+    </div>
+
+<div id="cabecario">
+    <div id="logo">
+        <img class="tamlogo" src="img/LOGO.jpg" alt="logo">
+    </div>
+    <h1>Barbearia _los_visionários</h1>
+
+</div>
+<div class="poscabecario">
+ <h4>Você esta na pagina promocional</h2>
+ <img class="off" src="img/20porcento.png"/ alt="20%off">
+ <h5>confira informação sobre localização abaixo, depois insira seu nome e data de comparecimento</h3>
+</div>
+<!-- area html calendario-------------------------------->
+     <div class="container">
+    <h2>Agendar horário</h2>
+    <input type="date" id="data" />
+    <br>
+    <h2>Nome completo</h2>
+     
+    <input type="text" name="usuario" maxlength="35"  placeholder="insira seu nome" oninput="this.value = this.value.replace(/[^a-z A-Z ã Ã â Â ç Ç á é í Á É Í À è ì À È Ì ê Ê ú Ù ù Ú ó Ò ô Ô]/g, '')"></td>
+    
+
+    <button id="btnAgendar" onclick="(chamar())" disabled>Confirmar</button>
+    <div class="msg" id="msg"></div>
+  </div>
+<!-- fim area html calendario-------------------------------->
+
+<!-- 🗺 Div do Mapa -->
+    <div class="mapa">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3948.8440308078175!2d-34.93208352499034!3d-8.218435691814012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7aae1431b46692b%3A0xd0c76c93bca0035b!2sLOS%20VISION%C3%81RIOS%20BARBEARIA!5e0!3m2!1spt-BR!2sbr!4v1760917249852!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+
+  <!-----------area de compartilhamento------------------->
+<div class="container2">
+    <h6>Compartilhe a promoção 💈</h6>
+    <p>Convide seus amigos para aproveitar o desconto da Los Visionários!</p>
+
+    <button class="button1" id="btnShare">Compartilhar agora</button>
+    <p style="color: black; font-size: 20px; margin-bottom: 20px;">Funciona melhor em celulares 📱</p>
+  </div>
+
+
+
+
+  <footer>
+    <a href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, escrevo por meio da descontoPage"><img class="zapi" src="img/zap.png"/>(81)9.8816-6464</a>
+    <a href=""><img class="insta" src="img/inst.png"/>_Los_Visionários</a>
+  </footer>
+        
+            
+            
+
+
+
+
+
+<script>
+//dados que vao para a tela do whatsapp//
+function ur(){
+             nome = document.getElementsByName("usuario")[0].value;
+              datt = document.getElementById("data").value;
+             
+        }
+
+//tela preta com translation---------------------//
+const x = document.getElementById("screenn")
+function fechar() {
+    x.style.opacity="0"
+    setTimeout(() => {
+        x.style.display="none"
+        
+    }, 1000);
+}
+
+// função e condição que verifica se o compo nome esta preenchido-------------------//
+    function chamar(){
+        const nome = document.getElementsByName("usuario")[0].value;
+        const datt = document.getElementById("data").value;
+        
+         if(nome.length == 0 || nome.length < 6){
+                alert("Nome - Não pode ficar vazio, ou muito curto")
+            }
+            else{
+                x.style.opacity="0"
+                    x.style.display="flex"
+                    document.getElementById("N").innerHTML=nome;
+                    document.getElementById("D").innerHTML=datt;
+                setTimeout(() => {
+                    x.style.opacity="1"
+                }, 1000);
+
+            }
+    }
+
+    // condiçõao e script do calendario ----------------------//
+    const inputData = document.getElementById('data');
+    const btn = document.getElementById('btnAgendar');
+    const msg = document.getElementById('msg');
+    
+
+    inputData.addEventListener('change', () => {
+      const dataSelecionada = new Date(inputData.value);
+      const diaSemana = dataSelecionada.getUTCDay(); // 0=domingo, 1=segunda...
+
+      if (diaSemana === 0 || diaSemana === 1) { // segunda-feira
+        btn.disabled = true;
+        msg.textContent = "Não é possível agendar em segundas ou domingos.";
+      } else {
+        btn.disabled = false;
+        msg.textContent = "";
+      }
+    });
+
+
+
+//---------------script de compartilhamento--------------//
+const botao = document.getElementById('btnShare');
+
+    botao.addEventListener('click', async () => {
+      const linkPromocao = "https://seusite.com/promocao"; // 👉 coloque seu link aqui
+      const titulo = "💈 Los Visionários Barbearia";
+      const texto = "Confira essa promoção exclusiva da Los Visionários! Clique no link e aproveite.";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: titulo,
+            text: texto,
+            url: linkPromocao
+          });
+          console.log("Compartilhado com sucesso!");
+        } catch (err) {
+          console.error("Falha ao compartilhar:", err);
+        }
+      } else {
+        alert("Seu navegador não suporta o compartilhamento automático. Copie o link: " + linkPromocao);
+      }
+    });
+
+
+    
+  </script>
+
+</body>
+</html>
