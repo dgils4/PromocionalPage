@@ -397,7 +397,7 @@ u{
     <br>
     <h2>Nome completo</h2>
      
-    <input type="text" name="usuario" maxlength="30"  placeholder="insira seu nome" oninput="this.value = this.value.replace(/[^a-z A-Z ã Ã â Â ç Ç á é í Á É Í À è ì À È Ì ê Ê ú Ù ù Ú ó Ò ô Ô]/g, '')"></td>
+    <input type="text" name="usuario" maxlength="20"  placeholder="insira seu nome" oninput="this.value = this.value.replace(/[^a-z A-Z ã Ã â Â ç Ç á é í Á É Í À è ì À È Ì ê Ê ú Ù ù Ú ó Ò ô Ô]/g, '')"></td>
     
 
     <button id="btnAgendar" onclick="(chamar())" disabled>Confirmar</button>
@@ -438,6 +438,7 @@ u{
 <script>
 //dados que vao para a tela do whatsapp//
 function ur(){
+              new Audio('Audio/click.mp3').play();
              nome = document.getElementsByName("usuario")[0].value;
               datt = document.getElementById("data").value;
              
@@ -453,8 +454,10 @@ function fechar() {
     }, 1000);
 }
 
-// função e condição que verifica se o compo nome esta preenchido-------------------//
-    function chamar(){
+//---função e condição que verifica se o compo nome esta preenchido//
+
+    function chamar (){
+        new Audio('Audio/click.mp3').play();
         const nome = document.getElementsByName("usuario")[0].value;
         const datt = document.getElementById("data").value;
         
@@ -498,6 +501,7 @@ function fechar() {
 const botao = document.getElementById('btnShare');
 
     botao.addEventListener('click', async () => {
+      new Audio('Audio/click.mp3').play();
       const linkPromocao = "https://dgils4.github.io/PromocionalPage/img/promocional.html"; // 👉 coloque seu link aqui
       const titulo = "💈 Los Visionários Barbearia";
       const texto = "Confira essa promoção exclusiva da Los Visionários! Clique no link e aproveite.";
