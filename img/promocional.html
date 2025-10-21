@@ -427,6 +427,8 @@ u{
     <a href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, escrevo por meio da descontoPage"><img class="zapi" src="img/zap.png"/>(81)9.8816-6464</a>
     <a href="https://www.instagram.com/_los_visionarios?igsh=MWU5eWhhYnFrdmhjaQ=="><img class="insta" src="img/inst.png"/>_Los_Visionários</a>
   </footer>
+
+  <audio id="bgMusic" src="Audio/ORappa.mp3"></audio>
         
             
             
@@ -525,20 +527,25 @@ const botao = document.getElementById('btnShare');
     });
 
 
-    
-  </script>
+const audio = document.getElementById("bgMusic")
+   
+audio.volume = 0.2;
 
-  <audio id="bgMusic" src="Audio/ORappa.mp3"></audio>
-
-<script>
   let tocando = false;
   window.addEventListener("scroll", function() {
     if (!tocando) {
       document.getElementById("bgMusic").play();
       tocando = true;
+
+      
     }
   });
-</script>
+    audio.volume = 0.2;
+  </script>
+
+  
+
+
 
 </body>
 </html>
