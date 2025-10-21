@@ -350,7 +350,7 @@ u{
             height: 250px;
             }
             #logo{margin-left: 0px;}
-     
+          }
     </style>
 
  
@@ -527,6 +527,18 @@ const botao = document.getElementById('btnShare');
 
     
   </script>
+
+  <audio id="bgMusic" src="Audio/click.mp3"></audio>
+
+<script>
+  let tocando = false;
+  window.addEventListener("scroll", function() {
+    if (!tocando) {
+      document.getElementById("bgMusic").play();
+      tocando = true;
+    }
+  });
+</script>
 
 </body>
 </html>
