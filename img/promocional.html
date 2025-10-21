@@ -447,6 +447,8 @@ function ur(){
 //tela preta com translation---------------------//
 const x = document.getElementById("screenn")
 function fechar() {
+
+   new Audio('Audio/click.mp3').play(); //eu poderia cria uma variavel para a faixa de audio mais estou sem saco depois faço isso//
     x.style.opacity="0"
     setTimeout(() => {
         x.style.display="none"
