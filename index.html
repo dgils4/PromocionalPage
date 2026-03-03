@@ -426,6 +426,65 @@ button:hover {
   text-align: left;
 }
 li{margin-bottom: 10px;}
+
+/* Botão menu */
+.menu-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* Fundo escuro quando abre */
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+/* Menu lateral */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 250px;
+    height: 100%;
+    background: #111;
+    padding-top: 60px;
+    transition: 0.4s ease;
+    z-index: 1000;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background: #333;
+}
+
+/* Quando ativo */
+.sidebar.active {
+    left: 0;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
     </style>
 
  
@@ -433,6 +492,20 @@ li{margin-bottom: 10px;}
 
 </head>
 <body>
+
+<!------Menu lateral-->
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+<div class="sidebar" id="sidebar">
+    <a href="#">Início</a>
+    <a href="#">Planos</a>
+    <a href="#">Preços</a>
+    <a href="#contatos">Contato</a>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  
 <!---------------------------Tela oculta-------------------------------------------->
     <div id="screenn">
         <div id="voltar" onclick="fechar()">voltar</div>
@@ -531,7 +604,7 @@ li{margin-bottom: 10px;}
 
 
 
-  <footer>
+  <footer id="contatos">
     <a href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, escrevo por meio da descontoPage"><img class="zapi" src="img/zap.png"/>(81)9.8816-6464</a>
     <a href="https://www.instagram.com/_los_visionarios?igsh=MWU5eWhhYnFrdmhjaQ=="><img class="insta" src="img/inst.png"/>_Los_Visionários</a>
   </footer>
@@ -653,6 +726,11 @@ audio.volume = 0.2;
 
     function irParaPagamento(link) {
     window.location.href = link;
+}
+
+function toggleMenu() {
+    document.getElementById("sidebar").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("active");
 }
   </script>
 

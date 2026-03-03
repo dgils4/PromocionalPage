@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabela de Preços - Los Visionários</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.titulo {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.subtitulo {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    border-bottom: 2px solid #ddd;
+}
+
+tr {
+    border-bottom: 1px solid #eee;
+}
+
+.preco {
+    text-align: right;
+    font-weight: bold;
+}
+
+.voltar {
+    margin-top: 25px;
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background: #333;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="titulo">BARBEARIA</div>
+    <div class="subtitulo">LOS_VISIONÁRIOS</div>
+
+    <table>
+        <tr>
+            <th>Serviço</th>
+            <th class="preco">Preço</th>
+        </tr>
+
+        <tr><td>Pigmentação cabelo</td><td class="preco">R$ 15,00</td></tr>
+        <tr><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
+        <tr><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
+        <tr><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
+        <tr><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
+        <tr><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
+        <tr><td>Barba</td><td class="preco">R$ 20,00</td></tr>
+        <tr><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
+        <tr><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
+        <tr><td>Corte</td><td class="preco">R$ 25,00</td></tr>
+        <tr><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
+        <tr><td>Luzes</td><td class="preco">R$ </td></tr>
+        <tr><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
+
+    </table>
+
+    <div class="voltar">
+        <button onclick="voltarPagina()">Voltar</button>
+    </div>
+
+</div>
+
+<script>
+function voltarPagina() {
+    window.history.back();
+}
+</script>
+
+</body>
+</html>
