@@ -360,7 +360,7 @@ u{
 
 .container {
     
-    margin: 50px auto;
+    margin: 30px auto;
     
     
 }
@@ -708,21 +708,8 @@ const botao = document.getElementById('btnShare');
     });
 
 
-const audio = document.getElementById("bgMusic")
-   
-audio.volume = 0.2;
 
-  let tocando = false;
-  window.addEventListener("scroll", function() {
-    if (!tocando) {
-      document.getElementById("bgMusic").play();
-      tocando = true;
-
-      
-    }
-  });
-    audio.volume = 0.2;
-
+  
 
     function irParaPagamento(link) {
     window.location.href = link;

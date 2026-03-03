@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamento Confirmado</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 500px;
+}
+
+.check {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.titulo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.mensagem {
+    color: #555;
+    margin-bottom: 25px;
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    background: #333;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="check">✔</div>
+    <div class="titulo">Pagamento Confirmado!</div>
+    <div class="mensagem">
+        Obrigado por fazer parte do nosso <strong>Clube Visionário</strong>.<br><br>
+        Seu plano foi ativado com sucesso.<br>
+        Em breve entraremos em contato para confirmar seu primeiro atendimento.
+    </div>
+
+    <button onclick="voltarInicio()">Voltar para o Início</button>
+</div>
+
+<script>
+function voltarInicio() {
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
