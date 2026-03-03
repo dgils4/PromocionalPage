@@ -162,7 +162,7 @@ h6{
             width: 80%;
             height: 80%;
             border-radius: 20px;
-            background-color: rgb(20, 206, 206);
+            background-color: rgb(209, 209, 209);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -260,7 +260,7 @@ div ol p{
 }
 .texto{
 font-size: 30px;
-font-family: cursive;
+font-family: Arial, Helvetica, sans-serif;
 margin-bottom: 10px;
 text-align: center;
 }
@@ -351,6 +351,81 @@ u{
             }
             #logo{margin-left: 0px;}
           }
+          body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    
+    margin: 50px auto;
+    
+    
+}
+
+
+
+.planos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.plano {
+    background: white;
+    padding: 30px;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: 0.3s;
+    height: 400px;
+}
+
+.plano:hover {
+    transform: translateY(-5px);
+    box-shadow:0 4px 10px #04669e;
+}
+
+.textplano {
+    margin-bottom: 10px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.preco {
+    font-size: 24px;
+    margin: 15px 0;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .planos {
+        flex-direction: column;
+        align-items: center;
+    }
+}  .planodescricao{
+  
+  margin-top: 30px;
+  text-align: left;
+}
+li{margin-bottom: 10px;}
     </style>
 
  
@@ -366,9 +441,9 @@ u{
                 <strong>Tudo Certo?</strong>
                 <div class="texto">Seu Nome</div>
                 <p>:<u id="N"></u></p>
-                <div class="texto">Data de Comparecimento</div>
+                <div class="texto">Comparecimento</div>
                 <p>:<u id="D"></u></p>
-                <u>Promoção única por cliente</u>
+                <u>Promoção única por cliente novo.</u>
                 <div class="infor">Atendimento por ondem de chegada<br/>horario 8:00h as 18:00h</div>
             </ol>
               <a  href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, Segue meus dados para receber 20% de desconto, meu é nome:" onclick="ur(),location.href=this.href+' '+nome+'.'+' '+ 'comparecerei na data'+' '+datt+'.'+' '+'  ';return false;"><button id="Yes">Sim</button></a>
@@ -385,14 +460,47 @@ u{
     <h1>Barbearia _los_visionários</h1>
 
 </div>
-<div class="poscabecario">
- <h4>Você esta na pagina promocional</h2>
- <img class="off" src="img/20porcento.png"/ alt="20%off">
- <h5>confira informação sobre localização abaixo, depois insira seu nome e data de comparecimento</h3>
+<div class="container">
+    <h1>Escolha Seu Plano</h1>
+
+    <div class="planos">
+
+        <div class="plano">
+            <div class="textplano">Plano Básico</div>
+            <p>Torne-se um visionário.</p>
+            <div class="planodescricao"><li>Até 4 Cortes Mensais.</li><li>Visual sempre em dia.</li><li>Mais economia.</li><li>Sobrancelha.</li> </div>
+            <div class="preco">R$ 65,00</div>
+            <button onclick="irParaPagamento('LINK_PLANO_1')">
+                Escolher Plano
+            </button>
+        </div>
+
+        <div class="plano">
+            <div class="textplano">Plano Intermediário</div>
+            <p>Barba Visionária.</p>
+            <div class="planodescricao"><li>Até 4 Barbas Mensais.</li><li>Visual sempre em dia.</li><li>Mais economia.</li><li>Sobrancelha.</li> </div>
+            <div class="preco">R$ 65,00</div>
+            <button onclick="irParaPagamento('LINK_PLANO_1')">
+                Escolher Plano
+            </button>
+        </div>
+
+        <div class="plano">
+            <div class="textplano">Plano Premium</div>
+            <p>Combo Cabelo e Barba.</p>
+            <div class="planodescricao"><li>Até 4 Combos Mensais.</li><li>Visual sempre em dia.</li><li>Mais economia.</li> <li>Sobrancelha.</li></div>
+            <div class="preco">R$ 120,00</div>
+            <button onclick="irParaPagamento('LINK_PLANO_1')">
+                Escolher Plano
+            </button>
+        </div>
+
+    </div>
 </div>
+
 <!-- area html calendario-------------------------------->
      <div class="container">
-    <h2>Agendar horário</h2>
+    <h2>20% de Desconto para novos clientes.</h2>
     <input type="date" id="data" />
     <br>
     <h2>Nome completo</h2>
@@ -413,8 +521,8 @@ u{
 
   <!-----------area de compartilhamento------------------->
 <div class="container2">
-    <h6>Compartilhe a promoção 💈</h6>
-    <p>Convide seus amigos para aproveitar o desconto da Los Visionários!</p>
+    <h6>Compartilhe a página 💈</h6>
+    <p>Convide seus amigos para aproveitar os planos da Los Visionários!</p>
 
     <button class="button1" id="btnShare">Compartilhar agora</button>
     <p style="color: black; font-size: 20px; margin-bottom: 20px;">Funciona melhor em celulares 📱</p>
@@ -506,7 +614,7 @@ const botao = document.getElementById('btnShare');
 
     botao.addEventListener('click', async () => {
       new Audio('Audio/click.mp3').play();
-      const linkPromocao = "https://dgils4.github.io/PromocionalPage/img/promocional.html"; // 👉 coloque seu link aqui
+      const linkPromocao = "www.barbearialosvisionarios.com.br"; // 👉 coloque seu link aqui
       const titulo = "💈 Los Visionários Barbearia";
       const texto = "Confira essa promoção exclusiva da Los Visionários! Clique no link e aproveite.";
 
@@ -541,6 +649,11 @@ audio.volume = 0.2;
     }
   });
     audio.volume = 0.2;
+
+
+    function irParaPagamento(link) {
+    window.location.href = link;
+}
   </script>
 
   
