@@ -107,6 +107,11 @@ button {
 button:hover {
     opacity: 0.8;
 }
+
+#descricaoServico {
+    line-height: 1.6;
+    font-size: 16px;
+}
 </style>
 </head>
 
@@ -123,19 +128,19 @@ button:hover {
             <th class="preco">Preço</th>
         </tr>
 
-        <tr onclick="abrirModal('Pigmentação cabelo','')"><td>Pigmentação cabelo</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Pigmentação barba','')"><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
-        <tr onclick="abrirModal('Camuflagem dos fios','')"><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Depilação combo','')"><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Acabamento','')"><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
-        <tr onclick="abrirModal('Sobrancelha','')"><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
-        <tr onclick="abrirModal('Barba','')"><td>Barba</td><td class="preco">R$ 20,00</td></tr>
-        <tr onclick="abrirModal('Barboterapia','')"><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Corte máq1','')"><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Corte','')"><td>Corte</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Corte Infantil','')"><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Luzes','')"><td>Luzes</td><td class="preco">R$ </td></tr>
-        <tr onclick="abrirModal('Limpeza Facial','')"><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
+        <tr onclick="abrirModal('Pigmentação capilar','pigmentação capilar é uma técnica muito usada em barbearias para realçar o corte, cobrir falhas e dar uma aparência de maior densidade ao cabelo.<br><br>Ela se diferencia da tintura comum por ser  aplicada de forma estratégica, muitas vezes alcançando o couro cabeludo para criar um efeito de sombra.')"><td>Pigmentação capilar</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Pigmentação barba','Preenchimento da barba com tinta para dar efeito natural.<br><br>Disfarça falhas e destaca o contorno, deixando a barba mais uniforme.')"><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
+        <tr onclick="abrirModal('Camuflagem dos fios','Disfarce de fios brancos com resultado natural.<br><br>Mantém o visual jovem sem aparência artificial.')"><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Depilação combo','  A depilação de nariz e ouvido com cera quente é um procedimento rápido e eficiente para remover aqueles pelos indesejados que ficam aparentes.<br> <br>Muita gente tem receio da dor, mas, quando feita por um profissional, a sensação é de um puxão seco e breve.')"><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Acabamento','Ajustes rápidos com navalha para manter o corte alinhado.<br><br>Ideal para quem quer manter o visual sempre em dia.')"><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
+        <tr onclick="abrirModal('Sobrancelha',' Limpeza e alinhamento da sobrancelha masculina.<br><br>Realça o olhar mantendo um aspecto natural.')"><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
+        <tr onclick="abrirModal('Barba','Modelagem completa da barba com acabamento profissional.<br><br>Inclui contorno, alinhamento e finalização.')"><td>Barba</td><td class="preco">R$ 20,00</td></tr>
+        <tr onclick="abrirModal('Barboterapia','Tratamento completo para barba e pele.<br><br>Inclui toalha quente, hidratação e relaxamento.')"><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
+        <tr onclick="abrirModal('Corte máq1','Corte simples feito na máquina com 1 pente.<br><br>E prático, rápido e ideal para quem gosta de estilo uniforme.')"><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Corte','Corte completo com técnica profissional.<br><br>Inclui degradê, acabamento e finalização.')"><td>Corte</td><td class="preco">R$ 25,00</td></tr>
+        <tr onclick="abrirModal('Corte Infantil','Corte adaptado para crianças com cuidado e atenção.')"><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
+        <tr onclick="abrirModal('Luzes','Clareamento de mechas para destaque no visual.<br><br>Ideal para quem quer um estilo moderno e diferenciado.')"><td>Luzes</td><td class="preco">R$ </td></tr>
+        <tr onclick="abrirModal('Limpeza Facial','Higienização da pele do rosto.<br><br>Remove impurezas e deixa a pele mais saudável e renovada.')"><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
 
     </table>
 
@@ -157,7 +162,7 @@ button:hover {
 <script>
 function abrirModal(servico, descricao) {
     document.getElementById("tituloServico").innerText = servico;
-    document.getElementById("descricaoServico").innerText = descricao;
+    document.getElementById("descricaoServico").innerHTML = descricao;
     document.getElementById("modal").style.display = "flex";
 }
 
