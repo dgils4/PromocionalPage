@@ -26,7 +26,6 @@ body {
     text-align: center;
     font-size: 28px;
     font-weight: bold;
-    margin-bottom: 5px;
 }
 
 .subtitulo {
@@ -42,20 +41,53 @@ table {
 
 th, td {
     padding: 12px;
-    text-align: left;
 }
 
 th {
     border-bottom: 2px solid #ddd;
+    text-align: left;
 }
 
 tr {
     border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+tr:hover {
+    background: #f0f0f0;
 }
 
 .preco {
     text-align: right;
     font-weight: bold;
+}
+
+/* POPUP */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
 }
 
 .voltar {
@@ -70,8 +102,6 @@ button {
     color: #fff;
     cursor: pointer;
     border-radius: 5px;
-    font-size: 14px;
-    transition: 0.3s;
 }
 
 button:hover {
@@ -93,31 +123,46 @@ button:hover {
             <th class="preco">Preço</th>
         </tr>
 
-        <tr><td>Pigmentação cabelo</td><td class="preco">R$ 15,00</td></tr>
-        <tr><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
-        <tr><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
-        <tr><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
-        <tr><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
-        <tr><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
-        <tr><td>Barba</td><td class="preco">R$ 20,00</td></tr>
-        <tr><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
-        <tr><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
-        <tr><td>Corte</td><td class="preco">R$ 25,00</td></tr>
-        <tr><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
-        <tr><td>Luzes</td><td class="preco">R$ </td></tr>
-        <tr><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
+        <tr onclick="abrirModal('Pigmentação cabelo','')"><td>Pigmentação cabelo</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Pigmentação barba','')"><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
+        <tr onclick="abrirModal('Camuflagem dos fios','')"><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Depilação combo','')"><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Acabamento','')"><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
+        <tr onclick="abrirModal('Sobrancelha','')"><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
+        <tr onclick="abrirModal('Barba','')"><td>Barba</td><td class="preco">R$ 20,00</td></tr>
+        <tr onclick="abrirModal('Barboterapia','')"><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
+        <tr onclick="abrirModal('Corte máq1','')"><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
+        <tr onclick="abrirModal('Corte','')"><td>Corte</td><td class="preco">R$ 25,00</td></tr>
+        <tr onclick="abrirModal('Corte Infantil','')"><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
+        <tr onclick="abrirModal('Luzes','')"><td>Luzes</td><td class="preco">R$ </td></tr>
+        <tr onclick="abrirModal('Limpeza Facial','')"><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
 
     </table>
 
     <div class="voltar">
-        <button onclick="voltarPagina()">Voltar</button>
+        <button onclick="window.history.back()">Voltar</button>
     </div>
 
 </div>
 
+<!-- POPUP -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <h2 id="tituloServico"></h2>
+        <p id="descricaoServico"></p>
+    </div>
+</div>
+
 <script>
-function voltarPagina() {
-    window.history.back();
+function abrirModal(servico, descricao) {
+    document.getElementById("tituloServico").innerText = servico;
+    document.getElementById("descricaoServico").innerText = descricao;
+    document.getElementById("modal").style.display = "flex";
+}
+
+function fecharModal() {
+    document.getElementById("modal").style.display = "none";
 }
 </script>
 
