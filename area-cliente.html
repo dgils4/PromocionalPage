@@ -1,0 +1,72 @@
+
+<div id="login">
+  <input id="telefone" placeholder="Telefone">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<div id="dashboard" style="display:none;">
+  <p id="telefone_user"></p>
+  <p id="cortes"></p>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://SEU-PROJETO.supabase.co",
+  "SUA-ANON-KEY"
+);
+
+let clienteAtual = null;
+
+// LOGIN SIMPLES
+async function login() {
+  const telefone = document.getElementById("telefone").value;
+
+  // BUSCAR CLIENTE
+  let { data: cliente } = await supabase
+    .from("clientes")
+    .select("*")
+    .eq("telefone", telefone)
+    .single();
+
+  // SE NÃO EXISTIR, CRIA
+  if (!cliente) {
+    const { data: novoCliente } = await supabase
+      .from("clientes")
+      .insert([{ telefone }])
+      .select()
+      .single();
+
+    cliente = novoCliente;
+  }
+
+  clienteAtual = cliente;
+
+  carregarDashboard();
+}
+
+// CARREGAR DADOS
+async function carregarDashboard() {
+
+  document.getElementById("login").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+
+  document.getElementById("telefone_user").innerText =
+    clienteAtual.telefone;
+
+  // CONTAR CORTES DO MÊS
+  const inicioMes = new Date();
+  inicioMes.setDate(1);
+
+  const { count } = await supabase
+    .from("cortes")
+    .select("*", { count: "exact", head: true })
+    .eq("cliente_id", clienteAtual.id)
+    .gte("data", inicioMes.toISOString());
+
+  document.getElementById("cortes").innerText =
+    `Cortes: ${count} / ${clienteAtual.limite_mensal}`;
+}
+</script>
