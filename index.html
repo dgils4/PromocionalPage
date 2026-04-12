@@ -1,175 +1,823 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tabela de Preços - Los Visionários</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>'Assinatura_LosVisionários'</title>
+    
+    <style>
+        *{
+            margin: 0;
+            box-sizing: border-box;
+            margin: auto;
+            max-width: 800px;
+        }
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.titulo {
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.subtitulo {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #555;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-}
-
-th {
-    border-bottom: 2px solid #ddd;
-    text-align: left;
-}
-
-tr {
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-}
-
-tr:hover {
-    background: #f0f0f0;
-}
-
-.preco {
-    text-align: right;
-    font-weight: bold;
-}
-
-/* POPUP */
-.modal {
-    display: none;
+/* ------------popup de avisos-------------*/
+        #popupOverlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.6);
+    display: none;
     justify-content: center;
     align-items: center;
+    z-index: 999;
 }
 
-.modal-content {
+#popupBox {
     background: #fff;
-    padding: 20px;
-    width: 90%;
+    padding: 30px;
+    border-radius: 10px;
     max-width: 400px;
-    border-radius: 8px;
     text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    animation: aparecer 0.6s ease;
 }
 
-.close {
-    float: right;
-    cursor: pointer;
-    font-size: 20px;
+#popupBox .h8 {
+    margin-top: 0;
+}
+.h8{
+  font-weight: bold;
+  font-size: 30px;
 }
 
-.voltar {
-    margin-top: 25px;
-    text-align: center;
+#popupBox .p1 {
+    color: #555;
+    margin: 15px 0;
 }
 
-button {
+#fecharPopup {
     padding: 10px 20px;
     border: none;
     background: #333;
-    color: #fff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#fecharPopup:hover {
+    opacity: 0.8;
+
+    
+}
+
+
+@keyframes aparecer {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+
+
+/*---------------------------ared do calendario-------*/
+         .container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+    }
+
+    input{
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 20px;
+      max-width: 800px;
+      min-width: 300px;
+      margin: 0%;
+      height: 45px;
+    }
+
+    #btnAgendar {
+      margin-top: 20px;
+      padding: 10px 40px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2b8a3e;
+      color: white;
+      transition: 0.3s;
+    }
+
+    #btnAgendar:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #d32f2f;
+    } /*--------------------------- fim area do calendario-------*/
+        
+/*-----------------------area css compartilhamento-----------*/
+    
+h6{
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.container2 {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 800px;
+      margin:auto;
+      
+    }
+
+    .button1 {
+      margin-top: 15px;
+      margin-bottom: 20px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2b8a3e;
+      color: white;
+      transition: 0.3s;
+    }
+
+    .button1:hover {
+      background-color: #237030;
+    }
+
+    
+    
+    #cabecario{
+            max-width: 800px;
+           
+            background: linear-gradient(45deg, rgb(11, 198, 231) , rgb(19, 139, 160));
+            margin:auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+
+        #logo{
+            
+            width: 200px;
+            height: 200px;
+            margin: 15px 0px 15px 40px;
+        }
+        .tamlogo{
+            width: inherit;
+            border-radius: 100px;
+            border:solid 3px white;
+            box-shadow: 0px 0px 1px 4px rgb(16, 80, 219);
+          
+        }
+        h1{
+            color:white;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 30px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h2{
+            margin-bottom: 10px;
+        }
+
+        .poscabecario{
+            max-width: 800px;
+            margin: auto;
+            margin-bottom: 10px;
+            background-color: rgb(185, 185, 185);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-direction: column;
+        }
+
+    
+ 
+
+        #screenn{
+            background-color: rgba(0,0,0,0.8);
+            position: fixed;
+            top:0px;
+            left: 0px;
+            min-height: 100vh;
+            right: 0px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            
+           transition: opacity 0.5s ease-out
+        }
+        .wind{
+            width: 80%;
+            height: 80%;
+            border-radius: 20px;
+            background-color: rgb(209, 209, 209);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: solid white 4px;
+            box-shadow: 0px 0px 30px #ccc;
+        }
+        ol li,p{
+            font-size: 30px;
+            margin-bottom: 15px;
+
+        }
+        div ol{display: flex;
+            flex-direction: column;
+        }
+        #voltar{
+            width: 100px;
+            height: 40px;
+            color :white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+           position:absolute;
+           top:0px;
+           left:0px;
+           font-size: 40px;
+           margin: 10px;
+           
+        }
+
+        strong{
+            font-size: 50px;
+            color:white;
+            margin-bottom: 25px;
+            margin-top: 30px;
+        }
+
+        .mapa {
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    iframe {
+      max-width: 800px;
+      margin: auto;
+      height: 250px;
+      border: none;
+    }
+
+    h4,h5{color:white;
+    text-align:center;
+    padding: 10px;
+    font-size: 20px;}
+
+    h5{font-size: 15px;}
+
+    footer{
+    
+        background-color: black;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    footer a .zapi, .insta{
+        width: 40px;
+        margin-right: 50px;
+        
+    }
+
+    footer a{
+        margin: 0%;
+        margin-left: 100px;
+        color: white;
+        text-decoration: none;
+        align-items: center;
+        display: flex;
+        flex-direction: initial;
+    }
+    
+div ol p{
+    font-size: 30px;
+    width: 100%;
+    height: 40px;
+    background-color: white;
+    border: solid 2px black;
+    border-radius: 6px;
+}
+.texto{
+font-size: 30px;
+font-family: Arial, Helvetica, sans-serif;
+margin-bottom: 10px;
+text-align: center;
+}
+.infor{
+    font-size: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+u{
+    font-size: 20px;
+    margin-top: 20px;
+    
+}
+
+ #Yes {
+      margin-top: 15px;
+      margin-bottom: 20px;
+      padding: 14px 70px;
+      
+      font-size: 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2b8a3e;
+      color: white;
+      transition: 0.3s;
+    }
+
+    #Yes:hover {
+      background-color: #237030;
+    }
+
+    @media only screen and (min-width:350px) and (max-width:800px) {
+     #logo{
+        display: flex;
+        width: 150px;
+        align-items: center;
+        margin-left: 10px;
+     } 
+    .off{
+        max-width: 150px;
+        border-radius: 70px;
+       
+    }
+    #cabecario{
+        height: 200px;
+    }
+
+    input{
+      min-width: 300px;
+    }
+    
+    
+    footer a{
+        margin: 0%;
+        margin-left: 20px;
+        display: flex;
+        flex-direction: initial;
+        margin-bottom: 30px;
+        font-size: 27px;
+        color: white;
+        text-decoration: none;
+    }
+    }
+     @media only screen and (min-width:300px) and (max-width:430px) {
+      h1{font-size: 25px;
+      margin-bottom: 30px;}
+      .off{width: 80px;}
+
+      strong{
+        font-size: 30px;
+        margin-top: 30px;
+      }
+
+      div ol p{
+        width: 80%;
+      }
+      #voltar{
+        width: auto;
+        height: auto;
+        font-size: 18px;
+        margin: 2px;
+      }
+
+        #cabecario{
+            flex-direction: column;
+            height: 250px;
+            }
+            #logo{margin-left: 0px;}
+          }
+          body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    
+    margin: 30px auto;
+    
+    
+}
+
+
+
+.planos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.plano {
+    background: white;
+    padding: 30px;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: 0.3s;
+    padding-bottom: 20px;
+}
+
+.plano:hover {
+    transform: translateY(-5px);
+    box-shadow:0 4px 10px #04669e;
+}
+
+.textplano {
+    margin-bottom: 10px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.preco {
+    font-size: 24px;
+    margin: 15px 0;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 12px 20px;
     cursor: pointer;
     border-radius: 5px;
+    font-size: 16px;
+    transition: 0.3s;
 }
 
 button:hover {
     opacity: 0.8;
 }
 
-#descricaoServico {
-    line-height: 1.6;
-    font-size: 16px;
+@media (max-width: 768px) {
+    .planos {
+        flex-direction: column;
+        align-items: center;
+    }
+}  .planodescricao{
+  
+  margin-top: 30px;
+  text-align: left;
 }
-</style>
-</head>
+li{margin-bottom: 10px;}
 
+/* Botão menu */
+.menu-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* Fundo escuro quando abre */
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+/* Menu lateral */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 250px;
+    height: 100%;
+    background: #111;
+    padding-top: 60px;
+    transition: 0.4s ease;
+    z-index: 1000;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background: #333;
+}
+
+/* Quando ativo */
+.sidebar.active {
+    left: 0;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+    </style>
+
+ 
+
+
+</head>
 <body>
 
+
+  <div id="popupOverlay">
+    <div id="popupBox">
+        <div class="h8">Seja Bem Vindo!</div>
+        <div class="p1">
+            Agora você pode consultar nossa tabela<div style="font-weight: bolder;"><br>PREÇOS</div><br>
+            no menu a "esquerda acima"<br>
+            <div style="font-weight: bolder;"></div>
+        </div>
+        <div class="p1">Agradecemos a compreensão e confiança.</div>
+        <button id="fecharPopup">Entendi</button>
+    </div>
+</div>
+
+<!------Menu lateral-->
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+<div class="sidebar" id="sidebar">
+    <a href="#">Quem Somos</a>
+    <a href="#">Planos</a>
+    <a href="index1.html">Preços</a>
+    <a href="#contatos">Contato</a>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  
+<!---------------------------Tela oculta-------------------------------------------->
+    <div id="screenn">
+        <div id="voltar" onclick="fechar()">voltar</div>
+        <div class="wind">
+            <ol style="padding: 0px;">
+                <strong>Tudo Certo?</strong>
+                <div class="texto">Seu Nome</div>
+                <p>:<u id="N"></u></p>
+                <div class="texto">Comparecimento</div>
+                <p>:<u id="D"></u></p>
+                <u>Promoção única por cliente novo.</u>
+                <div class="infor">Atendimento por ondem de chegada<br/>horario 8:00h as 18:00h</div>
+            </ol>
+              <a  href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, Segue meus dados para receber 20% de desconto, meu é nome:" onclick="ur(),location.href=this.href+' '+nome+'.'+' '+ 'comparecerei na data'+' '+datt+'.'+' '+'  ';return false;"><button id="Yes">Sim</button></a>
+        
+            
+        </div>
+
+    </div>
+
+<div id="cabecario">
+    <div id="logo">
+        <img class="tamlogo" src="img/LOGO.jpg" alt="logo">
+    </div>
+    <h1>Barbearia _los_visionários</h1>
+
+</div>
 <div class="container">
+    <h1>Escolha Seu Plano</h1>
 
-    <div class="titulo">BARBEARIA</div>
-    <div class="subtitulo">LOS_VISIONÁRIOS</div>
+    <div class="planos">
 
-    <table>
-        <tr>
-            <th>Serviço</th>
-            <th class="preco">Preço</th>
-        </tr>
+        <div class="plano">
+            <div class="textplano">Plano Básico</div>
+            <p>Torne-se um visionário.</p>
+            <div class="planodescricao"><li>Até 4 Cortes Mensais.</li><li>Visual sempre em dia.</li><li>Economia de 35%.</li><li>Sobrancelha incluso.</li>
+            <li>20% desc... em depilacão</li></div>
+            <div class="preco">R$ 64,99</div>
+            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=5a816e35bc024f7492fb89afcf89b043')">
+                Escolher Plano
+            </button>
+        </div>
 
-        <tr onclick="abrirModal('Pigmentação capilar','pigmentação capilar é uma técnica muito usada em barbearias para realçar o corte, cobrir falhas e dar uma aparência de maior densidade ao cabelo.<br><br>Ela se diferencia da tintura comum por ser  aplicada de forma estratégica, muitas vezes alcançando o couro cabeludo para criar um efeito de sombra.')"><td>Pigmentação capilar</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Pigmentação barba','Preenchimento da barba com tinta para dar efeito natural.<br><br>Disfarça falhas e destaca o contorno, deixando a barba mais uniforme.')"><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
-        <tr onclick="abrirModal('Camuflagem dos fios','Disfarce de fios brancos com resultado natural.<br><br>Mantém o visual jovem sem aparência artificial.')"><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Depilação combo','  A depilação de nariz e ouvido com cera quente é um procedimento rápido e eficiente para remover aqueles pelos indesejados que ficam aparentes.<br> <br>Muita gente tem receio da dor, mas, quando feita por um profissional, a sensação é de um puxão seco e breve.')"><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Acabamento','Ajustes rápidos com navalha para manter o corte alinhado.<br><br>Ideal para quem quer manter o visual sempre em dia.')"><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
-        <tr onclick="abrirModal('Sobrancelha',' Limpeza e alinhamento da sobrancelha masculina.<br><br>Realça o olhar mantendo um aspecto natural.')"><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
-        <tr onclick="abrirModal('Barba','Modelagem completa da barba com acabamento profissional.<br><br>Inclui contorno, alinhamento e finalização.')"><td>Barba</td><td class="preco">R$ 20,00</td></tr>
-        <tr onclick="abrirModal('Barboterapia','Tratamento completo para barba e pele.<br><br>Inclui toalha quente, hidratação e relaxamento.')"><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Corte máq1','Corte simples feito na máquina com 1 pente.<br><br>E prático, rápido e ideal para quem gosta de estilo uniforme.')"><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Corte','Corte completo com técnica profissional.<br><br>Inclui degradê, acabamento e finalização.')"><td>Corte</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Corte Infantil','Corte adaptado para crianças com cuidado e atenção.')"><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Luzes','Clareamento de mechas para destaque no visual.<br><br>Ideal para quem quer um estilo moderno e diferenciado.')"><td>Luzes</td><td class="preco">R$ 45,00 </td></tr>
-        <tr onclick="abrirModal('Limpeza Facial','Higienização da pele do rosto.<br><br>Remove impurezas e deixa a pele mais saudável e renovada.')"><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
+        <div class="plano">
+            <div class="textplano">Plano Intermediário</div>
+            <p>Barba Visionária.</p>
+            <div class="planodescricao"><li>Até 4 Barbas Mensais.</li><li>Visual sempre em dia.</li><li>Economia de 18,8%</li><li>Sobrancelha incluso.</li>
+             <li>20% desc... em depilacão</li></div>
+            <div class="preco">R$ 64,99</div>
+            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59d529bb242140ea9ca598def30c9744')">
+                Escolher Plano
+            </button>
+        </div>
 
-    </table>
+        <div class="plano">
+            <div class="textplano">Plano Premium</div>
+            <p>Combo Cabelo e Barba.</p>
+            <div class="planodescricao"><li>Até 4 Combos Mensais.</li><li>Visual sempre em dia.</li><li>Economia de 33%</li> <li>Sobrancelha incluso.</li>
+<li>20% desc... em depilacão.</li>
+            </div>
+            <div class="preco">R$ 119,99</div>
+            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=37c154adf063465088380b1b7198faa0')">
+                Escolher Plano
+            </button>
+        </div>
 
-    <div class="voltar">
-        <button onclick="window.history.back()">Voltar</button>
     </div>
-
 </div>
 
-<!-- POPUP -->
-<div class="modal" id="modal">
-    <div class="modal-content">
-        <span class="close" onclick="fecharModal()">&times;</span>
-        <h2 id="tituloServico"></h2>
-        <p id="descricaoServico"></p>
+<!-- area html calendario-------------------------------->
+     <div class="container">
+    <h2>20% de Desconto para novos clientes.</h2>
+    <input type="date" id="data" />
+    <br>
+    <h2>Nome completo</h2>
+     
+    <input type="text" name="usuario" maxlength="20"  placeholder="insira seu nome" oninput="this.value = this.value.replace(/[^a-z A-Z ã Ã â Â ç Ç á é í Á É Í À è ì À È Ì ê Ê ú Ù ù Ú ó Ò ô Ô]/g, '')"></td>
+    
+
+    <button id="btnAgendar" onclick="(chamar())" disabled>Confirmar</button>
+    <div class="msg" id="msg"></div>
+  </div>
+<!-- fim area html calendario-------------------------------->
+
+<!-- 🗺 Div do Mapa -->
+    <div class="mapa">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3948.8440308078175!2d-34.93208352499034!3d-8.218435691814012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7aae1431b46692b%3A0xd0c76c93bca0035b!2sLOS%20VISION%C3%81RIOS%20BARBEARIA!5e0!3m2!1spt-BR!2sbr!4v1760917249852!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
-</div>
+  </div>
+
+  <!-----------area de compartilhamento------------------->
+<div class="container2">
+    <h6>Compartilhe a página 💈</h6>
+    <p style="font-size: 20px;">Convide seus amigos para aproveitar os planos da Los Visionários!</p>
+
+    <button class="button1" id="btnShare">Compartilhar agora</button>
+    <p></p>
+  </div>
+
+
+
+
+  <footer id="contatos">
+    <a href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, preciso tirar umas duvidas."><img class="zapi" src="img/zap.png"/>(81)9.8816-6464</a>
+    <a href="https://www.instagram.com/_los_visionarios?igsh=MWU5eWhhYnFrdmhjaQ=="><img class="insta" src="img/inst.png"/>_Los_Visionários</a>
+  </footer>
+
+  <audio id="bgMusic" src="Audio/Orappa.mp3"></audio>
+        
+            
+            
+
+
+
+
 
 <script>
-function abrirModal(servico, descricao) {
-    document.getElementById("tituloServico").innerText = servico;
-    document.getElementById("descricaoServico").innerHTML = descricao;
-    document.getElementById("modal").style.display = "flex";
+//popup script---------------------//
+setTimeout(function() {
+    document.getElementById("popupOverlay").style.display = "flex";
+}, 3000); // aparece após 3 segundos
+
+document.getElementById("fecharPopup").addEventListener("click", function() {
+    document.getElementById("popupOverlay").style.display = "none";
+});
+
+
+
+
+
+//dados que vao para a tela do whatsapp//
+function ur(){
+              new Audio('Audio/click.mp3').play();
+             nome = document.getElementsByName("usuario")[0].value;
+              datt = document.getElementById("data").value;
+             
+        }
+
+//tela preta com translation---------------------//
+const x = document.getElementById("screenn")
+function fechar() {
+
+   new Audio('Audio/click.mp3').play(); //eu poderia cria uma variavel para a faixa de audio mais estou sem saco depois faço isso//
+    x.style.opacity="0"
+    setTimeout(() => {
+        x.style.display="none"
+        
+    }, 1000);
 }
 
-function fecharModal() {
-    document.getElementById("modal").style.display = "none";
+//---função e condição que verifica se o compo nome esta preenchido//
+
+    function chamar (){
+        new Audio('Audio/click.mp3').play();
+        const nome = document.getElementsByName("usuario")[0].value;
+        const datt = document.getElementById("data").value;
+        
+         if(nome.length == 0 || nome.length < 6){
+                alert("Nome - Não pode ficar vazio, ou muito curto")
+            }
+            else{
+                x.style.opacity="0"
+                    x.style.display="flex"
+                    document.getElementById("N").innerHTML=nome;
+                    document.getElementById("D").innerHTML=datt;
+                setTimeout(() => {
+                    x.style.opacity="1"
+                }, 1000);
+
+            }
+    }
+
+    // condiçõao e script do calendario ----------------------//
+    const inputData = document.getElementById('data');
+    const btn = document.getElementById('btnAgendar');
+    const msg = document.getElementById('msg');
+    
+
+    inputData.addEventListener('change', () => {
+      const dataSelecionada = new Date(inputData.value);
+      const diaSemana = dataSelecionada.getUTCDay(); // 0=domingo, 1=segunda...
+
+      if (diaSemana === 0 || diaSemana === 1) { // segunda-feira
+        btn.disabled = true;
+        msg.textContent = "Não é possível agendar em segundas ou domingos.";
+      } else {
+        btn.disabled = false;
+        msg.textContent = "";
+      }
+    });
+
+
+
+//---------------script de compartilhamento--------------//
+const botao = document.getElementById('btnShare');
+
+    botao.addEventListener('click', async () => {
+      new Audio('Audio/click.mp3').play();
+      const linkPromocao = "https://www.barbearialosvisionarios.com.br/index.html"; // 👉 coloque seu link aqui
+      const titulo = "💈 Los Visionários Barbearia";
+      const texto = "Confira essa promoção exclusiva da Los Visionários! Clique no link e aproveite.";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: titulo,
+            text: texto,
+            url: linkPromocao
+          });
+          console.log("Compartilhado com sucesso!");
+        } catch (err) {
+          console.error("Falha ao compartilhar:", err);
+        }
+      } else {
+        alert("Seu navegador não suporta o compartilhamento automático. Copie o link: " + linkPromocao);
+      }
+    });
+
+
+
+  
+
+    function irParaPagamento(link) {
+    window.location.href = link;
 }
-</script>
+
+function toggleMenu() {
+    document.getElementById("sidebar").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("active");
+}
+  </script>
+
+  
+
+
 
 </body>
 </html>
