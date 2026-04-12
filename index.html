@@ -13,6 +13,31 @@
             max-width: 800px;
         }
 
+
+    .whatsapp-float {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      bottom: 20px;
+      right: 20px;
+      background-color: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transition: transform 0.2s;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+    }
+
+    .whatsapp-float img {
+      width: 35px;
+      height: 35px;
+    }
 /* ------------popup de avisos-------------*/
         #popupOverlay {
     position: fixed;
@@ -556,6 +581,9 @@ li{margin-bottom: 10px;}
 </head>
 <body>
 
+  <a href="https://wa.me/5581988166464" target="_blank" class="whatsapp-float">
+    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+  </a>
 
   <div id="popupOverlay">
     <div id="popupBox">
@@ -645,6 +673,17 @@ li{margin-bottom: 10px;}
             </div>
             <div class="preco">R$ 119,99</div>
             <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=37c154adf063465088380b1b7198faa0')">
+                Escolher Plano
+            </button>
+        </div>
+        
+                <div class="plano">
+            <div class="textplano">Plano Fléxivel</div>
+            <p>Pai e Filho</p>
+            <div class="planodescricao"><li>Até 3 pessoas</li><li>Cobre até 6 corte/mês</li><li>Economia de 25%</li><li>Sobrancelha incluso.</li>
+             <li>20% desc... em depilacão</li></div>
+            <div class="preco">R$ 119,99</div>
+            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=b9b0da32840245a8b336f002755c54fc')">
                 Escolher Plano
             </button>
         </div>
@@ -780,44 +819,4 @@ function fechar() {
 const botao = document.getElementById('btnShare');
 
     botao.addEventListener('click', async () => {
-      new Audio('Audio/click.mp3').play();
-      const linkPromocao = "https://www.barbearialosvisionarios.com.br/index.html"; // 👉 coloque seu link aqui
-      const titulo = "💈 Los Visionários Barbearia";
-      const texto = "Confira essa promoção exclusiva da Los Visionários! Clique no link e aproveite.";
-
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: titulo,
-            text: texto,
-            url: linkPromocao
-          });
-          console.log("Compartilhado com sucesso!");
-        } catch (err) {
-          console.error("Falha ao compartilhar:", err);
-        }
-      } else {
-        alert("Seu navegador não suporta o compartilhamento automático. Copie o link: " + linkPromocao);
-      }
-    });
-
-
-
-  
-
-    function irParaPagamento(link) {
-    window.location.href = link;
-}
-
-function toggleMenu() {
-    document.getElementById("sidebar").classList.toggle("active");
-    document.getElementById("overlay").classList.toggle("active");
-}
-  </script>
-
-  
-
-
-
-</body>
-</html>
+      new Audio('Audio/click.mp3').p
