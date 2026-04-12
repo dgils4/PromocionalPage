@@ -200,7 +200,7 @@ h6{
             height: 200px;
             margin: 15px 0px 15px 40px;
         }
-        .tamlogo{
+  .tamlogo{
             width: inherit;
             border-radius: 100px;
             border:solid 3px white;
@@ -823,4 +823,52 @@ function fechar() {
 const botao = document.getElementById('btnShare');
 
     botao.addEventListener('click', async () => {
-      new Audio('Audio/click.mp3').p
+      new Audio('Audio/click.mp3').play();
+      const linkPromocao = "https://www.barbearialosvisionarios.com.br/index.html"; // 👉 coloque seu link aqui
+      const titulo = "💈 Los Visionários Barbearia";
+      const texto = "Confira essa promoção exclusiva da Los Visionários! Clique no link e aproveite.";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: titulo,
+            text: texto,
+            url: linkPromocao
+          });
+          console.log("Compartilhado com sucesso!");
+        } catch (err) {
+          console.error("Falha ao compartilhar:", err);
+        }
+      } else {
+        alert("Seu navegador não suporta o compartilhamento automático. Copie o link: " + linkPromocao);
+      }
+    });
+
+
+
+  
+
+    function irParaPagamento(link) {
+    window.location.href = link;
+}
+
+
+
+function toggleMenu() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+
+
+  </script>
+
+  
+
+
+
+</body>
+</html>
