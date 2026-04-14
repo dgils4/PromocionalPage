@@ -1,124 +1,29 @@
-<!DOCTYPE html><html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loja Barbearia</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Loja</title>
 </head>
-<body class="bg-gray-100"><!-- ================= LOJA ================= --><div class="p-4" id="loja">
-  <h1 class="text-2xl font-bold mb-4">Produtos</h1>  <div id="produtos" class="grid grid-cols-2 gap-4"></div>  <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
-    <p>Total: R$ <span id="total">0</span></p>
-    <button onclick="finalizarCompra()" class="bg-black text-white px-4 py-2 rounded">Finalizar Compra</button>
-  </div>
-</div><!-- ================= LOGIN ADMIN ================= --><div class="p-4 hidden" id="login">
-  <h1 class="text-xl font-bold mb-4">Login Admin</h1>  <input id="email" placeholder="Email" class="border p-2 mb-2 w-full" />
-  <input id="senha" type="password" placeholder="Senha" class="border p-2 mb-2 w-full" /><button onclick="logar()" class="bg-black text-white px-4 py-2 rounded">Entrar</button>
+<body>
 
-</div><!-- ================= ADMIN ================= --><div class="p-4 bg-white hidden" id="admin">
-  <h1 class="text-2xl font-bold mb-4">Admin - Produtos</h1>  <input id="nome" placeholder="Nome" class="border p-2 mb-2 w-full" />
-  <input id="preco" type="number" placeholder="Preço" class="border p-2 mb-2 w-full" />
-  <input id="imagem" placeholder="URL da imagem" class="border p-2 mb-2 w-full" /><button onclick="addProduto()" class="bg-green-600 text-white px-4 py-2 rounded">Adicionar Produto</button>
+<h1>Produtos</h1>
 
-  <div id="listaAdmin" class="mt-4"></div>
-</div><script>
-let carrinho = [];
+<a href="login.html">Área do Admin</a>
+
+<div id="produtos"></div>
+
+<script>
 let produtos = [
-  { id: 1, nome: "Pomada Modeladora", preco: 30, imagem: "https://via.placeholder.com/150" },
-  { id: 2, nome: "Gel Fixador", preco: 20, imagem: "https://via.placeholder.com/150" }
+  { id: 1, nome: "Pomada", preco: 30 },
+  { id: 2, nome: "Gel", preco: 20 }
 ];
 
-// ================= LOJA =================
-function renderProdutos() {
-  const container = document.getElementById("produtos");
-  container.innerHTML = "";
+produtos.forEach(p => {
+  document.getElementById("produtos").innerHTML += `
+    <p>${p.nome} - R$ ${p.preco}</p>
+  `;
+});
+</script>
 
-  produtos.forEach(p => {
-    container.innerHTML += `
-      <div class="bg-white p-2 rounded shadow">
-        <img src="${p.imagem}" class="w-full h-32 object-cover rounded" />
-        <h2>${p.nome}</h2>
-        <p>R$ ${p.preco}</p>
-        <button onclick="addCarrinho(${p.id})" class="bg-black text-white px-2 py-1 rounded">Adicionar</button>
-      </div>
-    `;
-  });
-}
-
-function addCarrinho(id) {
-  let item = carrinho.find(i => i.id === id);
-
-  if(item) item.qtd++;
-  else carrinho.push({ id, qtd: 1 });
-
-  atualizarTotal();
-}
-
-function atualizarTotal() {
-  let total = 0;
-
-  carrinho.forEach(item => {
-    let produto = produtos.find(p => p.id === item.id);
-    total += produto.preco * item.qtd;
-  });
-
-  document.getElementById("total").innerText = total;
-}
-
-function finalizarCompra() {
-  alert("Integrar com Mercado Pago aqui");
-}
-
-// ================= LOGIN =================
-function logar() {
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
-
-  if(email === "d.gil.sstudio@gmaill.com" && senha === "12345") {
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("admin").classList.remove("hidden");
-  } else {
-    alert("Login inválido");
-  }
-}
-
-// ================= ADMIN =================
-function addProduto() {
-  const nome = document.getElementById("nome").value;
-  const preco = Number(document.getElementById("preco").value);
-  const imagem = document.getElementById("imagem").value;
-
-  produtos.push({ id: Date.now(), nome, preco, imagem });
-
-  renderProdutos();
-  renderAdmin();
-}
-
-function renderAdmin() {
-  const lista = document.getElementById("listaAdmin");
-  lista.innerHTML = "";
-
-  produtos.forEach(p => {
-    lista.innerHTML += `
-      <div class="flex justify-between border-b py-2">
-        <span>${p.nome} - R$ ${p.preco}</span>
-        <button onclick="remover(${p.id})" class="text-red-600">Excluir</button>
-      </div>
-    `;
-  });
-}
-
-function remover(id) {
-  produtos = produtos.filter(p => p.id !== id);
-  renderProdutos();
-  renderAdmin();
-}
-
-// ================= INICIAL =================
-renderProdutos();
-renderAdmin();
-
-// Trocar tela manualmente:
-// document.getElementById("loja").classList.add("hidden");
-// document.getElementById("login").classList.remove("hidden");
-</script></body>
+</body>
 </html>
