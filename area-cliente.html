@@ -5,20 +5,29 @@
   <title>Loja Barbearia</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100"><!-- LOJA --><div class="p-4">
+<body class="bg-gray-100"><!-- ================= LOJA ================= --><div class="p-4" id="loja">
   <h1 class="text-2xl font-bold mb-4">Produtos</h1>  <div id="produtos" class="grid grid-cols-2 gap-4"></div>  <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
     <p>Total: R$ <span id="total">0</span></p>
     <button onclick="finalizarCompra()" class="bg-black text-white px-4 py-2 rounded">Finalizar Compra</button>
   </div>
+</div><!-- ================= LOGIN ADMIN ================= --><div class="p-4 hidden" id="login">
+  <h1 class="text-xl font-bold mb-4">Login Admin</h1>  <input id="email" placeholder="Email" class="border p-2 mb-2 w-full" />
+  <input id="senha" type="password" placeholder="Senha" class="border p-2 mb-2 w-full" /><button onclick="logar()" class="bg-black text-white px-4 py-2 rounded">Entrar</button>
+
+</div><!-- ================= ADMIN ================= --><div class="p-4 bg-white hidden" id="admin">
+  <h1 class="text-2xl font-bold mb-4">Admin - Produtos</h1>  <input id="nome" placeholder="Nome" class="border p-2 mb-2 w-full" />
+  <input id="preco" type="number" placeholder="Preço" class="border p-2 mb-2 w-full" />
+  <input id="imagem" placeholder="URL da imagem" class="border p-2 mb-2 w-full" /><button onclick="addProduto()" class="bg-green-600 text-white px-4 py-2 rounded">Adicionar Produto</button>
+
+  <div id="listaAdmin" class="mt-4"></div>
 </div><script>
 let carrinho = [];
-
-// EXEMPLO LOCAL (depois vem do Supabase)
 let produtos = [
   { id: 1, nome: "Pomada Modeladora", preco: 30, imagem: "https://via.placeholder.com/150" },
   { id: 2, nome: "Gel Fixador", preco: 20, imagem: "https://via.placeholder.com/150" }
 ];
 
+// ================= LOJA =================
 function renderProdutos() {
   const container = document.getElementById("produtos");
   container.innerHTML = "";
@@ -38,11 +47,8 @@ function renderProdutos() {
 function addCarrinho(id) {
   let item = carrinho.find(i => i.id === id);
 
-  if(item) {
-    item.qtd++;
-  } else {
-    carrinho.push({ id, qtd: 1 });
-  }
+  if(item) item.qtd++;
+  else carrinho.push({ id, qtd: 1 });
 
   atualizarTotal();
 }
@@ -59,30 +65,30 @@ function atualizarTotal() {
 }
 
 function finalizarCompra() {
-  alert("Aqui você integra com backend + Mercado Pago");
+  alert("Integrar com Mercado Pago aqui");
 }
 
-renderProdutos();
-</script><hr class="my-10" /><!-- ADMIN --><div class="p-4 bg-white">
-  <h1 class="text-2xl font-bold mb-4">Admin - Produtos</h1>  <input id="nome" placeholder="Nome" class="border p-2 mb-2 w-full" />
-  <input id="preco" type="number" placeholder="Preço" class="border p-2 mb-2 w-full" />
-  <input id="imagem" placeholder="URL da imagem" class="border p-2 mb-2 w-full" /><button onclick="addProduto()" class="bg-green-600 text-white px-4 py-2 rounded">Adicionar Produto</button>
+// ================= LOGIN =================
+function logar() {
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
 
-  <div id="listaAdmin" class="mt-4"></div>
-</div><script>
+  if(email === "d.gil.sstudio@gmaill.com" && senha === "12345") {
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("admin").classList.remove("hidden");
+  } else {
+    alert("Login inválido");
+  }
+}
+
+// ================= ADMIN =================
 function addProduto() {
   const nome = document.getElementById("nome").value;
   const preco = Number(document.getElementById("preco").value);
   const imagem = document.getElementById("imagem").value;
 
-  const novo = {
-    id: Date.now(),
-    nome,
-    preco,
-    imagem
-  };
+  produtos.push({ id: Date.now(), nome, preco, imagem });
 
-  produtos.push(novo);
   renderProdutos();
   renderAdmin();
 }
@@ -107,6 +113,12 @@ function remover(id) {
   renderAdmin();
 }
 
+// ================= INICIAL =================
+renderProdutos();
 renderAdmin();
+
+// Trocar tela manualmente:
+// document.getElementById("loja").classList.add("hidden");
+// document.getElementById("login").classList.remove("hidden");
 </script></body>
 </html>
