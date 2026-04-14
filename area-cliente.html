@@ -1,72 +1,112 @@
+<!DOCTYPE html><html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loja Barbearia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100"><!-- LOJA --><div class="p-4">
+  <h1 class="text-2xl font-bold mb-4">Produtos</h1>  <div id="produtos" class="grid grid-cols-2 gap-4"></div>  <div class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
+    <p>Total: R$ <span id="total">0</span></p>
+    <button onclick="finalizarCompra()" class="bg-black text-white px-4 py-2 rounded">Finalizar Compra</button>
+  </div>
+</div><script>
+let carrinho = [];
 
-<div id="login">
-  <input id="telefone" placeholder="Telefone">
-  <button onclick="login()">Entrar</button>
-</div>
+// EXEMPLO LOCAL (depois vem do Supabase)
+let produtos = [
+  { id: 1, nome: "Pomada Modeladora", preco: 30, imagem: "https://via.placeholder.com/150" },
+  { id: 2, nome: "Gel Fixador", preco: 20, imagem: "https://via.placeholder.com/150" }
+];
 
-<div id="dashboard" style="display:none;">
-  <p id="telefone_user"></p>
-  <p id="cortes"></p>
-</div>
+function renderProdutos() {
+  const container = document.getElementById("produtos");
+  container.innerHTML = "";
 
+  produtos.forEach(p => {
+    container.innerHTML += `
+      <div class="bg-white p-2 rounded shadow">
+        <img src="${p.imagem}" class="w-full h-32 object-cover rounded" />
+        <h2>${p.nome}</h2>
+        <p>R$ ${p.preco}</p>
+        <button onclick="addCarrinho(${p.id})" class="bg-black text-white px-2 py-1 rounded">Adicionar</button>
+      </div>
+    `;
+  });
+}
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+function addCarrinho(id) {
+  let item = carrinho.find(i => i.id === id);
 
-<script>
-const supabase = window.supabase.createClient(
-  "https://cdechrtprerblmhllqav.supabase.co",
-  "sb_publishable_j4OQ1upwpdGwJttGeQSp1A_5mc7QlWJ"
-);
-
-let clienteAtual = null;
-
-// LOGIN SIMPLES
-async function login() {
-  const telefone = document.getElementById("telefone").value;
-
-  // BUSCAR CLIENTE
-  let { data: cliente } = await supabase
-    .from("clientes")
-    .select("*")
-    .eq("telefone", telefone)
-    .single();
-
-  // SE NÃO EXISTIR, CRIA
-  if (!cliente) {
-    const { data: novoCliente } = await supabase
-      .from("clientes")
-      .insert([{ telefone }])
-      .select()
-      .single();
-
-    cliente = novoCliente;
+  if(item) {
+    item.qtd++;
+  } else {
+    carrinho.push({ id, qtd: 1 });
   }
 
-  clienteAtual = cliente;
-
-  carregarDashboard();
+  atualizarTotal();
 }
 
-// CARREGAR DADOS
-async function carregarDashboard() {
+function atualizarTotal() {
+  let total = 0;
 
-  document.getElementById("login").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
+  carrinho.forEach(item => {
+    let produto = produtos.find(p => p.id === item.id);
+    total += produto.preco * item.qtd;
+  });
 
-  document.getElementById("telefone_user").innerText =
-    clienteAtual.telefone;
-
-  // CONTAR CORTES DO MÊS
-  const inicioMes = new Date();
-  inicioMes.setDate(1);
-
-  const { count } = await supabase
-    .from("cortes")
-    .select("*", { count: "exact", head: true })
-    .eq("cliente_id", clienteAtual.id)
-    .gte("data", inicioMes.toISOString());
-
-  document.getElementById("cortes").innerText =
-    `Cortes: ${count} / ${clienteAtual.limite_mensal}`;
+  document.getElementById("total").innerText = total;
 }
-</script>
+
+function finalizarCompra() {
+  alert("Aqui você integra com backend + Mercado Pago");
+}
+
+renderProdutos();
+</script><hr class="my-10" /><!-- ADMIN --><div class="p-4 bg-white">
+  <h1 class="text-2xl font-bold mb-4">Admin - Produtos</h1>  <input id="nome" placeholder="Nome" class="border p-2 mb-2 w-full" />
+  <input id="preco" type="number" placeholder="Preço" class="border p-2 mb-2 w-full" />
+  <input id="imagem" placeholder="URL da imagem" class="border p-2 mb-2 w-full" /><button onclick="addProduto()" class="bg-green-600 text-white px-4 py-2 rounded">Adicionar Produto</button>
+
+  <div id="listaAdmin" class="mt-4"></div>
+</div><script>
+function addProduto() {
+  const nome = document.getElementById("nome").value;
+  const preco = Number(document.getElementById("preco").value);
+  const imagem = document.getElementById("imagem").value;
+
+  const novo = {
+    id: Date.now(),
+    nome,
+    preco,
+    imagem
+  };
+
+  produtos.push(novo);
+  renderProdutos();
+  renderAdmin();
+}
+
+function renderAdmin() {
+  const lista = document.getElementById("listaAdmin");
+  lista.innerHTML = "";
+
+  produtos.forEach(p => {
+    lista.innerHTML += `
+      <div class="flex justify-between border-b py-2">
+        <span>${p.nome} - R$ ${p.preco}</span>
+        <button onclick="remover(${p.id})" class="text-red-600">Excluir</button>
+      </div>
+    `;
+  });
+}
+
+function remover(id) {
+  produtos = produtos.filter(p => p.id !== id);
+  renderProdutos();
+  renderAdmin();
+}
+
+renderAdmin();
+</script></body>
+</html>
