@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Loja</title>
+
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .produto { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    img { width: 100px; }
+    button { margin: 5px; }
+  </style>
 </head>
 <body>
 
@@ -12,17 +19,96 @@
 
 <div id="produtos"></div>
 
+<h2>Carrinho</h2>
+<div id="carrinho"></div>
+
+<h3>Total: R$ <span id="total">0</span></h3>
+
 <script>
 let produtos = [
-  { id: 1, nome: "Pomada", preco: 30 },
-  { id: 2, nome: "Gel", preco: 20 }
+  { id: 1, nome: "Pomada", preco: 30, imagem: "https://via.placeholder.com/100" },
+  { id: 2, nome: "Gel", preco: 20, imagem: "https://via.placeholder.com/100" }
 ];
 
-produtos.forEach(p => {
-  document.getElementById("produtos").innerHTML += `
-    <p>${p.nome} - R$ ${p.preco}</p>
-  `;
-});
+let carrinho = [];
+
+// ================= PRODUTOS =================
+function renderProdutos() {
+  const container = document.getElementById("produtos");
+  container.innerHTML = "";
+
+  produtos.forEach(p => {
+    container.innerHTML += `
+      <div class="produto">
+        <img src="${p.imagem}" />
+        <h3>${p.nome}</h3>
+        <p>R$ ${p.preco}</p>
+        <button onclick="adicionar(${p.id})">Adicionar</button>
+      </div>
+    `;
+  });
+}
+
+// ================= CARRINHO =================
+function adicionar(id) {
+  let item = carrinho.find(i => i.id === id);
+
+  if(item) {
+    item.qtd++;
+  } else {
+    carrinho.push({ id, qtd: 1 });
+  }
+
+  renderCarrinho();
+}
+
+function aumentar(id) {
+  let item = carrinho.find(i => i.id === id);
+  item.qtd++;
+  renderCarrinho();
+}
+
+function diminuir(id) {
+  let item = carrinho.find(i => i.id === id);
+
+  if(item.qtd > 1) {
+    item.qtd--;
+  } else {
+    carrinho = carrinho.filter(i => i.id !== id);
+  }
+
+  renderCarrinho();
+}
+
+function renderCarrinho() {
+  const container = document.getElementById("carrinho");
+  container.innerHTML = "";
+
+  let total = 0;
+
+  carrinho.forEach(item => {
+    let produto = produtos.find(p => p.id === item.id);
+    let subtotal = produto.preco * item.qtd;
+    total += subtotal;
+
+    container.innerHTML += `
+      <div>
+        ${produto.nome} - R$ ${produto.preco}
+        <br>
+        <button onclick="diminuir(${item.id})">-</button>
+        ${item.qtd}
+        <button onclick="aumentar(${item.id})">+</button>
+        = R$ ${subtotal}
+        <hr>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").innerText = total;
+}
+
+// ================= INIT =================
+renderProdutos();
 </script>
 
 </body>
