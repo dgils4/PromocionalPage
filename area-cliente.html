@@ -168,7 +168,13 @@ function atualizarTotal(){
 }
 
 function finalizarCompra(){
-  alert("Pedido enviado! (Aqui você pode integrar com WhatsApp ou pagamento)");
+  let mensagem = "Pedido Los Visionários:%0A";
+
+  carrinho.forEach(item => {
+    mensagem += `${item.nome} x${item.qtd} - R$ ${item.preco * item.qtd}%0A`;
+  });
+
+  window.open(`https://wa.me/5581984166464?text=${mensagem}`);
 }
 
 renderProdutos();
