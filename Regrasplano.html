@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Como funciona os Planos | Los Visionários</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: #fff;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0077b6, #000);
+      padding: 30px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    /* BOTÃO VOLTAR */
+    .btn-voltar {
+      
+
+      background: #000;
+      border: 1px solid #00b4d8;
+      color: #00b4d8;
+      padding: 8px 30px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+      margin-bottom:40px;
+    }
+
+    .btn-voltar:hover {
+      background: #00b4d8;
+      color: #000;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card {
+      background: #111;
+      border-left: 4px solid #0077b6;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #00b4d8;
+    }
+
+    .card p {
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #000;
+      border-top: 1px solid #222;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+   <h1>Como funciona os Planos de Assinatura</h1>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Sobre os Planos</h2>
+    <p>
+      Os planos da Barbearia Los Visionários garantem praticidade e economia para quem deseja estar sempre alinhado.
+      Cada plano cobre até 4 cortes no mês ou conforme o plano escolhido no momento da assinatura.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Regras de Uso</h2>
+    <p>
+      • Os cortes não são acumulativos para o mês seguinte.<br><br>
+      • O cliente pode utilizar seus cortes dentro do período vigente de 30 dias.<br><br>
+      • Após o período, um novo ciclo é iniciado automaticamente.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Renovação</h2>
+    <p>
+      A renovação do plano é automática a cada 30 dias.<br><br>
+      Caso ocorra falha no pagamento, serão realizadas novas tentativas de cobrança automaticamente.<br><br>
+      Ou por meio direto link de pagamento.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Importante</h2>
+    <p>
+      • O plano é pessoal e intransferível.<br><br>
+      • É necessário estar com a assinatura ativa no momento do atendimento.<br><br>
+      • Em caso de dúvidas, entre em contato com a equipe Los Visionários.
+    </p>
+  </div>
+
+</div>
+
+<center><button class="btn-voltar" onclick="voltarPagina()">← Voltar</button>
+</center>
+
+<footer>
+  Barbearia Los Visionários © 2026
+</footer>
+
+<script>
+  function voltarPagina() {
+    window.history.back();
+  }
+</script>
+
+</body>
+</html>
