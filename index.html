@@ -324,31 +324,7 @@ box-shadow: 0px 0px 1px 4px #2596be;
 
     h5{font-size: 15px;}
 
-    footer{
-    
-        background-color: black;
-        height: 200px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-    }
-
-    footer a .zapi, .insta{
-        width: 40px;
-        margin-right: 50px;
-        
-    }
-
-    footer a{
-        margin: 0%;
-        margin-left: 100px;
-        color: white;
-        text-decoration: none;
-        align-items: center;
-        display: flex;
-        flex-direction: initial;
-    }
+  
     
 div ol p{
     font-size: 30px;
@@ -415,16 +391,6 @@ u{
     }
     
     
-    footer a{
-        margin: 0%;
-        margin-left: 20px;
-        display: flex;
-        flex-direction: initial;
-        margin-bottom: 30px;
-        font-size: 27px;
-        color: white;
-        text-decoration: none;
-    }
     }
      @media only screen and (min-width:300px) and (max-width:430px) {
       h1{font-size: 25px;
@@ -741,6 +707,27 @@ border: 2px solid #00aaff;
   cursor: pointer;
   z-index: 2100;
 }
+
+.footer {
+  background: #000;
+  color: white;
+  text-align: center;
+  padding: 30px 15px;
+}
+
+.footer a {
+  color: #00aaff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.footer-container {
+  max-width: 800px;
+  margin: auto;
+}
     </style>
 
  
@@ -1007,13 +994,48 @@ border: 2px solid #00aaff;
     <p></p>
   </div>
 
+<footer class="footer">
+
+  <div class="footer-container">
+
+    <h3>Barbearia Los Visionários 💈</h3>
+<br>
+    <div>Jaboatão dos Guararapes - PE</div>
+
+    <div>
+    
+      📸 Instagram: @_los_visionarios
+    </div>
+    
+    <br>
+
+    <div>
+      🕒 Horário:<br>
+      Seg a Sex: 08h às 19:30<br>
+      Sáb: 08h às 18:30<br>
+      Dom: 08h às 12h
+    </div> <br>
+
+    <div>
+      <a href="index1.html">Preços</a> |
+      <a href="Regrasplano.html">Planos</a> |
+    
+      <a href="privacidade.html">Política de Privacidade</a>
+    </div>
+
+    <div style="margin-top:15px;">
+      CNPJ: 55.102.034/0001-89
+    </div>
+
+    <div style="margin-top:10px; font-size:12px;">
+      © 2026 Barbearia Los Visionários. Todos os direitos reservados.
+    </div>
+
+  </div>
+
+</footer>
 
 
-
-  <footer id="contatos">
-    <a href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, preciso tirar umas duvidas."><img class="zapi" src="img/zap.png"/>(81)9.8816-6464</a>
-    <a href="https://www.instagram.com/_los_visionarios?igsh=MWU5eWhhYnFrdmhjaQ=="><img class="insta" src="img/inst.png"/>_Los_Visionários</a>
-  </footer>
 
   <audio id="bgMusic" src="Audio/Orappa.mp3"></audio>
         
