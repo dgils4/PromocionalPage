@@ -1,170 +1,216 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tabela de Preços - Los Visionários</title>
+<title>Preços | Los Visionários</title>
+
 <style>
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0px;
+  margin: 0;
+  font-family: Arial;
+  background: #0b0b0b;
+  color: white;
 }
 
+/* VOLTAR */
+.voltar {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #111;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* CONTAINER */
 .container {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 20px;
 }
 
-.titulo {
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
+/* TÍTULO */
+h1 {
+  text-align: center;
+  color: #00aaff;
 }
 
-.subtitulo {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #555;
+.sub {
+  text-align: center;
+  color: #aaa;
+  margin-bottom: 25px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+/* TABELA */
+.tabela {
+  background: #111;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-th, td {
-    padding: 12px;
+.linha {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #222;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-th {
-    border-bottom: 2px solid #ddd;
-    text-align: left;
+.linha:hover {
+  background: #1a1a1a;
 }
 
-tr {
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-}
-
-tr:hover {
-    background: #f0f0f0;
+.topo {
+  background: #00aaff;
+  font-weight: bold;
 }
 
 .preco {
-    text-align: right;
-    font-weight: bold;
+  color: #00aaff;
+  font-weight: bold;
 }
 
-/* POPUP */
+/* MODAL FULLSCREEN */
 .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0b0b0b;
+  display: none;
+  flex-direction: column;
+  padding: 20px;
+  z-index: 9999;
 }
 
-.modal-content {
-    background: #fff;
-    padding: 20px;
-    width: 90%;
-    max-width: 400px;
-    border-radius: 8px;
-    text-align: center;
+/* BOTÃO VOLTAR MODAL */
+.voltarModal {
+  font-size: 18px;
+  margin-bottom: 20px;
+  cursor: pointer;
 }
 
-.close {
-    float: right;
-    cursor: pointer;
-    font-size: 20px;
+/* CONTEÚDO */
+.modal h2 {
+  color: #00aaff;
 }
 
-.voltar {
-    margin-top: 25px;
-    text-align: center;
-}
-
-button {
-    padding: 10px 20px;
-    border: none;
-    background: #333;
-    color: #fff;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    opacity: 0.8;
-}
-
-#descricaoServico {
-    line-height: 1.6;
-    font-size: 16px;
+.modal p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="voltar" onclick="history.back()">← Voltar</div>
+
 <div class="container">
 
-    <div class="titulo">BARBEARIA</div>
-    <div class="subtitulo">LOS_VISIONÁRIOS</div>
+  <h1>Los Visionários</h1>
+  <div class="sub">Tabela de Preços</div>
 
-    <table>
-        <tr>
-            <th>Serviço</th>
-            <th class="preco">Preço</th>
-        </tr>
+  <div class="tabela">
 
-        <tr onclick="abrirModal('Pigmentação capilar','pigmentação capilar é uma técnica muito usada em barbearias para realçar o corte, cobrir falhas e dar uma aparência de maior densidade ao cabelo.<br><br>Ela se diferencia da tintura comum por ser  aplicada de forma estratégica, muitas vezes alcançando o couro cabeludo para criar um efeito de sombra.')"><td>Pigmentação capilar</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Pigmentação barba','Preenchimento da barba com tinta para dar efeito natural.<br><br>Disfarça falhas e destaca o contorno, deixando a barba mais uniforme.')"><td>Pigmentação barba</td><td class="preco">R$ 10,00</td></tr>
-        <tr onclick="abrirModal('Camuflagem dos fios','Disfarce de fios brancos com resultado natural.<br><br>Mantém o visual jovem sem aparência artificial.')"><td>Camuflagem dos fios</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Depilação combo','  A depilação de nariz e ouvido com cera quente é um procedimento rápido e eficiente para remover aqueles pelos indesejados que ficam aparentes.<br> <br>Muita gente tem receio da dor, mas, quando feita por um profissional, a sensação é de um puxão seco e breve.')"><td>Depilação combo</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Acabamento','Ajustes rápidos com navalha para manter o corte alinhado.<br><br>Ideal para quem quer manter o visual sempre em dia.')"><td>Acabamento</td><td class="preco">R$ 7,00</td></tr>
-        <tr onclick="abrirModal('Sobrancelha',' Limpeza e alinhamento da sobrancelha masculina.<br><br>Realça o olhar mantendo um aspecto natural.')"><td>Sobrancelha</td><td class="preco">R$ 7,00</td></tr>
-        <tr onclick="abrirModal('Barba','Modelagem completa da barba com acabamento profissional.<br><br>Inclui contorno, alinhamento e finalização.')"><td>Barba</td><td class="preco">R$ 20,00</td></tr>
-        <tr onclick="abrirModal('Barboterapia','Tratamento completo para barba e pele.<br><br>Inclui toalha quente, hidratação e relaxamento.')"><td>Barboterapia</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Corte máq1','Corte simples feito na máquina com 1 pente.<br><br>E prático, rápido e ideal para quem gosta de estilo uniforme.')"><td>Corte máq1</td><td class="preco">R$ 15,00</td></tr>
-        <tr onclick="abrirModal('Corte','Corte completo com técnica profissional.<br><br>Inclui degradê, acabamento e finalização.')"><td>Corte</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Corte Infantil','Corte adaptado para crianças com cuidado e atenção.')"><td>Corte Infantil</td><td class="preco">R$ 25,00</td></tr>
-        <tr onclick="abrirModal('Luzes','Clareamento de mechas para destaque no visual.<br><br>Ideal para quem quer um estilo moderno e diferenciado.')"><td>Luzes</td><td class="preco">R$ 45,00</td></tr>
-        <tr onclick="abrirModal('Limpeza Facial','Higienização da pele do rosto.<br><br>Remove impurezas e deixa a pele mais saudável e renovada.')"><td>Limpeza Facial</td><td class="preco">R$ </td></tr>
+    <div class="linha topo">
+      <span>Serviço</span>
+      <span>Preço</span>
+    </div>
 
-    </table>
+    <div class="linha" onclick="abrir('Pigmentação capilar', `Pigmentação capilar é uma técnica usada para realçar o corte e cobrir falhas.<br><br>Cria efeito de sombra no couro cabeludo.`)">
+      <span>Pigmentação capilar</span>
+      <span class="preco">R$ 15,00</span>
+    </div>
 
-  
+    <div class="linha" onclick="abrir('Pigmentação barba', `Preenchimento da barba com efeito natural.<br><br>Disfarça falhas e melhora o contorno.`)">
+      <span>Pigmentação barba</span>
+      <span class="preco">R$ 10,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Camuflagem dos fios', `Disfarce de fios brancos com resultado natural.<br><br>Visual mais jovem.`)">
+      <span>Camuflagem dos fios</span>
+      <span class="preco">R$ 15,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Depilação combo', `Remoção de pelos do nariz e ouvido com cera.<br><br>Rápido e eficiente.`)">
+      <span>Depilação combo</span>
+      <span class="preco">R$ 15,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Acabamento', `Ajustes rápidos com navalha.<br><br>Ideal para manter o corte alinhado.`)">
+      <span>Acabamento</span>
+      <span class="preco">R$ 7,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Sobrancelha', `Limpeza e alinhamento da sobrancelha.<br><br>Aspecto natural.`)">
+      <span>Sobrancelha</span>
+      <span class="preco">R$ 7,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Barba', `Modelagem completa da barba.<br><br>Contorno e finalização profissional.`)">
+      <span>Barba</span>
+      <span class="preco">R$ 20,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Barboterapia', `Tratamento completo para barba.<br><br>Inclui toalha quente e hidratação.`)">
+      <span>Barboterapia</span>
+      <span class="preco">R$ 25,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Corte máq1', `Corte simples com máquina.<br><br>Rápido e prático.`)">
+      <span>Corte máq1</span>
+      <span class="preco">R$ 15,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Corte', `Corte completo com técnica profissional.<br><br>Degradê e acabamento.`)">
+      <span>Corte</span>
+      <span class="preco">R$ 25,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Corte Infantil', `Corte adaptado para crianças.`)">
+      <span>Corte Infantil</span>
+      <span class="preco">R$ 25,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Luzes', `Clareamento de mechas.<br><br>Estilo moderno.`)">
+      <span>Luzes</span>
+      <span class="preco">R$ 45,00</span>
+    </div>
+
+    <div class="linha" onclick="abrir('Limpeza Facial', `Higienização da pele.<br><br>Remove impurezas.`)">
+      <span>Limpeza Facial</span>
+      <span class="preco">Consultar</span>
+    </div>
+
+  </div>
 
 </div>
 
-<!-- POPUP -->
+<!-- MODAL FULL -->
 <div class="modal" id="modal">
-    <div class="modal-content">
-        <span class="close" onclick="fecharModal()">&times;</span>
-        <h2 id="tituloServico"></h2>
-        <p id="descricaoServico"></p>
-    </div>
+
+  <div class="voltarModal" onclick="fechar()">← Voltar</div>
+
+  <h2 id="titulo"></h2>
+  <p id="descricao"></p>
+
 </div>
 
 <script>
-function abrirModal(servico, descricao) {
-    document.getElementById("tituloServico").innerText = servico;
-    document.getElementById("descricaoServico").innerHTML = descricao;
-    document.getElementById("modal").style.display = "flex";
+function abrir(titulo, descricao){
+  document.getElementById("titulo").innerText = titulo;
+  document.getElementById("descricao").innerHTML = descricao;
+  document.getElementById("modal").style.display = "flex";
 }
 
-function fecharModal() {
-    document.getElementById("modal").style.display = "none";
+function fechar(){
+  document.getElementById("modal").style.display = "none";
 }
 </script>
 
