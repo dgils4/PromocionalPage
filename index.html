@@ -638,7 +638,9 @@ li{margin-bottom: 10px;}
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
-
+#fotos{
+  background: linear-gradient(135deg, #0077b6, #000);
+}
 .galeria img {
   width: 100%;
   border-radius: 10px;
@@ -657,7 +659,7 @@ li{margin-bottom: 10px;}
         background: linear-gradient(135deg, #0077b6, #000);
 }
 
-.equipe{
+.titulotela{
   width:100%;
   background-color:#0d96e5;
   text-align: center;
@@ -842,11 +844,11 @@ border: 2px solid #00aaff;
  </div><!-- TELAS -->
 
 <!-- FOTOS -->
-<div id="fotos" class="tela" style="padding:20px">
+<div id="fotos" class="tela"> <div class="titulotela">Galeria</div>
    <div class="voltar-btn" onclick="fecharTela()">← Voltar</div>
 
-  <h2>Galeria</h2>
-  <div class="galeria">
+  
+  <div class="galeria" style="padding:20px">
     <!-- Você vai trocar depois -->
     <img src="img/corte1.webp">
     <img src="img/corte2.jpg">
@@ -875,7 +877,7 @@ border: 2px solid #00aaff;
 <div id="profissionais" class="tela">
 <div class="voltar-btn" onclick="fecharTela()">← Voltar</div>
 
-  <div class="equipe">- Equipe -</div>
+  <div class="titulotela">- Equipe -</div>
   <div class="profissionais">
     
     <div class="profissional">
