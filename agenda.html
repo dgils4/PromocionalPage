@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los Visionários Agenda</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{min-height:52px;background:#0b1220;border:1px solid #1e3a8a;border-radius:12px;padding:8px}.free{opacity:.7}.booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
+</style>
+</head>
+<body>
+<header>
+<div class='top'><div class='brand'>Los Visionários</div><input type='date' id='data'></div>
+<div class='stats'>
+<div class='card'><div>Hoje</div><strong id='totalDia'>R$0</strong></div>
+<div class='card'><div>Clientes</div><strong id='qtd'>0</strong></div>
+<div class='card'><div>Plano</div><strong id='planos'>0</strong></div>
+</div>
+</header>
+<div class='wrap'>
+<div class='toolbar'>
+<select id='filtro'><option>Todos</option><option>Gilberto</option><option>João</option></select>
+<button onclick='render()'>Atualizar</button>
+</div>
+<div id='agenda'></div>
+</div>
+<button class='fab' onclick='abrir()'>+</button>
+<div class='modal' id='modal'>
+<div class='box'>
+<h3>Novo Atendimento</h3>
+<input id='hora' placeholder='Hora ex: 09:00'>
+<input id='nome' placeholder='Nome'>
+<input id='fone' placeholder='Telefone'>
+<div class='row'>
+<select id='barbeiro'><option>Gilberto</option><option>João</option></select>
+<select id='tipo'><option>avulso</option><option>plano</option></select>
+</div>
+<div class='row'>
+<select id='corte'><option value='1'>Corte 1</option><option value='2'>Corte 2</option><option value='3'>Corte 3</option><option value='4'>Corte 4</option></select>
+<select id='pag'><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Plano Mensal</option></select>
+</div>
+<input id='valor' placeholder='Valor'>
+<textarea id='obs' placeholder='Observação'></textarea>
+<div class='actions'><button class="save" onclick="salvarAtendimento()">Salvar</button><button class='cancel' onclick='fechar()'>Cancelar</button></div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = 'https://cdechrtprerblmhllqav.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+</script>
+
+
+<script>
+const dataInput = document.getElementById('data');
+const agenda = document.getElementById('agenda');
+const modal = document.getElementById('modal');
+
+const hora = document.getElementById('hora');
+const nome = document.getElementById('nome');
+const fone = document.getElementById('fone');
+const barbeiro = document.getElementById('barbeiro');
+const tipo = document.getElementById('tipo');
+const corte = document.getElementById('corte');
+const pag = document.getElementById('pag');
+const valor = document.getElementById('valor');
+const obs = document.getElementById('obs');
+
+dataInput.value = new Date().toISOString().slice(0,10);
+
+const horarios = [];
+
+for(let h=8; h<=20; h++){
+ ['00','30'].forEach(m=>{
+   horarios.push(String(h).padStart(2,'0') + ':' + m);
+ });
+}
+
+function abrir(h=''){
+ modal.style.display='flex';
+ hora.value = h;
+}
+
+function fechar(){
+ modal.style.display='none';
+}
+
+function render(){
+ agenda.innerHTML = '';
+
+ horarios.forEach(h=>{
+   const d = document.createElement('div');
+
+   d.className = 'slot';
+
+   d.innerHTML = `
+   <div class="time">${h}</div>
+   <div class="cell free" onclick="abrir('${h}')">Livre</div>
+   `;
+
+   agenda.appendChild(d);
+ });
+}
+
+
+
+
+
+async function salvarAtendimento(){
+
+ alert('clicou');
+
+ const { data, error } = await supabase
+ .from('atendimentos')
+ .insert([
+   {
+     data: dataInput.value,
+     hora: hora.value,
+     nome_cliente: nome.value
+   }
+ ]);
+
+ if(error){
+   alert('ERRO: ' + error.message);
+   return;
+ }
+
+ alert('SALVOU');
+ console.log(data);
+}
+
+render();
+</script>
+</body>
+</html>
