@@ -1,1 +1,85 @@
-se
+<!DOCTYPE html>  <html>  
+<head>  
+<title>Serviços</title>  
+</head>  
+<body>  <h2>Cadastrar Serviço</h2>  <input id="nome" placeholder="Nome do serviço">  
+<input id="preco" placeholder="Preço">  <button onclick="salvarServico()">Salvar</button>
+
+<div id="lista"></div> 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>  
+const { createClient } = supabase;  
+  
+const db = createClient(  
+'https://cdechrtprerblmhllqav.supabase.co',  
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'  
+);  
+  
+async function salvarServico(){  
+  
+ await db.from('servicos').insert([  
+ {  
+   nome: nome.value,  
+   preco: preco.value  
+ }  
+ ]);  
+  
+   
+}  
+  
+async function carregar(){  
+  
+ const { data } = await db  
+ .from('servicos')  
+ .select('*');  
+  
+ lista.innerHTML='';  
+  
+ data.forEach(item=>{  
+  
+ lista.innerHTML += `  
+ <p>${item.nome} - R$${item.preco}</p>  
+ `;  
+  
+ });  
+  
+}  
+  
+  
+  
+async function abrirPrecos(){  
+  
+ const { data } = await db  
+ .from('servicos')  
+ .select('*');  
+  
+ let html = '';  
+  
+ data.forEach(item=>{  
+  
+ html += `  
+ <button onclick="  
+ setServico('${item.nome}',${item.preco})  
+ ">  
+ ${item.nome} - R$${item.preco}  
+ </button><br><br>  
+ `;  
+  
+ });  
+  
+ menuPrecos.innerHTML = html;  
+ menuPrecos.style.display='block';  
+}  
+  
+function setServico(nome, preco){  
+  
+ servico.value = nome;  
+ valor.value = preco;  
+  
+ menuPrecos.style.display='none';  
+}  
+carregar();  
+</script>  </body>  
+</html> 
