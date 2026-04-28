@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consulta do Cliente</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#050b16;
+  color:#fff;
+}
+
+.container{
+  max-width:420px;
+  margin:60px auto;
+  padding:20px;
+  background:#0f172a;
+  border-radius:14px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+h2{
+  text-align:center;
+  color:#3b82f6;
+  margin-bottom:20px;
+}
+
+input{
+  width:300px;
+  padding:12px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+}
+
+button{
+  width:300px;
+  padding:12px;
+  background:#1d4ed8;
+  border:none;
+  color:#fff;
+  font-weight:bold;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#2563eb;
+}
+
+.card{
+  background:#111827;
+  padding:12px;
+  margin:10px 0;
+  border-radius:10px;
+  border-left:4px solid #1d4ed8;
+}
+
+small{
+  color:#93c5fd;
+}
+
+hr{
+  border:0;
+  border-top:1px solid #1e3a8a;
+  margin:15px 0;
+}
+#resultado{
+  
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Consulta do Cliente</h2>
+
+  <input id="nome_cliente" placeholder="Digite seu nome completo">
+  <button onclick="buscar()">Consultar</button>
+
+ 
+
+</div>
+ <div id="resultado"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+// 🔌 CONEXÃO SUPABASE
+const db = supabase.createClient(
+  'https://cdechrtprerblmhllqav.supabase.co',
+ 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
+);
+
+// 🔎 BUSCAR CLIENTE
+async function buscar(){
+
+ const nome = document.getElementById("nome_cliente").value.trim();
+ const resultado = document.getElementById("resultado");
+
+ if(!nome){
+   resultado.innerHTML = "Digite seu nome";
+   return;
+ }
+
+ resultado.innerHTML = "Carregando...";
+
+ const { data, error } = await db
+  .from("atendimentos")
+  .select("nome_cliente, data, barbeiro, tipo_cliente, numero_corte, valor")
+  .ilike("nome_cliente", nome)
+  .order("data", { ascending: false });
+
+ if(error){
+   resultado.innerHTML = "Erro ao buscar dados";
+   return;
+ }
+
+ if(!data.length){
+   resultado.innerHTML = "Nenhum registro encontrado";
+   return;
+ }
+
+ let html = "";
+
+ data.forEach(item => {
+
+   html += `
+     <div class="card">
+       <strong>${item.nome_cliente}</strong><br><br>
+
+       📅 Data: ${item.data}<br>
+       💈 Barbeiro: ${item.barbeiro}<br>
+       📌 Tipo: ${item.tipo_cliente}<br>
+       ✂️ Corte: ${item.numero_corte}/4<br>
+       💰 Valor: R$ ${item.valor}
+     </div>
+   `;
+ });
+
+ resultado.innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
