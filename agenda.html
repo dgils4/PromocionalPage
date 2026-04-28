@@ -5,11 +5,105 @@
 <title>Los Visionários Agenda</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{min-height:52px;background:#0b1220;border:1px solid #1e3a8a;border-radius:12px;padding:8px}.free{opacity:.7}.booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
+
+
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  color:black;
+}
+
+.item:hover {
+  background: #f0f0f0;
+}
+.sidebar{
+  position: fixed;
+  left: -500px; 
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #0f172a;
+  padding: 15px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: 1px solid #1d4ed8;
+  transition: 0.8s;
+  overflow-y: auto
+}
+
+.sidebar.ativo{
+  left: 0
+}
+
+.sidebar button{
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #fff;
+  cursor: pointer;
+}
+
+
 </style>
+
 </head>
 <body>
+  <div id="sidebar" class="sidebar">
+  <h3>📊 Painel</h3>
+
+  <button onclick="abrirVisao('hoje'),irParaHoje()">Hoje</button>
+  <button onclick="abrirVisao('calendario')">Calendário</button>
+  <button  onclick="abrirVisao('faturamento')">Faturamento</button>
+  
+    <div id="visaoCalendario" style="display:none; padding:10px">
+  <h2>Faturamento por período</h2>
+
+  <input type="date" id="dataInicio">
+  <input type="date" id="dataFim">
+
+  <select id="calProf">
+    <option value="Todos">Todos</option>
+    <option value="Gilberto">Gilberto</option>
+    <option value="Thiago">Thiago</option>
+  </select>
+
+  <button onclick="calcularPeriodo()">Calcular</button>
+
+  <div id="resultadoPeriodo"></div>
+</div>
+  
+<div id="visaoFaturamento" style="display:none; padding:10px;">
+  <h2>Faturamento</h2>
+  <button onclick="calcularFaturamento()">Calcular</button>
+
+  <div id="fatResultado"></div>
+</div>
+
+  <hr>
+
+  
+</div>
 <header>
-<div class='top'><div class='brand'>Los Visionários</div><input type='date' id='data'></div>
+  
+<div class='top'>
+  <button onclick="toggleMenu()" >
+☰
+</button>
+  <div class='brand'>Los Visionários</div><input type='date' id='data'></div>
 <div class='stats'>
 <div class='card'><div>Hoje</div><strong id='totalDia'>R$0</strong></div>
 <div class='card'><div>Clientes</div><strong id='qtd'>0</strong></div>
@@ -18,8 +112,8 @@
 </header>
 <div class='wrap'>
 <div class='toolbar'>
-<select id='filtro'><option>Todos</option><option>Gilberto</option><option>João</option></select>
-<button onclick='render()'>Atualizar</button>
+<select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option></select>
+<button onclick='carregarHoje()'>Atualizar</button>
 </div>
 <div id='agenda'></div>
 </div>
@@ -28,17 +122,28 @@
 <div class='box'>
 <h3>Novo Atendimento</h3>
 <input id='hora' placeholder='Hora ex: 09:00'>
-<input id='nome' placeholder='Nome'>
+<<input id="nome" placeholder="Nome do cliente" autocomplete="off">
+<div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
 <input id='fone' placeholder='Telefone'>
 <div class='row'>
-<select id='barbeiro'><option>Gilberto</option><option>João</option></select>
+<select id='barbeiro'><option>Gilberto</option><option>Thiago</option></select>
 <select id='tipo'><option>avulso</option><option>plano</option></select>
 </div>
 <div class='row'>
 <select id='corte'><option value='1'>Corte 1</option><option value='2'>Corte 2</option><option value='3'>Corte 3</option><option value='4'>Corte 4</option></select>
 <select id='pag'><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Plano Mensal</option></select>
 </div>
-<input id='valor' placeholder='Valor'>
+<input id="valor" placeholder="Clique para escolher um serviço" readonly>
+<input id="valorr" placeholder="valor" type="number">
+
+<!-- Modal -->
+<div id="modalervicos" class="modal">
+  <div class="modal-content">
+    <h3>Serviços</h3>
+    <div id="listaServicos"></div>
+    <button onclick="fecharModil()">Fechar</button>
+  </div>
+</div>
 <textarea id='obs' placeholder='Observação'></textarea>
 <div class='actions'><button class="save" onclick="salvarAtendimento()">Salvar</button><button class='cancel' onclick='fechar()'>Cancelar</button></div>
 </div>
@@ -46,13 +151,76 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabaseUrl = 'https://cdechrtprerblmhllqav.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+
+
+
+const { createClient } = supabase;
+
+const db = createClient(
+ 'https://cdechrtprerblmhllqav.supabase.co',
+ 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
+);
 </script>
 
 
 <script>
+ const modil = document.getElementById("modalervicos");
+const lista = document.getElementById("listaServicos");
+const inputValor = document.getElementById("valor");
+const inputValorr = document.getElementById("valorr");
+
+// abrir modal ao clicar no input
+inputValor.addEventListener("click", () => {
+  modil.style.display = "block";
+  carregarervicos();
+});
+
+// fechar modal
+function fecharModil() {
+  modil.style.display = "none";
+}
+
+// buscar serviços no Supabase
+async function carregarervicos() {
+  lista.innerHTML = "Carregando...";
+
+  const { data, error } = await db
+    .from("servicos") // sua tabela
+    .select("nome, preco");
+
+  if (error) {
+    lista.innerHTML = "Erro ao carregar";
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("item");
+
+    div.innerHTML = `
+      <strong>${item.nome}</strong><br>
+      R$ ${item.preco}
+    `;
+
+    // quando clicar no serviço
+    div.onclick = () => {
+      inputValor.value = `${item.nome}`;
+        inputValorr.value = `${item.preco}`;
+      fecharModil();
+    
+    };
+
+    lista.appendChild(div);
+  });
+} 
+  
+  
+  
 const dataInput = document.getElementById('data');
 const agenda = document.getElementById('agenda');
 const modal = document.getElementById('modal');
@@ -65,6 +233,7 @@ const tipo = document.getElementById('tipo');
 const corte = document.getElementById('corte');
 const pag = document.getElementById('pag');
 const valor = document.getElementById('valor');
+const valorr = document.getElementById('valorr');
 const obs = document.getElementById('obs');
 
 dataInput.value = new Date().toISOString().slice(0,10);
@@ -85,23 +254,83 @@ function abrir(h=''){
 function fechar(){
  modal.style.display='none';
 }
+async function carregarHoje(){
 
-function render(){
  agenda.innerHTML = '';
 
- horarios.forEach(h=>{
-   const d = document.createElement('div');
+ const hoje = dataInput.value;
+ const prof = filtro.value;
 
+ let query = db
+  .from('atendimentos')
+  .select('*')
+  .eq('data', hoje);
+
+ if(prof !== "Todos"){
+   query = query.eq('barbeiro', prof);
+ }
+
+
+ const { data, error } = await query.order('hora');
+
+ if(error){
+   alert(error.message);
+   return;
+ }
+
+ let soma = 0;
+
+ data.forEach(item => {
+   soma += Number(item.valor || 0);
+ });
+
+ document.getElementById('totalDia').textContent =
+ 'R$' + soma.toFixed(2).replace('.', ',');
+
+ qtd.textContent = data.length;
+
+ planos.textContent =
+ data.filter(x => x.tipo_cliente === 'plano').length;
+
+ horarios.forEach(h => {
+
+   const item = data.find(x => x.hora === h);
+
+   const d = document.createElement('div');
    d.className = 'slot';
 
-   d.innerHTML = `
-   <div class="time">${h}</div>
-   <div class="cell free" onclick="abrir('${h}')">Livre</div>
-   `;
+   if(item){
+     d.innerHTML = `
+     <div class="time">${h}</div>
+     <div class="cell" onclick="acoes('${item.id}')">
+       ${item.nome_cliente}<br>
+       <small>
+       ${item.tipo_cliente === 'plano'
+         ? 'Corte ' + item.numero_corte + '/4 • '
+         : ''
+       }
+       ${item.forma_pagamento} •
+       R$${item.valor}
+       </small>
+     </div>
+     `;
+   } else {
+     d.innerHTML = `
+     <div class="time">${h}</div>
+     <div class="cell free" onclick="abrir('${h}')">
+       Livre
+     </div>
+     `;
+   }
 
    agenda.appendChild(d);
  });
+
 }
+
+
+
+  
 
 
 
@@ -109,28 +338,287 @@ function render(){
 
 async function salvarAtendimento(){
 
- alert('clicou');
+ 
 
- const { data, error } = await supabase
- .from('atendimentos')
- .insert([
-   {
-     data: dataInput.value,
-     hora: hora.value,
-     nome_cliente: nome.value
+ try {
+const nomeFinal = nome.value.trim() === "" 
+  ? "desconhecido" 
+  : nome.value.trim();
+
+
+   const resposta = await db.from('atendimentos')
+   .insert([
+     {
+       data: dataInput.value,
+       hora: hora.value,
+       nome_cliente: nomeFinal,
+       telefone: fone.value,
+       barbeiro: barbeiro.value,
+       tipo_cliente: tipo.value,
+       numero_corte: corte.value,
+       forma_pagamento: pag.value,
+       valor: document.getElementById('valorr').value,
+       observacao: obs.value,
+       servico: valor.value,
+     }
+   ]);
+
+   console.log(resposta);
+
+   if(resposta.error){
+      alert('ERRO: ' + resposta.error.message);
+      return;
    }
- ]);
+
+   alert('salvo com sucesso!');
+   document.getElementById("modal").style.display ="none";
+   carregarHoje();
+
+ } catch(e){
+   alert('FALHA: ' + e.message);
+   console.log(e);
+ }
+
+}
+async function acoes(id){
+
+ const op = prompt(
+`1 = Editar
+2 = Excluir`
+ );
+
+ if(op == '2'){
+   excluirAtendimento(id);
+ }
+
+ if(op == '1'){
+   editarAtendimento(id);
+ }
+
+}
+
+async function excluirAtendimento(id){
+
+ const ok = confirm('Deseja excluir?');
+
+ if(!ok) return;
+
+ const { error } = await db
+ .from('atendimentos')
+ .delete()
+ .eq('id', id);
 
  if(error){
-   alert('ERRO: ' + error.message);
+   alert(error.message);
    return;
  }
 
- alert('SALVOU');
- console.log(data);
+ carregarHoje();
+
 }
 
-render();
+async function editarAtendimento(id){
+
+ const novoValor = prompt('Novo valor:');
+
+ if(novoValor === null) return;
+
+ const { error } = await db
+ .from('atendimentos')
+ .update({
+   valor: novoValor
+ })
+ .eq('id', id);
+
+ if(error){
+   alert(error.message);
+   return;
+ }
+ 
+ 
+
+ carregarHoje();
+}
+
+const filtro = document.getElementById('filtro');
+
+let profissionalAtual = "Todos";
+
+function filtrarProf(nome){
+  profissionalAtual = nome;
+  carregarHoje();
+}
+async function calcularFaturamento(){
+
+ const { data } = await db
+ .from('atendimentos')
+ .select('*');
+
+ let totalGeral = 0;
+ let gilberto = 0;
+ let Thiago = 0;
+
+ data.forEach(item => {
+   const v = Number(item.valor || 0);
+   totalGeral += v;
+
+   if(item.barbeiro === "Gilberto") gilberto += v;
+   if(item.barbeiro === "Thiago") Thiago += v;
+ });
+
+ document.getElementById("fatResultado").innerHTML = `
+   <p>💈 Gilberto: R$ ${gilberto.toFixed(2)}</p>
+   <p>💈 Thiago: R$ ${Thiago.toFixed(2)}</p>
+   <hr>
+   <h3>Total: R$ ${totalGeral.toFixed(2)}</h3>
+ `;
+}
+function abrirVisao(tipo){
+
+ document.getElementById("agenda").style.display = "none";
+ document.getElementById("visaoCalendario").style.display = "none";
+ document.getElementById("visaoFaturamento").style.display = "none";
+
+ if(tipo === "hoje"){
+   document.getElementById("agenda").style.display = "block";
+ }
+
+ if(tipo === "calendario"){
+   document.getElementById("visaoCalendario").style.display = "block";
+ }
+
+ if(tipo === "faturamento"){
+   document.getElementById("visaoFaturamento").style.display = "block";
+ }
+}
+function toggleMenu(){
+  const menu = document.getElementById("sidebar");
+  menu.classList.toggle("ativo");
+}
+
+async function calcularPeriodo(){
+
+ const inicio = document.getElementById("dataInicio").value;
+ const fim = document.getElementById("dataFim").value;
+ const prof = document.getElementById("calProf").value;
+ const resultado = document.getElementById("resultadoPeriodo");
+
+ if(!inicio || !fim){
+   resultado.innerHTML = "Selecione as duas datas";
+   return;
+ }
+
+ resultado.innerHTML = "Carregando...";
+
+ let query = db
+  .from("atendimentos")
+  .select("*")
+  .gte("data", inicio)   // maior ou igual
+  .lte("data", fim);     // menor ou igual
+
+ if(prof !== "Todos"){
+   query = query.eq("barbeiro", prof);
+ }
+
+ const { data, error } = await query;
+
+ if(error){
+   resultado.innerHTML = "Erro ao carregar";
+   return;
+ }
+
+ if(!data.length){
+   resultado.innerHTML = "Nenhum atendimento nesse período";
+   return;
+ }
+
+ let total = 0;
+
+ let html = "";
+
+ data.forEach(item => {
+   total += Number(item.valor || 0);
+
+   html += `
+     <div style="background:#111827;margin:5px;padding:10px;border-radius:8px">
+       <strong>${item.data}</strong> - ${item.hora}<br>
+       ${item.nome_cliente} • ${item.barbeiro}<br>
+       <small>R$ ${item.valor}</small>
+     </div>
+   `;
+ });
+
+ resultado.innerHTML = `
+   <h3>💰 Total do período: R$ ${total.toFixed(2)}</h3>
+   ${html}
+ `;
+}
+
+function irParaHoje(){
+  const hoje = new Date().toISOString().slice(0,10);
+
+  dataInput.value = hoje;
+  filtro.value = "Todos";
+
+  abrirVisao("hoje");
+  carregarHoje();
+  toggleMenu();
+}
+const inputNome = document.getElementById("nome");
+const sugestoes = document.getElementById("sugestoes");
+
+inputNome.addEventListener("input", async () => {
+
+ const texto = inputNome.value.trim();
+
+ if(texto.length < 2){
+   sugestoes.innerHTML = "";
+   return;
+ }
+
+ const { data, error } = await db
+  .from("atendimentos")
+  .select("nome_cliente, telefone")
+  .ilike("nome_cliente", `%${texto}%`)
+  .limit(5);
+
+ if(error){
+   console.log(error);
+   return;
+ }
+
+ sugestoes.innerHTML = "";
+
+ // remover duplicados (IMPORTANTE)
+ const nomesUnicos = [...new Map(data.map(item => [item.nome_cliente, item])).values()];
+
+ nomesUnicos.forEach(cliente => {
+
+   const div = document.createElement("div");
+
+   div.style.padding = "10px";
+   div.style.cursor = "pointer";
+   div.style.borderBottom = "1px solid #333";
+   div.style.color = "#fff";
+
+   div.innerHTML = `
+     <strong>${cliente.nome_cliente}</strong><br>
+     <small>${cliente.telefone || ''}</small>
+   `;
+
+   div.onclick = () => {
+     inputNome.value = cliente.nome_cliente;
+     sugestoes.innerHTML = "";
+   };
+
+   sugestoes.appendChild(div);
+ });
+
+});
+carregarHoje();
+
+
+
 </script>
 </body>
 </html>
