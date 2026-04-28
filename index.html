@@ -779,7 +779,7 @@ border: 2px solid #00aaff;
 <div class="sidebar" id="sidebar">
     <a href="#">Quem Somos</a>
     <a href="grupo.html">Entre para o grupo</a>
-    <a href="#">Preços</a>
+    <a href="consulta.html">Consulta do cliente</a>
     <a href="#contatos">Contato</a>
 </div>
 
@@ -787,6 +787,22 @@ border: 2px solid #00aaff;
 
   
 <!---------------------------Tela oculta-------------------------------------------->
+    <div id="screenn">
+        <div id="voltar" onclick="fechar()">voltar</div>
+        <div class="wind">
+            <ol style="padding: 0px;">
+                <strong>Tudo Certo?</strong>
+                <div class="texto">Seu Nome</div>
+                <p>:<u id="N"></u></p>
+                <div class="texto">Comparecimento</div>
+                <p>:<u id="D"></u></p>
+                <u>Promoção única por cliente novo.</u>
+                <div class="infor">Atendimento por ondem de chegada<br/>horario 8:00h as 18:00h</div>
+            </ol>
+              <a  href="https://api.whatsapp.com/send?phone=5581988166464&text=Olá, Segue meus dados para receber 20% de desconto, meu é nome:" onclick="ur(),location.href=this.href+' '+nome+'.'+' '+ 'comparecerei na data'+' '+datt+'.'+' '+'  ';return false;"><button id="Yes">Sim</button></a>
+        
+            
+        </div>
 
     </div>
 
@@ -972,11 +988,19 @@ border: 2px solid #00aaff;
     </div>
 </div>
 
-<!-- area html calendario--------------------------->
-<iframe src="consulta.html" width="100%" height="800px">
-  
-</iframe>
+<!-- area html calendario-------------------------------->
+     <div class="container">
+    <h2>20% de Desconto para novos clientes.</h2>
+    <input type="date" id="data" />
+    <br>
+    <h2>Nome completo</h2>
+     
+    <input type="text" name="usuario" maxlength="20"  placeholder="insira seu nome" oninput="this.value = this.value.replace(/[^a-z A-Z ã Ã â Â ç Ç á é í Á É Í À è ì À È Ì ê Ê ú Ù ù Ú ó Ò ô Ô]/g, '')"></td>
+    
 
+    <button id="btnAgendar" onclick="(chamar())" disabled>Confirmar</button>
+    <div class="msg" id="msg"></div>
+  </div>
 <!-- fim area html calendario-------------------------------->
 
 
