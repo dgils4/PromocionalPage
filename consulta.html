@@ -3,78 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Consulta do Cliente</title>
+<title>Portal do Cliente - Los Visionários</title>
 
 <style>
-body{
+*{
   margin:0;
-  font-family:Arial;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
   background:#050b16;
+  font-family:Arial, sans-serif;
   color:#fff;
+  padding:20px;
 }
 
 .container{
-  max-width:420px;
-  margin:60px auto;
-  padding:20px;
-  background:#0f172a;
-  border-radius:14px;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  overflow-y: auto;
+  max-width:450px;
+  margin:auto;
 }
 
-h2{
+.topo{
+  background:#0f172a;
+  padding:20px;
+  border-radius:16px;
+  margin-bottom:15px;
+  border:1px solid #1d4ed8;
+}
+
+h1{
+  font-size:24px;
   text-align:center;
-  color:#3b82f6;
-  margin-bottom:20px;
+  color:#60a5fa;
+  margin-bottom:15px;
 }
 
 input{
-  width:300px;
-  padding:12px;
-  margin-bottom:10px;
+  width:100%;
+  padding:14px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   outline:none;
+  margin-bottom:10px;
+  font-size:16px;
 }
 
 button{
-  width:300px;
-  padding:12px;
-  background:#1d4ed8;
+  width:100%;
+  padding:14px;
   border:none;
+  border-radius:10px;
+  background:#1d4ed8;
   color:#fff;
+  font-size:16px;
   font-weight:bold;
-  border-radius:8px;
-  cursor:pointer;
 }
 
-button:hover{
-  background:#2563eb;
+button:active{
+  transform:scale(.98);
+}
+
+.resumo{
+  background:#0f172a;
+  padding:15px;
+  border-radius:16px;
+  margin-bottom:15px;
+  display:none;
+  border:1px solid #1e3a8a;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.box{
+  background:#111827;
+  padding:12px;
+  border-radius:12px;
+  text-align:center;
+}
+
+.box strong{
+  display:block;
+  color:#60a5fa;
+  font-size:20px;
 }
 
 .card{
-  background:#111827;
-  padding:12px;
-  margin:10px 0;
-  border-radius:10px;
+  background:#0f172a;
   border-left:4px solid #1d4ed8;
+  padding:15px;
+  border-radius:14px;
+  margin-bottom:12px;
 }
 
-small{
-  color:#93c5fd;
+.nome{
+  font-size:18px;
+  font-weight:bold;
+  color:#fff;
 }
 
 hr{
-  border:0;
+  border:none;
   border-top:1px solid #1e3a8a;
-  margin:15px 0;
+  margin:10px 0;
 }
-#resultado{
-  
+
+.valor{
+  margin-top:10px;
+  color:#60a5fa;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.barra{
+  width:100%;
+  background:#111827;
+  height:12px;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+.progresso{
+  height:100%;
+  background:#22c55e;
+}
+
+.msg{
+  text-align:center;
+  margin-top:15px;
+  color:#93c5fd;
 }
 </style>
 </head>
@@ -83,82 +145,134 @@ hr{
 
 <div class="container">
 
-  <h2>Consulta do Cliente</h2>
+<div class="topo">
+<h1>Los Visionários</h1>
 
-  <input id="nome_cliente" placeholder="Digite seu nome completo">
-  <button onclick="buscar()">Consultar</button>
+<input id="nome_cliente" placeholder="Digite seu nome completo">
+<button onclick="buscar()">Consultar Histórico</button>
+</div>
 
- 
+<div class="resumo" id="resumo">
+<div class="grid">
+<div class="box">
+<strong id="visitas">0</strong>
+Visitas
+</div>
+
+<div class="box">
+<strong id="gasto">R$0</strong>
+Total Gasto
+</div>
+</div>
+</div>
+
+<div id="resultado"></div>
 
 </div>
- <div id="resultado"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
-// 🔌 CONEXÃO SUPABASE
 const db = supabase.createClient(
   'https://cdechrtprerblmhllqav.supabase.co',
  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
 );
 
-// 🔎 BUSCAR CLIENTE
 async function buscar(){
 
  const nome = document.getElementById("nome_cliente").value.trim();
  const resultado = document.getElementById("resultado");
+ const resumo = document.getElementById("resumo");
 
  if(!nome){
-   resultado.innerHTML = "Digite seu nome";
+   resultado.innerHTML = '<div class="msg">Digite seu nome</div>';
    return;
  }
 
- resultado.innerHTML = "Carregando...";
+ resultado.innerHTML = '<div class="msg">Carregando...</div>';
 
  const { data, error } = await db
-  .from("atendimentos")
-  .select("nome_cliente, data, barbeiro, tipo_cliente, numero_corte, valor")
-  .ilike("nome_cliente", `%${nome}%`)
-  .order("data", { ascending: false });
+ .from("atendimentos")
+ .select("*")
+ .ilike("nome_cliente", `%${nome}%`)
+ .order("data",{ascending:false});
 
  if(error){
-   resultado.innerHTML = "Erro ao buscar dados";
+   resultado.innerHTML = '<div class="msg">Erro ao buscar</div>';
    return;
  }
 
- if(!data.length){
-   resultado.innerHTML = "Nenhum registro encontrado";
+ if(data.length == 0){
+   resultado.innerHTML = '<div class="msg">Nenhum histórico encontrado</div>';
+   resumo.style.display = "none";
    return;
  }
 
  let html = "";
+ let total = 0;
 
+ data.forEach(item=>{
 
- data.forEach(item => {
+   total += Number(item.valor || 0);
 
- let corteHtml = "";
+   let tipo = "";
+   let extra = "";
 
- if(item.tipo_cliente === "plano"){
-   corteHtml = `✂️ Corte: ${item.numero_corte}/4<br>`;
- }
+   if(item.tipo_cliente == "plano"){
 
- html += `
+     tipo = "🟢 Plano Mensal";
+
+     const corte = Number(item.numero_corte || 0);
+     const porcentagem = corte * 25;
+
+     extra = `
+       ✂️ Corte ${corte}/4
+
+       <div class="barra">
+         <div class="progresso" style="width:${porcentagem}%"></div>
+       </div>
+     `;
+
+   }else{
+
+     tipo = "🔵 Atendimento Avulso";
+
+     extra = `
+       <div style="margin-top:8px;color:#93c5fd;">
+       Cliente avulso recorrente
+       </div>
+     `;
+   }
+
+   html += `
    <div class="card">
-     <strong>${item.nome_cliente}</strong><br><br>
 
-     📅 Data: ${item.data}<br>
-     💈 Barbeiro: ${item.barbeiro}<br>
-     📌 Tipo: ${item.tipo_cliente}<br>
-     ${corteHtml}
-     💰 Valor: R$ ${item.valor}
+   <div class="nome">${item.nome_cliente}</div>
+
+   <hr>
+
+   📅 ${item.data}<br>
+   💈 ${item.barbeiro}<br>
+   📌 ${tipo}<br>
+   ✂️ Serviço: ${item.servico || "Não informado"}<br>
+
+   ${extra}
+
+   <div class="valor">
+   💰 R$ ${Number(item.valor).toFixed(2)}
    </div>
- `;
-});
+
+   </div>
+   `;
+ });
+
+ document.getElementById("visitas").innerText = data.length;
+ document.getElementById("gasto").innerText = "R$ " + total.toFixed(2);
+
+ resumo.style.display = "block";
 
  resultado.innerHTML = html;
 }
-
 </script>
 
 </body>
