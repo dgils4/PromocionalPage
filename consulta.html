@@ -134,20 +134,27 @@ async function buscar(){
 
  let html = "";
 
+
  data.forEach(item => {
 
-   html += `
-     <div class="card">
-       <strong>${item.nome_cliente}</strong><br><br>
+ let corteHtml = "";
 
-       📅 Data: ${item.data}<br>
-       💈 Barbeiro: ${item.barbeiro}<br>
-       📌 Tipo: ${item.tipo_cliente}<br>
-       ✂️ Corte: ${item.numero_corte}/4<br>
-       💰 Valor: R$ ${item.valor}
-     </div>
-   `;
- });
+ if(item.tipo_cliente === "plano"){
+   corteHtml = `✂️ Corte: ${item.numero_corte}/4<br>`;
+ }
+
+ html += `
+   <div class="card">
+     <strong>${item.nome_cliente}</strong><br><br>
+
+     📅 Data: ${item.data}<br>
+     💈 Barbeiro: ${item.barbeiro}<br>
+     📌 Tipo: ${item.tipo_cliente}<br>
+     ${corteHtml}
+     💰 Valor: R$ ${item.valor}
+   </div>
+ `;
+});
 
  resultado.innerHTML = html;
 }
