@@ -470,6 +470,28 @@ async function editarAtendimento(id){
 
 }
 
+async function excluirAtendimento(id){
+
+ const ok = confirm('Deseja excluir este atendimento?');
+
+ if(!ok) return;
+
+ const { error } = await db
+ .from('atendimentos')
+ .delete()
+ .eq('id', id);
+
+ if(error){
+   alert(error.message);
+   return;
+ }
+
+ alert('Excluído com sucesso');
+
+ carregarHoje();
+
+}
+
 
 const filtro = document.getElementById('filtro');
 
