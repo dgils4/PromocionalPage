@@ -65,9 +65,21 @@
   <div id="sidebar" class="sidebar">
   <h3>📊 Painel</h3>
 
-  <button onclick="abrirVisao('hoje'),irParaHoje()">Hoje</button>
-  <button onclick="abrirVisao('calendario')">Calendário</button>
-  <button  onclick="abrirVisao('faturamento')">Faturamento</button>
+  <button onclick="abrirVisao('hoje'),irParaHoje()">Voltar</button>
+  <button onclick="abrirVisao('calendario')">Calendário de busca</button>
+
+  <button onclick="abrirVisao('planos')">Buscar Planos</button>
+    <button  onclick="abrirVisao('faturamento')">Faturamento Total</button>
+  <div id="visaoPlanos" style="display:none; padding:10px;">
+  <h2>Clientes Plano</h2>
+
+  <input type="date" id="planoInicio">
+  <input type="date" id="planoFim">
+
+  <button onclick="calcularPlanos()">Buscar</button>
+
+  <div id="resultadoPlanos"></div>
+</div>
   
     <div id="visaoCalendario" style="display:none; padding:10px">
   <h2>Faturamento por período</h2>
@@ -151,7 +163,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-
+let editandoId = null;
 const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
 
@@ -260,7 +272,8 @@ function abrir(h=''){
 }
 
 function fechar(){
- modal.style.display='none';
+ modal.style.display = "none";
+ editandoId = null;
 }
 async function carregarHoje(){
 
@@ -338,56 +351,71 @@ async function carregarHoje(){
 
 
 
+async function salvarAtendimento(){
+
+ try {
+
+ const nomeFinal = nome.value.trim() === ""
+ ? "desconhecido"
+ : nome.value.trim();
+
+ const dados = {
+   data: dataInput.value,
+   hora: hora.value,
+   nome_cliente: nomeFinal,
+   telefone: fone.value,
+   barbeiro: barbeiro.value,
+   tipo_cliente: tipo.value,
+   numero_corte: corte.value,
+   forma_pagamento: pag.value,
+   valor: valorr.value,
+   observacao: obs.value,
+   servico: valor.value
+ };
+
+ let resposta;
+
+ if(editandoId){
+
+   resposta = await db
+   .from('atendimentos')
+   .update(dados)
+   .eq('id', editandoId);
+
+ } else {
+
+   resposta = await db
+   .from('atendimentos')
+   .insert([dados]);
+
+ }
+
+ if(resposta.error){
+   alert(resposta.error.message);
+   return;
+ }
+
+ alert('Salvo com sucesso');
+
+ editandoId = null;
+
+ modal.style.display = "none";
+
+ carregarHoje();
+
+ } catch(e){
+
+   alert("Falha: " + e.message);
+
+ }
+
+}
   
 
 
 
 
 
-async function salvarAtendimento(){
-
- 
-
- try {
-const nomeFinal = nome.value.trim() === "" 
-  ? "desconhecido" 
-  : nome.value.trim();
-
-
-   const resposta = await db.from('atendimentos')
-   .insert([
-     {
-       data: dataInput.value,
-       hora: hora.value,
-       nome_cliente: nomeFinal,
-       telefone: fone.value,
-       barbeiro: barbeiro.value,
-       tipo_cliente: tipo.value,
-       numero_corte: corte.value,
-       forma_pagamento: pag.value,
-       valor: document.getElementById('valorr').value,
-       observacao: obs.value,
-       servico: valor.value,
-     }
-   ]);
-
-   console.log(resposta);
-
-   if(resposta.error){
-      alert('ERRO: ' + resposta.error.message);
-      return;
-   }
-
-   alert('salvo com sucesso!');
-   document.getElementById("modal").style.display ="none";
-   carregarHoje();
-
- } catch(e){
-   alert('FALHA: ' + e.message);
-   console.log(e);
- }
-
-}
 async function acoes(id){
 
  const op = prompt(
@@ -405,48 +433,43 @@ async function acoes(id){
 
 }
 
-async function excluirAtendimento(id){
 
- const ok = confirm('Deseja excluir?');
-
- if(!ok) return;
-
- const { error } = await db
- .from('atendimentos')
- .delete()
- .eq('id', id);
-
- if(error){
-   alert(error.message);
-   return;
- }
-
- carregarHoje();
-
-}
 
 async function editarAtendimento(id){
 
- const novoValor = prompt('Novo valor:');
-
- if(novoValor === null) return;
-
- const { error } = await db
+ const { data, error } = await db
  .from('atendimentos')
- .update({
-   valor: novoValor
- })
- .eq('id', id);
+ .select('*')
+ .eq('id', id)
+ .single();
 
  if(error){
    alert(error.message);
    return;
  }
- 
- 
 
- carregarHoje();
+ editandoId = id;
+
+ // abre modal
+ modal.style.display = "flex";
+
+ // muda título
+ document.querySelector(".box h3").innerText = "Editar Atendimento";
+
+ // preenche campos
+ hora.value = data.hora || "";
+ nome.value = data.nome_cliente || "";
+ fone.value = data.telefone || "";
+ barbeiro.value = data.barbeiro || "Gilberto";
+ tipo.value = data.tipo_cliente || "avulso";
+ corte.value = data.numero_corte || "1";
+ pag.value = data.forma_pagamento || "Pix";
+ valor.value = data.servico || "";
+ valorr.value = data.valor || "";
+ obs.value = data.observacao || "";
+
 }
+
 
 const filtro = document.getElementById('filtro');
 
@@ -486,6 +509,7 @@ function abrirVisao(tipo){
  document.getElementById("agenda").style.display = "none";
  document.getElementById("visaoCalendario").style.display = "none";
  document.getElementById("visaoFaturamento").style.display = "none";
+ document.getElementById("visaoPlanos").style.display = "none";
 
  if(tipo === "hoje"){
    document.getElementById("agenda").style.display = "block";
@@ -498,11 +522,146 @@ function abrirVisao(tipo){
  if(tipo === "faturamento"){
    document.getElementById("visaoFaturamento").style.display = "block";
  }
+ 
+ if(tipo === "planos"){
+ document.getElementById("visaoPlanos").style.display = "block";
+}
 }
 function toggleMenu(){
   const menu = document.getElementById("sidebar");
   menu.classList.toggle("ativo");
 }
+async function calcularPlanos(){
+
+ const inicio = document.getElementById("planoInicio").value;
+ const fim = document.getElementById("planoFim").value;
+ const box = document.getElementById("resultadoPlanos");
+
+ if(!inicio || !fim){
+   box.innerHTML = "Escolha as datas";
+   return;
+ }
+
+ box.innerHTML = "Carregando...";
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .eq("tipo_cliente", "plano")
+ .gte("data", inicio)
+ .lte("data", fim)
+ .order("data");
+
+ if(error){
+   box.innerHTML = error.message;
+   return;
+ }
+
+ if(!data.length){
+   box.innerHTML = "Nenhum cliente plano no período";
+   return;
+ }
+
+ let total = 0;
+ let gilberto = 0;
+ let thiago = 0;
+ let html = "";
+
+ data.forEach(item => {
+
+   const valor = Number(item.valor || 0);
+   total += valor;
+
+   if(item.barbeiro === "Gilberto") gilberto++;
+   if(item.barbeiro === "Thiago") thiago++;
+
+   html += `
+   <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
+     <strong>${item.nome_cliente}</strong><br>
+     ${item.data} - Corte ${item.numero_corte}/4<br>
+     <small>${item.barbeiro} • R$ ${valor.toFixed(2)}</small>
+   </div>
+   `;
+ });
+
+ box.innerHTML = `
+   <h3>Total recebido: R$ ${total.toFixed(2)}</h3>
+
+   <p>📌 Atendimentos plano: ${data.length}</p>
+   <p>💈 Gilberto: ${gilberto}</p>
+   <p>💈 Thiago: ${thiago}</p>
+
+   <hr>
+
+   ${html}
+ `;
+}async function calcularPlanos(){
+
+ const inicio = document.getElementById("planoInicio").value;
+ const fim = document.getElementById("planoFim").value;
+ const box = document.getElementById("resultadoPlanos");
+
+ if(!inicio || !fim){
+   box.innerHTML = "Escolha as datas";
+   return;
+ }
+
+ box.innerHTML = "Carregando...";
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .eq("tipo_cliente", "plano")
+ .gte("data", inicio)
+ .lte("data", fim)
+ .order("data");
+
+ if(error){
+   box.innerHTML = error.message;
+   return;
+ }
+
+ if(!data.length){
+   box.innerHTML = "Nenhum cliente plano no período";
+   return;
+ }
+
+ let total = 0;
+ let gilberto = 0;
+ let thiago = 0;
+ let html = "";
+
+ data.forEach(item => {
+
+   const valor = Number(item.valor || 0);
+   total += valor;
+
+   if(item.barbeiro === "Gilberto") gilberto++;
+   if(item.barbeiro === "Thiago") thiago++;
+
+   html += `
+   <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
+     <strong>${item.nome_cliente}</strong><br>
+     ${item.data} - Corte ${item.numero_corte}/4<br>
+     <small>${item.barbeiro} • R$ ${valor.toFixed(2)}</small>
+   </div>
+   `;
+ });
+
+ box.innerHTML = `
+   <h3>Total recebido: R$ ${total.toFixed(2)}</h3>
+
+   <p>📌 Atendimentos plano: ${data.length}</p>
+   <p>💈 Gilberto: ${gilberto}</p>
+   <p>💈 Thiago: ${thiago}</p>
+
+   <hr>
+
+   ${html}
+ `;
+}
+
+
 
 async function calcularPeriodo(){
 
