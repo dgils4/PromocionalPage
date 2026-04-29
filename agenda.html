@@ -324,15 +324,18 @@ async function carregarHoje(){
      d.innerHTML = `
      <div class="time">${h}</div>
      <div class="cell" onclick="acoes('${item.id}')">
-       ${item.nome_cliente}<br>
-       <small>
-       ${item.tipo_cliente === 'plano'
-         ? 'Corte ' + item.numero_corte + '/4 • '
-         : ''
-       }
-       ${item.forma_pagamento} •
-       R$${item.valor}
-       </small>
+      ${item.nome_cliente}<br>
+
+<small style="font-size:11px">
+${item.tipo_cliente === 'plano'
+ ? 'Corte ' + item.numero_corte + '/4 • '
+ : ''
+}
+
+${item.servico} •
+${item.forma_pagamento} •
+R$${item.valor}
+</small>
      </div>
      `;
    } else {
