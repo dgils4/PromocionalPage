@@ -226,7 +226,7 @@ async function buscar(){
      const porcentagem = corte * 25;
 
      extra = `
-       ✂️ Corte ${corte}/4
+       <br>✂️ Corte ${corte}/4
 
        <div class="barra">
          <div class="progresso" style="width:${porcentagem}%"></div>
@@ -235,14 +235,40 @@ async function buscar(){
 
    }else{
 
-     tipo = "🔵 Atendimento Avulso";
+ tipo = "🔵 Atendimento Avulso";
 
-     extra = `
-       <div style="margin-top:8px;color:#93c5fd;">
-       Cliente avulso recorrente
-       </div>
-     `;
-   }
+ const visitasAvulso = data.filter(x => x.tipo_cliente == "avulso").length;
+
+ let resto = visitasAvulso % 11;
+
+ if(resto === 10){
+
+   extra = `
+   <div style="
+   margin-top:10px;
+   background:#16a34a;
+   padding:10px;
+   border-radius:10px;
+   font-weight:bold;">
+   🎁 Corte Grátis Disponível
+   </div>
+   `;
+
+ }else{
+
+   let progresso = resto;
+
+   extra = `
+   <div style="margin-top:10px;">
+   🎟️ Cartão Fidelidade ${progresso}/10
+
+   <div class="barra">
+     <div class="progresso" style="width:${progresso * 10}%"></div>
+   </div>
+   </div>
+   `;
+ }
+}
 
    html += `
    <div class="card">
@@ -251,9 +277,9 @@ async function buscar(){
 
    <hr>
 
-   📅 ${item.data}<br>
-   💈 ${item.barbeiro}<br>
-   📌 ${tipo}<br>
+   📅 ${item.data}<br><br>
+   💈 ${item.barbeiro}<br><br>
+    ${tipo}<br><br>
    ✂️ Serviço: ${item.servico || "Não informado"}<br>
 
    ${extra}
