@@ -119,7 +119,7 @@ async function buscar(){
  const { data, error } = await db
   .from("atendimentos")
   .select("nome_cliente, data, barbeiro, tipo_cliente, numero_corte, valor")
-  .ilike("nome_cliente", nome)
+  .ilike("nome_cliente", `%${nome}%`)
   .order("data", { ascending: false });
 
  if(error){
