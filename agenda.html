@@ -122,7 +122,7 @@
 <div class='box'>
 <h3>Novo Atendimento</h3>
 <input id='hora' placeholder='Hora ex: 09:00'>
-<<input id="nome" placeholder="Nome do cliente" autocomplete="off">
+<input id="nome" placeholder="Nome do cliente" autocomplete="off">
 <div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
 <input id='fone' placeholder='Telefone'>
 <div class='row'>
@@ -236,7 +236,15 @@ const valor = document.getElementById('valor');
 const valorr = document.getElementById('valorr');
 const obs = document.getElementById('obs');
 
-dataInput.value = new Date().toISOString().slice(0,10);
+const agora = new Date();
+
+const hoje =
+agora.getFullYear() + '-' +
+String(agora.getMonth()+1).padStart(2,'0') + '-' +
+String(agora.getDate()).padStart(2,'0');
+
+dataInput.value = hoje;
+dataInput.onchange = carregarHoje;
 
 const horarios = [];
 
@@ -555,7 +563,11 @@ async function calcularPeriodo(){
 }
 
 function irParaHoje(){
-  const hoje = new Date().toISOString().slice(0,10);
+  const agora = new Date();
+const hoje =
+agora.getFullYear() + '-' +
+String(agora.getMonth()+1).padStart(2,'0') + '-' +
+String(agora.getDate()).padStart(2,'0');
 
   dataInput.value = hoje;
   filtro.value = "Todos";
@@ -616,6 +628,7 @@ inputNome.addEventListener("input", async () => {
 
 });
 carregarHoje();
+
 
 
 
