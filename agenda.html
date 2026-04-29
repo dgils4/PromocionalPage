@@ -143,7 +143,7 @@
 </div>
 <div class='row'>
 <select id='corte'><option value='1'>Corte 1</option><option value='2'>Corte 2</option><option value='3'>Corte 3</option><option value='4'>Corte 4</option></select>
-<select id='pag'><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Plano Mensal</option></select>
+<select id='pag'><option>Pix</option><option>Dinheiro</option><option>Debito</option><option>Crédito</option><option>Plano Mensal</option></select>
 </div>
 <input id="valor" placeholder="Clique para escolher um serviço" readonly>
 <input id="valorr" placeholder="valor" type="number">
@@ -321,9 +321,25 @@ async function carregarHoje(){
    d.className = 'slot';
 
    if(item){
+let txt = '#fff';
+
+if(item.tipo_cliente === 'plano'){
+ cor = '#eab308';
+ txt = '#111';
+}
+else if(Number(item.valor) > 0){
+ cor = '#166534';
+ txt = '#fff';
+}
+else{
+ cor = '#991b1b';
+ txt = '#fff';
+}
      d.innerHTML = `
      <div class="time">${h}</div>
-     <div class="cell" onclick="acoes('${item.id}')">
+    <div style="background:${cor};color:${txt}"class="cell"
+style="background:${cor};border:1px solid #ffffff22"
+onclick="acoes('${item.id}')">
       ${item.nome_cliente}<br>
 
 <small style="font-size:11px">
@@ -346,6 +362,7 @@ R$${item.valor}
      </div>
      `;
    }
+   
 
    agenda.appendChild(d);
  });
