@@ -175,9 +175,7 @@ const db = createClient(
  'https://cdechrtprerblmhllqav.supabase.co',
  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
 );
-</script>
 
-<script>
 async function protegerPagina(){
 
  const { data } = await db.auth.getSession();
@@ -190,7 +188,17 @@ async function protegerPagina(){
 }
 
 protegerPagina();
+
+db.auth.onAuthStateChange((event, session) => {
+
+ if(!session){
+   location.href = "login.html";
+ }
+
+});
 </script>
+
+
 
 <script>
   async function sair(){
@@ -593,70 +601,6 @@ function toggleMenu(){
   menu.classList.toggle("ativo");
 }
 async function calcularPlanos(){
-
- const inicio = document.getElementById("planoInicio").value;
- const fim = document.getElementById("planoFim").value;
- const box = document.getElementById("resultadoPlanos");
-
- if(!inicio || !fim){
-   box.innerHTML = "Escolha as datas";
-   return;
- }
-
- box.innerHTML = "Carregando...";
-
- const { data, error } = await db
- .from("atendimentos")
- .select("*")
- .eq("tipo_cliente", "plano")
- .gte("data", inicio)
- .lte("data", fim)
- .order("data");
-
- if(error){
-   box.innerHTML = error.message;
-   return;
- }
-
- if(!data.length){
-   box.innerHTML = "Nenhum cliente plano no período";
-   return;
- }
-
- let total = 0;
- let gilberto = 0;
- let thiago = 0;
- let html = "";
-
- data.forEach(item => {
-
-   const valor = Number(item.valor || 0);
-   total += valor;
-
-   if(item.barbeiro === "Gilberto") gilberto++;
-   if(item.barbeiro === "Thiago") thiago++;
-
-   html += `
-   <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
-     <strong>${item.nome_cliente}</strong><br>
-     ${item.data} - Corte ${item.numero_corte}/4<br>
-     <small>${item.barbeiro} • R$ ${valor.toFixed(2)}</small>
-   </div>
-   `;
- });
-
- box.innerHTML = `
-   <h3>Total recebido: R$ ${total.toFixed(2)}</h3>
-
-   <p>📌 Atendimentos plano: ${data.length}</p>
-   <p>💈 Gilberto: ${gilberto}</p>
-   <p>💈 Thiago: ${thiago}</p>
-
-   <hr>
-
-   ${html}
- `;
-}async function calcularPlanos(){
 
  const inicio = document.getElementById("planoInicio").value;
  const fim = document.getElementById("planoFim").value;
