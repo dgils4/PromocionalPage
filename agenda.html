@@ -64,7 +64,7 @@
 <body>
   <div id="sidebar" class="sidebar">
   <h3>📊 Painel</h3>
-
+<button onclick="sair()">Sair</button>
   <button onclick="abrirVisao('hoje'),irParaHoje()">Voltar</button>
   <button onclick="abrirVisao('calendario')">Calendário de busca</button>
 
@@ -177,8 +177,27 @@ const db = createClient(
 );
 </script>
 
+<script>
+async function protegerPagina(){
+
+ const { data } = await db.auth.getSession();
+
+ if(!data.session){
+   location.href = "login.html";
+   return;
+ }
+
+}
+
+protegerPagina();
+</script>
 
 <script>
+  async function sair(){
+ await db.auth.signOut();
+ location.href = "login.html";
+}
+  
  const modil = document.getElementById("modalervicos");
 const lista = document.getElementById("listaServicos");
 const inputValor = document.getElementById("valor");
