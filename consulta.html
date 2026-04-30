@@ -269,9 +269,38 @@ async function buscar(){
    `;
  }
 }
+let valorTexto = "";
+let estiloCard = "";
+
+if(item.tipo_cliente === "plano"){
+
+ valorTexto = "💰 R$ 0,00 • Incluso no Plano";
+
+ estiloCard = `
+ background:rgba(59,130,246,0.12);
+ border-left:4px solid #3b82f6;
+ `;
+
+}else if(Number(item.valor) === 0){
+
+ valorTexto = "💰 R$ 0,00 • Não paga";
+
+ estiloCard = `
+ background:rgba(220,38,38,0.15);
+ border-left:4px solid #dc2626;
+ `;
+
+}else{
+
+ valorTexto =
+ "💰 R$ " + Number(item.valor).toFixed(2).replace(".", ",");
+
+}
+
+
 
    html += `
-   <div class="card">
+  <div class="card" style="${estiloCard}">
 
    <div class="nome">${item.nome_cliente}</div>
 
@@ -284,9 +313,9 @@ async function buscar(){
 
    ${extra}
 
-   <div class="valor">
-   💰 R$ ${Number(item.valor).toFixed(2)}
-   </div>
+  <div class="valor">
+${valorTexto}
+</div>
 
    </div>
    `;
