@@ -91,17 +91,19 @@ const msg = document.getElementById("msg");
 
 msg.innerHTML = "Entrando...";
 
-const { error } = await db.auth.signInWithPassword({
-email: email,
-password: senha
+const { data, error } = await db.auth.signInWithPassword({
+ email,
+ password: senha
 });
 
 if(error){
-msg.innerHTML = "Login inválido";
-return;
+ msg.innerHTML = error.message;
+ console.log(error);
+ return;
 }
 
-location.href = "login.html";
+msg.innerHTML = "Sucesso!";
+location.href = "agenda.html";
 }
 </script>
 
