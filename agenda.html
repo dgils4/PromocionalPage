@@ -56,6 +56,18 @@
   color: #fff;
   cursor: pointer;
 }
+#salir{
+  
+  
+  position:absolute;
+  right:0px;
+  margin:15px;
+  padding:3px 6px;
+  background-color:#dd5454;
+  border-radius:3px;
+  font-size:11px;
+  
+}
 
 
 </style>
@@ -63,8 +75,7 @@
 </head>
 <body>
   <div id="sidebar" class="sidebar">
-  <h3>📊 Painel</h3>
-<button onclick="sair()">Sair</button>
+  <h3>📊 Painel</h3><button id="salir" onclick="sair()">sair</button>
   <button onclick="abrirVisao('hoje'),irParaHoje()">Voltar</button>
   <button onclick="abrirVisao('calendario')">Calendário de busca</button>
 
