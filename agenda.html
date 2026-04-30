@@ -126,6 +126,8 @@
 <div class='toolbar'>
 <select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option></select>
 <button onclick='carregarHoje()'>Atualizar</button>
+<button onclick="backupCSV()">📁 Backup CSV</button>
+
 </div>
 <div id='agenda'></div>
 </div>
@@ -791,6 +793,56 @@ inputNome.addEventListener("input", async () => {
  });
 
 });
+
+async function backupCSV(){
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .order("data", { ascending: true });
+
+ if(error){
+   alert("Erro ao gerar backup");
+   return;
+ }
+
+ if(!data.length){
+   alert("Nenhum dado encontrado");
+   return;
+ }
+
+ let csv = "";
+
+ const colunas = Object.keys(data[0]);
+ csv += colunas.join(";") + "\n";
+
+ data.forEach(item => {
+
+   const linha = colunas.map(col => {
+     let valor = item[col] ?? "";
+     valor = String(valor).replace(/;/g, ",");
+     return `"${valor}"`;
+   }).join(";");
+
+   csv += linha + "\n";
+ });
+
+ const blob = new Blob([csv], {
+   type: "text/csv;charset=utf-8;"
+ });
+
+ const link = document.createElement("a");
+
+ const hoje = new Date().toISOString().slice(0,10);
+
+ link.href = URL.createObjectURL(blob);
+ link.download = "backup_atendimentos_" + hoje + ".csv";
+
+ link.click();
+
+}
+
+
 carregarHoje();
 
 
