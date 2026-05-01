@@ -153,9 +153,28 @@
 <div class='row'>
 <select id='barbeiro'><option>Gilberto</option><option>Thiago</option></select>
 <select id='tipo'><option>avulso</option><option>plano</option></select>
+
+
 </div>
+<div id="boxPlanoAdmin" style="display:none;">
+
+<input type="date" id="adesaoPlano" style="margin-right:4px">
+
+<select id="statusPlano" style="margin-left:4px">
+  <option value="ativo">Plano Ativo</option>
+  <option value="inativo">Plano Inativo</option>
+</select>
+
+</div>
+
 <div class='row'>
-<select id='corte'><option value='1'>Corte 1</option><option value='2'>Corte 2</option><option value='3'>Corte 3</option><option value='4'>Corte 4</option></select>
+<select id="corte">
+  <option value="">Não alterar</option>
+  <option value="1">Corte 1/4</option>
+  <option value="2">Corte 2/4</option>
+  <option value="3">Corte 3/4</option>
+  <option value="4">Corte 4/4</option>
+</select>
 <select id='pag'><option>Pix</option><option>Dinheiro</option><option>Debito</option><option>Crédito</option><option>Plano Mensal</option></select>
 </div>
 <input id="valor" placeholder="Clique para escolher um serviço" readonly>
@@ -270,8 +289,8 @@ async function carregarervicos() {
     lista.appendChild(div);
   });
 } 
-  
-  
+  const statusPlano = document.getElementById("statusPlano");
+const adesaoPlano = document.getElementById("adesaoPlano");  
   
 const dataInput = document.getElementById('data');
 const agenda = document.getElementById('agenda');
@@ -309,12 +328,20 @@ for(let h=8; h<=20; h++){
 function abrir(h=''){
  modal.style.display='flex';
  hora.value = h;
+
+ document.getElementById("boxPlanoAdmin").style.display = "none";
+ document.getElementById("adesao").value = "";
+document.getElementById("status_plano").value = "ativo";
 }
 
 function fechar(){
  modal.style.display = "none";
  editandoId = null;
+
+ document.getElementById("boxPlanoAdmin").style.display = "none";
+ document.getElementById("adesao").value = "";
 }
+
 async function carregarHoje(){
 
  agenda.innerHTML = '';
@@ -421,6 +448,42 @@ async function salvarAtendimento(){
   return;
  }
 
+let numeroCorteFinal = corte.value;
+
+if(tipo.value === "plano"){
+
+ if(numeroCorteFinal === ""){
+
+   const { data: historico } = await db
+   .from("atendimentos")
+   .select("numero_corte,data,hora,id")
+   .eq("telefone", telefoneLimpo)
+   .eq("tipo_cliente", "plano")
+   .order("data", { ascending:false })
+   .order("hora", { ascending:false })
+   .order("id", { ascending:false })
+   .limit(1);
+
+   if(historico && historico.length > 0){
+
+     let ultimo = parseInt(historico[0].numero_corte,10) || 0;
+
+     numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
+
+   }else{
+
+     numeroCorteFinal = 1;
+
+   }
+
+ }
+
+}else{
+
+ numeroCorteFinal = "";
+
+} 
+
  try {
 
  const nomeFinal = nome.value.trim() === ""
@@ -434,7 +497,7 @@ async function salvarAtendimento(){
    telefone: telefoneLimpo,
    barbeiro: barbeiro.value,
    tipo_cliente: tipo.value,
-   numero_corte: corte.value,
+  numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
    forma_pagamento: pag.value,
    valor: valorr.value,
    observacao: obs.value,
@@ -469,16 +532,30 @@ async function salvarAtendimento(){
  }],{
    onConflict:"telefone"
  });
+if(tipo.value === "plano"){
 
- if(tipo.value === "plano"){
-   await db
-   .from("clientes")
-   .update({
-     status_plano:"ativo",
-     data_adesao_plano:dataInput.value
-   })
-   .eq("telefone", telefoneLimpo);
+ const { data: cli } = await db
+ .from("clientes")
+ .select("data_adesao_plano,status_plano")
+ .eq("telefone", telefoneLimpo)
+ .single();
+
+ let dadosUpdate = {
+   status_plano: "ativo"
+ };
+
+ // só define adesão se ainda não existir
+ if(!cli?.data_adesao_plano){
+   dadosUpdate.data_adesao_plano = dataInput.value;
  }
+
+ await db
+ .from("clientes")
+ .update(dadosUpdate)
+ .eq("telefone", telefoneLimpo);
+
+}
+ 
 
  alert('Salvo com sucesso');
 
@@ -509,6 +586,8 @@ async function acoes(id){
 
  if(op == '1'){
    editarAtendimento(id);
+   adesaoPlano.value = data.data || "";
+  let dis = document.getElementById("boxPlanoAdmin").style.display = "flex";
  }
 
 }
