@@ -454,6 +454,8 @@ if(telefoneLimpo.length !== 11){
    .from('atendimentos')
    .insert([dados]);
 
+
+
  }
 
  if(resposta.error){
@@ -462,6 +464,7 @@ if(telefoneLimpo.length !== 11){
  }
 
  alert('Salvo com sucesso');
+
 
  editandoId = null;
 
@@ -474,6 +477,27 @@ if(telefoneLimpo.length !== 11){
    alert("Falha: " + e.message);
 
  }
+ 
+await db
+.from("clientes")
+.upsert([{
+ nome: nomeFinal,
+ telefone: telefoneLimpo
+}],{
+ onConflict:"telefone"
+});
+if(tipo.value === "plano"){
+
+ await db
+ .from("clientes")
+ .update({
+   status_plano:"ativo",
+   data_adesao_plano:dataInput.value
+ })
+ .eq("telefone", telefoneLimpo);
+
+}
+ 
 
 }
   
