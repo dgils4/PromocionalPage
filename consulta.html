@@ -1,344 +1,363 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal do Cliente - Los Visionários</title>
 
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  background:#050b16;
-  font-family:Arial, sans-serif;
-  color:#fff;
-  padding:20px;
-}
-
-.container{
-  max-width:450px;
-  margin:auto;
-}
-
-.topo{
-  background:#0f172a;
-  padding:20px;
-  border-radius:16px;
-  margin-bottom:15px;
-  border:1px solid #1d4ed8;
-}
-
-h1{
-  font-size:24px;
-  text-align:center;
-  color:#60a5fa;
-  margin-bottom:15px;
-}
-
-input{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  outline:none;
-  margin-bottom:10px;
-  font-size:16px;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  background:#1d4ed8;
-  color:#fff;
-  font-size:16px;
-  font-weight:bold;
-}
-
-button:active{
-  transform:scale(.98);
-}
-
-.resumo{
-  background:#0f172a;
-  padding:15px;
-  border-radius:16px;
-  margin-bottom:15px;
-  display:none;
-  border:1px solid #1e3a8a;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.box{
-  background:#111827;
-  padding:12px;
-  border-radius:12px;
-  text-align:center;
-}
-
-.box strong{
-  display:block;
-  color:#60a5fa;
-  font-size:20px;
-}
-
-.card{
-  background:#0f172a;
-  border-left:4px solid #1d4ed8;
-  padding:15px;
-  border-radius:14px;
-  margin-bottom:12px;
-}
-
-.nome{
-  font-size:18px;
-  font-weight:bold;
-  color:#fff;
-}
-
-hr{
-  border:none;
-  border-top:1px solid #1e3a8a;
-  margin:10px 0;
-}
-
-.valor{
-  margin-top:10px;
-  color:#60a5fa;
-  font-size:20px;
-  font-weight:bold;
-}
-
-.barra{
-  width:100%;
-  background:#111827;
-  height:12px;
-  border-radius:20px;
-  overflow:hidden;
-  margin-top:8px;
-}
-
-.progresso{
-  height:100%;
-  background:#22c55e;
-}
-
-.msg{
-  text-align:center;
-  margin-top:15px;
-  color:#93c5fd;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="topo">
-<h1>Los Visionários</h1>
-
-<input id="telefone" placeholder="Digite seu celular com DDD">
-<button onclick="buscar()">Consultar Histórico</button>
-</div>
-
-<div class="resumo" id="resumo">
-<div class="grid">
-<div class="box">
-<strong id="visitas">0</strong>
-Visitas
-</div>
-
-<div class="box">
-<strong id="gasto">R$0</strong>
-Total Gasto
-</div>
-</div>
-</div>
-
-<div id="resultado"></div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const db = supabase.createClient(
-  'https://cdechrtprerblmhllqav.supabase.co',
- 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
-);
-
-async function buscar(){
-
- const telefone = document.getElementById("telefone")
- .value
- .replace(/\D/g,"");
-
- const resultado = document.getElementById("resultado");
- const resumo = document.getElementById("resumo");
-
- if(telefone.length !== 11){
-   resultado.innerHTML =
-   '<div class="msg">Digite seu celular com DDD</div>';
-   resumo.style.display = "none";
-   return;
- }
-
- resultado.innerHTML =
- '<div class="msg">Carregando...</div>';
-
- const { data, error } = await db
- .from("atendimentos")
- .select("nome_cliente,data,barbeiro,tipo_cliente,numero_corte,valor,servico,telefone")
- .eq("telefone", telefone)
- .order("data",{ascending:false});
-
- if(error){
-   resultado.innerHTML =
-   '<div class="msg">Erro ao buscar</div>';
-   resumo.style.display = "none";
-   return;
- }
-
- if(!data || data.length === 0){
-   resultado.innerHTML =
-   '<div class="msg">Nenhum histórico encontrado</div>';
-   resumo.style.display = "none";
-   return;
- }
-
- let html = "";
- let total = 0;
-
- const visitasAvulso =
- data.filter(x => x.tipo_cliente === "avulso").length;
-
- data.forEach(item => {
-
-   total += Number(item.valor || 0);
-
-   let tipo = "";
-   let extra = "";
-   let valorTexto = "";
-   let estiloCard = "";
-
-   if(item.tipo_cliente === "plano"){
-
-     tipo = "🟢 Plano Mensal";
-
-     const corte = Number(item.numero_corte || 0);
-     const porcentagem = corte * 25;
-
-     extra = `
-     <br>
-     ✂️ Corte ${corte}/4
-
-     <div class="barra">
-       <div class="progresso"
-       style="width:${porcentagem}%"></div>
-     </div>
-     `;
-
-     valorTexto = "💰 R$ 0,00 • Incluso no Plano";
-
-     estiloCard = `
-     background:rgba(59,130,246,0.12);
-     border-left:4px solid #3b82f6;
-     `;
-
-   }else{
-
-     tipo = "🔵 Atendimento Avulso";
-
-     let resto = visitasAvulso % 11;
-
-     if(resto === 10){
-
-       extra = `
-       <div style="
-       margin-top:10px;
-       background:#16a34a;
-       padding:10px;
-       border-radius:10px;
-       font-weight:bold;">
-       🎁 Corte Grátis Disponível
-       </div>
-       `;
-
-     }else{
-
-       extra = `
-       <div style="margin-top:10px;">
-       🎟️ Cartão Fidelidade ${resto}/10
-
-       <div class="barra">
-         <div class="progresso"
-         style="width:${resto * 10}%"></div>
-       </div>
-       </div>
-       `;
-     }
-
-     if(Number(item.valor) === 0){
-
-       valorTexto = "💰 R$ 0,00 • Não paga";
-
-       estiloCard = `
-       background:rgba(220,38,38,0.15);
-       border-left:4px solid #dc2626;
-       `;
-
-     }else{
-
-       valorTexto =
-       "💰 R$ " +
-       Number(item.valor).toFixed(2).replace(".", ",");
-     }
-   }
-
-   html += `
-   <div class="card" style="${estiloCard}">
-
-     <div class="nome">${item.nome_cliente}</div>
-
-     <hr>
-
-     📅 ${item.data}<br><br>
-     💈 Barbeiro: ${item.barbeiro}<br><br>
-     ${tipo}<br><br>
-     ✂️ Serviço: ${item.servico || "Não informado"}<br>
-
-     ${extra}
-
-     <div class="valor">
-       ${valorTexto}
-     </div>
-
-   </div>
-   `;
- });
-
- document.getElementById("visitas").innerText =
- data.length;
-
- document.getElementById("gasto").innerText =
- "R$ " + total.toFixed(2).replace(".", ",");
-
- resumo.style.display = "block";
-
- resultado.innerHTML = html;
-}
-</script>
-
-</body>
+<html lang="pt-BR">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>Portal do Cliente - Los Visionários</title>  <style>  
+*{  
+  margin:0;  
+  padding:0;  
+  box-sizing:border-box;  
+}  
+  
+body{  
+  background:#050b16;  
+  font-family:Arial, sans-serif;  
+  color:#fff;  
+  padding:20px;  
+}  
+  
+.container{  
+  max-width:450px;  
+  margin:auto;  
+}  
+  
+.topo{  
+  background:#0f172a;  
+  padding:20px;  
+  border-radius:16px;  
+  margin-bottom:15px;  
+  border:1px solid #1d4ed8;  
+}  
+  
+h1{  
+  font-size:24px;  
+  text-align:center;  
+  color:#60a5fa;  
+  margin-bottom:15px;  
+}  
+  
+input{  
+  width:100%;  
+  padding:14px;  
+  border:none;  
+  border-radius:10px;  
+  outline:none;  
+  margin-bottom:10px;  
+  font-size:16px;  
+}  
+  
+button{  
+  width:100%;  
+  padding:14px;  
+  border:none;  
+  border-radius:10px;  
+  background:#1d4ed8;  
+  color:#fff;  
+  font-size:16px;  
+  font-weight:bold;  
+}  
+  
+button:active{  
+  transform:scale(.98);  
+}  
+  
+.resumo{  
+  background:#0f172a;  
+  padding:15px;  
+  border-radius:16px;  
+  margin-bottom:15px;  
+  display:none;  
+  border:1px solid #1e3a8a;  
+}  
+  
+.grid{  
+  display:grid;  
+  grid-template-columns:1fr 1fr;  
+  gap:10px;  
+}  
+  
+.box{  
+  background:#111827;  
+  padding:12px;  
+  border-radius:12px;  
+  text-align:center;  
+}  
+  
+.box strong{  
+  display:block;  
+  color:#60a5fa;  
+  font-size:20px;  
+}  
+  
+.card{  
+  background:#0f172a;  
+  border-left:4px solid #1d4ed8;  
+  padding:15px;  
+  border-radius:14px;  
+  margin-bottom:12px;  
+}  
+  
+.nome{  
+  font-size:18px;  
+  font-weight:bold;  
+  color:#fff;  
+}  
+  
+hr{  
+  border:none;  
+  border-top:1px solid #1e3a8a;  
+  margin:10px 0;  
+}  
+  
+.valor{  
+  margin-top:10px;  
+  color:#60a5fa;  
+  font-size:20px;  
+  font-weight:bold;  
+}  
+  
+.barra{  
+  width:100%;  
+  background:#111827;  
+  height:12px;  
+  border-radius:20px;  
+  overflow:hidden;  
+  margin-top:8px;  
+}  
+  
+.progresso{  
+  height:100%;  
+  background:#22c55e;  
+}  
+  
+.msg{  
+  text-align:center;  
+  margin-top:15px;  
+  color:#93c5fd;  
+}  
+</style>  </head>  <body>  <div class="container">  <div class="topo">  
+<h1>Los Visionários</h1>  <input id="telefone" placeholder="Digite seu celular com DDD">  
+<button onclick="buscar()">Consultar Histórico</button>  
+</div>  <div class="resumo" id="resumo">  
+<div class="grid">  
+<div class="box">  
+<strong id="visitas">0</strong>  
+Visitas  
+</div>  <div class="box">  
+<strong id="gasto">R$0</strong>  
+Total Gasto  
+</div>  
+</div>  
+</div>  <div id="resultado"></div>  </div>  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  <script>  
+const db = supabase.createClient(  
+  'https://cdechrtprerblmhllqav.supabase.co',  
+ 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'  
+);  
+  
+async function buscar(){  
+  
+ const telefone = document.getElementById("telefone")  
+ .value  
+ .replace(/\D/g,"");  
+  
+ const resultado = document.getElementById("resultado");  
+ const resumo = document.getElementById("resumo");  
+  
+ if(telefone.length !== 11){  
+   resultado.innerHTML =  
+   '<div class="msg">Digite seu celular com DDD</div>';  
+   resumo.style.display = "none";  
+   return;  
+ }  
+  
+ resultado.innerHTML =  
+ '<div class="msg">Carregando...</div>';  
+  
+ const { data, error } = await db  
+ .from("atendimentos")  
+ .select("nome_cliente,data,barbeiro,tipo_cliente,numero_corte,valor,servico,telefone")  
+ .eq("telefone", telefone)  
+ .order("data",{ascending:false});  
+  
+ if(error){  
+   resultado.innerHTML =  
+   '<div class="msg">Erro ao buscar</div>';  
+   resumo.style.display = "none";  
+   return;  
+ }  
+  
+ if(!data || data.length === 0){  
+   resultado.innerHTML =  
+   '<div class="msg">Nenhum histórico encontrado</div>';  
+   resumo.style.display = "none";  
+   return;  
+ }  
+   
+const { data:cli } = await db  
+.from("clientes")  
+.select("data_adesao_plano,status_plano")  
+.eq("telefone", telefone)  
+.single();  
+  
+ let html = "";  
+let statusTexto = "";  
+let statusCor = "";  
+let adesaoTexto = "";  
+  
+if(cli){  
+  
+ if(cli.status_plano === "ativo"){  
+   statusTexto = "🟢 Cliente Ativo";  
+   statusCor = "#22c55e";  
+ }  
+  
+ else if(cli.status_plano === "inativo"){  
+   statusTexto = "🔴 Cliente Inativo";  
+   statusCor = "#ef4444";  
+ }  
+  
+ else{  
+   statusTexto = "🔵 Cliente Cadastrado";  
+   statusCor = "#3b82f6";  
+ }  
+  
+ if(cli.data_adesao_plano){  
+   adesaoTexto = `<br><br>📅 Desde ${cli.data_adesao_plano}`;  
+ }  
+  
+ html += `  
+ <div class="card" style="  
+ border-left:4px solid ${statusCor};  
+ background:${statusCor}15;  
+ ">  
+   <strong style="color:${statusCor}">  
+   ${statusTexto}  
+   </strong>  
+  
+   ${adesaoTexto}  
+ </div>  
+ `;  
+}  
+ let total = 0;  
+  
+const servicosValidos = [  
+  "máquina",  
+  "máquina e tesoura"  
+];  
+  
+const visitasAvulso =  
+ data.filter(x =>  
+   x.tipo_cliente === "avulso" &&  
+   servicosValidos.includes((x.servico || "").toLowerCase().trim())  
+ ).length;  
+  
+ data.forEach(item => {  
+  
+   total += Number(item.valor || 0);  
+  
+   let tipo = "";  
+   let extra = "";  
+   let valorTexto = "";  
+   let estiloCard = "";  
+  
+   if(item.tipo_cliente === "plano"){  
+  
+     tipo = "🟢 Plano Mensal";  
+  
+     const corte = Number(item.numero_corte || 0);  
+     const porcentagem = corte * 25;  
+  
+     extra = `  
+     <br>  
+     ✂️ Corte ${corte}/4  
+  
+     <div class="barra">  
+       <div class="progresso"  
+       style="width:${porcentagem}%"></div>  
+     </div>  
+     `;  
+  
+     valorTexto = "💰 R$ 0,00 • Incluso no Plano";  
+  
+     estiloCard = `  
+     background:rgba(59,130,246,0.12);  
+     border-left:4px solid #3b82f6;  
+     `;  
+  
+   }else{  
+  
+     tipo = "🔵 Atendimento Avulso";  
+  
+     let resto = visitasAvulso % 11;  
+  
+     if(resto === 10){  
+  
+       extra = `  
+       <div style="  
+       margin-top:10px;  
+       background:#16a34a;  
+       padding:10px;  
+       border-radius:10px;  
+       font-weight:bold;">  
+       🎁 Corte Grátis Disponível  
+       </div>  
+       `;  
+  
+     }else{  
+  
+    
+     }  
+  
+     if(Number(item.valor) === 0){  
+  
+       valorTexto = "💰 R$ 0,00 • Não paga";  
+  
+       estiloCard = `  
+       background:rgba(220,38,38,0.15);  
+       border-left:4px solid #dc2626;  
+       `;  
+  
+     }else{  
+  
+       valorTexto =  
+       "💰 R$ " +  
+       Number(item.valor).toFixed(2).replace(".", ",");  
+     }  
+   }  
+  
+   html += `  
+   <div class="card" style="${estiloCard}">  
+  
+     <div class="nome">${item.nome_cliente}</div>  
+  
+     <hr>  
+  
+     📅 ${item.data}<br><br>  
+     💈 Barbeiro: ${item.barbeiro}<br><br>  
+     ${tipo}<br><br>  
+     ✂️ Serviço: ${item.servico || "Não informado"}<br>  
+  
+     ${extra}  
+  
+     <div class="valor">  
+       ${valorTexto}  
+     </div>  
+  
+   </div>  
+   `;  
+ });  
+  
+ document.getElementById("visitas").innerText =  
+ data.length;  
+  
+ document.getElementById("gasto").innerText =  
+ "R$ " + total.toFixed(2).replace(".", ",");  
+  
+ resumo.style.display = "block";  
+  
+ resultado.innerHTML = html;  
+}  
+</script>  </body>  
 </html>
