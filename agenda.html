@@ -412,7 +412,13 @@ R$${item.valor}
 
 
 async function salvarAtendimento(){
+const telefoneLimpo = fone.value.replace(/\D/g,'');
 
+if(telefoneLimpo.length !== 11){
+  alert("Digite um celular válido com DDD (11 números).");
+  fone.focus();
+  return;
+}
  try {
 
  const nomeFinal = nome.value.trim() === ""
@@ -423,7 +429,7 @@ async function salvarAtendimento(){
    data: dataInput.value,
    hora: hora.value,
    nome_cliente: nomeFinal,
-   telefone: fone.value,
+   telefone: telefoneLimpo,
    barbeiro: barbeiro.value,
    tipo_cliente: tipo.value,
    numero_corte: corte.value,
@@ -795,10 +801,12 @@ inputNome.addEventListener("input", async () => {
      <small>${cliente.telefone || ''}</small>
    `;
 
+
    div.onclick = () => {
-     inputNome.value = cliente.nome_cliente;
-     sugestoes.innerHTML = "";
-   };
+  inputNome.value = cliente.nome_cliente;
+  document.getElementById("fone").value = cliente.telefone || "";
+  sugestoes.innerHTML = "";
+};
 
    sugestoes.appendChild(div);
  });
