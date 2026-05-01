@@ -148,7 +148,7 @@ hr{
 <div class="topo">
 <h1>Los Visionários</h1>
 
-<input id="nome_cliente" placeholder="Digite seu nome completo">
+<input id="telefone" placeholder="Digite seu celular com DDD">
 <button onclick="buscar()">Consultar Histórico</button>
 </div>
 
@@ -180,30 +180,39 @@ const db = supabase.createClient(
 
 async function buscar(){
 
- const nome = document.getElementById("nome_cliente").value.trim();
+ const telefone = document.getElementById("telefone")
+ .value
+ .replace(/\D/g,"");
+
  const resultado = document.getElementById("resultado");
  const resumo = document.getElementById("resumo");
 
- if(!nome){
-   resultado.innerHTML = '<div class="msg">Digite seu nome</div>';
+ if(telefone.length !== 11){
+   resultado.innerHTML =
+   '<div class="msg">Digite seu celular com DDD</div>';
+   resumo.style.display = "none";
    return;
  }
 
- resultado.innerHTML = '<div class="msg">Carregando...</div>';
+ resultado.innerHTML =
+ '<div class="msg">Carregando...</div>';
 
  const { data, error } = await db
  .from("atendimentos")
- .select("*")
- .ilike("nome_cliente", `%${nome}%`)
+ .select("nome_cliente,data,barbeiro,tipo_cliente,numero_corte,valor,servico,telefone")
+ .eq("telefone", telefone)
  .order("data",{ascending:false});
 
  if(error){
-   resultado.innerHTML = '<div class="msg">Erro ao buscar</div>';
+   resultado.innerHTML =
+   '<div class="msg">Erro ao buscar</div>';
+   resumo.style.display = "none";
    return;
  }
 
- if(data.length == 0){
-   resultado.innerHTML = '<div class="msg">Nenhum histórico encontrado</div>';
+ if(!data || data.length === 0){
+   resultado.innerHTML =
+   '<div class="msg">Nenhum histórico encontrado</div>';
    resumo.style.display = "none";
    return;
  }
@@ -211,14 +220,19 @@ async function buscar(){
  let html = "";
  let total = 0;
 
- data.forEach(item=>{
+ const visitasAvulso =
+ data.filter(x => x.tipo_cliente === "avulso").length;
+
+ data.forEach(item => {
 
    total += Number(item.valor || 0);
 
    let tipo = "";
    let extra = "";
+   let valorTexto = "";
+   let estiloCard = "";
 
-   if(item.tipo_cliente == "plano"){
+   if(item.tipo_cliente === "plano"){
 
      tipo = "🟢 Plano Mensal";
 
@@ -226,103 +240,99 @@ async function buscar(){
      const porcentagem = corte * 25;
 
      extra = `
-       <br>✂️ Corte ${corte}/4
+     <br>
+     ✂️ Corte ${corte}/4
 
-       <div class="barra">
-         <div class="progresso" style="width:${porcentagem}%"></div>
-       </div>
+     <div class="barra">
+       <div class="progresso"
+       style="width:${porcentagem}%"></div>
+     </div>
+     `;
+
+     valorTexto = "💰 R$ 0,00 • Incluso no Plano";
+
+     estiloCard = `
+     background:rgba(59,130,246,0.12);
+     border-left:4px solid #3b82f6;
      `;
 
    }else{
 
- tipo = "🔵 Atendimento Avulso";
+     tipo = "🔵 Atendimento Avulso";
 
- const visitasAvulso = data.filter(x => x.tipo_cliente == "avulso").length;
+     let resto = visitasAvulso % 11;
 
- let resto = visitasAvulso % 11;
+     if(resto === 10){
 
- if(resto === 10){
+       extra = `
+       <div style="
+       margin-top:10px;
+       background:#16a34a;
+       padding:10px;
+       border-radius:10px;
+       font-weight:bold;">
+       🎁 Corte Grátis Disponível
+       </div>
+       `;
 
-   extra = `
-   <div style="
-   margin-top:10px;
-   background:#16a34a;
-   padding:10px;
-   border-radius:10px;
-   font-weight:bold;">
-   🎁 Corte Grátis Disponível
-   </div>
-   `;
+     }else{
 
- }else{
+       extra = `
+       <div style="margin-top:10px;">
+       🎟️ Cartão Fidelidade ${resto}/10
 
-   let progresso = resto;
+       <div class="barra">
+         <div class="progresso"
+         style="width:${resto * 10}%"></div>
+       </div>
+       </div>
+       `;
+     }
 
-   extra = `
-   <div style="margin-top:10px;">
-   🎟️ Cartão Fidelidade ${progresso}/10
+     if(Number(item.valor) === 0){
 
-   <div class="barra">
-     <div class="progresso" style="width:${progresso * 10}%"></div>
-   </div>
-   </div>
-   `;
- }
-}
-let valorTexto = "";
-let estiloCard = "";
+       valorTexto = "💰 R$ 0,00 • Não paga";
 
-if(item.tipo_cliente === "plano"){
+       estiloCard = `
+       background:rgba(220,38,38,0.15);
+       border-left:4px solid #dc2626;
+       `;
 
- valorTexto = "💰 R$ 0,00 • Incluso no Plano";
+     }else{
 
- estiloCard = `
- background:rgba(59,130,246,0.12);
- border-left:4px solid #3b82f6;
- `;
-
-}else if(Number(item.valor) === 0){
-
- valorTexto = "💰 R$ 0,00 • Não paga";
-
- estiloCard = `
- background:rgba(220,38,38,0.15);
- border-left:4px solid #dc2626;
- `;
-
-}else{
-
- valorTexto =
- "💰 R$ " + Number(item.valor).toFixed(2).replace(".", ",");
-
-}
-
-
+       valorTexto =
+       "💰 R$ " +
+       Number(item.valor).toFixed(2).replace(".", ",");
+     }
+   }
 
    html += `
-  <div class="card" style="${estiloCard}">
+   <div class="card" style="${estiloCard}">
 
-   <div class="nome">${item.nome_cliente}</div>
+     <div class="nome">${item.nome_cliente}</div>
 
-   <hr>
+     <hr>
 
-   📅 ${item.data}<br><br>
-   💈 ${item.barbeiro}<br><br>
-    ${tipo}<br><br>
-   ✂️ Serviço: ${item.servico || "Não informado"}<br>
+     📅 ${item.data}<br><br>
+     💈 ${item.barbeiro}<br><br>
+     ${tipo}<br><br>
+     ✂️ Serviço: ${item.servico || "Não informado"}<br>
 
-   ${extra}
+     ${extra}
 
-  <div class="valor">
-${valorTexto}
-</div>
+     <div class="valor">
+       ${valorTexto}
+     </div>
 
    </div>
    `;
  });
 
- document.getElementById("visitas").innerText = data.length;
- document.getElementById("gasto").innerText = "R$ " + total.toFixed(2);
+ document.getElementById("visitas").innerText =
+ data.length;
+
+ document.getElementById("gasto").innerText =
+ "R$ " + total.toFixed(2).replace(".", ",");
 
  resumo.style.display = "block";
 
