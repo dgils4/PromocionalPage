@@ -412,13 +412,15 @@ R$${item.valor}
 
 
 async function salvarAtendimento(){
-const telefoneLimpo = fone.value.replace(/\D/g,'');
 
-if(telefoneLimpo.length !== 11){
+ const telefoneLimpo = fone.value.replace(/\D/g,'');
+
+ if(telefoneLimpo.length !== 11){
   alert("Digite um celular válido com DDD (11 números).");
   fone.focus();
   return;
-}
+ }
+
  try {
 
  const nomeFinal = nome.value.trim() === ""
@@ -442,20 +444,14 @@ if(telefoneLimpo.length !== 11){
  let resposta;
 
  if(editandoId){
-
    resposta = await db
    .from('atendimentos')
    .update(dados)
    .eq('id', editandoId);
-
  } else {
-
    resposta = await db
    .from('atendimentos')
    .insert([dados]);
-
-
-
  }
 
  if(resposta.error){
@@ -463,42 +459,36 @@ if(telefoneLimpo.length !== 11){
    return;
  }
 
- alert('Salvo com sucesso');
-
-
- editandoId = null;
-
- modal.style.display = "none";
-
- carregarHoje();
-
- } catch(e){
-
-   alert("Falha: " + e.message);
-
- }
- 
-await db
-.from("clientes")
-.upsert([{
- nome: nomeFinal,
- telefone: telefoneLimpo
-}],{
- onConflict:"telefone"
-});
-if(tipo.value === "plano"){
+ // ✅ AQUI É O LUGAR CERTO (IMPORTANTE)
 
  await db
  .from("clientes")
- .update({
-   status_plano:"ativo",
-   data_adesao_plano:dataInput.value
- })
- .eq("telefone", telefoneLimpo);
+ .upsert([{
+   nome: nomeFinal,
+   telefone: telefoneLimpo
+ }],{
+   onConflict:"telefone"
+ });
 
-}
- 
+ if(tipo.value === "plano"){
+   await db
+   .from("clientes")
+   .update({
+     status_plano:"ativo",
+     data_adesao_plano:dataInput.value
+   })
+   .eq("telefone", telefoneLimpo);
+ }
 
+ alert('Salvo com sucesso');
+
+ editandoId = null;
+ modal.style.display = "none";
+ carregarHoje();
+
+ } catch(e){
+   alert("Falha: " + e.message);
+ }
 }
   
 
