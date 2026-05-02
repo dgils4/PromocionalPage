@@ -325,21 +325,42 @@ for(let h=8; h<=20; h++){
  });
 }
 
-function abrir(h=''){
- modal.style.display='flex';
- hora.value = h;
+function abrir(h='') {
+  modal.style.display = 'flex';
+  hora.value = h;
 
- document.getElementById("boxPlanoAdmin").style.display = "none";
- document.getElementById("adesao").value = "";
-document.getElementById("status_plano").value = "ativo";
+  document.getElementById("boxPlanoAdmin").style.display = "none";
+
+  const adesao = document.getElementById("adesaoPlano");
+  const status = document.getElementById("statusPlano");
+
+  if (adesao) adesao.value = "";
+  if (status) status.value = "ativo";
+
+  editandoId = null;
 }
 
 function fechar(){
- modal.style.display = "none";
- editandoId = null;
+  modal.style.display = "none";
+  editandoId = null;
 
- document.getElementById("boxPlanoAdmin").style.display = "none";
- document.getElementById("adesao").value = "";
+  hora.value = "";
+  nome.value = "";
+  fone.value = "";
+  valor.value = "";
+  valorr.value = "";
+  obs.value = "";
+  corte.value = "";
+  pag.value = "Pix";
+
+  document.getElementById("boxPlanoAdmin").style.display = "none";
+
+  const adesao = document.getElementById("adesaoPlano");
+  const status = document.getElementById("statusPlano");
+
+  if (adesao) adesao.value = "";
+  if (status) status.value = "ativo";
+
 }
 
 async function carregarHoje(){
@@ -539,10 +560,9 @@ if(tipo.value === "plano"){
  .select("data_adesao_plano,status_plano")
  .eq("telefone", telefoneLimpo)
  .single();
-
- let dadosUpdate = {
-   status_plano: "ativo"
- };
+let dadosUpdate = {
+   status_plano: statusPlano.value
+};
 
  // só define adesão se ainda não existir
  if(!cli?.data_adesao_plano){
