@@ -196,7 +196,7 @@ async function buscar(){
   const { data, error } = await db
   .from("atendimentos")
   .select("nome_cliente,data,barbeiro,tipo_cliente,numero_corte,valor,servico")
- .ilike("nome_cliente", `%${nome}%`)
+.ilike("nome_cliente", nome)
   .order("data",{ascending:false});
 
   if(error){
@@ -240,7 +240,7 @@ if(cli){
  }
 
  if(cli.data_adesao_plano){
-   adesaoTexto = `<br><br>📅 Desde ${cli.data_adesao_plano}`;
+   adesaoTexto = `<br><br>📅 Assinatura ${cli.data_adesao_plano}`;
  }
 
  html += `
@@ -303,20 +303,7 @@ if(cli){
 
       let resto = visitasAvulso % 11;
 
-      if(resto === 10){
-        extra = `
-        <div style="
-        margin-top:10px;
-        background:#16a34a;
-        padding:10px;
-        border-radius:10px;
-        font-weight:bold;">
-        🎁 Corte Grátis Disponível
-        </div>
-        `;
-      }else{
  
-      }
 
       if(Number(item.valor) === 0){
 
