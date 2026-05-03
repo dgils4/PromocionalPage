@@ -427,7 +427,10 @@ else{
      <div class="time">${h}</div>
     <div style="background:${cor};color:${txt}"class="cell"
 style="background:${cor};border:1px solid #ffffff22"
-onclick="acoes('${item.id}')">
+ontouchstart="segurarExcluir(event,'${item.id}')"
+ontouchmove="moverDedo(event)"
+ontouchend="cancelarSegurar()"
+onclick="cliqueCard('${item.id}')">
       ${item.nome_cliente}<br>
 
 <small style="font-size:11px">
@@ -461,18 +464,28 @@ R$${item.valor}
 
 async function salvarAtendimento(){
 
- const telefoneLimpo = fone.value.replace(/\D/g,'');
+ let telefoneLimpo = fone.value.replace(/\D/g,'');
 
- if(telefoneLimpo.length !== 11){
-  alert("Digite um celular válido com DDD (11 números).");
-  fone.focus();
-  return;
+ // se vazio vira null
+ if(telefoneLimpo === ""){
+   telefoneLimpo = null;
+ }
+
+ // validação:
+ if(
+   telefoneLimpo !== null &&
+   telefoneLimpo !== "0" &&
+   telefoneLimpo.length !== 11
+ ){
+   alert("Telefone deve ser vazio, 0 ou 11 dígitos.");
+   fone.focus();
+   return;
  }
 
 let numeroCorteFinal = corte.value;
 
-if(tipo.value === "plano"){
 
+if(tipo.value === "plano" && telefoneLimpo){
  if(numeroCorteFinal === ""){
 
    const { data: historico } = await db
@@ -593,29 +606,15 @@ let dadosUpdate = {
 
 
 
-async function acoes(id){
 
- const op = prompt(
-`1 = Editar
-2 = Excluir`
- );
-
- if(op == '2'){
-   excluirAtendimento(id);
- }
-
- if(op == '1'){
-   editarAtendimento(id);
-   adesaoPlano.value = data.data || "";
-  let dis = document.getElementById("boxPlanoAdmin").style.display = "flex";
- }
-
-}
 
 
 
 async function editarAtendimento(id){
 
+ // ==========================
+ // BUSCA ATENDIMENTO
+ // ==========================
  const { data, error } = await db
  .from('atendimentos')
  .select('*')
@@ -629,31 +628,68 @@ async function editarAtendimento(id){
 
  editandoId = id;
 
- // abre modal
+ // ==========================
+ // ABRE MODAL
+ // ==========================
  modal.style.display = "flex";
 
- // muda título
- document.querySelector(".box h3").innerText = "Editar Atendimento";
+ document.querySelector(".box h3").innerText =
+ "Editar Atendimento";
 
- // preenche campos
- hora.value = data.hora || "";
- nome.value = data.nome_cliente || "";
- fone.value = data.telefone || "";
- barbeiro.value = data.barbeiro || "Gilberto";
- tipo.value = data.tipo_cliente || "avulso";
- corte.value = data.numero_corte || "1";
- pag.value = data.forma_pagamento || "Pix";
- valor.value = data.servico || "";
- valorr.value = data.valor || "";
- obs.value = data.observacao || "";
+ // ==========================
+ // PREENCHE CAMPOS
+ // ==========================
+ hora.value      = data.hora || "";
+ nome.value      = data.nome_cliente || "";
+ fone.value      = data.telefone || "";
+ barbeiro.value  = data.barbeiro || "Gilberto";
+ tipo.value      = data.tipo_cliente || "avulso";
+ corte.value     = data.numero_corte || "";
+ pag.value       = data.forma_pagamento || "Pix";
+ valor.value     = data.servico || "";
+ valorr.value    = data.valor || "";
+ obs.value       = data.observacao || "";
+
+ // ==========================
+ // SE FOR PLANO
+ // ==========================
+ if(data.tipo_cliente === "plano"){
+
+   document.getElementById("boxPlanoAdmin").style.display = "flex";
+
+   const { data: cli } = await db
+   .from("clientes")
+   .select("data_adesao_plano,status_plano")
+   .eq("telefone", data.telefone)
+   .single();
+
+   if(cli){
+
+     adesaoPlano.value =
+       cli.data_adesao_plano || "";
+
+     statusPlano.value =
+       cli.status_plano || "ativo";
+
+   }else{
+
+     adesaoPlano.value = "";
+     statusPlano.value = "ativo";
+
+   }
+
+ }else{
+
+   document.getElementById("boxPlanoAdmin").style.display = "none";
+
+   adesaoPlano.value = "";
+   statusPlano.value = "ativo";
+ }
 
 }
 
 async function excluirAtendimento(id){
 
- const ok = confirm('Deseja excluir este atendimento?');
-
- if(!ok) return;
 
  const { error } = await db
  .from('atendimentos')
@@ -673,6 +709,11 @@ async function excluirAtendimento(id){
 
 
 const filtro = document.getElementById('filtro');
+
+filtro.addEventListener("change", () => {
+ localStorage.setItem("filtroAgenda", filtro.value);
+ carregarHoje();
+});
 
 let profissionalAtual = "Todos";
 
@@ -866,7 +907,7 @@ String(agora.getMonth()+1).padStart(2,'0') + '-' +
 String(agora.getDate()).padStart(2,'0');
 
   dataInput.value = hoje;
-  filtro.value = "Todos";
+  
 
   abrirVisao("hoje");
   carregarHoje();
@@ -974,8 +1015,90 @@ async function backupCSV(){
 
 }
 
+let timerPress = null;
+let segurando = false;
+let iniciouX = 0;
+let iniciouY = 0;
+let moveu = false;
+
+function segurarExcluir(event,id){
+
+ const toque = event.touches[0];
+
+ iniciouX = toque.clientX;
+ iniciouY = toque.clientY;
+ moveu = false;
+ segurando = false;
+
+ timerPress = setTimeout(async () => {
+
+   if(moveu) return;
+
+   segurando = true;
+
+   if(navigator.vibrate){
+     navigator.vibrate(150);
+   }
+
+   const ok = confirm("🗑️ Excluir atendimento?");
+
+   if(ok){
+     await excluirAtendimento(id);
+   }
+
+ }, 1200);
+
+}
+
+function moverDedo(event){
+
+ const toque = event.touches[0];
+
+ const dx = Math.abs(toque.clientX - iniciouX);
+ const dy = Math.abs(toque.clientY - iniciouY);
+
+ if(dx > 15 || dy > 15){
+   moveu = true;
+   clearTimeout(timerPress);
+ }
+
+}
+
+function cancelarSegurar(){
+ clearTimeout(timerPress);
+}
+
+
+
+ let ultimoClique = 0;
+
+function cliqueCard(id){
+
+ if(segurando){
+   segurando = false;
+   return;
+ }
+
+ const agora = new Date().getTime();
+
+ if(agora - ultimoClique < 400){
+   editarAtendimento(id);
+ }
+
+ ultimoClique = agora;
+
+}
+
+
+const filtroSalvo =
+localStorage.getItem("filtroAgenda");
+
+if(filtroSalvo){
+ filtro.value = filtroSalvo;
+}
 
 carregarHoje();
+
 
 
 
