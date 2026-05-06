@@ -233,6 +233,16 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
+ 
+ function gerarNomeKey(nome){
+  return nome
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+} 
+  
   async function sair(){
  await db.auth.signOut();
  location.href = "login.html";
@@ -328,7 +338,7 @@ for(let h=8; h<=20; h++){
 function abrir(h='') {
   modal.style.display = 'flex';
   hora.value = h;
-
+inputNome.dataset.id = "";
   document.getElementById("boxPlanoAdmin").style.display = "none";
 
   const adesao = document.getElementById("adesaoPlano");
@@ -338,6 +348,15 @@ function abrir(h='') {
   if (status) status.value = "ativo";
 
   editandoId = null;
+  
+    
+  nome.value = "";
+  fone.value = "";
+  valor.value = "";
+  valorr.value = "";
+  obs.value = "";
+  corte.value = "";
+  pag.value = "Pix";
 }
 
 function fechar(){
@@ -379,7 +398,6 @@ async function carregarHoje(){
    query = query.eq('barbeiro', prof);
  }
 
-
  const { data, error } = await query.order('hora');
 
  if(error){
@@ -403,46 +421,49 @@ async function carregarHoje(){
 
  horarios.forEach(h => {
 
-   const item = data.find(x => x.hora === h);
+   // 🔥 CORREÇÃO AQUI
+const mapa = {};
+data.forEach(i => {
+ mapa[i.hora.slice(0,5)] = i;
+});
+
+const item = mapa[h];
 
    const d = document.createElement('div');
    d.className = 'slot';
 
    if(item){
-let txt = '#fff';
 
-if(item.tipo_cliente === 'plano'){
- cor = '#eab308';
- txt = '#111';
-}
-else if(Number(item.valor) > 0){
- cor = '#166534';
- txt = '#fff';
-}
-else{
- cor = '#991b1b';
- txt = '#fff';
-}
+     let cor = '#166534';
+     let txt = '#fff';
+
+     if(item.tipo_cliente === 'plano'){
+       cor = '#eab308';
+       txt = '#111';
+     }
+     else if(Number(item.valor) <= 0){
+       cor = '#991b1b';
+     }
+
      d.innerHTML = `
      <div class="time">${h}</div>
-    <div style="background:${cor};color:${txt}"class="cell"
-style="background:${cor};border:1px solid #ffffff22"
-ontouchstart="segurarExcluir(event,'${item.id}')"
-ontouchmove="moverDedo(event)"
-ontouchend="cancelarSegurar()"
-onclick="cliqueCard('${item.id}')">
-      ${item.nome_cliente}<br>
+     <div style="background:${cor};color:${txt}" class="cell"
+     ontouchstart="segurarExcluir(event,'${item.id}')"
+     ontouchmove="moverDedo(event)"
+     ontouchend="cancelarSegurar()"
+     onclick="cliqueCard('${item.id}')">
+       ${item.nome_cliente || 'desconhecido'}<br>
 
-<small style="font-size:11px">
-${item.tipo_cliente === 'plano'
- ? 'Corte ' + item.numero_corte + '/4 • '
- : ''
-}
+       <small style="font-size:11px">
+       ${item.tipo_cliente === 'plano'
+         ? 'Corte ' + item.numero_corte + '/4 • '
+         : ''
+       }
 
-${item.servico} •
-${item.forma_pagamento} •
-R$${item.valor}
-</small>
+       ${item.servico} •
+       ${item.forma_pagamento} •
+       R$${item.valor}
+       </small>
      </div>
      `;
    } else {
@@ -453,7 +474,6 @@ R$${item.valor}
      </div>
      `;
    }
-   
 
    agenda.appendChild(d);
  });
@@ -466,14 +486,11 @@ async function salvarAtendimento(){
 
  let telefoneLimpo = fone.value.replace(/\D/g,'');
 
- // se vazio vira null
  if(telefoneLimpo === ""){
    telefoneLimpo = "0";
  }
 
- // validação:
  if(
-   telefoneLimpo !== null &&
    telefoneLimpo !== "0" &&
    telefoneLimpo.length !== 11
  ){
@@ -482,56 +499,81 @@ async function salvarAtendimento(){
    return;
  }
 
-let numeroCorteFinal = corte.value;
+ // ==========================
+ // 🔥 CLIENTE (CORRIGIDO)
+ // ==========================
+ let clienteId = inputNome.dataset.id || null;
 
+ let nomeFinal = nome.value.trim() === ""
+   ? "desconhecido"
+   : nome.value.trim();
 
-if(tipo.value === "plano" && telefoneLimpo){
- if(numeroCorteFinal === ""){
+ // cria cliente se não veio do autocomplete
+ if(!clienteId && nomeFinal !== "desconhecido"){
 
-   const { data: historico } = await db
-   .from("atendimentos")
-   .select("numero_corte,data,hora,id")
-   .eq("telefone", telefoneLimpo)
-   .eq("tipo_cliente", "plano")
-   .order("data", { ascending:false })
-   .order("hora", { ascending:false })
-   .order("id", { ascending:false })
-   .limit(1);
+   const { data: novoCliente, error } = await db
+   .from("clientes")
+   .insert([{
+     nome: nomeFinal,
+    telefone: fone.value.trim() || null
+   }])
+   .select()
+   .single();
 
-   if(historico && historico.length > 0){
-
-     let ultimo = parseInt(historico[0].numero_corte,10) || 0;
-
-     numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
-
-   }else{
-
-     numeroCorteFinal = 1;
-
+   if(error){
+     alert("Erro ao criar cliente");
+     return;
    }
 
+   clienteId = novoCliente.id;
  }
 
-}else{
+ // ==========================
+ // 🔥 CORTE (PLANO)
+ // ==========================
+ let numeroCorteFinal = corte.value;
 
- numeroCorteFinal = "";
+ if(tipo.value === "plano" && clienteId){
 
-} 
+   if(numeroCorteFinal === ""){
 
- try {
+     const { data: historico } = await db
+     .from("atendimentos")
+     .select("numero_corte,data,hora,id")
+     .eq("cliente_id", clienteId)
+     .eq("tipo_cliente", "plano")
+     .order("data", { ascending:false })
+     .order("hora", { ascending:false })
+     .order("id", { ascending:false })
+     .limit(1);
 
- const nomeFinal = nome.value.trim() === ""
- ? "desconhecido"
- : nome.value.trim();
+     if(historico && historico.length > 0){
 
+       let ultimo = parseInt(historico[0].numero_corte,10) || 0;
+
+       numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
+
+     } else {
+       numeroCorteFinal = 1;
+     }
+   }
+
+ } else {
+   numeroCorteFinal = "";
+ }
+
+ // ==========================
+ // 🔥 DADOS
+ // ==========================
  const dados = {
+   cliente_id: clienteId,
    data: dataInput.value,
    hora: hora.value,
    nome_cliente: nomeFinal,
    telefone: telefoneLimpo,
    barbeiro: barbeiro.value,
    tipo_cliente: tipo.value,
-  numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
+   numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
    forma_pagamento: pag.value,
    valor: valorr.value,
    observacao: obs.value,
@@ -555,50 +597,49 @@ if(tipo.value === "plano" && telefoneLimpo){
    alert(resposta.error.message);
    return;
  }
-
- // ✅ AQUI É O LUGAR CERTO (IMPORTANTE)
+ 
+ if(clienteId){
 
  await db
  .from("clientes")
- .upsert([{
+ .update({
    nome: nomeFinal,
-   telefone: telefoneLimpo
- }],{
-   onConflict:"telefone"
- });
-if(tipo.value === "plano"){
-
- const { data: cli } = await db
- .from("clientes")
- .select("data_adesao_plano,status_plano")
- .eq("telefone", telefoneLimpo)
- .single();
-let dadosUpdate = {
-   status_plano: statusPlano.value
-};
-
- // só define adesão se ainda não existir
- if(!cli?.data_adesao_plano){
-   dadosUpdate.data_adesao_plano = dataInput.value;
- }
-
- await db
- .from("clientes")
- .update(dadosUpdate)
- .eq("telefone", telefoneLimpo);
+   telefone: fone.value.trim() || null
+ })
+ .eq("id", clienteId);
 
 }
- 
+
+
+
+ if(tipo.value === "plano" && clienteId){
+
+   const { data: cli } = await db
+   .from("clientes")
+   .select("data_adesao_plano,status_plano")
+   .eq("id", clienteId)
+   .single();
+
+   let dadosUpdate = {
+     status_plano: statusPlano.value
+   };
+
+   if(!cli?.data_adesao_plano){
+     dadosUpdate.data_adesao_plano = dataInput.value;
+   }
+
+   await db
+   .from("clientes")
+   .update(dadosUpdate)
+   .eq("id", clienteId);
+ }
 
  alert('Salvo com sucesso');
 
  editandoId = null;
  modal.style.display = "none";
- carregarHoje();
 
- } catch(e){
-   alert("Falha: " + e.message);
- }
+ carregarHoje();
 }
   
 
@@ -640,8 +681,11 @@ async function editarAtendimento(id){
  // PREENCHE CAMPOS
  // ==========================
  hora.value      = data.hora || "";
- nome.value      = data.nome_cliente || "";
- fone.value      = data.telefone || "";
+ nome.value = data.nome_cliente || "";
+fone.value = data.telefone || "";
+
+// 🔥 ESSENCIAL
+inputNome.dataset.id = data.cliente_id || "";
  barbeiro.value  = data.barbeiro || "Gilberto";
  tipo.value      = data.tipo_cliente || "avulso";
  corte.value     = data.numero_corte || "";
@@ -660,7 +704,7 @@ async function editarAtendimento(id){
    const { data: cli } = await db
    .from("clientes")
    .select("data_adesao_plano,status_plano")
-   .eq("telefone", data.telefone)
+   .eq("id", data.cliente_id)
    .single();
 
    if(cli){
@@ -734,6 +778,7 @@ async function calcularFaturamento(){
  data.forEach(item => {
    const v = Number(item.valor || 0);
    totalGeral += v;
+   
 
    if(item.barbeiro === "Gilberto") gilberto += v;
    if(item.barbeiro === "Thiago") Thiago += v;
@@ -926,10 +971,10 @@ inputNome.addEventListener("input", async () => {
  }
 
  const { data, error } = await db
-  .from("atendimentos")
-  .select("nome_cliente, telefone")
-  .ilike("nome_cliente", `%${texto}%`)
-  .limit(5);
+ .from("clientes")
+ .select("id, nome, telefone")
+ .ilike("nome", `%${texto}%`)
+ .limit(5);
 
  if(error){
    console.log(error);
@@ -938,8 +983,8 @@ inputNome.addEventListener("input", async () => {
 
  sugestoes.innerHTML = "";
 
- // remover duplicados (IMPORTANTE)
- const nomesUnicos = [...new Map(data.map(item => [item.nome_cliente, item])).values()];
+ // ✅ remover duplicados corretamente
+ const nomesUnicos = [...new Map(data.map(item => [item.nome, item])).values()];
 
  nomesUnicos.forEach(cliente => {
 
@@ -951,16 +996,17 @@ inputNome.addEventListener("input", async () => {
    div.style.color = "#fff";
 
    div.innerHTML = `
-     <strong>${cliente.nome_cliente}</strong><br>
+     <strong>${cliente.nome}</strong><br>
      <small>${cliente.telefone || ''}</small>
    `;
 
-
    div.onclick = () => {
-  inputNome.value = cliente.nome_cliente;
-  document.getElementById("fone").value = cliente.telefone || "";
-  sugestoes.innerHTML = "";
-};
+     inputNome.value = cliente.nome;
+     fone.value = cliente.telefone || "";
+     inputNome.dataset.id = cliente.id;
+     sugestoes.innerHTML = "";
+     inputNome.blur();
+   };
 
    sugestoes.appendChild(div);
  });
