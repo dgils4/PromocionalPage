@@ -268,6 +268,9 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
+  const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
+     somSucesso.preload = "auto";
+  
  function abrirLoading(texto = "Processando..."){
 
   document.getElementById("textoLoading").innerText = texto;
@@ -276,7 +279,7 @@ db.auth.onAuthStateChange((event, session) => {
 }
 
 function fecharLoading(){
-
+navigator.vibrate(150);
   document.getElementById("loading").style.display = "none";
 }
  function gerarNomeKey(nome){
@@ -532,15 +535,16 @@ abrirLoading("Processando...")
  let telefoneLimpo = fone.value.replace(/\D/g,'');
 
  if(telefoneLimpo === ""){
-   telefoneLimpo = "0";
+   telefoneLimpo = "null";
  }
 
  if(
-   telefoneLimpo !== "0" &&
+   telefoneLimpo == "" &&
    telefoneLimpo.length !== 11
  ){
    alert("Telefone deve ser vazio, 0 ou 11 dígitos.");
    fone.focus();
+   fecharLoading()
    return;
  }
 
@@ -566,7 +570,7 @@ abrirLoading("Processando...")
    .single();
 
    if(error){
-     alert("Erro ao criar cliente");
+   fecharLoading(alert("Erro ao criar cliente"));
      return;
    }
 
@@ -639,7 +643,7 @@ abrirLoading("Processando...")
  }
 
  if(resposta.error){
-   alert(resposta.error.message);
+ fecharLoading(alert(resposta.error.message));
    return;
  }
  
@@ -678,8 +682,9 @@ abrirLoading("Processando...")
    .update(dadosUpdate)
    .eq("id", clienteId);
  }
-
-fecharLoading(alert('Salvo com sucesso'));
+ somSucesso.currentTime = 0;
+somSucesso.play();
+fecharLoading('Salvo com sucesso');
 
  editandoId = null;
  modal.style.display = "none";
@@ -697,6 +702,7 @@ fecharLoading(alert('Salvo com sucesso'));
 
 
 async function editarAtendimento(id){
+abrirLoading("Processando...")
 
  // ==========================
  // BUSCA ATENDIMENTO
@@ -721,7 +727,7 @@ async function editarAtendimento(id){
 
  document.querySelector(".box h3").innerText =
  "Editar Atendimento";
-
+fecharLoading()
  // ==========================
  // PREENCHE CAMPOS
  // ==========================
@@ -736,7 +742,7 @@ inputNome.dataset.id = data.cliente_id || "";
  corte.value     = data.numero_corte || "";
  pag.value       = data.forma_pagamento || "Pix";
  valor.value     = data.servico || "";
- valorr.value    = data.valor || "";
+ valorr.value    = data.valor || "0";
  obs.value       = data.observacao || "";
 
  // ==========================
@@ -777,6 +783,10 @@ inputNome.dataset.id = data.cliente_id || "";
 
 }
 
+
+
+
+
 async function excluirAtendimento(id){
 
 abrirLoading("Excluindo...")
@@ -790,7 +800,7 @@ abrirLoading("Excluindo...")
    return;
  }
 
-fecharLoading( alert('Excluído com sucesso'));
+fecharLoading('Excluído com sucesso');
 
  carregarHoje();
 
