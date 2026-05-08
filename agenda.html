@@ -6,6 +6,41 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{min-height:52px;background:#0b1220;border:1px solid #1e3a8a;border-radius:12px;padding:8px}.free{opacity:.7}.booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
 
+.loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:99999;
+}
+
+.loading-box{
+  background:#fff;
+  padding:25px;
+  border-radius:16px;
+  text-align:center;
+  min-width:220px;
+  color:black;
+}
+
+.spinner{
+  width:45px;
+  height:45px;
+  border:5px solid #eee;
+  border-top:5px solid #f97316;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:auto;
+  margin-bottom:15px;
+}
+
+@keyframes girar{
+  100%{
+    transform:rotate(360deg);
+  }
+}
 
 
 .modal-content {
@@ -233,7 +268,17 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
- 
+ function abrirLoading(texto = "Processando..."){
+
+  document.getElementById("textoLoading").innerText = texto;
+
+  document.getElementById("loading").style.display = "flex";
+}
+
+function fecharLoading(){
+
+  document.getElementById("loading").style.display = "none";
+}
  function gerarNomeKey(nome){
   return nome
     .trim()
@@ -483,7 +528,7 @@ const item = mapa[h];
 
 
 async function salvarAtendimento(){
-
+abrirLoading("Processando...")
  let telefoneLimpo = fone.value.replace(/\D/g,'');
 
  if(telefoneLimpo === ""){
@@ -634,7 +679,7 @@ async function salvarAtendimento(){
    .eq("id", clienteId);
  }
 
- alert('Salvo com sucesso');
+fecharLoading(alert('Salvo com sucesso'));
 
  editandoId = null;
  modal.style.display = "none";
@@ -734,7 +779,7 @@ inputNome.dataset.id = data.cliente_id || "";
 
 async function excluirAtendimento(id){
 
-
+abrirLoading("Excluindo...")
  const { error } = await db
  .from('atendimentos')
  .delete()
@@ -745,7 +790,7 @@ async function excluirAtendimento(id){
    return;
  }
 
- alert('Excluído com sucesso');
+fecharLoading( alert('Excluído com sucesso'));
 
  carregarHoje();
 
@@ -766,7 +811,7 @@ function filtrarProf(nome){
   carregarHoje();
 }
 async function calcularFaturamento(){
-
+abrirLoading("Calculando...")
  const { data } = await db
  .from('atendimentos')
  .select('*');
@@ -790,6 +835,7 @@ async function calcularFaturamento(){
    <hr>
    <h3>Total: R$ ${totalGeral.toFixed(2)}</h3>
  `;
+ fecharLoading("Concluido!")
 }
 function abrirVisao(tipo){
 
@@ -819,7 +865,7 @@ function toggleMenu(){
   menu.classList.toggle("ativo");
 }
 async function calcularPlanos(){
-
+abrirLoading("Calculando...")
  const inicio = document.getElementById("planoInicio").value;
  const fim = document.getElementById("planoFim").value;
  const box = document.getElementById("resultadoPlanos");
@@ -882,6 +928,7 @@ async function calcularPlanos(){
 
    ${html}
  `;
+ fecharLoading("sucesso!")
 }
 
 
@@ -1150,5 +1197,11 @@ carregarHoje();
 
 
 </script>
+<div id="loading" class="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p id="textoLoading">Processando...</p>
+  </div>
+</div>
 </body>
 </html>
