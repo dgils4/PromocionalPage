@@ -270,6 +270,11 @@ db.auth.onAuthStateChange((event, session) => {
 <script>
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
      somSucesso.preload = "auto";
+   const exCluir = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/excluir.mp3");
+     exCluir.preload = "auto";  
+   
+     
+     
   
  function abrirLoading(texto = "Processando..."){
 
@@ -799,6 +804,9 @@ abrirLoading("Excluindo...")
    alert(error.message);
    return;
  }
+
+ exCluir.currentTime = 0;
+exCluir.play();
 
 fecharLoading('Excluído com sucesso');
 
