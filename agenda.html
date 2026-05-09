@@ -103,133 +103,15 @@
   font-size:11px;
   
 }
-/* TOAST */
-
-.toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#111827;
-  color:#fff;
-  padding:14px 18px;
-  border-radius:12px;
-  z-index:999999;
-  opacity:0;
-  pointer-events:none;
-  transition:.3s;
-  font-weight:600;
-  border:1px solid #374151;
-}
-
-.toast.show{
-  opacity:1;
-  bottom:35px;
-}
-
-/* MODAL */
-
-.confirm-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:999999;
-  padding:15px;
-}
-
-.confirm-box{
-  width:100%;
-  max-width:350px;
-  background:#0f172a;
-  border-radius:18px;
-  padding:20px;
-  color:#fff;
-  animation:pop .2s ease;
-}
-
-.confirm-box h3{
-  margin-top:0;
-}
-
-.confirm-actions{
-  display:flex;
-  gap:10px;
-  margin-top:20px;
-}
-
-.confirm-actions button{
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:700;
-}
-
-.btn-cancelar{
-  background:#374151;
-  color:#fff;
-}
-
-.btn-confirmar{
-  background:#dc2626;
-  color:#fff;
-}
-
-@keyframes pop{
-  from{
-    transform:scale(.9);
-    opacity:0;
-  }
-  to{
-    transform:scale(1);
-    opacity:1;
-  }
-}
 
 
 </style>
 
 </head>
 <body>
-  <!-- TOAST -->
-<div id="toast" class="toast"></div>
-
-<!-- MODAL CONFIRMAÇÃO -->
-<div id="confirmModal" class="confirm-modal">
-
-  <div class="confirm-box">
-
-    <h3 id="confirmTitulo">Confirmação</h3>
-
-    <p id="confirmTexto">
-      Deseja continuar?
-    </p>
-
-    <div class="confirm-actions">
-
-      <button class="btn-cancelar"
-      onclick="fecharConfirmacao()">
-        Cancelar
-      </button>
-
-      <button class="btn-confirmar"
-      id="btnConfirmar">
-        Confirmar
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
   <div id="sidebar" class="sidebar">
-  <h3>📊 Painel</h3><button id="salir"onclick="abrirVisao('hoje'),irParaHoje()">Voltar</button>
-  
-  
-  
+  <h3>📊 Painel</h3><button id="salir" onclick="sair()">sair</button>
+  <button onclick="abrirVisao('hoje'),irParaHoje()">Voltar</button>
   <button onclick="abrirVisao('calendario')">Calendário de busca</button>
 
   <button onclick="abrirVisao('planos')">Buscar Planos</button>
@@ -291,9 +173,6 @@
 <select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option></select>
 <button onclick='carregarHoje()'>Atualizar</button>
 <button onclick="backupCSV()">📁 Backup CSV</button>
-<button 
-style="margin-left:auto"
-onclick="sair()">🚪 Sair</button>
 
 </div>
 <div id='agenda'></div>
@@ -389,14 +268,6 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
-  const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
-     somSucesso.preload = "auto";
-   const exCluir = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/excluir.mp3");
-     exCluir.preload = "auto";  
-   
-     
-     
-  
  function abrirLoading(texto = "Processando..."){
 
   document.getElementById("textoLoading").innerText = texto;
@@ -405,7 +276,7 @@ db.auth.onAuthStateChange((event, session) => {
 }
 
 function fecharLoading(){
-navigator.vibrate(150);
+
   document.getElementById("loading").style.display = "none";
 }
  function gerarNomeKey(nome){
@@ -417,24 +288,10 @@ navigator.vibrate(150);
     .replace(/\s+/g, " ");
 } 
   
-async function sair(){
-
- navigator.vibrate(150);
-
-  abrirConfirmacao(
-    "Deseja sair da conta?",
-    async ()=>{
- navigator.vibrate(150);
-      await db.auth.signOut();
-
-      location.href = "login.html";
-
-    },
-    "🚪 Sair"
-  );
-
+  async function sair(){
+ await db.auth.signOut();
+ location.href = "login.html";
 }
-
   
  const modil = document.getElementById("modalervicos");
 const lista = document.getElementById("listaServicos");
@@ -571,7 +428,7 @@ function fechar(){
 }
 
 async function carregarHoje(){
- navigator.vibrate(150);
+
  agenda.innerHTML = '';
 
  const hoje = dataInput.value;
@@ -675,16 +532,15 @@ abrirLoading("Processando...")
  let telefoneLimpo = fone.value.replace(/\D/g,'');
 
  if(telefoneLimpo === ""){
-   telefoneLimpo = "null";
+   telefoneLimpo = "0";
  }
 
  if(
-   telefoneLimpo == "" &&
+   telefoneLimpo !== "0" &&
    telefoneLimpo.length !== 11
  ){
    alert("Telefone deve ser vazio, 0 ou 11 dígitos.");
    fone.focus();
-   fecharLoading()
    return;
  }
 
@@ -710,7 +566,7 @@ abrirLoading("Processando...")
    .single();
 
    if(error){
-   fecharLoading(alert("Erro ao criar cliente"));
+     alert("Erro ao criar cliente");
      return;
    }
 
@@ -783,7 +639,7 @@ abrirLoading("Processando...")
  }
 
  if(resposta.error){
- fecharLoading(alert(resposta.error.message));
+   alert(resposta.error.message);
    return;
  }
  
@@ -822,10 +678,9 @@ abrirLoading("Processando...")
    .update(dadosUpdate)
    .eq("id", clienteId);
  }
- somSucesso.currentTime = 0;
-somSucesso.play();
-fecharLoading('Salvo com sucesso');
-mostrarToast("✅ Salvo ")
+
+fecharLoading(alert('Salvo com sucesso'));
+
  editandoId = null;
  modal.style.display = "none";
 
@@ -842,7 +697,6 @@ mostrarToast("✅ Salvo ")
 
 
 async function editarAtendimento(id){
-abrirLoading("Processando...")
 
  // ==========================
  // BUSCA ATENDIMENTO
@@ -867,7 +721,7 @@ abrirLoading("Processando...")
 
  document.querySelector(".box h3").innerText =
  "Editar Atendimento";
-fecharLoading()
+
  // ==========================
  // PREENCHE CAMPOS
  // ==========================
@@ -882,7 +736,7 @@ inputNome.dataset.id = data.cliente_id || "";
  corte.value     = data.numero_corte || "";
  pag.value       = data.forma_pagamento || "Pix";
  valor.value     = data.servico || "";
- valorr.value    = data.valor || "0";
+ valorr.value    = data.valor || "";
  obs.value       = data.observacao || "";
 
  // ==========================
@@ -923,10 +777,6 @@ inputNome.dataset.id = data.cliente_id || "";
 
 }
 
-
-
-
-
 async function excluirAtendimento(id){
 
 abrirLoading("Excluindo...")
@@ -940,10 +790,7 @@ abrirLoading("Excluindo...")
    return;
  }
 
- exCluir.currentTime = 0;
-exCluir.play();
-
-fecharLoading();
+fecharLoading( alert('Excluído com sucesso'));
 
  carregarHoje();
 
@@ -1286,16 +1133,11 @@ function segurarExcluir(event,id){
      navigator.vibrate(150);
    }
 
-  abrirConfirmacao(
-     "🗑️ Excluir atendimento?",
-     async ()=>{
+   const ok = confirm("🗑️ Excluir atendimento?");
 
-       await excluirAtendimento(id);
-
-       mostrarToast("✅ Excluído");
-
-     }
-   );
+   if(ok){
+     await excluirAtendimento(id);
+   }
 
  }, 700);
 
@@ -1347,73 +1189,6 @@ localStorage.getItem("filtroAgenda");
 if(filtroSalvo){
  filtro.value = filtroSalvo;
 }
-
-// ======================
-// TOAST
-// ======================
-
-function mostrarToast(texto){
-
-  const toast =
-  document.getElementById("toast");
-
-  toast.innerText = texto;
-
-  toast.classList.add("show");
-
-  setTimeout(()=>{
-    toast.classList.remove("show");
-  },2500);
-
-}
-
-// ======================
-// CONFIRMAÇÃO
-// ======================
-
-let callbackConfirmacao = null;
-
-function abrirConfirmacao(
-  texto,
-  callback,
-  titulo = "Confirmação"
-){
-
-  document.getElementById(
-    "confirmTitulo"
-  ).innerText = titulo;
-
-  document.getElementById(
-    "confirmTexto"
-  ).innerText = texto;
-
-  callbackConfirmacao = callback;
-
-  document.getElementById(
-    "confirmModal"
-  ).style.display = "flex";
-
-}
-
-function fecharConfirmacao(){
-
-  document.getElementById(
-    "confirmModal"
-  ).style.display = "none";
-
-}
-
-document
-.getElementById("btnConfirmar")
-.onclick = async ()=>{
-
-  if(callbackConfirmacao){
-    await callbackConfirmacao();
-  }
-
-  fecharConfirmacao();
-
-};
 
 carregarHoje();
 
