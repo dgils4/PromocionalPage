@@ -91,17 +91,101 @@
   color: #fff;
   cursor: pointer;
 }
-#salir{
+#volver{
   
   
   position:absolute;
   right:0px;
   margin:15px;
   padding:3px 6px;
-  background-color:#dd5454;
-  border-radius:3px;
-  font-size:11px;
+  background-color:transparent;
+  font-size:13px;
   
+}
+/* TOAST */
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111827;
+  color:#fff;
+  padding:14px 18px;
+  border-radius:12px;
+  z-index:999999;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  font-weight:600;
+  border:1px solid #374151;
+}
+
+.toast.show{
+  opacity:1;
+  bottom:35px;
+}
+
+/* MODAL */
+
+.confirm-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:999999;
+  padding:15px;
+}
+
+.confirm-box{
+  width:100%;
+  max-width:350px;
+  background:#0f172a;
+  border-radius:18px;
+  padding:20px;
+  color:#fff;
+  animation:pop .2s ease;
+}
+
+.confirm-box h3{
+  margin-top:0;
+}
+
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.confirm-actions button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+}
+
+.btn-cancelar{
+  background:#374151;
+  color:#fff;
+}
+
+.btn-confirmar{
+  background:#dc2626;
+  color:#fff;
+}
+
+@keyframes pop{
+  from{
+    transform:scale(.9);
+    opacity:0;
+  }
+  to{
+    transform:scale(1);
+    opacity:1;
+  }
 }
 
 
@@ -109,9 +193,42 @@
 
 </head>
 <body>
+  <!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div id="confirmModal" class="confirm-modal">
+
+  <div class="confirm-box">
+
+    <h3 id="confirmTitulo">Confirmação</h3>
+
+    <p id="confirmTexto">
+      Deseja continuar?
+    </p>
+
+    <div class="confirm-actions">
+
+      <button class="btn-cancelar"
+      onclick="fecharConfirmacao()">
+        Cancelar
+      </button>
+
+      <button class="btn-confirmar"
+      id="btnConfirmar">
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
   <div id="sidebar" class="sidebar">
-  <h3>📊 Painel</h3><button id="salir" onclick="sair()">sair</button>
-  <button onclick="abrirVisao('hoje'),irParaHoje()">Voltar</button>
+  <h3>📊 Painel</h3><button id="volver"onclick="abrirVisao('hoje'),irParaHoje()">↩️ voltar</button>
+  
+  
+  
   <button onclick="abrirVisao('calendario')">Calendário de busca</button>
 
   <button onclick="abrirVisao('planos')">Buscar Planos</button>
@@ -173,6 +290,9 @@
 <select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option></select>
 <button onclick='carregarHoje()'>Atualizar</button>
 <button onclick="backupCSV()">📁 Backup CSV</button>
+<button 
+style="margin-left:auto"
+onclick="sair()">🚪 Sair</button>
 
 </div>
 <div id='agenda'></div>
@@ -243,6 +363,20 @@ const db = createClient(
  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
 );
 
+
+
+if(typeof supabase === "undefined"){
+
+  mostrarToast("Supabase não carregou");
+
+}else{
+
+  mostrarToast("Supabase OK");
+
+}
+
+
+
 async function protegerPagina(){
 
  const { data } = await db.auth.getSession();
@@ -268,6 +402,45 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
+  
+  
+  
+  const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
+     somSucesso.preload = "auto";
+   const exCluir = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/excluir.mp3");
+     exCluir.preload = "auto";  
+     
+     document.addEventListener("click", liberarAudio, {
+  once:true
+ 
+});
+
+function liberarAudio(){
+  somSucesso.play()
+  .then(()=>{
+    somSucesso.pause();
+    somSucesso.currentTime = 0;
+  });
+
+  exCluir.play()
+  .then(()=>{
+    exCluir.pause();
+    exCluir.currentTime = 0;
+  });
+
+}
+     
+     
+     
+     
+   
+  function vibrar(ms=150){
+  if(navigator.vibrate){
+    navigator.vibrate(ms);
+  }
+}   
+     
+  
  function abrirLoading(texto = "Processando..."){
 
   document.getElementById("textoLoading").innerText = texto;
@@ -276,7 +449,7 @@ db.auth.onAuthStateChange((event, session) => {
 }
 
 function fecharLoading(){
-
+vibrar();
   document.getElementById("loading").style.display = "none";
 }
  function gerarNomeKey(nome){
@@ -288,10 +461,26 @@ function fecharLoading(){
     .replace(/\s+/g, " ");
 } 
   
-  async function sair(){
- await db.auth.signOut();
- location.href = "login.html";
+async function sair(){
+
+  vibrar();
+
+  abrirConfirmacao(
+    "Deseja sair da conta?",
+    async ()=>{
+   if(navigator.vibrate){
+     navigator.vibrate(150);
+   }
+      await db.auth.signOut();
+
+      location.href = "login.html";
+
+    },
+    "🚪 Sair"
+  );
+
 }
+
   
  const modil = document.getElementById("modalervicos");
 const lista = document.getElementById("listaServicos");
@@ -307,6 +496,7 @@ inputValor.addEventListener("click", () => {
 // fechar modal
 function fecharModil() {
   modil.style.display = "none";
+  sugestoes.innerHTML = "";
 }
 
 // buscar serviços no Supabase
@@ -428,7 +618,7 @@ function fechar(){
 }
 
 async function carregarHoje(){
-
+ vibrar();
  agenda.innerHTML = '';
 
  const hoje = dataInput.value;
@@ -446,7 +636,7 @@ async function carregarHoje(){
  const { data, error } = await query.order('hora');
 
  if(error){
-   alert(error.message);
+   mostrarToast(error.message);
    return;
  }
 
@@ -528,21 +718,32 @@ const item = mapa[h];
 
 
 async function salvarAtendimento(){
-abrirLoading("Processando...")
- let telefoneLimpo = fone.value.replace(/\D/g,'');
+  abrirLoading("Processando...")
+  
+if(valorr.value.trim() === ""){
+  valorr.value = 0;
+}  
+  
+  
+let telefoneLimpo = fone.value.replace(/\D/g,'');
 
- if(telefoneLimpo === ""){
-   telefoneLimpo = "0";
- }
+if(
+  telefoneLimpo !== "" &&
+  telefoneLimpo.length !== 11
+){
+   mostrarToast(
+     "Telefone deve ter 11 dígitos."
+   );
 
- if(
-   telefoneLimpo !== "0" &&
-   telefoneLimpo.length !== 11
- ){
-   alert("Telefone deve ser vazio, 0 ou 11 dígitos.");
    fone.focus();
+   fecharLoading();
    return;
- }
+}
+
+// só depois da validação
+if(telefoneLimpo === ""){
+   telefoneLimpo = null;
+}
 
  // ==========================
  // 🔥 CLIENTE (CORRIGIDO)
@@ -566,7 +767,8 @@ abrirLoading("Processando...")
    .single();
 
    if(error){
-     alert("Erro ao criar cliente");
+     abrirConfirmacao("Erro ao criar cliente")
+   fecharLoading();
      return;
    }
 
@@ -639,7 +841,8 @@ abrirLoading("Processando...")
  }
 
  if(resposta.error){
-   alert(resposta.error.message);
+   mostrarToast(resposta.error.message);
+ fecharLoading();
    return;
  }
  
@@ -657,6 +860,7 @@ abrirLoading("Processando...")
 
 
 
+
  if(tipo.value === "plano" && clienteId){
 
    const { data: cli } = await db
@@ -669,24 +873,37 @@ abrirLoading("Processando...")
      status_plano: statusPlano.value
    };
 
-   if(!cli?.data_adesao_plano){
-     dadosUpdate.data_adesao_plano = dataInput.value;
+   // 🔥 SÓ altera data se estiver editando
+   if(editandoId){
+
+     dadosUpdate.data_adesao_plano =
+       adesaoPlano.value || null;
+
+   }
+   // 🔥 NOVO cliente sem data
+   else if(!cli?.data_adesao_plano){
+
+     dadosUpdate.data_adesao_plano =
+       adesaoPlano.value || dataInput.value;
+
    }
 
    await db
    .from("clientes")
    .update(dadosUpdate)
    .eq("id", clienteId);
- }
+}
 
-fecharLoading(alert('Salvo com sucesso'));
 
+ somSucesso.currentTime = 0;
+somSucesso.play().catch(()=>{});
+fecharLoading();
+mostrarToast("✅ Salvo ")
  editandoId = null;
  modal.style.display = "none";
 
  carregarHoje();
 }
-  
 
 
 
@@ -697,7 +914,11 @@ fecharLoading(alert('Salvo com sucesso'));
 
 
 async function editarAtendimento(id){
+abrirLoading("Processando...")
 
+if(valorr.value.trim() === ""){
+  valorr.value = 0;
+}  
  // ==========================
  // BUSCA ATENDIMENTO
  // ==========================
@@ -708,7 +929,8 @@ async function editarAtendimento(id){
  .single();
 
  if(error){
-   alert(error.message);
+   abrirConfirmacao(error.message);
+   fecharLoading();
    return;
  }
 
@@ -721,7 +943,7 @@ async function editarAtendimento(id){
 
  document.querySelector(".box h3").innerText =
  "Editar Atendimento";
-
+fecharLoading()
  // ==========================
  // PREENCHE CAMPOS
  // ==========================
@@ -736,7 +958,7 @@ inputNome.dataset.id = data.cliente_id || "";
  corte.value     = data.numero_corte || "";
  pag.value       = data.forma_pagamento || "Pix";
  valor.value     = data.servico || "";
- valorr.value    = data.valor || "";
+ valorr.value    = data.valor || "0";
  obs.value       = data.observacao || "";
 
  // ==========================
@@ -777,6 +999,10 @@ inputNome.dataset.id = data.cliente_id || "";
 
 }
 
+
+
+
+
 async function excluirAtendimento(id){
 
 abrirLoading("Excluindo...")
@@ -786,11 +1012,15 @@ abrirLoading("Excluindo...")
  .eq('id', id);
 
  if(error){
-   alert(error.message);
+   abrirConfirmacao(error.message);
+   fecharLoading()
    return;
  }
 
-fecharLoading( alert('Excluído com sucesso'));
+ exCluir.currentTime = 0;
+exCluir.play().catch(()=>{});
+
+fecharLoading();
 
  carregarHoje();
 
@@ -835,7 +1065,8 @@ abrirLoading("Calculando...")
    <hr>
    <h3>Total: R$ ${totalGeral.toFixed(2)}</h3>
  `;
- fecharLoading("Concluido!")
+ mostrarToast('sucesso!');
+ fecharLoading();
 }
 function abrirVisao(tipo){
 
@@ -934,7 +1165,7 @@ abrirLoading("Calculando...")
 
 
 async function calcularPeriodo(){
-
+abrirLoading("Calculando...")
  const inicio = document.getElementById("dataInicio").value;
  const fim = document.getElementById("dataFim").value;
  const prof = document.getElementById("calProf").value;
@@ -984,7 +1215,8 @@ async function calcularPeriodo(){
      </div>
    `;
  });
-
+fecharLoading();
+mostrarToast("Concluido!")
  resultado.innerHTML = `
    <h3>💰 Total do período: R$ ${total.toFixed(2)}</h3>
    ${html}
@@ -1024,7 +1256,7 @@ inputNome.addEventListener("input", async () => {
  .limit(5);
 
  if(error){
-   console.log(error);
+   mostrarToast("Erro!")
    return;
  }
 
@@ -1068,12 +1300,12 @@ async function backupCSV(){
  .order("data", { ascending: true });
 
  if(error){
-   alert("Erro ao gerar backup");
+   mostrarToast("Erro ao gerar backup");
    return;
  }
 
  if(!data.length){
-   alert("Nenhum dado encontrado");
+   mostrarToast("Nenhum dado encontrado");
    return;
  }
 
@@ -1133,11 +1365,16 @@ function segurarExcluir(event,id){
      navigator.vibrate(150);
    }
 
-   const ok = confirm("🗑️ Excluir atendimento?");
+  abrirConfirmacao(
+     "🗑️ Excluir atendimento?",
+     async ()=>{
 
-   if(ok){
-     await excluirAtendimento(id);
-   }
+       await excluirAtendimento(id);
+
+       mostrarToast("✅ Excluído");
+
+     }
+   );
 
  }, 700);
 
@@ -1190,6 +1427,80 @@ if(filtroSalvo){
  filtro.value = filtroSalvo;
 }
 
+// ======================
+// TOAST
+// ======================
+
+function mostrarToast(texto){
+
+  const toast =
+  document.getElementById("toast");
+
+  toast.innerText = texto;
+
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },2500);
+
+}
+
+// ======================
+// CONFIRMAÇÃO
+// ======================
+
+let callbackConfirmacao = null;
+
+function abrirConfirmacao(
+  texto,
+  callback,
+  titulo = "Confirmação"
+){
+
+  document.getElementById(
+    "confirmTitulo"
+  ).innerText = titulo;
+
+  document.getElementById(
+    "confirmTexto"
+  ).innerText = texto;
+
+  callbackConfirmacao = callback;
+
+  document.getElementById(
+    "confirmModal"
+  ).style.display = "flex";
+
+}
+
+function fecharConfirmacao(){
+
+  document.getElementById(
+    "confirmModal"
+  ).style.display = "none";
+
+}
+
+document
+.getElementById("btnConfirmar")
+.onclick = async ()=>{
+
+  if(callbackConfirmacao){
+    await callbackConfirmacao();
+  }
+
+  fecharConfirmacao();
+
+};
+
+function tratarErro(error){
+  console.error(error);
+  mostrarToast(error.message || "Erro interno");
+  fecharLoading();
+}
+
+
 carregarHoje();
 
 
@@ -1204,4 +1515,4 @@ carregarHoje();
   </div>
 </div>
 </body>
-</html> 
+</html>
