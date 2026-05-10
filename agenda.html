@@ -254,6 +254,7 @@
     <option value="Todos">Todos</option>
     <option value="Gilberto">Gilberto</option>
     <option value="Thiago">Thiago</option>
+    <option value="Visita">Visita</option>
   </select>
 
   <button onclick="calcularPeriodo()">Calcular</button>
@@ -287,7 +288,7 @@
 </header>
 <div class='wrap'>
 <div class='toolbar'>
-<select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option></select>
+<select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
 <button onclick='carregarHoje()'>Atualizar</button>
 <button onclick="backupCSV()">📁 Backup CSV</button>
 <button 
@@ -306,7 +307,7 @@ onclick="sair()">🚪 Sair</button>
 <div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
 <input id='fone' placeholder='Telefone'>
 <div class='row'>
-<select id='barbeiro'><option>Gilberto</option><option>Thiago</option></select>
+<select id='barbeiro'><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
 <select id='tipo'><option>avulso</option><option>plano</option></select>
 
 
@@ -1049,6 +1050,7 @@ abrirLoading("Calculando...")
  let totalGeral = 0;
  let gilberto = 0;
  let Thiago = 0;
+  let visita = 0;
 
  data.forEach(item => {
    const v = Number(item.valor || 0);
@@ -1057,10 +1059,12 @@ abrirLoading("Calculando...")
 
    if(item.barbeiro === "Gilberto") gilberto += v;
    if(item.barbeiro === "Thiago") Thiago += v;
+   if(item.barbeiro === "Visita") visita += v;
  });
 
  document.getElementById("fatResultado").innerHTML = `
    <p>💈 Gilberto: R$ ${gilberto.toFixed(2)}</p>
+    <p>💈 Visita: R$ ${visita.toFixed(2)}</p>
    <p>💈 Thiago: R$ ${Thiago.toFixed(2)}</p>
    <hr>
    <h3>Total: R$ ${totalGeral.toFixed(2)}</h3>
@@ -1129,6 +1133,7 @@ abrirLoading("Calculando...")
  let total = 0;
  let gilberto = 0;
  let thiago = 0;
+ let visita = 0;
  let html = "";
 
  data.forEach(item => {
@@ -1138,6 +1143,7 @@ abrirLoading("Calculando...")
 
    if(item.barbeiro === "Gilberto") gilberto++;
    if(item.barbeiro === "Thiago") thiago++;
+      if(item.barbeiro === "Visita") visita++;
 
    html += `
    <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
@@ -1154,6 +1160,7 @@ abrirLoading("Calculando...")
    <p>📌 Atendimentos plano: ${data.length}</p>
    <p>💈 Gilberto: ${gilberto}</p>
    <p>💈 Thiago: ${thiago}</p>
+   <p>💈 Visita: ${visita}</p>
 
    <hr>
 
