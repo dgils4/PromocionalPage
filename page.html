@@ -325,9 +325,13 @@ const db = createClient(
     
     </div>
 
-    <button style="width:150px">
-      Fale Agora
-    </button>
+   <button
+       style="width:150px"
+        onclick="abrirWhatsapp()">
+
+           Fale Agora
+
+     </button>
 
   </div>
 
@@ -346,20 +350,27 @@ const db = createClient(
     </p>
 
     <div class="hero-buttons">
+    <button
+      class="btn-primary"
+        onclick="irFormulario()">
 
-      <button class="btn-primary">
-        Solicitar Atendimento
-      </button>
+  Solicitar Atendimento
 
-      <button class="btn-secondary">
-        Conhecer Serviços
-      </button>
+</button>
 
-    </div>
+      <button
+       class="btn-secondary"
+          onclick="irServicos()">
+
+  Conhecer Serviços
+
+</button>
+
+        </div>
 
   </div>
 
-  <div class="hero-card">
+  <div id="formulario" class="hero-card">
 
     <h3>📩 Solicite uma análise</h3>
 
@@ -369,7 +380,11 @@ const db = createClient(
     </div>
 
     <div class="form-group">
-      <input id="telefone" type="tel" placeholder="Seu telefone">
+     <input 
+id="telefone"
+type="tel"
+placeholder="(00)0.0000-0000"
+maxlength="15">
     </div>
 
     <div class="form-group">
@@ -394,7 +409,7 @@ const db = createClient(
 
 </section>
 
-<section class="section">
+<section id="servicos" class="section">
 
   <div class="section-title">
     <h2>⚖️ Áreas de Atuação</h2>
@@ -507,9 +522,39 @@ const db = createClient(
 
 
 <script>
-  
+
+function irFormulario(){
+
+ document
+ .getElementById("formulario")
+ .scrollIntoView({
+   behavior:"smooth"
+ });
+
+ setTimeout(()=>{
+
+   document
+   .getElementById("nome")
+   .focus();
+
+ },500);
+}
+
+
+
+
+function irServicos(){
+
+ document
+ .getElementById("servicos")
+ .scrollIntoView({
+   behavior:"smooth"
+ });
+} 
 
 async function carregarSite(){
+  
+  
 
  const { data, error } = await db
  .from("configuracoes_site")
@@ -561,28 +606,60 @@ document.getElementById("logoEmpresa")
   
   
   
-  async function enviarLead(){
+async function enviarLead(){
 
  const nome =
- document.getElementById("nome").value;
+ document.getElementById("nome")
+ .value.trim();
 
  const telefone =
- document.getElementById("telefone").value;
+ document.getElementById("telefone")
+ .value.trim();
 
  const descricao =
- document.getElementById("descricao").value;
+ document.getElementById("descricao")
+ .value.trim();
 
  const area_problema =
- document.getElementById("areaProblema").value;
+ document.getElementById("areaProblema")
+ .value;
 
- // salva no banco
+ // VALIDA NOME
+ if(nome.length < 3){
+   alert("Digite um nome válido");
+   return;
+ }
+
+ // VALIDA TELEFONE
+ if(telefone.length !== 15){
+   alert("Telefone inválido");
+   return;
+ }
+
+ // VALIDA ÁREA
+ if(area_problema === "Área do problema"){
+   alert("Selecione a área do problema");
+   return;
+ }
+
+ // VALIDA DESCRIÇÃO
+ if(descricao.length < 5){
+   alert("Descreva melhor o caso");
+   return;
+ }
+
+ // LIMPA NÚMERO
+ const telefoneLimpo =
+ telefone.replace(/\D/g,"");
+
+ // SALVA
  const { error } = await db
  .from("leads")
  .insert([{
    nome,
-   telefone,
+   telefone:telefoneLimpo,
    area_problema,
-   descricao,
+   descricao
  }]);
 
  if(error){
@@ -590,14 +667,15 @@ document.getElementById("logoEmpresa")
    return;
  }
 
- // busca whatsapp configurado
+ // BUSCA WHATSAPP
  const { data } = await db
  .from("configuracoes_site")
  .select("whatsapp")
  .limit(1)
  .single();
 
- const numero = data.whatsapp;
+ const numero =
+ data.whatsapp.replace(/\D/g,"");
 
  const msg =
 `Olá, meu nome é ${nome}
@@ -608,13 +686,14 @@ Caso:
 ${descricao}`;
 
  window.open(
-`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`,
-"_blank"
+ `https://wa.me/55${numero}?text=${encodeURIComponent(msg)}`,
+ "_blank"
  );
 
-  document.getElementById("nome").value = "";
-  document.getElementById("telefone").value = "";
-  document.getElementById("descricao").value = "";
+ // LIMPA CAMPOS
+ document.getElementById("nome").value = "";
+ document.getElementById("telefone").value = "";
+ document.getElementById("descricao").value = "";
 
  alert("Enviado com sucesso");
 }
@@ -698,6 +777,38 @@ async function carregarSite(){
  
   
  carregarSite()
+  
+document
+.getElementById("telefone")
+.addEventListener("input", function(e){
+
+ let v = e.target.value;
+
+ // remove tudo que não for número
+ v = v.replace(/\D/g,"");
+
+ // máximo 11 números
+ v = v.slice(0,11);
+
+ // monta formato
+ if(v.length > 0){
+   v = "(" + v;
+ }
+
+ if(v.length > 2){
+   v = v.slice(0,3) + ")" + v.slice(3);
+ }
+
+ if(v.length > 3){
+   v = v.slice(0,5) + "." + v.slice(5);
+ }
+
+ if(v.length > 10){
+   v = v.slice(0,10) + "-" + v.slice(10);
+ }
+
+ e.target.value = v;
+});
   
 </script>
 
