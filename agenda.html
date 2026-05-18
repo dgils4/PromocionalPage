@@ -64,24 +64,37 @@
 }
 .sidebar{
   position: fixed;
-  left: -500px; 
+  left: -600px; 
   top: 0;
   height: 100%;
   width: 100%;
+  display:flex;
   background: #0f172a;
   padding: 15px;
   z-index: 9999;
-  display: flex;
   flex-direction: column;
   gap: 10px;
   border-right: 1px solid #1d4ed8;
   transition: 0.8s;
-  overflow-y: auto
+  overflow-y: auto;
+    opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+
 }
 
 .sidebar.ativo{
-  left: 0
+  left: 0;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+
 }
+
+
+
+
+
 
 .sidebar button{
   padding: 10px;
@@ -1096,8 +1109,11 @@ function abrirVisao(tipo){
 }
 }
 function toggleMenu(){
+
   const menu = document.getElementById("sidebar");
   menu.classList.toggle("ativo");
+
+  
 }
 async function calcularPlanos(){
 abrirLoading("Calculando...")
@@ -1238,12 +1254,15 @@ String(agora.getMonth()+1).padStart(2,'0') + '-' +
 String(agora.getDate()).padStart(2,'0');
 
   dataInput.value = hoje;
-  
 
   abrirVisao("hoje");
   carregarHoje();
   toggleMenu();
 }
+
+
+
+
 const inputNome = document.getElementById("nome");
 const sugestoes = document.getElementById("sugestoes");
 
