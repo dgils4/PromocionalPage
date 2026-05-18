@@ -4,7 +4,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Los Visionários Agenda</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{min-height:52px;background:#0b1220;border:1px solid #1e3a8a;border-radius:12px;padding:8px}.free{opacity:.7}.booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{
+  min-height:52px;
+  background:#0b1220;
+  border:1px solid #1e3a8a;
+  border-radius:12px;
+  padding:8px}
+  
+.free{
+  background:#0b1220;
+  color:#94a3b8;
+}
+  
+  .booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
 
 .loading{
   position:fixed;
@@ -200,12 +212,92 @@
     opacity:1;
   }
 }
+.boot-loading{
+  position:fixed;
+  inset:0;
+  background:#050b16;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:99999999;
+  transition:.4s;
+}
+
+.boot-loading.hide{
+  opacity:0;
+  visibility:hidden;
+}
+
+.boot-box{
+  text-align:center;
+}
+
+.boot-spinner{
+  width:60px;
+  height:60px;
+  border:6px solid #1e293b;
+  border-top:6px solid #3b82f6;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:auto;
+  margin-bottom:20px;
+}
+
+.skeleton{
+  height:20px;
+  border-radius:8px;
+  background:#1e293b;
+  animation:pulse 1s infinite;
+}
+
+.skeleton-card{
+  height:52px;
+  border-radius:12px;
+  background:#111827;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+
+  0%{
+    opacity:.5;
+  }
+
+  50%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:.5;
+  }
+
+}
 
 
 </style>
 
 </head>
 <body>
+  <div id="loading" class="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p id="textoLoading">Processando...</p>
+  </div>
+</div>
+  
+  <div id="bootLoading" class="boot-loading">
+
+  <div class="boot-box">
+
+    <div class="boot-spinner"></div>
+
+    <h2>Los Visionários</h2>
+
+    <p>Inicializando sistema...</p>
+
+  </div>
+
+</div>
   <!-- TOAST -->
 <div id="toast" class="toast"></div>
 
@@ -292,7 +384,19 @@
   <button onclick="toggleMenu()" >
 ☰
 </button>
-  <div class='brand'>Los Visionários</div><input type='date' id='data'></div>
+  <div class='brand'>Los Visionários</div>
+  <button id="btnOlho"
+  onclick="toggleValores()"
+  style="
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:20px;
+    cursor:pointer;
+  ">
+    👁️
+  </button>
+  <input type='date' id='data'></div>
 <div class='stats'>
 <div class='card'><div>Hoje</div><strong id='totalDia'>R$0</strong></div>
 <div class='card'><div>Clientes</div><strong id='qtd'>0</strong></div>
@@ -388,6 +492,7 @@ if(typeof supabase === "undefined"){
   mostrarToast("Supabase OK");
 
 }
+
 
 
 
@@ -631,8 +736,35 @@ function fechar(){
 
 }
 
+function renderSkeleton(){
+
+  agenda.innerHTML = "";
+
+  for(let i=0; i<8; i++){
+
+    agenda.innerHTML += `
+
+    <div class="slot">
+
+      <div class="time skeleton"></div>
+
+      <div class="cell skeleton-card"></div>
+
+    </div>
+
+    `;
+
+  }
+
+}
+
+
 async function carregarHoje(){
- vibrar();
+abrirLoading();
+  renderSkeleton();
+
+  vibrar();
+
  agenda.innerHTML = '';
 
  const hoje = dataInput.value;
@@ -652,6 +784,8 @@ async function carregarHoje(){
  if(error){
    mostrarToast(error.message);
    return;
+   fecharLoading()
+   
  }
 
  let soma = 0;
@@ -726,7 +860,7 @@ const item = mapa[h];
 
    agenda.appendChild(d);
  });
-
+fecharLoading();
 }
 
 
@@ -1527,18 +1661,73 @@ function tratarErro(error){
 }
 
 
+
+
+let oculto = false;
+
+let cacheValores = {
+  total: "",
+  clientes: "",
+  planos: ""
+};
+
+function toggleValores(){
+
+  oculto = !oculto;
+
+  const olho =
+  document.getElementById("btnOlho");
+
+  const total =
+  document.getElementById("totalDia");
+
+  const clientes =
+  document.getElementById("qtd");
+
+  const planos =
+  document.getElementById("planos");
+
+  if(oculto){
+
+    // salva valores atuais
+    cacheValores.total = total.innerText;
+    cacheValores.clientes = clientes.innerText;
+    cacheValores.planos = planos.innerText;
+
+    // esconde
+    total.innerText = "****";
+    clientes.innerText = "****";
+    planos.innerText = "****";
+
+    olho.innerText = "🙈";
+
+  }else{
+
+    // volta valores
+    total.innerText = cacheValores.total;
+    clientes.innerText = cacheValores.clientes;
+    planos.innerText = cacheValores.planos;
+
+    olho.innerText = "👁️";
+  }
+
+}
+
+
+
 carregarHoje();
 
+setTimeout(()=>{
 
+  document
+  .getElementById("bootLoading")
+  .classList.add("hide");
+
+},300);
 
 
 
 </script>
-<div id="loading" class="loading">
-  <div class="loading-box">
-    <div class="spinner"></div>
-    <p id="textoLoading">Processando...</p>
-  </div>
-</div>
+
 </body>
 </html>
