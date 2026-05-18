@@ -859,6 +859,7 @@ const item = mapa[h];
    }
 
    agenda.appendChild(d);
+   aplicarOcultacao();
  });
 fecharLoading();
 }
@@ -1710,6 +1711,15 @@ function toggleValores(){
 
     olho.innerText = "👁️";
   }
+
+}
+function aplicarOcultacao(){
+
+  if(!oculto) return;
+
+  totalDia.innerText = "****";
+  qtd.innerText = "****";
+  planos.innerText = "****";
 
 }
 
