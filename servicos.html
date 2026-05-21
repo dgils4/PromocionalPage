@@ -1,11 +1,74 @@
-<!DOCTYPE html>  <html>  
-<head>  
-<title>Serviços</title>  
-</head>  
-<body>  <h2>Cadastrar Serviço</h2>  <input id="nome" placeholder="Nome do serviço">  
-<input id="preco" placeholder="Preço">  <button onclick="salvarServico()">Salvar</button>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Serviços</title>
 
-<div id="lista"></div> 
+<style>
+body{
+  font-family: Arial;
+  background:#0f0f0f;
+  color:#fff;
+  padding:20px;
+}
+
+h2{
+  margin-bottom:15px;
+}
+
+input{
+  width:95%;
+  padding:10px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  background:#00c896;
+  color:#fff;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+button:hover{
+  opacity:0.8;
+}
+
+.card{
+  background:#1c1c1c;
+  padding:12px;
+  border-radius:10px;
+  margin-top:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.delete{
+  background:#ff3b3b;
+  padding:8px 10px;
+  border-radius:6px;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Cadastrar Serviço</h2>
+<center>
+<input id="nome" placeholder="Nome do serviço">
+<input id="preco" placeholder="Preço">
+
+
+</center>
+<button onclick="salvarServico()">Salvar</button>
+<div id="lista"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
@@ -16,70 +79,61 @@ const db = createClient(
 'https://cdechrtprerblmhllqav.supabase.co',  
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'  
 );  
-  
-async function salvarServico(){  
-  
- await db.from('servicos').insert([  
- {  
-   nome: nome.value,  
-   preco: preco.value  
- }  
- ]);  
-  
-   
-}  
-  
-async function carregar(){  
-  
- const { data } = await db  
- .from('servicos')  
- .select('*');  
-  
- lista.innerHTML='';  
-  
- data.forEach(item=>{  
-  
- lista.innerHTML += `  
- <p>${item.nome} - R$${item.preco}</p>  
- `;  
-  
- });  
-  
-}  
-  
-  
-  
-async function abrirPrecos(){  
-  
- const { data } = await db  
- .from('servicos')  
- .select('*');  
-  
- let html = '';  
-  
- data.forEach(item=>{  
-  
- html += `  
- <button onclick="  
- setServico('${item.nome}',${item.preco})  
- ">  
- ${item.nome} - R$${item.preco}  
- </button><br><br>  
- `;  
-  
- });  
-  
- menuPrecos.innerHTML = html;  
- menuPrecos.style.display='block';  
-}  
-  
-function setServico(nome, preco){  
-  
- servico.value = nome;  
- valor.value = preco;  
-  
- menuPrecos.style.display='none';  
-}  
-carregar();  
-</script>  </body>  
-</html> 
+
+// SALVAR
+async function salvarServico(){
+
+  await db.from('servicos').insert([{
+    nome: nome.value,
+    preco: preco.value
+  }]);
+
+  nome.value = "";
+  preco.value = "";
+
+  carregar();
+}
+
+// CARREGAR
+async function carregar(){
+
+  const { data } = await db
+    .from('servicos')
+    .select('*')
+    .order('id', { ascending: false });
+
+  lista.innerHTML = '';
+
+  data.forEach(item => {
+
+    lista.innerHTML += `
+      <div class="card">
+        <div>
+          <b>${item.nome}</b><br>
+          R$ ${item.preco}
+        </div>
+
+        <button class="delete" onclick="excluirServico(${item.id})">
+          Excluir
+        </button>
+      </div>
+    `;
+  });
+}
+
+// EXCLUIR
+async function excluirServico(id){
+
+  await db
+    .from('servicos')
+    .delete()
+    .eq('id', id);
+
+  carregar();
+}
+
+carregar();
+</script>
+
+</body>
+</html>
