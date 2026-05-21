@@ -62,6 +62,7 @@
   margin: 100px auto;
   padding: 15px;
   border-radius: 10px;
+  
 }
 
 .item {
@@ -272,7 +273,10 @@
   }
 
 }
-
+#listaServicos{
+  overflow-y:auto;
+  height:400px;
+}
 
 </style>
 
@@ -455,8 +459,8 @@ onclick="sair()">🚪 Sair</button>
 
 <!-- Modal -->
 <div id="modalervicos" class="modal">
-  <div class="modal-content">
-    <h3>Serviços</h3>
+  <div class="modal-content" >
+    <h3 style="color:black;">Serviços</h3>
     <div id="listaServicos"></div>
     <button onclick="fecharModil()">Fechar</button>
   </div>
