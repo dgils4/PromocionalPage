@@ -856,27 +856,27 @@ onclick="abrirModalProcesso()">
 <div id="gerenciamento" class="tela">
 
   <div class="header">
-    <h1>⚙️ Gerenciamento</h1>
+  <h1>⚙️ Gerenciamento</h1>
 
-    <div class="stats">
+  <div class="stats">
 
-      <div class="card">
-        Leads Hoje
-        <strong>12</strong>
-      </div>
-
-      <div class="card">
-        WhatsApp
-        <strong>Ativo</strong>
-      </div>
-
-      <div class="card">
-        Site
-        <strong>Online</strong>
-      </div>
-
+    <div class="card">
+      Leads Hoje
+      <strong id="leadsHoje">0</strong>
     </div>
+
+    <div class="card">
+      WhatsApp
+      <strong id="statusWhatsapp">Ativo</strong>
+    </div>
+
+    <div class="card">
+      Site
+      <strong id="statusSite"></strong>
+    </div>
+
   </div>
+</div>
 
   <!-- CONFIGURAÇÕES -->
   <div class="processo">
@@ -923,7 +923,8 @@ onclick="abrirModalProcesso()">
   </div>
 
   <!-- LEADS -->
-  <div class="processo" style="margin-top:15px">
+<div class="processo"
+  style="margin-top:10px">
 
     <div class="topo">
       <h3>📥 Leads Recebidos</h3>
@@ -1733,68 +1734,94 @@ vibrar();
   let financeiroCache = [];
   let processoEditandoId = null;
   let financeiroSelecionadoId = null;
+  let timerLead = null;
   
-  async function carregarDashboard(){
+async function carregarDashboard(){
 
- // PROCESSOS
- const { data: processos } = await db
- .from("processos")
- .select("id,status");
 
- // FINANCEIRO
- const { data: financeiro } = await db
- .from("financeiro")
- .select("valor,status");
 
- // LEADS
- const { data: leads } = await db
- .from("leads")
- .select("id");
 
- // TOTAL PROCESSOS
- const totalProcessos =
- processos?.length || 0;
+  const [
+    processosRes,
+    financeiroRes,
+    leadsRes
+  ] = await Promise.all([
 
- // RECEBIMENTOS
- const recebimentos =
- (financeiro || [])
- .filter(item => item.status === "Pago")
- .reduce((total,item)=>
-   total + Number(item.valor || 0)
- ,0);
+    db.from("processos").select("id,status"),
+    db.from("financeiro").select("valor,status"),
+    db.from("leads").select("id")
 
- // PENDÊNCIAS
- const pendencias =
- (financeiro || [])
- .filter(item =>
-   item.status === "Pendente"
-   ||
-   item.status === "Atrasado"
- ).length;
+  ]);
 
- // LEADS
- const totalLeads =
- leads?.length || 0;
+  const processos = processosRes.data || [];
+  const financeiro = financeiroRes.data || [];
+  const leads = leadsRes.data || [];
 
- // ATUALIZA TELA
- document.getElementById("totalProcessos")
- .innerText = totalProcessos;
+  // PROCESSOS
+  const totalProcessos = processos.length;
 
- document.getElementById("totalRecebimentos")
- .innerText =
- formatarMoeda(recebimentos);
+  // RECEBIMENTOS
+  const recebimentos = financeiro
+    .filter(item => item.status === "Pago")
+    .reduce((total, item) => total + Number(item.valor || 0), 0);
 
- document.getElementById("totalPendencias")
- .innerText = pendencias;
+  // PENDÊNCIAS
+  const pendencias = financeiro
+    .filter(item =>
+      item.status === "Pendente" ||
+      item.status === "Atrasado"
+    ).length;
 
- document.getElementById("totalLeads")
- .innerText = totalLeads;
+
+
+
+// LEADS
+const totalLeads = leads.length;
+
+const hoje = new Date().toISOString().split("T")[0];
+
+const leadsHoje = leads.filter(l =>
+  l.criado_em?.split("T")[0] === hoje
+).length;
+
+// ATUALIZA TELA
+document.getElementById("totalLeads").innerText = totalLeads;
+document.getElementById("leadsHoje").innerText = leadsHoje;
+
+  // ATUALIZA TELA
+  document.getElementById("totalProcessos").innerText = totalProcessos;
+  document.getElementById("totalRecebimentos").innerText = formatarMoeda(recebimentos);
+  document.getElementById("totalPendencias").innerText = pendencias;
+
+
+
+
 }
   
   
   
-  
-  
+async function verificarSiteOnline(){
+
+  const { data } = await db
+    .from("site_status")
+    .select("last_seen")
+    .eq("id", 1)
+    .single();
+
+  if(!data?.last_seen) return;
+
+  const agora = new Date();
+  const ultimo = new Date(data.last_seen);
+
+  const diff = agora - ultimo;
+
+  const online = diff < 30000; // 30 segundos
+
+ document.getElementById("statusSite").innerText = online ? "Online" : "Offline";
+}
+
+
+setInterval(verificarSiteOnline, 10000);
   
 
 function abrirModalCliente(){
@@ -2136,7 +2163,14 @@ async function carregarLeads(){
  data.forEach(item => {
 
    html += `
-   <div class="processo" style="margin-top:10px">
+   <div class="processo"
+  style="margin-top:10px"
+  onmousedown="iniciarSegurarLead(${item.id})"
+  onmouseup="cancelarSegurarLead()"
+  onmouseleave="cancelarSegurarLead()"
+  ontouchstart="iniciarSegurarLead(${item.id})"
+  ontouchend="cancelarSegurarLead()">
+   
 
      <div class="topo">
        <h3>${item.nome}</h3>
@@ -2171,6 +2205,41 @@ async function carregarLeads(){
 
  document.getElementById("listaLeads")
  .innerHTML = html;
+}
+
+async function excluirLead(id){
+
+  const confirmacao = confirm("Deseja realmente excluir este lead?");
+
+  if(!confirmacao) return;
+
+  const { error } = await db
+    .from("leads")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  popup("Lead excluído com sucesso","");
+  carregarLeads();
+}
+
+
+function iniciarSegurarLead(id){
+
+  timerLead = setTimeout(() => {
+
+    excluirLead(id);
+
+  }, 2000); // 2 segundos
+}
+
+function cancelarSegurarLead(){
+  clearTimeout(timerLead);
+  timerLead = null;
 }
 
 
@@ -2735,10 +2804,9 @@ carregarHistorico();
 
 function formatarData(data){
 
- if(!data) return "-";
+  if(!data) return "-";
 
- return new Date(data)
- .toLocaleDateString("pt-BR");
+  return data.split("-").reverse().join("/");
 }
 
 function formatarMoeda(valor){
@@ -3384,8 +3452,7 @@ function abrirModalLembrete(){
  .style.display = "flex";
  
   // DATA DE HOJE
-  const hoje =
-  new Date().toISOString().split("T")[0];
+ const hoje = new Date().toLocaleDateString("sv-SE");
 
   document
   .getElementById("lembreteData")
@@ -3436,7 +3503,8 @@ async function salvarLembrete(){
    descricao,
    data_lembrete,
    prioridade,
-   status:"Pendente"
+   status:"Pendente",
+   created_at: new Date()
  }]);
 
  if(error){
@@ -3931,140 +3999,77 @@ function renderizarAlertas(alertas){
   let html = "";
 
   if(alertas.length === 0){
-
-    html = `
-    <div class="card">
-      ✅ Nenhum alerta pendente
-    </div>
+    document.getElementById("alertasDashboard").innerHTML = `
+      <div class="card">✅ Nenhum alerta pendente</div>
     `;
-
-    document.getElementById("alertasDashboard").innerHTML = html;
     return;
   }
 
-  const hoje =
-  new Date().toISOString().split("T")[0];
+  const hoje = new Date().toLocaleDateString("sv-SE");
 
-  const amanhaDate =
-  new Date();
-
-  amanhaDate.setDate(
-    amanhaDate.getDate() + 1
-  );
-
-  const amanha =
-  amanhaDate.toISOString().split("T")[0];
+  const amanhaDate = new Date();
+  amanhaDate.setDate(amanhaDate.getDate() + 1);
+  const amanha = amanhaDate.toLocaleDateString("sv-SE");
 
   alertas.forEach(a => {
-let onclick = "";
+
     let icone = "⚠️";
     let classe = "atrasado";
 
-    if(a.tipo === "financeiro"){
-      icone = "💰";
-    }
-
-    if(a.tipo === "audiencia"){
-      icone = "⚖️";
-    }
-
+    if(a.tipo === "financeiro") icone = "💰";
+    if(a.tipo === "audiencia") icone = "⚖️";
     if(a.tipo === "lembrete"){
       icone = "⏰";
       classe = "andamento";
     }
 
-    const dataComparacao =
-    new Date(a.data)
-    .toISOString()
-    .split("T")[0];
+    const dataComparacao = a.data; // ⚠️ date puro do banco
 
-    let textoData =
-    formatarData(a.data);
+    let textoData = formatarData(a.data);
 
     if(dataComparacao === hoje){
-
       textoData = "🔔 Hoje";
-
     }
-
     else if(dataComparacao === amanha){
-
       textoData = "⚠️ Amanhã";
-
     }
-
     else if(dataComparacao < hoje){
-
       textoData = "❌ Atrasado";
     }
 
     let aviso = "";
 
-if(dataComparacao === hoje){
-
-  aviso = `
-  <div style="
-    font-size:13px;
-    color:#ff9800;
-    font-weight:bold;
-    margin-bottom:8px;
-  ">
-    🔔 Compromisso de hoje
-  </div>
-  `;
-}
-
-else if(dataComparacao === amanha){
-
-  aviso = `
-  <div style="
-    font-size:13px;
-    color:#ff9800;
-    font-weight:bold;
-    margin-bottom:8px;
-  ">
-    🔔 Lembre-se de amanhã
-  </div>
-  `;
-}
+    if(dataComparacao === hoje){
+      aviso = `<div style="font-size:13px;color:#ff9800;font-weight:bold;margin-bottom:8px;">
+        🔔 Compromisso de hoje
+      </div>`;
+    }
+    else if(dataComparacao === amanha){
+      aviso = `<div style="font-size:13px;color:#ff9800;font-weight:bold;margin-bottom:8px;">
+        🔔 Lembre-se de amanhã
+      </div>`;
+    }
 
     html += `
-    <div
-    class="processo"
-    style="margin-top:10px;cursor:pointer"
-    onclick="
-    event.stopPropagation();
+      <div class="processo"
+        style="margin-top:10px;cursor:pointer"
+        onclick="event.stopPropagation();
+          ${a.tipo === 'financeiro' ? `abrirCobranca(${a.financeiro_id})` : ''}
+          ${a.tipo === 'audiencia' ? `abrirProcesso(${a.processo_id})` : ''}
+          ${a.tipo === 'lembrete' ? `abrirAlertaLembrete(${a.lembrete_id})` : ''}
+        ">
 
-    ${a.tipo === 'financeiro'
-    ? `abrirCobranca(${a.financeiro_id})`
-    : ''}
+        ${aviso}
 
-    ${a.tipo === 'audiencia'
-    ? `abrirProcesso(${a.processo_id})`
-    : ''}
-    ${a.tipo === 'lembrete'
-? `abrirAlertaLembrete(${a.lembrete_id})`
-: ''}
-    
-    
+        <div class="topo">
+          <h3>${icone} ${a.texto}</h3>
 
-    ">
-
-      ${aviso}
-
-      <div class="topo">
-
-        <h3>
-          ${icone} ${a.texto}
-        </h3>
-
-        <div class="status ${classe}">
-          ${textoData}
+          <div class="status ${classe}">
+            ${textoData}
+          </div>
         </div>
 
       </div>
-
-    </div>
     `;
   });
 
