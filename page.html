@@ -810,6 +810,18 @@ document
  e.target.value = v;
 });
   
+  async function pingSite(){
+
+  await db
+    .from("site_status")
+    .update({
+      last_seen: new Date().toISOString()
+    })
+    .eq("id", 1);
+}
+setInterval(pingSite, 10000); // a cada 10 segundos
+  
+  
 </script>
 
 </body>
