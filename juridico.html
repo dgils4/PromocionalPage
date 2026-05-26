@@ -3875,7 +3875,7 @@ const processosAtivos = (processos || []).filter(
 
   const alertas = [];
 
-  // 💰 financeiro próximo
+  //  financeiro próximo
   (financeiro || []).forEach(item => {
     if (item.vencimento && new Date(item.vencimento) <= limiteFinanceiro) {
  alertas.push({
@@ -3883,7 +3883,7 @@ const processosAtivos = (processos || []).filter(
   tipo: "financeiro",
 
   texto:
-`💰 Conta vencendo: ${item.clientes?.nome || "Cliente"}<br>
+`Conta vencendo: ${item.clientes?.nome || "Cliente"}<br>
 ${item.descricao}`,
 
   data: item.vencimento,
@@ -3910,7 +3910,7 @@ ${item.descricao}`,
   tipo: "audiencia",
 
   texto:
-  `⚖️ ${item.titulo}`,
+  `${item.titulo}`,
 
   data: item.audiencia,
 
@@ -4034,7 +4034,7 @@ function renderizarAlertas(alertas){
       textoData = "⚠️ Amanhã";
     }
     else if(dataComparacao < hoje){
-      textoData = "❌ Atrasado";
+      textoData = "Atrasado";
     }
 
     let aviso = "";
