@@ -75,59 +75,150 @@
 .item:hover {
   background: #f0f0f0;
 }
+
+
+/* ========================= */
+/* SIDEBAR NOVA */
+/* ========================= */
+
 .sidebar{
-  position: fixed;
-  left: -600px; 
-  top: 0;
-  height: 100%;
-  width: 100%;
+
+  position:fixed;
+
+  top:0;
+
+  left:-320px;
+
+  width:280px;
+
+  height:100%;
+
+  background:#0f172a;
+
+  z-index:9999999;
+
+  padding:18px;
+
   display:flex;
-  background: #0f172a;
-  padding: 15px;
-  z-index: 9999;
-  flex-direction: column;
-  gap: 10px;
-  border-right: 1px solid #1d4ed8;
-  transition: 0.8s;
-  overflow-y: auto;
-    opacity:0;
-  visibility:hidden;
-  pointer-events:none;
+
+  flex-direction:column;
+
+  gap:10px;
+
+  transition:.25s;
+
+  border-right:1px solid #1d4ed8;
+
+  overflow-y:auto;
 
 }
+
+/* ATIVO */
 
 .sidebar.ativo{
-  left: 0;
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
+  left:0;
+}
+
+/* TITULO */
+
+.sidebar h2{
+
+  margin:0;
+
+  color:#fff;
+
+  font-size:22px;
 
 }
 
-
-
-
-
+/* BOTÕES */
 
 .sidebar button{
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #1d4ed8;
-  color: #fff;
-  cursor: pointer;
+
+  border:none;
+
+  background:#111827;
+
+  color:#fff;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  font-size:15px;
+
+  font-weight:600;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  transition:.2s;
+
 }
-#volver{
-  
-  
-  position:absolute;
-  right:0px;
-  margin:15px;
-  padding:3px 6px;
-  background-color:transparent;
-  font-size:13px;
-  
+
+/* HOVER */
+
+.sidebar button:active{
+
+  transform:scale(.98);
+
+  background:#1d4ed8;
+
 }
+
+/* SCROLL */
+
+.sidebar::-webkit-scrollbar{
+  width:4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+  background:#1d4ed8;
+  border-radius:999px;
+}
+
+/* BADGE */
+
+#badgeNotif{
+
+  min-width:22px;
+
+  text-align:center;
+
+}
+
+/* OVERLAY */
+
+.overlayMenu{
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(0,0,0,.5);
+
+  z-index:9999998;
+
+  display:none;
+
+}
+
+/* MOSTRAR */
+
+.overlayMenu.show{
+  display:block;
+}
+
+
+
+
+
+
+
+
 /* TOAST */
 
 .toast{
@@ -277,11 +368,198 @@
   overflow-y:auto;
   height:400px;
 }
+/* ========================= */
+/* TELAS FULLSCREEN */
+/* ========================= */
+
+.telaSistema{
+
+  position:fixed;
+
+  inset:0;
+
+  background:#050b16;
+
+  z-index:999999;
+
+  overflow-y:auto;
+
+  display:none;
+
+  flex-direction:column;
+
+  animation:fadeTela .2s ease;
+
+}
+
+/* ATIVA */
+
+.telaSistema.ativa{
+  display:flex;
+}
+
+/* TOPO */
+
+.topTela{
+
+  position:sticky;
+
+  top:0;
+
+  background:#0f172a;
+
+  padding:15px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  border-bottom:1px solid #1d4ed8;
+
+  z-index:10;
+
+}
+
+/* TITULO */
+
+.topTela h2{
+
+  margin:0;
+
+  font-size:18px;
+
+  color:#fff;
+
+}
+
+/* BOTÃO VOLTAR */
+
+.topTela button{
+
+  border:none;
+
+  background:#1d4ed8;
+
+  color:#fff;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  font-weight:700;
+
+}
+
+/* CONTEÚDO */
+
+.conteudoTela{
+
+  padding:15px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+
+}
+
+/* INPUTS */
+
+.conteudoTela input,
+.conteudoTela select,
+.conteudoTela textarea{
+
+  width:100%;
+
+  padding:12px;
+
+  border:none;
+
+  border-radius:12px;
+
+  background:#111827;
+
+  color:#fff;
+
+}
+
+/* BOTÕES */
+
+.conteudoTela button{
+
+  border:none;
+
+  background:#1d4ed8;
+
+  color:#fff;
+
+  padding:12px;
+
+  border-radius:12px;
+
+  font-weight:700;
+
+}
+
+/* CARDS */
+
+.cardTela{
+
+  background:#111827;
+
+  border:1px solid #1f2937;
+
+  border-radius:16px;
+
+  padding:14px;
+
+}
+
+/* SCROLL */
+
+.telaSistema::-webkit-scrollbar{
+  width:4px;
+}
+
+.telaSistema::-webkit-scrollbar-thumb{
+  background:#1d4ed8;
+  border-radius:999px;
+}
+
+/* ANIMAÇÃO */
+
+@keyframes fadeTela{
+
+  from{
+
+    opacity:0;
+
+    transform:translateY(10px);
+
+  }
+
+  to{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+  }
+
+}
+
+
+</button>
 
 </style>
 
 </head>
 <body>
+  
+
   <div id="loading" class="loading">
   <div class="loading-box">
     <div class="spinner"></div>
@@ -299,9 +577,230 @@
 
     <p>Inicializando sistema...</p>
 
+  </div></div>
+  
+  <!-- ========================= -->
+<!-- 📊 TELA FATURAMENTO -->
+<!-- ========================= -->
+
+<div id="telaFaturamento" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaFaturamento')">
+      ← Voltar
+    </button>
+
+    <h2>📊 Faturamento</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <button onclick="calcularFaturamento()">
+      Calcular
+    </button>
+
+    <div id="fatResultado"></div>
+
   </div>
 
 </div>
+
+<!-- ========================= -->
+<!-- 📅 TELA CALENDÁRIO -->
+<!-- ========================= -->
+
+<div id="telaCalendario" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaCalendario')">
+      ← Voltar
+    </button>
+
+    <h2>📅 Buscar Período</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input type="date" id="dataInicio">
+
+    <input type="date" id="dataFim">
+
+    <select id="calProf">
+
+      <option value="Todos">Todos</option>
+      <option value="Gilberto">Gilberto</option>
+      <option value="Thiago">Thiago</option>
+      <option value="Visita">Visita</option>
+
+    </select>
+
+    <button onclick="calcularPeriodo()">
+      Buscar
+    </button>
+
+    <div id="resultadoPeriodo"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 💳 TELA PLANOS -->
+<!-- ========================= -->
+
+<div id="telaPlanos" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaPlanos')">
+      ← Voltar
+    </button>
+
+    <h2>💳 Clientes Plano</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input type="date" id="planoInicio">
+
+    <input type="date" id="planoFim">
+
+    <button onclick="calcularPlanos()">
+      Buscar
+    </button>
+
+    <div id="resultadoPlanos"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 🔔 TELA VENCIMENTOS -->
+<!-- ========================= -->
+
+<div id="telaVencimentos" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaVencimentos')">
+      ← Voltar
+    </button>
+
+    <h2>🔔 Vencimentos</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <div id="listaVencimentos"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 👥 TELA CLIENTES -->
+<!-- ========================= -->
+
+<div id="telaClientes" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaClientes')">
+      ← Voltar
+    </button>
+
+    <h2>👥 Clientes</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input
+      type="text"
+      id="buscarCliente"
+      placeholder="Buscar cliente"
+    >
+
+    <div id="resultadoClientes"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 💰 TELA FINANCEIRO -->
+<!-- ========================= -->
+
+<div id="telaFinanceiro" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaFinanceiro')">
+      ← Voltar
+    </button>
+
+    <h2>💰 Financeiro</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <div id="financeiroConteudo">
+
+      Em desenvolvimento...
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- ⚙️ TELA CONFIG -->
+<!-- ========================= -->
+
+<div id="telaConfig" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaConfig')">
+      ← Voltar
+    </button>
+
+    <h2>⚙️ Configurações</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <button onclick="backupCSV()">
+      📁 Backup CSV
+    </button>
+
+    <button onclick="sair()">
+      🚪 Sair
+    </button>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
   <!-- TOAST -->
 <div id="toast" class="toast"></div>
 
@@ -334,60 +833,76 @@
 
 </div>
   <div id="sidebar" class="sidebar">
-  <h3>📊 Painel</h3><button id="volver"onclick="abrirVisao('hoje'),irParaHoje()">↩️ voltar</button>
   
   
-  
-  <button onclick="abrirVisao('calendario')">Calendário de busca</button>
+ <h2 style="margin-bottom:10px">
+    📋 Menu
+  </h2>
 
-  <button onclick="abrirVisao('planos')">Buscar Planos</button>
-    <button  onclick="abrirVisao('faturamento')">Faturamento Total</button>
-  <div id="visaoPlanos" style="display:none; padding:10px;">
-  <h2>Clientes Plano</h2>
+  <button onclick="abrirHoje()">
+    📅 Agenda
+  </button>
 
-  <input type="date" id="planoInicio">
-  <input type="date" id="planoFim">
+  <button onclick="abrirCalendario()">
+    📆 Buscar Período
+  </button>
 
-  <button onclick="calcularPlanos()">Buscar</button>
+  <button onclick="abrirPlanos()">
+    💳 Clientes Plano
+  </button>
 
-  <div id="resultadoPlanos"></div>
+  <button onclick="abrirFaturamento()">
+    📊 Faturamento
+  </button>
+
+  <button onclick="abrirTelaVencimentos()">
+    🔔 Vencimentos
+
+    <span id="badgeNotif"
+    style="
+      background:#dc2626;
+      padding:3px 8px;
+      border-radius:999px;
+      margin-left:8px;
+      font-size:12px;
+    ">
+      0
+    </span>
+
+  </button>
+
+  <button onclick="abrirClientes()">
+    👥 Clientes
+  </button>
+
+  <button onclick="abrirFinanceiro()">
+    💰 Financeiro
+  </button>
+
+  <button onclick="abrirConfig()">
+    ⚙️ Configurações
+  </button>
+
 </div>
   
-    <div id="visaoCalendario" style="display:none; padding:10px">
-  <h2>Faturamento por período</h2>
 
-  <input type="date" id="dataInicio">
-  <input type="date" id="dataFim">
-
-  <select id="calProf">
-    <option value="Todos">Todos</option>
-    <option value="Gilberto">Gilberto</option>
-    <option value="Thiago">Thiago</option>
-    <option value="Visita">Visita</option>
-  </select>
-
-  <button onclick="calcularPeriodo()">Calcular</button>
-
-  <div id="resultadoPeriodo"></div>
-</div>
-  
-<div id="visaoFaturamento" style="display:none; padding:10px;">
-  <h2>Faturamento</h2>
-  <button onclick="calcularFaturamento()">Calcular</button>
-
-  <div id="fatResultado"></div>
-</div>
-
-  <hr>
 
   
-</div>
+
 <header>
   
 <div class='top'>
   <button onclick="toggleMenu()" >
-☰
+    ☰
 </button>
+
+<!-- OVERLAY MENU -->
+
+<div
+  id="overlayMenu"
+  class="overlayMenu"
+  onclick="fecharMenu()">
+</div>
   <div class='brand'>Los Visionários</div>
   <button id="btnOlho"
   onclick="toggleValores()"
@@ -411,10 +926,7 @@
 <div class='toolbar'>
 <select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
 <button onclick='carregarHoje()'>Atualizar</button>
-<button onclick="backupCSV()">📁 Backup CSV</button>
-<button 
-style="margin-left:auto"
-onclick="sair()">🚪 Sair</button>
+
 
 </div>
 <div id='agenda'></div>
@@ -1012,13 +1524,13 @@ if(telefoneLimpo === ""){
 }
 
 
-
-
- if(tipo.value === "plano" && clienteId){
+if(tipo.value === "plano" && clienteId){
 
    const { data: cli } = await db
    .from("clientes")
-   .select("data_adesao_plano,status_plano")
+   .select(
+     "data_adesao_plano,status_plano,ultima_renovacao"
+   )
    .eq("id", clienteId)
    .single();
 
@@ -1026,14 +1538,29 @@ if(telefoneLimpo === ""){
      status_plano: statusPlano.value
    };
 
-   // 🔥 SÓ altera data se estiver editando
+   // 🔥 RENOVAÇÃO AUTOMÁTICA
+   if(
+     !editandoId &&
+     Number(numeroCorteFinal) === 1
+   ){
+
+     dadosUpdate.ultima_renovacao =
+       dataInput.value;
+
+     dadosUpdate.status_plano =
+       "ativo";
+
+   }
+
+   // 🔥 ALTERA ADESÃO EDITANDO
    if(editandoId){
 
      dadosUpdate.data_adesao_plano =
        adesaoPlano.value || null;
 
    }
-   // 🔥 NOVO cliente sem data
+
+   // 🔥 NOVO CLIENTE
    else if(!cli?.data_adesao_plano){
 
      dadosUpdate.data_adesao_plano =
@@ -1224,36 +1751,32 @@ abrirLoading("Calculando...")
  mostrarToast('sucesso!');
  fecharLoading();
 }
-function abrirVisao(tipo){
 
- document.getElementById("agenda").style.display = "none";
- document.getElementById("visaoCalendario").style.display = "none";
- document.getElementById("visaoFaturamento").style.display = "none";
- document.getElementById("visaoPlanos").style.display = "none";
 
- if(tipo === "hoje"){
-   document.getElementById("agenda").style.display = "block";
- }
+// =========================
+// TOGGLE MENU
+// =========================
 
- if(tipo === "calendario"){
-   document.getElementById("visaoCalendario").style.display = "block";
- }
 
- if(tipo === "faturamento"){
-   document.getElementById("visaoFaturamento").style.display = "block";
- }
- 
- if(tipo === "planos"){
- document.getElementById("visaoPlanos").style.display = "block";
+
+// =========================
+// FECHAR MENU
+// =========================
+
+function fecharMenu(){
+
+  document
+  .getElementById("sidebar")
+  .classList.remove("ativo");
+
+  document
+  .getElementById("overlayMenu")
+  .classList.remove("show");
+
 }
-}
-function toggleMenu(){
 
-  const menu = document.getElementById("sidebar");
-  menu.classList.toggle("ativo");
 
-  
-}
+
 async function calcularPlanos(){
 abrirLoading("Calculando...")
  const inicio = document.getElementById("planoInicio").value;
@@ -1385,19 +1908,7 @@ mostrarToast("Concluido!")
  `;
 }
 
-function irParaHoje(){
-  const agora = new Date();
-const hoje =
-agora.getFullYear() + '-' +
-String(agora.getMonth()+1).padStart(2,'0') + '-' +
-String(agora.getDate()).padStart(2,'0');
 
-  dataInput.value = hoje;
-
-  abrirVisao("hoje");
-  carregarHoje();
-  toggleMenu();
-}
 
 
 
@@ -1727,8 +2238,421 @@ function aplicarOcultacao(){
 
 }
 
+function calcularVencimento(
+  ultimaRenovacao
+){
+
+  const data =
+  new Date(ultimaRenovacao);
+
+  data.setDate(
+    data.getDate() + 30
+  );
+
+  return data;
+
+}
 
 
+function planoVencido(ultimaRenovacao){
+
+  const vencimento =
+  calcularVencimento(ultimaRenovacao);
+
+  if(!vencimento) return false;
+
+  return new Date() > vencimento;
+
+}
+function diasRestantesPlano(
+  ultimaRenovacao
+){
+
+  const vencimento =
+  calcularVencimento(
+    ultimaRenovacao
+  );
+
+  const hoje = new Date();
+
+  const diff =
+  vencimento - hoje;
+
+  return Math.ceil(
+    diff / (1000*60*60*24)
+  );
+
+}
+
+
+async function buscarVencimentos(){
+
+  const { data, error } =
+  await db
+  .from("clientes")
+  .select(`
+    nome,
+    ultima_renovacao,
+    status_plano
+  `);
+
+  if(error){
+    return [];
+  }
+
+  const lista = [];
+
+  data.forEach(cliente => {
+
+    if(
+      !cliente.ultima_renovacao
+    ) return;
+
+    const dias =
+    diasRestantesPlano(
+      cliente.ultima_renovacao
+    );
+
+    if(dias <= 7){
+
+      lista.push({
+
+        nome: cliente.nome,
+
+        dias,
+
+        vencimento:
+        calcularVencimento(
+          cliente.ultima_renovacao
+        )
+
+      });
+
+    }
+
+  });
+
+  return lista;
+
+}
+
+async function abrirVencimentos(){
+
+  const lista =
+  document.getElementById(
+    "listaVencimentos"
+  );
+
+  lista.innerHTML =
+  "Carregando...";
+
+  const vencimentos =
+  await buscarVencimentos();
+
+  if(!vencimentos.length){
+
+    lista.innerHTML =
+    "Nenhum vencimento próximo";
+
+  }else{
+
+    lista.innerHTML = "";
+
+   vencimentos.forEach(c => {
+
+  const venc =
+  new Date(c.vencimento);
+
+  const vencido =
+  c.dias < 0;
+
+  lista.innerHTML += `
+
+  <div style="
+    background:linear-gradient(
+      145deg,
+      #111827,
+      #0f172a
+    );
+    border:1px solid ${
+      vencido ? "#dc2626" : "#1d4ed8"
+    };
+    border-left:5px solid ${
+      vencido ? "#ef4444" : "#3b82f6"
+    };
+    padding:14px;
+    margin-bottom:12px;
+    border-radius:16px;
+    box-shadow:
+      0 4px 15px rgba(0,0,0,.25);
+  ">
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    ">
+
+      <strong style="
+        font-size:16px;
+        color:#fff;
+      ">
+        ${c.nome}
+      </strong>
+
+      <span style="
+        background:${
+          vencido
+          ? "#7f1d1d"
+          : "#1e3a8a"
+        };
+        color:#fff;
+        padding:5px 10px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:700;
+      ">
+
+        ${
+          vencido
+          ? "Vencido"
+          : `${c.dias} dias`
+        }
+
+      </span>
+
+    </div>
+
+    <div style="
+      color:#cbd5e1;
+      font-size:14px;
+      line-height:1.6;
+    ">
+
+      <div>
+        📅 Vencimento:
+        <strong style="color:#fff">
+          ${venc.toLocaleDateString()}
+        </strong>
+      </div>
+
+      <div style="
+        margin-top:6px;
+        color:${
+          vencido
+          ? "#fca5a5"
+          : "#93c5fd"
+        };
+        font-weight:600;
+      ">
+
+        ${
+          vencido
+          ? "⚠️ Cliente precisa renovar"
+          : "Plano próximo do vencimento"
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+  `;
+
+});
+
+  }
+
+  document
+  .getElementById(
+    "modalVencimentos"
+  )
+  .style.display = "block";
+
+}
+
+function fecharVencimentos(){
+
+  document
+  .getElementById(
+    "modalVencimentos"
+  )
+  .style.display = "none";
+
+}
+
+
+
+async function atualizarBadge(){
+
+  const lista =
+  await buscarVencimentos();
+
+  document
+  .getElementById("badgeNotif")
+  .innerText = lista.length;
+
+}
+
+
+// =========================
+// ABRIR TELA
+// =========================
+
+function abrirTela(id){
+
+  // fecha todas
+  document
+  .querySelectorAll(".telaSistema")
+  .forEach(tela => {
+
+    tela.classList.remove("ativa");
+
+  });
+
+  // abre tela
+  document
+  .getElementById(id)
+  .classList.add("ativa");
+
+  // fecha sidebar
+  document
+  .getElementById("sidebar")
+  .classList.remove("ativo");
+
+}
+
+// =========================
+// FECHAR TELA
+// =========================
+
+function fecharTela(id){
+
+  document
+  .getElementById(id)
+  .classList.remove("ativa");
+
+}
+
+// =========================
+// TOGGLE MENU
+// =========================
+
+function toggleMenu(){
+
+  const menu =
+  document.getElementById("sidebar");
+
+  menu.classList.toggle("ativo");
+
+}
+
+// =========================
+// ABRIR HOJE
+// =========================
+
+function abrirHoje(){
+
+  document
+  .querySelectorAll(".telaSistema")
+  .forEach(tela => {
+
+    tela.classList.remove("ativa");
+
+  });
+
+  // FECHA MENU
+  document
+  .getElementById("sidebar")
+  .classList.remove("ativo");
+
+  // FECHA OVERLAY
+  document
+  .getElementById("overlayMenu")
+  .classList.remove("show");
+
+  carregarHoje();
+
+}
+
+// =========================
+// ABRIR FATURAMENTO
+// =========================
+
+async function abrirFaturamento(){
+
+  abrirTela("telaFaturamento");
+
+  await calcularFaturamento();
+
+}
+
+// =========================
+// ABRIR PLANOS
+// =========================
+
+function abrirPlanos(){
+
+  abrirTela("telaPlanos");
+
+}
+
+// =========================
+// ABRIR CALENDÁRIO
+// =========================
+
+function abrirCalendario(){
+
+  abrirTela("telaCalendario");
+
+}
+
+// =========================
+// ABRIR CLIENTES
+// =========================
+
+function abrirClientes(){
+
+  abrirTela("telaClientes");
+
+}
+
+// =========================
+// ABRIR FINANCEIRO
+// =========================
+
+function abrirFinanceiro(){
+
+  abrirTela("telaFinanceiro");
+
+}
+
+// =========================
+// ABRIR CONFIG
+// =========================
+
+function abrirConfig(){
+
+  abrirTela("telaConfig");
+
+}
+
+// =========================
+// ABRIR VENCIMENTOS
+// =========================
+
+async function abrirTelaVencimentos(){
+
+  abrirTela("telaVencimentos");
+
+  await abrirVencimentos();
+
+}
+
+
+atualizarBadge();
 carregarHoje();
 
 setTimeout(()=>{
