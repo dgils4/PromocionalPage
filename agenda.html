@@ -754,7 +754,7 @@
 
     <div id="financeiroConteudo">
 
-      Em desenvolvimento...
+    <div id="listaFinanceiro"></div>
 
     </div>
 
@@ -999,15 +999,19 @@ const db = createClient(
 
 
 
-if(typeof supabase === "undefined"){
+window.addEventListener("load", ()=>{
 
-  mostrarToast("Supabase não carregou");
+  if(typeof supabase === "undefined"){
 
-}else{
+    mostrarToast("Supabase não carregou");
 
-  mostrarToast("Supabase OK");
+  }else{
 
-}
+    mostrarToast("Servidor OK");
+
+  }
+
+});
 
 
 
@@ -1206,6 +1210,7 @@ for(let h=8; h<=20; h++){
 }
 
 function abrir(h='') {
+
   modal.style.display = 'flex';
   hora.value = h;
 inputNome.dataset.id = "";
@@ -1241,6 +1246,7 @@ function fechar(){
   obs.value = "";
   corte.value = "";
   pag.value = "Pix";
+  
 
   document.getElementById("boxPlanoAdmin").style.display = "none";
 
@@ -1418,7 +1424,8 @@ if(telefoneLimpo === ""){
  let nomeFinal = nome.value.trim() === ""
    ? "desconhecido"
    : nome.value.trim();
-
+console.log(clienteId);
+console.log(nomeFinal);
  // cria cliente se não veio do autocomplete
  if(!clienteId && nomeFinal !== "desconhecido"){
 
@@ -1543,14 +1550,58 @@ if(tipo.value === "plano" && clienteId){
      !editandoId &&
      Number(numeroCorteFinal) === 1
    ){
-
-     dadosUpdate.ultima_renovacao =
+      dadosUpdate.ultima_renovacao =
        dataInput.value;
 
      dadosUpdate.status_plano =
        "ativo";
+const valorPlano =
+Number(valorr.value || 0);
 
-   }
+const vencimento =
+calcularVencimento(
+  dataInput.value
+)
+.toISOString()
+.split("T")[0];
+
+const { data, error } = await db
+.from("financeiro")
+.insert([{
+
+  cliente_id: clienteId || null,
+
+  nome_cliente: nomeFinal,
+
+  telefone: telefoneLimpo || null,
+
+  tipo: "plano",
+
+  descricao: "Mensalidade Plano",
+
+  valor: Number(valorr.value || 0),
+
+  vencimento: vencimento,
+
+  status: "pendente",
+
+  forma_pagamento: "Plano Mensal",
+
+  observacao:
+  "Cobrança automática do plano"
+
+}])
+.select();
+
+console.log(data);
+console.log(error);
+
+
+}
+
+
+
+
 
    // 🔥 ALTERA ADESÃO EDITANDO
    if(editandoId){
@@ -1584,7 +1635,6 @@ mostrarToast("✅ Salvo ")
 
  carregarHoje();
 }
-
 
 
 
@@ -2364,7 +2414,7 @@ async function abrirVencimentos(){
   new Date(c.vencimento);
 
   const vencido =
-  c.dias < 0;
+  c.dias <= 0;
 
   lista.innerHTML += `
 
@@ -2452,8 +2502,28 @@ async function abrirVencimentos(){
           ? "⚠️ Cliente precisa renovar"
           : "Plano próximo do vencimento"
         }
-
-      </div>
+         </div>
+         ${
+  vencido
+  ? `
+  <button
+    onclick="cobrarCliente('${c.nome}')"
+    style="
+      margin-top:12px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#16a34a;
+      color:#fff;
+      font-weight:700;
+    "
+  >
+    💬 Cobrar no WhatsApp
+  </button>
+  `
+  : ""
+}
 
     </div>
 
@@ -2472,6 +2542,51 @@ async function abrirVencimentos(){
   .style.display = "block";
 
 }
+
+
+async function cobrarCliente(nome){
+
+  const { data, error } = await db
+  .from("clientes")
+  .select("telefone")
+  .eq("nome", nome)
+  .single();
+
+  if(error || !data){
+
+    mostrarToast(
+      "Cliente não encontrado"
+    );
+
+    return;
+  }
+
+  const telefone =
+  (data.telefone || "")
+  .replace(/\D/g,'');
+
+  if(
+    !telefone ||
+    telefone === "0"
+  ){
+
+    mostrarToast(
+      "Telefone não cadastrado"
+    );
+
+    return;
+  }
+
+  const mensagem =
+`Olá ${nome}, seu plano da barbearia venceu.`;
+
+  const url =
+`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(url, "_blank");
+
+}
+
 
 function fecharVencimentos(){
 
@@ -2623,9 +2738,11 @@ function abrirClientes(){
 // ABRIR FINANCEIRO
 // =========================
 
-function abrirFinanceiro(){
+async function abrirFinanceiro(){
 
   abrirTela("telaFinanceiro");
+
+  await carregarFinanceiro();
 
 }
 
@@ -2648,6 +2765,242 @@ async function abrirTelaVencimentos(){
   abrirTela("telaVencimentos");
 
   await abrirVencimentos();
+
+}
+
+
+async function abrirFinanceiro(){
+
+  abrirTela("telaFinanceiro");
+
+  const box =
+  document.getElementById(
+    "financeiroConteudo"
+  );
+
+  box.innerHTML = "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("financeiro")
+  .select("*")
+  .order("vencimento");
+
+  if(error){
+
+    box.innerHTML = error.message;
+    return;
+
+  }
+
+  if(!data.length){
+
+    box.innerHTML =
+    "Nenhuma cobrança";
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  data.forEach(item => {
+
+    const vencido =
+    new Date(item.vencimento)
+    < new Date();
+
+    box.innerHTML += `
+
+    <div class="cardTela">
+
+      <strong>
+        ${item.nome_cliente}
+      </strong>
+
+      <br><br>
+
+      💰 R$ ${item.valor}
+
+      <br>
+
+      📅 ${item.vencimento}
+
+      <br>
+
+      Status:
+      ${
+        item.status
+      }
+
+      <br><br>
+
+      <button
+      onclick="
+        marcarPago(${item.id})
+      ">
+
+        ✅ Marcar Pago
+
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+async function carregarFinanceiro(){
+
+  const box =
+  document.getElementById(
+    "listaFinanceiro"
+  );
+
+  box.innerHTML = "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("financeiro")
+  .select("*")
+  .order("vencimento", {
+    ascending:true
+  });
+
+  if(error){
+
+    box.innerHTML = error.message;
+
+    return;
+  }
+
+  if(!data.length){
+
+    box.innerHTML =
+    "Nenhuma cobrança";
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  data.forEach(item => {
+
+    const vencido =
+    item.status !== "pago" &&
+    new Date(item.vencimento)
+    < new Date();
+
+    box.innerHTML += `
+
+    <div class="cardTela">
+
+      <strong>
+        ${item.nome_cliente}
+      </strong>
+
+      <br><br>
+
+      💰 R$ ${item.valor}
+
+      <br>
+
+      📅 ${new Date(
+        item.vencimento
+      ).toLocaleDateString()}
+
+      <br><br>
+
+      <span style="
+        color:${
+          item.status === "pago"
+          ? "#22c55e"
+          : vencido
+          ? "#ef4444"
+          : "#facc15"
+        };
+        font-weight:700;
+      ">
+
+        ${
+          item.status === "pago"
+          ? "Pago"
+          : vencido
+          ? "Vencido"
+          : "Pendente"
+        }
+
+      </span>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+
+async function marcarPago(id){
+
+  await db
+  .from("financeiro")
+  .update({
+
+    status:"pago",
+
+    data_pagamento:
+    new Date()
+
+  })
+  .eq("id", id);
+
+  mostrarToast("Pagamento confirmado");
+
+  abrirFinanceiro();
+
+}
+
+
+function cobrarWhatsapp(
+ telefone,
+ nome,
+ valor
+){
+
+ if(
+   !telefone ||
+   telefone === "0"
+ ){
+
+   mostrarToast(
+     "Telefone não cadastrado"
+   );
+
+   return;
+ }
+
+ const msg =
+`Olá ${nome} 👋
+
+Seu plano da barbearia venceu.
+
+💰 Valor: R$ ${valor}
+
+PIX:
+CHAVE_PIX_AQUI
+
+Link:
+LINK_AQUI`;
+
+ const url =
+`https://wa.me/55${telefone}?text=${
+ encodeURIComponent(msg)
+}`;
+
+ window.open(url,"_blank");
 
 }
 
