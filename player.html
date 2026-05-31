@@ -571,7 +571,7 @@
 }
 
 .itemResultado:hover{
-  background:#f5f5f5;
+  background:##46fa7e;
 }
 
 .itemPlaylist{
@@ -3268,6 +3268,9 @@ async function adicionarPlaylist(
   });
 
   await carregarPlaylist();
+document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
 
 }
 
@@ -3456,6 +3459,10 @@ function reproduzirAgora(videoId){
   player.loadVideoById(
     videoId
   );
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
 
 }
 
