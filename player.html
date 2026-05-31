@@ -578,6 +578,11 @@
   padding:10px;
   border-bottom:1px solid #ddd;
 }
+
+.musicaAtual{
+  background:#e8f5e9;
+  font-weight:bold;
+}
 </style>
 
 </head>
@@ -3208,6 +3213,11 @@ async function buscarYoutube(){
 
     div.className =
     "itemResultado";
+    
+    div.className =
+index === indiceAtual
+? "itemPlaylist musicaAtual"
+: "itemPlaylist";
 
   div.innerHTML = `
   <strong>${item.snippet.title}</strong>
@@ -3315,14 +3325,17 @@ function renderizarPlaylist(){
     div.className =
     "itemPlaylist";
 
-    div.innerHTML = `
-      ${index+1}.
-      ${item.titulo}
+div.innerHTML = `
+  <span
+    onclick="tocarDaPlaylist(${index})"
+    style="cursor:pointer">
 
-      <button>
-        ❌
-      </button>
-    `;
+    ${index+1}. ${item.titulo}
+
+  </span>
+
+  <button>❌</button>
+`;
 
     div.querySelector("button")
     .onclick = ()=>{
@@ -3405,7 +3418,15 @@ function tocarProxima(){
   );
 
 }
+function tocarDaPlaylist(indice){
 
+  indiceAtual = indice;
+
+  player.loadVideoById(
+    playlist[indice].video_id
+  );
+
+}
 // =========================
 // RECUPERAR STATUS
 // =========================
