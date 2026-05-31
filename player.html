@@ -1107,6 +1107,8 @@ db.auth.onAuthStateChange((event, session) => {
 <script>
   let tocandoAnuncio = false;
 let contadorMusicas = 0;
+let reproduzindoTemporario = false;
+let indiceAnterior = 0;
   
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
@@ -3106,6 +3108,19 @@ async function onPlayerStateChange(event){
 
   if(event.data !== YT.PlayerState.ENDED)
     return;
+if(reproduzindoTemporario){
+
+  reproduzindoTemporario =
+  false;
+
+  tocarIndice(
+    indiceAnterior
+  );
+
+  return;
+
+}
+
 
   if(tocandoAnuncio){
 
@@ -3194,25 +3209,41 @@ async function buscarYoutube(){
     div.className =
     "itemResultado";
 
-    div.innerHTML = `
-      <strong>
-        ${item.snippet.title}
-      </strong>
-      <br>
-      <button>
-        ➕ Adicionar
-      </button>
-    `;
+  div.innerHTML = `
+  <strong>${item.snippet.title}</strong>
+  <br>
 
-    div.querySelector("button")
-    .onclick = ()=>{
+  <button class="btnPlayAgora">
+    ▶ Reproduzir
+  </button>
 
-      adicionarPlaylist(
-        item.id.videoId,
-        item.snippet.title
-      );
+  <button class="btnAdicionar">
+    ➕ Adicionar
+  </button>
+`;
+    
 
-    };
+const botoes =
+div.querySelectorAll("button");
+
+botoes[0].onclick = ()=>{
+
+  reproduzirAgora(
+    item.id.videoId
+  );
+
+};
+
+botoes[1].onclick = ()=>{
+
+  adicionarPlaylist(
+    item.id.videoId,
+    item.snippet.title
+  );
+
+};
+
+    
 
     resultados.appendChild(div);
 
@@ -3413,6 +3444,21 @@ async function iniciarPlayerTV(){
   await restaurarPlayer();
 
 }
+
+function reproduzirAgora(videoId){
+
+  indiceAnterior =
+  indiceAtual;
+
+  reproduzindoTemporario =
+  true;
+
+  player.loadVideoById(
+    videoId
+  );
+
+}
+
 
 
 
