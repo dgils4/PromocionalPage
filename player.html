@@ -2832,11 +2832,11 @@ async function abrirTelaVencimentos(){
 
 }
 
-function abrirPlayerTV(){
+async function abrirPlayerTV(){
 
   abrirTela("telaPlayer");
 
-  carregarPlaylist();
+  await iniciarPlayerTV();
 
 }
 
