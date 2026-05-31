@@ -1105,7 +1105,8 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
-  
+  let tocandoAnuncio = false;
+let contadorMusicas = 0;
   
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
@@ -3101,16 +3102,61 @@ function onYouTubeIframeAPIReady(){
 
 }
 
-function onPlayerStateChange(event){
+async function onPlayerStateChange(event){
 
-  if(event.data === YT.PlayerState.ENDED){
+  if(event.data !== YT.PlayerState.ENDED)
+    return;
+
+  if(tocandoAnuncio){
+
+    tocandoAnuncio = false;
 
     tocarProxima();
 
+    return;
+
   }
+
+  contadorMusicas++;
+
+  if(contadorMusicas >= 3){
+
+    contadorMusicas = 0;
+
+    const anuncio =
+    await obterAnuncio();
+
+    if(anuncio){
+
+      tocandoAnuncio = true;
+
+      player.loadVideoById(
+        anuncio.video_id
+      );
+
+      return;
+
+    }
+
+  }
+
+  tocarProxima();
 
 }
 
+
+async function obterAnuncio(){
+
+  const { data } =
+  await db
+  .from("anuncios")
+  .select("*")
+  .eq("ativo", true)
+  .limit(1);
+
+  return data?.[0];
+
+}
 // =========================
 // BUSCA YOUTUBE
 // =========================
