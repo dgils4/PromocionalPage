@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Busca YouTube</title>
+
+<style>
+body{
+  font-family:Arial;
+  padding:20px;
+}
+
+#resultados div{
+  padding:10px;
+  border:1px solid #ccc;
+  margin:5px 0;
+  cursor:pointer;
+}
+</style>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+<input id="busca" placeholder="Pesquisar música">
+<button onclick="buscar()">Buscar</button>
+
+<div id="resultados"></div>
+
+<hr>
+
+<div id="player"></div>
+
+<script>
+
+let player;
+
+function onYouTubeIframeAPIReady(){
+
+  player = new YT.Player('player',{
+    height:'390',
+    width:'640',
+    videoId:'M7lc1UVf-VE'
+  });
+
+}
+
+async function buscar(){
+
+  const termo =
+    document.getElementById("busca").value;
+
+  const url =
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=AIzaSyCPxUdGtcFYtXMha7K5E9JaS2khDJXX8LU`;
+
+  const resp = await fetch(url);
+
+  const dados = await resp.json();
+
+  const resultados =
+    document.getElementById("resultados");
+
+  resultados.innerHTML = "";
+
+  dados.items.forEach(item=>{
+
+    const div =
+      document.createElement("div");
+
+    div.innerText =
+      item.snippet.title;
+
+    div.onclick = ()=>{
+
+      player.loadVideoById(
+        item.id.videoId
+      );
+
+    };
+
+    resultados.appendChild(div);
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
