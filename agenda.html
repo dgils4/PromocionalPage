@@ -2870,10 +2870,16 @@ async function abrirTelaVencimentos(){
 }
 
 async function abrirPlayerTV(){
-
+console.log(
+  document.getElementById("player")
+);
   abrirTela("telaPlayer");
 
-  await iniciarPlayerTV();
+  setTimeout(async ()=>{
+
+    await iniciarPlayerTV();
+
+  },500);
 
 }
 
