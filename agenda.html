@@ -553,7 +553,53 @@
 
 
 </button>
+#buscaYoutube{
+  width:100%;
+  padding:12px;
+  box-sizing:border-box;
+}
 
+#resultadosYoutube{
+  margin-top:10px;
+}
+
+.itemResultado{
+  padding:10px;
+  margin-bottom:5px;
+  border:1px solid #ddd;
+  cursor:pointer;
+}
+
+.itemResultado:hover{
+  background:#375402;
+}
+
+.itemPlaylist{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+}
+
+.musicaAtual{
+  background:#00f03e;
+  font-weight:bold;
+}
+.itemPlaylist{
+  display:flex;
+  align-items:center;
+}
+
+.btnRemoverPlaylist{
+  margin-left:auto;
+}
+.btnAdicionar,
+.btnPlayAgora{
+
+  height: 30px;
+  margin:0px ;
+  padding: 0px 9px !important
+  
+  
+}
 </style>
 
 </head>
@@ -793,7 +839,41 @@
 </div>
 
 
+<div id="telaPlayer" class="telaSistema">
 
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaPlayer')">
+      ← Voltar
+    </button>
+
+    <h2>🎵 Player TV</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input
+      id="buscaYoutube"
+      placeholder="Pesquisar música">
+
+    <button onclick="buscarYoutube()">
+      🔍 Buscar
+    </button>
+
+    <div id="resultadosYoutube"></div>
+
+    <div style="height:15px"></div>
+
+    <div id="player"></div>
+
+    <div style="height:15px"></div>
+
+    <div id="listaPlaylist"></div>
+
+  </div>
+
+</div>
 
 
 
@@ -882,6 +962,10 @@
   <button onclick="abrirConfig()">
     ⚙️ Configurações
   </button>
+  
+  <button onclick="abrirPlayerTV()">
+  🎵 Player TV
+</button>
 
 </div>
   
@@ -982,6 +1066,8 @@
 </div>
 </div>
 
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 let editandoId = null;
@@ -1041,7 +1127,10 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
-  
+  let tocandoAnuncio = false;
+let contadorMusicas = 0;
+let reproduzindoTemporario = false;
+let indiceAnterior = 0;
   
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
@@ -2768,6 +2857,14 @@ async function abrirTelaVencimentos(){
 
 }
 
+async function abrirPlayerTV(){
+
+  abrirTela("telaPlayer");
+
+  await iniciarPlayerTV();
+
+}
+
 
 async function abrirFinanceiro(){
 
@@ -3004,6 +3101,413 @@ LINK_AQUI`;
 
 }
 
+const YOUTUBE_API_KEY = "AIzaSyCPxUdGtcFYtXMha7K5E9JaS2khDJXX8LU";
+
+let player;
+let playlist = [];
+let indiceAtual = 0;
+
+// =========================
+// PLAYER YOUTUBE
+// =========================
+
+function onYouTubeIframeAPIReady(){
+
+  player = new YT.Player("player",{
+    height:"390",
+    width:"100%",
+    playerVars:{
+      autoplay:1
+    },
+    events:{
+      onStateChange:onPlayerStateChange
+    }
+  });
+
+}
+
+async function onPlayerStateChange(event){
+
+  if(event.data !== YT.PlayerState.ENDED)
+    return;
+if(reproduzindoTemporario){
+
+  reproduzindoTemporario =
+  false;
+
+  tocarIndice(
+    indiceAnterior
+  );
+
+  return;
+
+}
+
+
+  if(tocandoAnuncio){
+
+    tocandoAnuncio = false;
+
+    tocarProxima();
+
+    return;
+
+  }
+
+  contadorMusicas++;
+
+  if(contadorMusicas >= 3){
+
+    contadorMusicas = 0;
+
+    const anuncio =
+    await obterAnuncio();
+
+    if(anuncio){
+
+      tocandoAnuncio = true;
+
+      player.loadVideoById(
+        anuncio.video_id
+      );
+
+      return;
+
+    }
+
+  }
+
+  tocarProxima();
+
+}
+
+
+async function obterAnuncio(){
+
+  const { data } =
+  await db
+  .from("anuncios")
+  .select("*")
+  .eq("ativo", true)
+  .limit(1);
+
+  return data?.[0];
+
+}
+// =========================
+// BUSCA YOUTUBE
+// =========================
+
+async function buscarYoutube(){
+
+  const termo =
+  document.getElementById(
+    "buscaYoutube"
+  ).value.trim();
+
+  if(!termo) return;
+
+  const url =
+  `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
+
+  const resp =
+  await fetch(url);
+
+  const dados =
+  await resp.json();
+
+  const resultados =
+  document.getElementById(
+    "resultadosYoutube"
+  );
+
+  resultados.innerHTML = "";
+
+  dados.items.forEach(item=>{
+
+    const div =
+    document.createElement("div");
+
+    div.className =
+    "itemResultado";
+    
+
+  div.innerHTML = `
+  <strong>${item.snippet.title}</strong>
+  <br>
+
+  <button class="btnPlayAgora">
+    ▶ Reproduzir
+  </button>
+
+  <button class="btnAdicionar">
+    ➕ Adicionar
+  </button>
+`;
+    
+
+const botoes =
+div.querySelectorAll("button");
+
+botoes[0].onclick = ()=>{
+
+  reproduzirAgora(
+    item.id.videoId
+  );
+
+};
+
+botoes[1].onclick = ()=>{
+
+  adicionarPlaylist(
+    item.id.videoId,
+    item.snippet.title
+  );
+
+};
+
+    
+
+    resultados.appendChild(div);
+
+  });
+
+}
+
+// =========================
+// PLAYLIST
+// =========================
+
+async function adicionarPlaylist(
+  videoId,
+  titulo
+){
+
+  await db
+  .from("playlist")
+  .insert({
+    video_id:videoId,
+    titulo:titulo
+  });
+
+  await carregarPlaylist();
+document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+}
+
+async function carregarPlaylist(){
+
+  const { data } =
+  await db
+  .from("playlist")
+  .select("*")
+  .order("id");
+
+  playlist =
+  data || [];
+
+  renderizarPlaylist();
+
+  if(
+    playlist.length &&
+    !player.getVideoData()?.video_id
+  ){
+
+    tocarIndice(0);
+
+  }
+
+}
+
+function renderizarPlaylist(){
+
+  const lista =
+  document.getElementById(
+    "listaPlaylist"
+  );
+
+  lista.innerHTML = "";
+
+  playlist.forEach((item,index)=>{
+
+    const div =
+    document.createElement("div");
+
+        div.className =
+index === indiceAtual
+? "itemPlaylist musicaAtual"
+: "itemPlaylist";
+
+div.innerHTML = `
+  <span
+    onclick="tocarDaPlaylist(${index})"
+    style="cursor:pointer">
+
+    ${index+1}. ${item.titulo}
+
+  </span>
+
+  <button class="btnRemoverPlaylist">
+    ❌
+  </button>
+`;
+
+    div.querySelector("button")
+    .onclick = ()=>{
+
+      removerMusica(
+        item.id
+      );
+
+    };
+
+    lista.appendChild(div);
+
+  });
+
+}
+
+async function removerMusica(id){
+
+  await db
+  .from("playlist")
+  .delete()
+  .eq("id",id);
+
+  await carregarPlaylist();
+
+}
+
+// =========================
+// REPRODUÇÃO
+// =========================
+
+async function tocarIndice(
+  indice
+){
+
+  if(
+    indice >= playlist.length
+  ) return;
+
+  indiceAtual =
+  indice;
+  renderizarPlaylist();
+  const musica =
+  playlist[indice];
+
+  player.loadVideoById(
+    musica.video_id
+  );
+
+  await db
+  .from("player_status")
+  .upsert({
+    id:1,
+    video_id:
+    musica.video_id,
+    indice:indice
+  });
+
+}
+
+function tocarProxima(){
+
+  const proximo =
+  indiceAtual + 1;
+
+  if(
+    proximo >= playlist.length
+  ){
+
+    indiceAtual = 0;
+
+    tocarIndice(0);
+
+    return;
+
+  }
+
+  tocarIndice(
+    proximo
+  );
+
+}
+function tocarDaPlaylist(indice){
+
+  indiceAtual = indice;
+renderizarPlaylist();
+  player.loadVideoById(
+    playlist[indice].video_id
+  );
+
+}
+// =========================
+// RECUPERAR STATUS
+// =========================
+
+async function restaurarPlayer(){
+
+  const { data } =
+  await db
+  .from("player_status")
+  .select("*")
+  .eq("id",1)
+  .single();
+
+  if(!data) return;
+
+  indiceAtual =
+  data.indice || 0;
+
+  if(
+    playlist[indiceAtual]
+  ){
+
+    tocarIndice(
+      indiceAtual
+    );
+
+  }
+
+}
+
+// =========================
+// INICIALIZAÇÃO
+// =========================
+
+async function iniciarPlayerTV(){
+
+  await carregarPlaylist();
+
+  await restaurarPlayer();
+
+}
+
+function reproduzirAgora(videoId){
+
+  indiceAnterior =
+  indiceAtual;
+
+  reproduzindoTemporario =
+  true;
+
+  player.loadVideoById(
+    videoId
+  );
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+
+}
+
+
+
+
+
 
 atualizarBadge();
 carregarHoje();
@@ -3016,7 +3520,7 @@ setTimeout(()=>{
 
 },300);
 
-
+console.log(playlist);
 
 </script>
 
