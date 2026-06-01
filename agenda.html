@@ -868,7 +868,9 @@
     <div id="player"></div>
 
     <div style="height:15px"></div>
-
+<button style="width:100px" onclick="alternarAleatorio()">
+  🔀 Aleatório
+</button>
     <div id="listaPlaylist"></div>
 
   </div>
@@ -1131,6 +1133,7 @@ db.auth.onAuthStateChange((event, session) => {
 let contadorMusicas = 0;
 let reproduzindoTemporario = false;
 let indiceAnterior = 0;
+let modoAleatorio = false;
   
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
@@ -3415,14 +3418,41 @@ async function tocarIndice(
 
 function tocarProxima(){
 
+  if(!playlist.length)
+    return;
+
+  if(modoAleatorio){
+
+    let proximo;
+
+    do{
+
+      proximo =
+      Math.floor(
+        Math.random() *
+        playlist.length
+      );
+
+    }while(
+      playlist.length > 1 &&
+      proximo === indiceAtual
+    );
+
+    tocarIndice(
+      proximo
+    );
+
+    return;
+
+  }
+
   const proximo =
   indiceAtual + 1;
 
   if(
-    proximo >= playlist.length
+    proximo >=
+    playlist.length
   ){
-
-    indiceAtual = 0;
 
     tocarIndice(0);
 
@@ -3435,6 +3465,9 @@ function tocarProxima(){
   );
 
 }
+
+
+
 function tocarDaPlaylist(indice){
 
   indiceAtual = indice;
@@ -3501,6 +3534,19 @@ function reproduzirAgora(videoId){
     "resultadosYoutube"
   ).innerHTML = "";
 
+
+}
+
+function alternarAleatorio(){
+
+  modoAleatorio =
+  !modoAleatorio;
+
+  alert(
+    modoAleatorio
+    ? "Modo aleatório ligado"
+    : "Modo aleatório desligado"
+  );
 
 }
 
