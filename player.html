@@ -571,7 +571,7 @@
 }
 
 .itemResultado:hover{
-  background:##46fa7e;
+  background:#375402;
 }
 
 .itemPlaylist{
@@ -580,8 +580,25 @@
 }
 
 .musicaAtual{
-  background:#e8f5e9;
+  background:#00f03e;
   font-weight:bold;
+}
+.itemPlaylist{
+  display:flex;
+  align-items:center;
+}
+
+.btnRemoverPlaylist{
+  margin-left:auto;
+}
+.btnAdicionar,
+.btnPlayAgora{
+
+  height: 30px;
+  margin:0px ;
+  padding: 0px 9px !important
+  
+  
 }
 </style>
 
@@ -846,11 +863,11 @@
 
     <div id="resultadosYoutube"></div>
 
-    <hr>
+    <div style="height:15px"></div>
 
     <div id="player"></div>
 
-    <hr>
+    <div style="height:15px"></div>
 
     <div id="listaPlaylist"></div>
 
@@ -3214,10 +3231,6 @@ async function buscarYoutube(){
     div.className =
     "itemResultado";
     
-    div.className =
-index === indiceAtual
-? "itemPlaylist musicaAtual"
-: "itemPlaylist";
 
   div.innerHTML = `
   <strong>${item.snippet.title}</strong>
@@ -3322,8 +3335,10 @@ function renderizarPlaylist(){
     const div =
     document.createElement("div");
 
-    div.className =
-    "itemPlaylist";
+        div.className =
+index === indiceAtual
+? "itemPlaylist musicaAtual"
+: "itemPlaylist";
 
 div.innerHTML = `
   <span
@@ -3334,7 +3349,9 @@ div.innerHTML = `
 
   </span>
 
-  <button>❌</button>
+  <button class="btnRemoverPlaylist">
+    ❌
+  </button>
 `;
 
     div.querySelector("button")
@@ -3503,7 +3520,7 @@ setTimeout(()=>{
 
 },300);
 
-
+console.log(playlist);
 
 </script>
 
