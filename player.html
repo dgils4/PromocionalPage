@@ -1,0 +1,3714 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los Visionários Agenda</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{
+  min-height:52px;
+  background:#0b1220;
+  border:1px solid #1e3a8a;
+  border-radius:12px;
+  padding:8px}
+  
+.free{
+  background:#0b1220;
+  color:#94a3b8;
+}
+  
+  .booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
+
+.loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:99999;
+}
+
+.loading-box{
+  background:#fff;
+  padding:25px;
+  border-radius:16px;
+  text-align:center;
+  min-width:220px;
+  color:black;
+}
+
+.spinner{
+  width:45px;
+  height:45px;
+  border:5px solid #eee;
+  border-top:5px solid #f97316;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:auto;
+  margin-bottom:15px;
+}
+
+@keyframes girar{
+  100%{
+    transform:rotate(360deg);
+  }
+}
+
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 15px;
+  border-radius: 10px;
+  
+}
+
+.item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  color:black;
+}
+
+.item:hover {
+  background: #f0f0f0;
+}
+
+
+/* ========================= */
+/* SIDEBAR NOVA */
+/* ========================= */
+
+.sidebar{
+
+  position:fixed;
+
+  top:0;
+
+  left:-320px;
+
+  width:280px;
+
+  height:100%;
+
+  background:#0f172a;
+
+  z-index:9999999;
+
+  padding:18px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:10px;
+
+  transition:.25s;
+
+  border-right:1px solid #1d4ed8;
+
+  overflow-y:auto;
+
+}
+
+/* ATIVO */
+
+.sidebar.ativo{
+  left:0;
+}
+
+/* TITULO */
+
+.sidebar h2{
+
+  margin:0;
+
+  color:#fff;
+
+  font-size:22px;
+
+}
+
+/* BOTÕES */
+
+.sidebar button{
+
+  border:none;
+
+  background:#111827;
+
+  color:#fff;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  font-size:15px;
+
+  font-weight:600;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  transition:.2s;
+
+}
+
+/* HOVER */
+
+.sidebar button:active{
+
+  transform:scale(.98);
+
+  background:#1d4ed8;
+
+}
+
+/* SCROLL */
+
+.sidebar::-webkit-scrollbar{
+  width:4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+  background:#1d4ed8;
+  border-radius:999px;
+}
+
+/* BADGE */
+
+#badgeNotif{
+
+  min-width:22px;
+
+  text-align:center;
+
+}
+
+/* OVERLAY */
+
+.overlayMenu{
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(0,0,0,.5);
+
+  z-index:9999998;
+
+  display:none;
+
+}
+
+/* MOSTRAR */
+
+.overlayMenu.show{
+  display:block;
+}
+
+
+
+
+
+
+
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111827;
+  color:#fff;
+  padding:14px 18px;
+  border-radius:12px;
+  z-index:999999;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  font-weight:600;
+  border:1px solid #374151;
+}
+
+.toast.show{
+  opacity:1;
+  bottom:35px;
+}
+
+/* MODAL */
+
+.confirm-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:999999;
+  padding:15px;
+}
+
+.confirm-box{
+  width:100%;
+  max-width:350px;
+  background:#0f172a;
+  border-radius:18px;
+  padding:20px;
+  color:#fff;
+  animation:pop .2s ease;
+}
+
+.confirm-box h3{
+  margin-top:0;
+}
+
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.confirm-actions button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+}
+
+.btn-cancelar{
+  background:#374151;
+  color:#fff;
+}
+
+.btn-confirmar{
+  background:#dc2626;
+  color:#fff;
+}
+
+@keyframes pop{
+  from{
+    transform:scale(.9);
+    opacity:0;
+  }
+  to{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+.boot-loading{
+  position:fixed;
+  inset:0;
+  background:#050b16;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:99999999;
+  transition:.4s;
+}
+
+.boot-loading.hide{
+  opacity:0;
+  visibility:hidden;
+}
+
+.boot-box{
+  text-align:center;
+}
+
+.boot-spinner{
+  width:60px;
+  height:60px;
+  border:6px solid #1e293b;
+  border-top:6px solid #3b82f6;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:auto;
+  margin-bottom:20px;
+}
+
+.skeleton{
+  height:20px;
+  border-radius:8px;
+  background:#1e293b;
+  animation:pulse 1s infinite;
+}
+
+.skeleton-card{
+  height:52px;
+  border-radius:12px;
+  background:#111827;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+
+  0%{
+    opacity:.5;
+  }
+
+  50%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:.5;
+  }
+
+}
+#listaServicos{
+  overflow-y:auto;
+  height:400px;
+}
+/* ========================= */
+/* TELAS FULLSCREEN */
+/* ========================= */
+
+.telaSistema{
+
+  position:fixed;
+
+  inset:0;
+
+  background:#050b16;
+
+  z-index:999999;
+
+  overflow-y:auto;
+
+  display:none;
+
+  flex-direction:column;
+
+  animation:fadeTela .2s ease;
+
+}
+
+/* ATIVA */
+
+.telaSistema.ativa{
+  display:flex;
+}
+
+/* TOPO */
+
+.topTela{
+
+  position:sticky;
+
+  top:0;
+
+  background:#0f172a;
+
+  padding:15px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  border-bottom:1px solid #1d4ed8;
+
+  z-index:10;
+
+}
+
+/* TITULO */
+
+.topTela h2{
+
+  margin:0;
+
+  font-size:18px;
+
+  color:#fff;
+
+}
+
+/* BOTÃO VOLTAR */
+
+.topTela button{
+
+  border:none;
+
+  background:#1d4ed8;
+
+  color:#fff;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  font-weight:700;
+
+}
+
+/* CONTEÚDO */
+
+.conteudoTela{
+
+  padding:15px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+
+}
+
+/* INPUTS */
+
+.conteudoTela input,
+.conteudoTela select,
+.conteudoTela textarea{
+
+  width:100%;
+
+  padding:12px;
+
+  border:none;
+
+  border-radius:12px;
+
+  background:#111827;
+
+  color:#fff;
+
+}
+
+/* BOTÕES */
+
+.conteudoTela button{
+
+  border:none;
+
+  background:#1d4ed8;
+
+  color:#fff;
+
+  padding:12px;
+
+  border-radius:12px;
+
+  font-weight:700;
+
+}
+
+/* CARDS */
+
+.cardTela{
+
+  background:#111827;
+
+  border:1px solid #1f2937;
+
+  border-radius:16px;
+
+  padding:14px;
+
+}
+
+/* SCROLL */
+
+.telaSistema::-webkit-scrollbar{
+  width:4px;
+}
+
+.telaSistema::-webkit-scrollbar-thumb{
+  background:#1d4ed8;
+  border-radius:999px;
+}
+
+/* ANIMAÇÃO */
+
+@keyframes fadeTela{
+
+  from{
+
+    opacity:0;
+
+    transform:translateY(10px);
+
+  }
+
+  to{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+  }
+
+}
+
+
+</button>
+#buscaYoutube{
+  width:100%;
+  padding:12px;
+  box-sizing:border-box;
+}
+
+#resultadosYoutube{
+  margin-top:10px;
+}
+
+.itemResultado{
+  padding:10px;
+  margin-bottom:5px;
+  border:1px solid #ddd;
+  cursor:pointer;
+}
+
+.itemResultado:hover{
+  background:#375402;
+}
+
+.itemPlaylist{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+}
+
+.musicaAtual{
+  background:#00f03e;
+  font-weight:bold;
+}
+.itemPlaylist{
+  display:flex;
+  align-items:center;
+}
+
+.btnRemoverPlaylist{
+  margin-left:auto;
+}
+.btnAdicionar,
+.btnPlayAgora{
+
+  height: 30px;
+  margin:0px ;
+  padding: 0px 9px !important
+  
+  
+}
+
+#loadingPlayer{
+  text-align:center;
+  padding:20px;
+}
+</style>
+
+</head>
+<body>
+  
+
+  <div id="loading" class="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p id="textoLoading">Processando...</p>
+  </div>
+</div>
+  
+  <div id="bootLoading" class="boot-loading">
+
+  <div class="boot-box">
+
+    <div class="boot-spinner"></div>
+
+    <h2>Los Visionários</h2>
+
+    <p>Inicializando sistema...</p>
+
+  </div></div>
+  
+  <!-- ========================= -->
+<!-- 📊 TELA FATURAMENTO -->
+<!-- ========================= -->
+
+<div id="telaFaturamento" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaFaturamento')">
+      ← Voltar
+    </button>
+
+    <h2>📊 Faturamento</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <button onclick="calcularFaturamento()">
+      Calcular
+    </button>
+
+    <div id="fatResultado"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 📅 TELA CALENDÁRIO -->
+<!-- ========================= -->
+
+<div id="telaCalendario" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaCalendario')">
+      ← Voltar
+    </button>
+
+    <h2>📅 Buscar Período</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input type="date" id="dataInicio">
+
+    <input type="date" id="dataFim">
+
+    <select id="calProf">
+
+      <option value="Todos">Todos</option>
+      <option value="Gilberto">Gilberto</option>
+      <option value="Thiago">Thiago</option>
+      <option value="Visita">Visita</option>
+
+    </select>
+
+    <button onclick="calcularPeriodo()">
+      Buscar
+    </button>
+
+    <div id="resultadoPeriodo"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 💳 TELA PLANOS -->
+<!-- ========================= -->
+
+<div id="telaPlanos" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaPlanos')">
+      ← Voltar
+    </button>
+
+    <h2>💳 Clientes Plano</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input type="date" id="planoInicio">
+
+    <input type="date" id="planoFim">
+
+    <button onclick="calcularPlanos()">
+      Buscar
+    </button>
+
+    <div id="resultadoPlanos"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 🔔 TELA VENCIMENTOS -->
+<!-- ========================= -->
+
+<div id="telaVencimentos" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaVencimentos')">
+      ← Voltar
+    </button>
+
+    <h2>🔔 Vencimentos</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <div id="listaVencimentos"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 👥 TELA CLIENTES -->
+<!-- ========================= -->
+
+<div id="telaClientes" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaClientes')">
+      ← Voltar
+    </button>
+
+    <h2>👥 Clientes</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input
+      type="text"
+      id="buscarCliente"
+      placeholder="Buscar cliente"
+    >
+
+    <div id="resultadoClientes"></div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 💰 TELA FINANCEIRO -->
+<!-- ========================= -->
+
+<div id="telaFinanceiro" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaFinanceiro')">
+      ← Voltar
+    </button>
+
+    <h2>💰 Financeiro</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <div id="financeiroConteudo">
+
+    <div id="listaFinanceiro"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- ⚙️ TELA CONFIG -->
+<!-- ========================= -->
+
+<div id="telaConfig" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaConfig')">
+      ← Voltar
+    </button>
+
+    <h2>⚙️ Configurações</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <button onclick="backupCSV()">
+      📁 Backup CSV
+    </button>
+
+    <button onclick="sair()">
+      🚪 Sair
+    </button>
+
+  </div>
+
+</div>
+
+
+<div id="telaPlayer" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaPlayer')">
+      ← Voltar
+    </button>
+
+    <h2>🎵 Player TV</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <input
+      id="buscaYoutube"
+      placeholder="Pesquisar música">
+
+    <button onclick="buscarYoutube()">
+      🔍 Buscar
+    </button>
+
+    <div id="resultadosYoutube"></div>
+
+    <div style="height:15px"></div>
+
+  <div id="loadingPlayer">
+  ⏳ Carregando player...
+</div>
+
+<div id="player"></div>
+
+    <div style="height:15px"></div>
+<button style="width:100px" onclick="alternarAleatorio()">
+  🔀 Aleatório
+</button>
+   <div id="listaPastas"></div>
+
+<div id="listaPlaylist"></div>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+  <!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div id="confirmModal" class="confirm-modal">
+
+  <div class="confirm-box">
+
+    <h3 id="confirmTitulo">Confirmação</h3>
+
+    <p id="confirmTexto">
+      Deseja continuar?
+    </p>
+
+    <div class="confirm-actions">
+
+      <button class="btn-cancelar"
+      onclick="fecharConfirmacao()">
+        Cancelar
+      </button>
+
+      <button class="btn-confirmar"
+      id="btnConfirmar">
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+  <div id="sidebar" class="sidebar">
+  
+  
+ <h2 style="margin-bottom:10px">
+    📋 Menu
+  </h2>
+
+  <button onclick="abrirHoje()">
+    📅 Agenda
+  </button>
+
+  <button onclick="abrirCalendario()">
+    📆 Buscar Período
+  </button>
+
+  <button onclick="abrirPlanos()">
+    💳 Clientes Plano
+  </button>
+
+  <button onclick="abrirFaturamento()">
+    📊 Faturamento
+  </button>
+
+  <button onclick="abrirTelaVencimentos()">
+    🔔 Vencimentos
+
+    <span id="badgeNotif"
+    style="
+      background:#dc2626;
+      padding:3px 8px;
+      border-radius:999px;
+      margin-left:8px;
+      font-size:12px;
+    ">
+      0
+    </span>
+
+  </button>
+
+  <button onclick="abrirClientes()">
+    👥 Clientes
+  </button>
+
+  <button onclick="abrirFinanceiro()">
+    💰 Financeiro
+  </button>
+
+  <button onclick="abrirConfig()">
+    ⚙️ Configurações
+  </button>
+  
+  <button onclick="abrirPlayerTV()">
+  🎵 Player TV
+</button>
+
+</div>
+  
+
+
+  
+
+<header>
+  
+<div class='top'>
+  <button onclick="toggleMenu()" >
+    ☰
+</button>
+
+<!-- OVERLAY MENU -->
+
+<div
+  id="overlayMenu"
+  class="overlayMenu"
+  onclick="fecharMenu()">
+</div>
+  <div class='brand'>Los Visionários</div>
+  <button id="btnOlho"
+  onclick="toggleValores()"
+  style="
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:20px;
+    cursor:pointer;
+  ">
+    👁️
+  </button>
+  <input type='date' id='data'></div>
+<div class='stats'>
+<div class='card'><div>Hoje</div><strong id='totalDia'>R$0</strong></div>
+<div class='card'><div>Clientes</div><strong id='qtd'>0</strong></div>
+<div class='card'><div>Plano</div><strong id='planos'>0</strong></div>
+</div>
+</header>
+<div class='wrap'>
+<div class='toolbar'>
+<select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
+<button onclick='carregarHoje()'>Atualizar</button>
+
+
+</div>
+<div id='agenda'></div>
+</div>
+<button class='fab' onclick='abrir()'>+</button>
+<div class='modal' id='modal'>
+<div class='box'>
+<h3>Novo Atendimento</h3>
+<input id='hora' placeholder='Hora ex: 09:00'>
+<input id="nome" placeholder="Nome do cliente" autocomplete="off">
+<div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
+<input id='fone' placeholder='Telefone'>
+<div class='row'>
+<select id='barbeiro'><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
+<select id='tipo'><option>avulso</option><option>plano</option></select>
+
+
+</div>
+<div id="boxPlanoAdmin" style="display:none;">
+
+<input type="date" id="adesaoPlano" style="margin-right:4px">
+
+<select id="statusPlano" style="margin-left:4px">
+  <option value="ativo">Plano Ativo</option>
+  <option value="inativo">Plano Inativo</option>
+</select>
+
+</div>
+
+<div class='row'>
+<select id="corte">
+  <option value="">Não alterar</option>
+  <option value="1">Corte 1/4</option>
+  <option value="2">Corte 2/4</option>
+  <option value="3">Corte 3/4</option>
+  <option value="4">Corte 4/4</option>
+</select>
+<select id='pag'><option>Pix</option><option>Dinheiro</option><option>Debito</option><option>Crédito</option><option>Plano Mensal</option></select>
+</div>
+<input id="valor" placeholder="Clique para escolher um serviço" readonly>
+<input id="valorr" placeholder="valor" type="number">
+
+<!-- Modal -->
+<div id="modalervicos" class="modal">
+  <div class="modal-content" >
+    <h3 style="color:black;">Serviços</h3>
+    <div id="listaServicos"></div>
+    <button onclick="fecharModil()">Fechar</button>
+  </div>
+</div>
+<textarea id='obs' placeholder='Observação'></textarea>
+<div class='actions'><button class="save" onclick="salvarAtendimento()">Salvar</button><button class='cancel' onclick='fechar()'>Cancelar</button></div>
+</div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+let editandoId = null;
+const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+
+
+
+const { createClient } = supabase;
+
+const db = createClient(
+ 'https://cdechrtprerblmhllqav.supabase.co',
+ 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
+);
+
+
+
+window.addEventListener("load", ()=>{
+
+  if(typeof supabase === "undefined"){
+
+    mostrarToast("Supabase não carregou");
+
+  }else{
+
+    mostrarToast("Servidor OK");
+
+  }
+
+});
+
+
+
+
+async function protegerPagina(){
+
+ const { data } = await db.auth.getSession();
+
+ if(!data.session){
+   location.href = "login.html";
+   return;
+ }
+
+}
+
+protegerPagina();
+
+db.auth.onAuthStateChange((event, session) => {
+
+ if(!session){
+   location.href = "login.html";
+ }
+
+});
+</script>
+
+
+
+<script>
+  let tocandoAnuncio = false;
+let contadorMusicas = 0;
+let reproduzindoTemporario = false;
+let indiceAnterior = 0;
+let modoAleatorio = false
+let listaAtual = null;
+  
+  
+  const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
+     somSucesso.preload = "auto";
+   const exCluir = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/excluir.mp3");
+     exCluir.preload = "auto";  
+     
+     document.addEventListener("click", liberarAudio, {
+  once:true
+ 
+});
+
+function liberarAudio(){
+  somSucesso.play()
+  .then(()=>{
+    somSucesso.pause();
+    somSucesso.currentTime = 0;
+  });
+
+  exCluir.play()
+  .then(()=>{
+    exCluir.pause();
+    exCluir.currentTime = 0;
+  });
+
+}
+     
+     
+     
+     
+   
+  function vibrar(ms=150){
+  if(navigator.vibrate){
+    navigator.vibrate(ms);
+  }
+}   
+     
+  
+ function abrirLoading(texto = "Processando..."){
+
+  document.getElementById("textoLoading").innerText = texto;
+
+  document.getElementById("loading").style.display = "flex";
+}
+
+function fecharLoading(){
+vibrar();
+  document.getElementById("loading").style.display = "none";
+}
+ function gerarNomeKey(nome){
+  return nome
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+} 
+  
+async function sair(){
+
+  vibrar();
+
+  abrirConfirmacao(
+    "Deseja sair da conta?",
+    async ()=>{
+   if(navigator.vibrate){
+     navigator.vibrate(150);
+   }
+      await db.auth.signOut();
+
+      location.href = "login.html";
+
+    },
+    "🚪 Sair"
+  );
+
+}
+
+  
+ const modil = document.getElementById("modalervicos");
+const lista = document.getElementById("listaServicos");
+const inputValor = document.getElementById("valor");
+const inputValorr = document.getElementById("valorr");
+
+// abrir modal ao clicar no input
+inputValor.addEventListener("click", () => {
+  modil.style.display = "block";
+  carregarervicos();
+});
+
+// fechar modal
+function fecharModil() {
+  modil.style.display = "none";
+  sugestoes.innerHTML = "";
+}
+
+// buscar serviços no Supabase
+async function carregarervicos() {
+  lista.innerHTML = "Carregando...";
+
+  const { data, error } = await db
+    .from("servicos") // sua tabela
+    .select("nome, preco");
+
+  if (error) {
+    lista.innerHTML = "Erro ao carregar";
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("item");
+
+    div.innerHTML = `
+      <strong>${item.nome}</strong><br>
+      R$ ${item.preco}
+    `;
+
+    // quando clicar no serviço
+    div.onclick = () => {
+      inputValor.value = `${item.nome}`;
+        inputValorr.value = `${item.preco}`;
+      fecharModil();
+    
+    };
+
+    lista.appendChild(div);
+  });
+} 
+  const statusPlano = document.getElementById("statusPlano");
+const adesaoPlano = document.getElementById("adesaoPlano");  
+  
+const dataInput = document.getElementById('data');
+const agenda = document.getElementById('agenda');
+const modal = document.getElementById('modal');
+
+const hora = document.getElementById('hora');
+const nome = document.getElementById('nome');
+const fone = document.getElementById('fone');
+const barbeiro = document.getElementById('barbeiro');
+const tipo = document.getElementById('tipo');
+const corte = document.getElementById('corte');
+const pag = document.getElementById('pag');
+const valor = document.getElementById('valor');
+const valorr = document.getElementById('valorr');
+const obs = document.getElementById('obs');
+
+const agora = new Date();
+
+const hoje =
+agora.getFullYear() + '-' +
+String(agora.getMonth()+1).padStart(2,'0') + '-' +
+String(agora.getDate()).padStart(2,'0');
+
+dataInput.value = hoje;
+dataInput.onchange = carregarHoje;
+
+const horarios = [];
+
+for(let h=8; h<=20; h++){
+ ['00','30'].forEach(m=>{
+   horarios.push(String(h).padStart(2,'0') + ':' + m);
+ });
+}
+
+function abrir(h='') {
+
+  modal.style.display = 'flex';
+  hora.value = h;
+inputNome.dataset.id = "";
+  document.getElementById("boxPlanoAdmin").style.display = "none";
+
+  const adesao = document.getElementById("adesaoPlano");
+  const status = document.getElementById("statusPlano");
+
+  if (adesao) adesao.value = "";
+  if (status) status.value = "ativo";
+
+  editandoId = null;
+  
+    
+  nome.value = "";
+  fone.value = "";
+  valor.value = "";
+  valorr.value = "";
+  obs.value = "";
+  corte.value = "";
+  pag.value = "Pix";
+}
+
+function fechar(){
+  modal.style.display = "none";
+  editandoId = null;
+
+  hora.value = "";
+  nome.value = "";
+  fone.value = "";
+  valor.value = "";
+  valorr.value = "";
+  obs.value = "";
+  corte.value = "";
+  pag.value = "Pix";
+  
+
+  document.getElementById("boxPlanoAdmin").style.display = "none";
+
+  const adesao = document.getElementById("adesaoPlano");
+  const status = document.getElementById("statusPlano");
+
+  if (adesao) adesao.value = "";
+  if (status) status.value = "ativo";
+
+}
+
+function renderSkeleton(){
+
+  agenda.innerHTML = "";
+
+  for(let i=0; i<8; i++){
+
+    agenda.innerHTML += `
+
+    <div class="slot">
+
+      <div class="time skeleton"></div>
+
+      <div class="cell skeleton-card"></div>
+
+    </div>
+
+    `;
+
+  }
+
+}
+
+
+async function carregarHoje(){
+abrirLoading();
+  renderSkeleton();
+
+  vibrar();
+
+ agenda.innerHTML = '';
+
+ const hoje = dataInput.value;
+ const prof = filtro.value;
+
+ let query = db
+  .from('atendimentos')
+  .select('*')
+  .eq('data', hoje);
+
+ if(prof !== "Todos"){
+   query = query.eq('barbeiro', prof);
+ }
+
+ const { data, error } = await query.order('hora');
+
+ if(error){
+   mostrarToast(error.message);
+   return;
+   fecharLoading()
+   
+ }
+
+ let soma = 0;
+
+ data.forEach(item => {
+   soma += Number(item.valor || 0);
+ });
+
+ document.getElementById('totalDia').textContent =
+ 'R$' + soma.toFixed(2).replace('.', ',');
+
+ qtd.textContent = data.length;
+
+ planos.textContent =
+ data.filter(x => x.tipo_cliente === 'plano').length;
+
+ horarios.forEach(h => {
+
+   // 🔥 CORREÇÃO AQUI
+const mapa = {};
+data.forEach(i => {
+ mapa[i.hora.slice(0,5)] = i;
+});
+
+const item = mapa[h];
+
+   const d = document.createElement('div');
+   d.className = 'slot';
+
+   if(item){
+
+     let cor = '#166534';
+     let txt = '#fff';
+
+     if(item.tipo_cliente === 'plano'){
+       cor = '#eab308';
+       txt = '#111';
+     }
+     else if(Number(item.valor) <= 0){
+       cor = '#991b1b';
+     }
+
+     d.innerHTML = `
+     <div class="time">${h}</div>
+     <div style="background:${cor};color:${txt}" class="cell"
+     ontouchstart="segurarExcluir(event,'${item.id}')"
+     ontouchmove="moverDedo(event)"
+     ontouchend="cancelarSegurar()"
+     onclick="cliqueCard('${item.id}')">
+       ${item.nome_cliente || 'desconhecido'}<br>
+
+       <small style="font-size:11px">
+       ${item.tipo_cliente === 'plano'
+         ? 'Corte ' + item.numero_corte + '/4 • '
+         : ''
+       }
+
+       ${item.servico} •
+       ${item.forma_pagamento} •
+       R$${item.valor}
+       </small>
+     </div>
+     `;
+   } else {
+     d.innerHTML = `
+     <div class="time">${h}</div>
+     <div class="cell free" onclick="abrir('${h}')">
+       Livre
+     </div>
+     `;
+   }
+
+   agenda.appendChild(d);
+   aplicarOcultacao();
+ });
+fecharLoading();
+}
+
+
+
+async function salvarAtendimento(){
+  abrirLoading("Processando...")
+  
+if(valorr.value.trim() === ""){
+  valorr.value = 0;
+}  
+  
+  
+let telefoneLimpo = fone.value.replace(/\D/g,'');
+
+if(
+  telefoneLimpo !== "" &&
+  telefoneLimpo.length !== 11
+){
+   mostrarToast(
+     "Telefone deve ter 11 dígitos."
+   );
+
+   fone.focus();
+   fecharLoading();
+   return;
+}
+
+// só depois da validação
+if(telefoneLimpo === ""){
+   telefoneLimpo = null;
+}
+
+ // ==========================
+ // 🔥 CLIENTE (CORRIGIDO)
+ // ==========================
+ let clienteId = inputNome.dataset.id || null;
+
+ let nomeFinal = nome.value.trim() === ""
+   ? "desconhecido"
+   : nome.value.trim();
+console.log(clienteId);
+console.log(nomeFinal);
+ // cria cliente se não veio do autocomplete
+ if(!clienteId && nomeFinal !== "desconhecido"){
+
+   const { data: novoCliente, error } = await db
+   .from("clientes")
+   .insert([{
+     nome: nomeFinal,
+    telefone: fone.value.trim() || null
+   }])
+   .select()
+   .single();
+
+   if(error){
+     abrirConfirmacao("Erro ao criar cliente")
+   fecharLoading();
+     return;
+   }
+
+   clienteId = novoCliente.id;
+ }
+
+ // ==========================
+ // 🔥 CORTE (PLANO)
+ // ==========================
+ let numeroCorteFinal = corte.value;
+
+ if(tipo.value === "plano" && clienteId){
+
+   if(numeroCorteFinal === ""){
+
+     const { data: historico } = await db
+     .from("atendimentos")
+     .select("numero_corte,data,hora,id")
+     .eq("cliente_id", clienteId)
+     .eq("tipo_cliente", "plano")
+     .order("data", { ascending:false })
+     .order("hora", { ascending:false })
+     .order("id", { ascending:false })
+     .limit(1);
+
+     if(historico && historico.length > 0){
+
+       let ultimo = parseInt(historico[0].numero_corte,10) || 0;
+
+       numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
+
+     } else {
+       numeroCorteFinal = 1;
+     }
+   }
+
+ } else {
+   numeroCorteFinal = "";
+ }
+
+ // ==========================
+ // 🔥 DADOS
+ // ==========================
+ const dados = {
+   cliente_id: clienteId,
+   data: dataInput.value,
+   hora: hora.value,
+   nome_cliente: nomeFinal,
+   telefone: telefoneLimpo,
+   barbeiro: barbeiro.value,
+   tipo_cliente: tipo.value,
+   numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
+   forma_pagamento: pag.value,
+   valor: valorr.value,
+   observacao: obs.value,
+   servico: valor.value
+ };
+
+ let resposta;
+
+ if(editandoId){
+   resposta = await db
+   .from('atendimentos')
+   .update(dados)
+   .eq('id', editandoId);
+ } else {
+   resposta = await db
+   .from('atendimentos')
+   .insert([dados]);
+ }
+
+ if(resposta.error){
+   mostrarToast(resposta.error.message);
+ fecharLoading();
+   return;
+ }
+ 
+ if(clienteId){
+
+ await db
+ .from("clientes")
+ .update({
+   nome: nomeFinal,
+   telefone: fone.value.trim() || null
+ })
+ .eq("id", clienteId);
+
+}
+
+
+if(tipo.value === "plano" && clienteId){
+
+   const { data: cli } = await db
+   .from("clientes")
+   .select(
+     "data_adesao_plano,status_plano,ultima_renovacao"
+   )
+   .eq("id", clienteId)
+   .single();
+
+   let dadosUpdate = {
+     status_plano: statusPlano.value
+   };
+
+   // 🔥 RENOVAÇÃO AUTOMÁTICA
+   if(
+     !editandoId &&
+     Number(numeroCorteFinal) === 1
+   ){
+      dadosUpdate.ultima_renovacao =
+       dataInput.value;
+
+     dadosUpdate.status_plano =
+       "ativo";
+const valorPlano =
+Number(valorr.value || 0);
+
+const vencimento =
+calcularVencimento(
+  dataInput.value
+)
+.toISOString()
+.split("T")[0];
+
+const { data, error } = await db
+.from("financeiro")
+.insert([{
+
+  cliente_id: clienteId || null,
+
+  nome_cliente: nomeFinal,
+
+  telefone: telefoneLimpo || null,
+
+  tipo: "plano",
+
+  descricao: "Mensalidade Plano",
+
+  valor: Number(valorr.value || 0),
+
+  vencimento: vencimento,
+
+  status: "pendente",
+
+  forma_pagamento: "Plano Mensal",
+
+  observacao:
+  "Cobrança automática do plano"
+
+}])
+.select();
+
+console.log(data);
+console.log(error);
+
+
+}
+
+
+
+
+
+   // 🔥 ALTERA ADESÃO EDITANDO
+   if(editandoId){
+
+     dadosUpdate.data_adesao_plano =
+       adesaoPlano.value || null;
+
+   }
+
+   // 🔥 NOVO CLIENTE
+   else if(!cli?.data_adesao_plano){
+
+     dadosUpdate.data_adesao_plano =
+       adesaoPlano.value || dataInput.value;
+
+   }
+
+   await db
+   .from("clientes")
+   .update(dadosUpdate)
+   .eq("id", clienteId);
+}
+
+
+ somSucesso.currentTime = 0;
+somSucesso.play().catch(()=>{});
+fecharLoading();
+mostrarToast("✅ Salvo ")
+ editandoId = null;
+ modal.style.display = "none";
+
+ carregarHoje();
+}
+
+
+
+
+
+
+
+
+async function editarAtendimento(id){
+abrirLoading("Processando...")
+
+if(valorr.value.trim() === ""){
+  valorr.value = 0;
+}  
+ // ==========================
+ // BUSCA ATENDIMENTO
+ // ==========================
+ const { data, error } = await db
+ .from('atendimentos')
+ .select('*')
+ .eq('id', id)
+ .single();
+
+ if(error){
+   abrirConfirmacao(error.message);
+   fecharLoading();
+   return;
+ }
+
+ editandoId = id;
+
+ // ==========================
+ // ABRE MODAL
+ // ==========================
+ modal.style.display = "flex";
+
+ document.querySelector(".box h3").innerText =
+ "Editar Atendimento";
+fecharLoading()
+ // ==========================
+ // PREENCHE CAMPOS
+ // ==========================
+ hora.value      = data.hora || "";
+ nome.value = data.nome_cliente || "";
+fone.value = data.telefone || "";
+
+// 🔥 ESSENCIAL
+inputNome.dataset.id = data.cliente_id || "";
+ barbeiro.value  = data.barbeiro || "Gilberto";
+ tipo.value      = data.tipo_cliente || "avulso";
+ corte.value     = data.numero_corte || "";
+ pag.value       = data.forma_pagamento || "Pix";
+ valor.value     = data.servico || "";
+ valorr.value    = data.valor || "0";
+ obs.value       = data.observacao || "";
+
+ // ==========================
+ // SE FOR PLANO
+ // ==========================
+ if(data.tipo_cliente === "plano"){
+
+   document.getElementById("boxPlanoAdmin").style.display = "flex";
+
+   const { data: cli } = await db
+   .from("clientes")
+   .select("data_adesao_plano,status_plano")
+   .eq("id", data.cliente_id)
+   .single();
+
+   if(cli){
+
+     adesaoPlano.value =
+       cli.data_adesao_plano || "";
+
+     statusPlano.value =
+       cli.status_plano || "ativo";
+
+   }else{
+
+     adesaoPlano.value = "";
+     statusPlano.value = "ativo";
+
+   }
+
+ }else{
+
+   document.getElementById("boxPlanoAdmin").style.display = "none";
+
+   adesaoPlano.value = "";
+   statusPlano.value = "ativo";
+ }
+
+}
+
+
+
+
+
+async function excluirAtendimento(id){
+
+abrirLoading("Excluindo...")
+ const { error } = await db
+ .from('atendimentos')
+ .delete()
+ .eq('id', id);
+
+ if(error){
+   abrirConfirmacao(error.message);
+   fecharLoading()
+   return;
+ }
+
+ exCluir.currentTime = 0;
+exCluir.play().catch(()=>{});
+
+fecharLoading();
+
+ carregarHoje();
+
+}
+
+
+const filtro = document.getElementById('filtro');
+
+filtro.addEventListener("change", () => {
+ localStorage.setItem("filtroAgenda", filtro.value);
+ carregarHoje();
+});
+
+let profissionalAtual = "Todos";
+
+function filtrarProf(nome){
+  profissionalAtual = nome;
+  carregarHoje();
+}
+async function calcularFaturamento(){
+abrirLoading("Calculando...")
+ const { data } = await db
+ .from('atendimentos')
+ .select('*');
+
+ let totalGeral = 0;
+ let gilberto = 0;
+ let Thiago = 0;
+  let visita = 0;
+
+ data.forEach(item => {
+   const v = Number(item.valor || 0);
+   totalGeral += v;
+   
+
+   if(item.barbeiro === "Gilberto") gilberto += v;
+   if(item.barbeiro === "Thiago") Thiago += v;
+   if(item.barbeiro === "Visita") visita += v;
+ });
+
+ document.getElementById("fatResultado").innerHTML = `
+   <p>💈 Gilberto: R$ ${gilberto.toFixed(2)}</p>
+    <p>💈 Visita: R$ ${visita.toFixed(2)}</p>
+   <p>💈 Thiago: R$ ${Thiago.toFixed(2)}</p>
+   <hr>
+   <h3>Total: R$ ${totalGeral.toFixed(2)}</h3>
+ `;
+ mostrarToast('sucesso!');
+ fecharLoading();
+}
+
+
+// =========================
+// TOGGLE MENU
+// =========================
+
+
+
+// =========================
+// FECHAR MENU
+// =========================
+
+function fecharMenu(){
+
+  document
+  .getElementById("sidebar")
+  .classList.remove("ativo");
+
+  document
+  .getElementById("overlayMenu")
+  .classList.remove("show");
+
+}
+
+
+
+async function calcularPlanos(){
+abrirLoading("Calculando...")
+ const inicio = document.getElementById("planoInicio").value;
+ const fim = document.getElementById("planoFim").value;
+ const box = document.getElementById("resultadoPlanos");
+
+ if(!inicio || !fim){
+   box.innerHTML = "Escolha as datas";
+   return;
+ }
+
+ box.innerHTML = "Carregando...";
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .eq("tipo_cliente", "plano")
+ .gte("data", inicio)
+ .lte("data", fim)
+ .order("data");
+
+ if(error){
+   box.innerHTML = error.message;
+   return;
+ }
+
+ if(!data.length){
+   box.innerHTML = "Nenhum cliente plano no período";
+   return;
+ }
+
+ let total = 0;
+ let gilberto = 0;
+ let thiago = 0;
+ let visita = 0;
+ let html = "";
+
+ data.forEach(item => {
+
+   const valor = Number(item.valor || 0);
+   total += valor;
+
+   if(item.barbeiro === "Gilberto") gilberto++;
+   if(item.barbeiro === "Thiago") thiago++;
+      if(item.barbeiro === "Visita") visita++;
+
+   html += `
+   <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
+     <strong>${item.nome_cliente}</strong><br>
+     ${item.data} - Corte ${item.numero_corte}/4<br>
+     <small>${item.barbeiro} • R$ ${valor.toFixed(2)}</small>
+   </div>
+   `;
+ });
+
+ box.innerHTML = `
+   <h3>Total recebido: R$ ${total.toFixed(2)}</h3>
+
+   <p>📌 Atendimentos plano: ${data.length}</p>
+   <p>💈 Gilberto: ${gilberto}</p>
+   <p>💈 Thiago: ${thiago}</p>
+   <p>💈 Visita: ${visita}</p>
+
+   <hr>
+
+   ${html}
+ `;
+ fecharLoading("sucesso!")
+}
+
+
+
+async function calcularPeriodo(){
+abrirLoading("Calculando...")
+ const inicio = document.getElementById("dataInicio").value;
+ const fim = document.getElementById("dataFim").value;
+ const prof = document.getElementById("calProf").value;
+ const resultado = document.getElementById("resultadoPeriodo");
+
+ if(!inicio || !fim){
+   resultado.innerHTML = "Selecione as duas datas";
+   return;
+ }
+
+ resultado.innerHTML = "Carregando...";
+
+ let query = db
+  .from("atendimentos")
+  .select("*")
+  .gte("data", inicio)   // maior ou igual
+  .lte("data", fim);     // menor ou igual
+
+ if(prof !== "Todos"){
+   query = query.eq("barbeiro", prof);
+ }
+
+ const { data, error } = await query;
+
+ if(error){
+   resultado.innerHTML = "Erro ao carregar";
+   return;
+ }
+
+ if(!data.length){
+   resultado.innerHTML = "Nenhum atendimento nesse período";
+   return;
+ }
+
+ let total = 0;
+
+ let html = "";
+
+ data.forEach(item => {
+   total += Number(item.valor || 0);
+
+   html += `
+     <div style="background:#111827;margin:5px;padding:10px;border-radius:8px">
+       <strong>${item.data}</strong> - ${item.hora}<br>
+       ${item.nome_cliente} • ${item.barbeiro}<br>
+       <small>R$ ${item.valor}</small>
+     </div>
+   `;
+ });
+fecharLoading();
+mostrarToast("Concluido!")
+ resultado.innerHTML = `
+   <h3>💰 Total do período: R$ ${total.toFixed(2)}</h3>
+   ${html}
+ `;
+}
+
+
+
+
+
+
+const inputNome = document.getElementById("nome");
+const sugestoes = document.getElementById("sugestoes");
+
+inputNome.addEventListener("input", async () => {
+
+ const texto = inputNome.value.trim();
+
+ if(texto.length < 2){
+   sugestoes.innerHTML = "";
+   return;
+ }
+
+ const { data, error } = await db
+ .from("clientes")
+ .select("id, nome, telefone")
+ .ilike("nome", `%${texto}%`)
+ .limit(5);
+
+ if(error){
+   mostrarToast("Erro!")
+   return;
+ }
+
+ sugestoes.innerHTML = "";
+
+ // ✅ remover duplicados corretamente
+ const nomesUnicos = [...new Map(data.map(item => [item.nome, item])).values()];
+
+ nomesUnicos.forEach(cliente => {
+
+   const div = document.createElement("div");
+
+   div.style.padding = "10px";
+   div.style.cursor = "pointer";
+   div.style.borderBottom = "1px solid #333";
+   div.style.color = "#fff";
+
+   div.innerHTML = `
+     <strong>${cliente.nome}</strong><br>
+     <small>${cliente.telefone || ''}</small>
+   `;
+
+   div.onclick = () => {
+     inputNome.value = cliente.nome;
+     fone.value = cliente.telefone || "";
+     inputNome.dataset.id = cliente.id;
+     sugestoes.innerHTML = "";
+     inputNome.blur();
+   };
+
+   sugestoes.appendChild(div);
+ });
+
+});
+
+async function backupCSV(){
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .order("data", { ascending: true });
+
+ if(error){
+   mostrarToast("Erro ao gerar backup");
+   return;
+ }
+
+ if(!data.length){
+   mostrarToast("Nenhum dado encontrado");
+   return;
+ }
+
+ let csv = "";
+
+ const colunas = Object.keys(data[0]);
+ csv += colunas.join(";") + "\n";
+
+ data.forEach(item => {
+
+   const linha = colunas.map(col => {
+     let valor = item[col] ?? "";
+     valor = String(valor).replace(/;/g, ",");
+     return `"${valor}"`;
+   }).join(";");
+
+   csv += linha + "\n";
+ });
+
+ const blob = new Blob([csv], {
+   type: "text/csv;charset=utf-8;"
+ });
+
+ const link = document.createElement("a");
+
+ const hoje = new Date().toISOString().slice(0,10);
+
+ link.href = URL.createObjectURL(blob);
+ link.download = "backup_atendimentos_" + hoje + ".csv";
+
+ link.click();
+
+}
+
+let timerPress = null;
+let segurando = false;
+let iniciouX = 0;
+let iniciouY = 0;
+let moveu = false;
+
+function segurarExcluir(event,id){
+
+ const toque = event.touches[0];
+
+ iniciouX = toque.clientX;
+ iniciouY = toque.clientY;
+ moveu = false;
+ segurando = false;
+
+ timerPress = setTimeout(async () => {
+
+   if(moveu) return;
+
+   segurando = true;
+
+   if(navigator.vibrate){
+     navigator.vibrate(150);
+   }
+
+  abrirConfirmacao(
+     "🗑️ Excluir atendimento?",
+     async ()=>{
+
+       await excluirAtendimento(id);
+
+       mostrarToast("✅ Excluído");
+
+     }
+   );
+
+ }, 700);
+
+}
+
+function moverDedo(event){
+
+ const toque = event.touches[0];
+
+ const dx = Math.abs(toque.clientX - iniciouX);
+ const dy = Math.abs(toque.clientY - iniciouY);
+
+ if(dx > 15 || dy > 15){
+   moveu = true;
+   clearTimeout(timerPress);
+ }
+
+}
+
+function cancelarSegurar(){
+ clearTimeout(timerPress);
+}
+
+
+
+ let ultimoClique = 0;
+
+function cliqueCard(id){
+
+ if(segurando){
+   segurando = false;
+   return;
+ }
+
+ const agora = new Date().getTime();
+
+ if(agora - ultimoClique < 400){
+   editarAtendimento(id);
+ }
+
+ ultimoClique = agora;
+
+}
+
+
+const filtroSalvo =
+localStorage.getItem("filtroAgenda");
+
+if(filtroSalvo){
+ filtro.value = filtroSalvo;
+}
+
+// ======================
+// TOAST
+// ======================
+
+function mostrarToast(texto){
+
+  const toast =
+  document.getElementById("toast");
+
+  toast.innerText = texto;
+
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },2500);
+
+}
+
+// ======================
+// CONFIRMAÇÃO
+// ======================
+
+let callbackConfirmacao = null;
+
+function abrirConfirmacao(
+  texto,
+  callback,
+  titulo = "Confirmação"
+){
+
+  document.getElementById(
+    "confirmTitulo"
+  ).innerText = titulo;
+
+  document.getElementById(
+    "confirmTexto"
+  ).innerText = texto;
+
+  callbackConfirmacao = callback;
+
+  document.getElementById(
+    "confirmModal"
+  ).style.display = "flex";
+
+}
+
+function fecharConfirmacao(){
+
+  document.getElementById(
+    "confirmModal"
+  ).style.display = "none";
+
+}
+
+document
+.getElementById("btnConfirmar")
+.onclick = async ()=>{
+
+  if(callbackConfirmacao){
+    await callbackConfirmacao();
+  }
+
+  fecharConfirmacao();
+
+};
+
+function tratarErro(error){
+  console.error(error);
+  mostrarToast(error.message || "Erro interno");
+  fecharLoading();
+}
+
+
+
+
+let oculto = false;
+
+let cacheValores = {
+  total: "",
+  clientes: "",
+  planos: ""
+};
+
+function toggleValores(){
+
+  oculto = !oculto;
+
+  const olho =
+  document.getElementById("btnOlho");
+
+  const total =
+  document.getElementById("totalDia");
+
+  const clientes =
+  document.getElementById("qtd");
+
+  const planos =
+  document.getElementById("planos");
+
+  if(oculto){
+
+    // salva valores atuais
+    cacheValores.total = total.innerText;
+    cacheValores.clientes = clientes.innerText;
+    cacheValores.planos = planos.innerText;
+
+    // esconde
+    total.innerText = "****";
+    clientes.innerText = "****";
+    planos.innerText = "****";
+
+    olho.innerText = "🙈";
+
+  }else{
+
+    // volta valores
+    total.innerText = cacheValores.total;
+    clientes.innerText = cacheValores.clientes;
+    planos.innerText = cacheValores.planos;
+
+    olho.innerText = "👁️";
+  }
+
+}
+function aplicarOcultacao(){
+
+  if(!oculto) return;
+
+  totalDia.innerText = "****";
+  qtd.innerText = "****";
+  planos.innerText = "****";
+
+}
+
+function calcularVencimento(
+  ultimaRenovacao
+){
+
+  const data =
+  new Date(ultimaRenovacao);
+
+  data.setDate(
+    data.getDate() + 30
+  );
+
+  return data;
+
+}
+
+
+function planoVencido(ultimaRenovacao){
+
+  const vencimento =
+  calcularVencimento(ultimaRenovacao);
+
+  if(!vencimento) return false;
+
+  return new Date() > vencimento;
+
+}
+function diasRestantesPlano(
+  ultimaRenovacao
+){
+
+  const vencimento =
+  calcularVencimento(
+    ultimaRenovacao
+  );
+
+  const hoje = new Date();
+
+  const diff =
+  vencimento - hoje;
+
+  return Math.ceil(
+    diff / (1000*60*60*24)
+  );
+
+}
+
+
+async function buscarVencimentos(){
+
+  const { data, error } =
+  await db
+  .from("clientes")
+  .select(`
+    nome,
+    ultima_renovacao,
+    status_plano
+  `);
+
+  if(error){
+    return [];
+  }
+
+  const lista = [];
+
+  data.forEach(cliente => {
+
+    if(
+      !cliente.ultima_renovacao
+    ) return;
+
+    const dias =
+    diasRestantesPlano(
+      cliente.ultima_renovacao
+    );
+
+    if(dias <= 7){
+
+      lista.push({
+
+        nome: cliente.nome,
+
+        dias,
+
+        vencimento:
+        calcularVencimento(
+          cliente.ultima_renovacao
+        )
+
+      });
+
+    }
+
+  });
+
+  return lista;
+
+}
+
+async function abrirVencimentos(){
+
+  const lista =
+  document.getElementById(
+    "listaVencimentos"
+  );
+
+  lista.innerHTML =
+  "Carregando...";
+
+  const vencimentos =
+  await buscarVencimentos();
+
+  if(!vencimentos.length){
+
+    lista.innerHTML =
+    "Nenhum vencimento próximo";
+
+  }else{
+
+    lista.innerHTML = "";
+
+   vencimentos.forEach(c => {
+
+  const venc =
+  new Date(c.vencimento);
+
+  const vencido =
+  c.dias <= 0;
+
+  lista.innerHTML += `
+
+  <div style="
+    background:linear-gradient(
+      145deg,
+      #111827,
+      #0f172a
+    );
+    border:1px solid ${
+      vencido ? "#dc2626" : "#1d4ed8"
+    };
+    border-left:5px solid ${
+      vencido ? "#ef4444" : "#3b82f6"
+    };
+    padding:14px;
+    margin-bottom:12px;
+    border-radius:16px;
+    box-shadow:
+      0 4px 15px rgba(0,0,0,.25);
+  ">
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    ">
+
+      <strong style="
+        font-size:16px;
+        color:#fff;
+      ">
+        ${c.nome}
+      </strong>
+
+      <span style="
+        background:${
+          vencido
+          ? "#7f1d1d"
+          : "#1e3a8a"
+        };
+        color:#fff;
+        padding:5px 10px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:700;
+      ">
+
+        ${
+          vencido
+          ? "Vencido"
+          : `${c.dias} dias`
+        }
+
+      </span>
+
+    </div>
+
+    <div style="
+      color:#cbd5e1;
+      font-size:14px;
+      line-height:1.6;
+    ">
+
+      <div>
+        📅 Vencimento:
+        <strong style="color:#fff">
+          ${venc.toLocaleDateString()}
+        </strong>
+      </div>
+
+      <div style="
+        margin-top:6px;
+        color:${
+          vencido
+          ? "#fca5a5"
+          : "#93c5fd"
+        };
+        font-weight:600;
+      ">
+
+        ${
+          vencido
+          ? "⚠️ Cliente precisa renovar"
+          : "Plano próximo do vencimento"
+        }
+         </div>
+         ${
+  vencido
+  ? `
+  <button
+    onclick="cobrarCliente('${c.nome}')"
+    style="
+      margin-top:12px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#16a34a;
+      color:#fff;
+      font-weight:700;
+    "
+  >
+    💬 Cobrar no WhatsApp
+  </button>
+  `
+  : ""
+}
+
+    </div>
+
+  </div>
+
+  `;
+
+});
+
+  }
+
+  document
+  .getElementById(
+    "modalVencimentos"
+  )
+  .style.display = "block";
+
+}
+
+
+async function cobrarCliente(nome){
+
+  const { data, error } = await db
+  .from("clientes")
+  .select("telefone")
+  .eq("nome", nome)
+  .single();
+
+  if(error || !data){
+
+    mostrarToast(
+      "Cliente não encontrado"
+    );
+
+    return;
+  }
+
+  const telefone =
+  (data.telefone || "")
+  .replace(/\D/g,'');
+
+  if(
+    !telefone ||
+    telefone === "0"
+  ){
+
+    mostrarToast(
+      "Telefone não cadastrado"
+    );
+
+    return;
+  }
+
+  const mensagem =
+`Olá ${nome}, seu plano da barbearia venceu.`;
+
+  const url =
+`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(url, "_blank");
+
+}
+
+
+function fecharVencimentos(){
+
+  document
+  .getElementById(
+    "modalVencimentos"
+  )
+  .style.display = "none";
+
+}
+
+
+
+async function atualizarBadge(){
+
+  const lista =
+  await buscarVencimentos();
+
+  document
+  .getElementById("badgeNotif")
+  .innerText = lista.length;
+
+}
+
+
+// =========================
+// ABRIR TELA
+// =========================
+
+function abrirTela(id){
+
+  // fecha todas
+  document
+  .querySelectorAll(".telaSistema")
+  .forEach(tela => {
+
+    tela.classList.remove("ativa");
+
+  });
+
+  // abre tela
+  document
+  .getElementById(id)
+  .classList.add("ativa");
+
+  // fecha sidebar
+  document
+  .getElementById("sidebar")
+  .classList.remove("ativo");
+
+}
+
+// =========================
+// FECHAR TELA
+// =========================
+
+function fecharTela(id){
+
+  document
+  .getElementById(id)
+  .classList.remove("ativa");
+
+}
+
+// =========================
+// TOGGLE MENU
+// =========================
+
+function toggleMenu(){
+
+  const menu =
+  document.getElementById("sidebar");
+
+  menu.classList.toggle("ativo");
+
+}
+
+// =========================
+// ABRIR HOJE
+// =========================
+
+function abrirHoje(){
+
+  document
+  .querySelectorAll(".telaSistema")
+  .forEach(tela => {
+
+    tela.classList.remove("ativa");
+
+  });
+
+  // FECHA MENU
+  document
+  .getElementById("sidebar")
+  .classList.remove("ativo");
+
+  // FECHA OVERLAY
+  document
+  .getElementById("overlayMenu")
+  .classList.remove("show");
+
+  carregarHoje();
+
+}
+
+// =========================
+// ABRIR FATURAMENTO
+// =========================
+
+async function abrirFaturamento(){
+
+  abrirTela("telaFaturamento");
+
+  await calcularFaturamento();
+
+}
+
+// =========================
+// ABRIR PLANOS
+// =========================
+
+function abrirPlanos(){
+
+  abrirTela("telaPlanos");
+
+}
+
+// =========================
+// ABRIR CALENDÁRIO
+// =========================
+
+function abrirCalendario(){
+
+  abrirTela("telaCalendario");
+
+}
+
+// =========================
+// ABRIR CLIENTES
+// =========================
+
+function abrirClientes(){
+
+  abrirTela("telaClientes");
+
+}
+
+// =========================
+// ABRIR FINANCEIRO
+// =========================
+
+async function abrirFinanceiro(){
+
+  abrirTela("telaFinanceiro");
+
+  await carregarFinanceiro();
+
+}
+
+// =========================
+// ABRIR CONFIG
+// =========================
+
+function abrirConfig(){
+
+  abrirTela("telaConfig");
+
+}
+
+// =========================
+// ABRIR VENCIMENTOS
+// =========================
+
+async function abrirTelaVencimentos(){
+
+  abrirTela("telaVencimentos");
+
+  await abrirVencimentos();
+
+}
+
+async function abrirPlayerTV(){
+console.log(
+  document.getElementById("player")
+);
+  abrirTela("telaPlayer");
+
+  setTimeout(async ()=>{
+
+    await iniciarPlayerTV();
+
+  },500);
+
+}
+
+
+async function abrirFinanceiro(){
+
+  abrirTela("telaFinanceiro");
+
+  const box =
+  document.getElementById(
+    "financeiroConteudo"
+  );
+
+  box.innerHTML = "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("financeiro")
+  .select("*")
+  .order("vencimento");
+
+  if(error){
+
+    box.innerHTML = error.message;
+    return;
+
+  }
+
+  if(!data.length){
+
+    box.innerHTML =
+    "Nenhuma cobrança";
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  data.forEach(item => {
+
+    const vencido =
+    new Date(item.vencimento)
+    < new Date();
+
+    box.innerHTML += `
+
+    <div class="cardTela">
+
+      <strong>
+        ${item.nome_cliente}
+      </strong>
+
+      <br><br>
+
+      💰 R$ ${item.valor}
+
+      <br>
+
+      📅 ${item.vencimento}
+
+      <br>
+
+      Status:
+      ${
+        item.status
+      }
+
+      <br><br>
+
+      <button
+      onclick="
+        marcarPago(${item.id})
+      ">
+
+        ✅ Marcar Pago
+
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+async function carregarFinanceiro(){
+
+  const box =
+  document.getElementById(
+    "listaFinanceiro"
+  );
+
+  box.innerHTML = "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("financeiro")
+  .select("*")
+  .order("vencimento", {
+    ascending:true
+  });
+
+  if(error){
+
+    box.innerHTML = error.message;
+
+    return;
+  }
+
+  if(!data.length){
+
+    box.innerHTML =
+    "Nenhuma cobrança";
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  data.forEach(item => {
+
+    const vencido =
+    item.status !== "pago" &&
+    new Date(item.vencimento)
+    < new Date();
+
+    box.innerHTML += `
+
+    <div class="cardTela">
+
+      <strong>
+        ${item.nome_cliente}
+      </strong>
+
+      <br><br>
+
+      💰 R$ ${item.valor}
+
+      <br>
+
+      📅 ${new Date(
+        item.vencimento
+      ).toLocaleDateString()}
+
+      <br><br>
+
+      <span style="
+        color:${
+          item.status === "pago"
+          ? "#22c55e"
+          : vencido
+          ? "#ef4444"
+          : "#facc15"
+        };
+        font-weight:700;
+      ">
+
+        ${
+          item.status === "pago"
+          ? "Pago"
+          : vencido
+          ? "Vencido"
+          : "Pendente"
+        }
+
+      </span>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+
+async function marcarPago(id){
+
+  await db
+  .from("financeiro")
+  .update({
+
+    status:"pago",
+
+    data_pagamento:
+    new Date()
+
+  })
+  .eq("id", id);
+
+  mostrarToast("Pagamento confirmado");
+
+  abrirFinanceiro();
+
+}
+
+
+function cobrarWhatsapp(
+ telefone,
+ nome,
+ valor
+){
+
+ if(
+   !telefone ||
+   telefone === "0"
+ ){
+
+   mostrarToast(
+     "Telefone não cadastrado"
+   );
+
+   return;
+ }
+
+ const msg =
+`Olá ${nome} 👋
+
+Seu plano da barbearia venceu.
+
+💰 Valor: R$ ${valor}
+
+PIX:
+CHAVE_PIX_AQUI
+
+Link:
+LINK_AQUI`;
+
+ const url =
+`https://wa.me/55${telefone}?text=${
+ encodeURIComponent(msg)
+}`;
+
+ window.open(url,"_blank");
+
+}
+
+const YOUTUBE_API_KEY = "AIzaSyCPxUdGtcFYtXMha7K5E9JaS2khDJXX8LU";
+
+let player;
+let playlist = [];
+let indiceAtual = 0;
+
+// =========================
+// PLAYER YOUTUBE
+// =========================
+
+function onYouTubeIframeAPIReady(){
+
+  player = new YT.Player("player",{
+    height:"390",
+    width:"100%",
+    events:{
+      onReady:onPlayerReady,
+      onStateChange:onPlayerStateChange
+    }
+  });
+
+}
+
+async function onPlayerStateChange(event){
+
+  if(event.data !== YT.PlayerState.ENDED)
+    return;
+if(reproduzindoTemporario){
+
+  reproduzindoTemporario =
+  false;
+
+  tocarIndice(
+    indiceAnterior
+  );
+
+  return;
+
+}
+
+
+  if(tocandoAnuncio){
+
+    tocandoAnuncio = false;
+
+    tocarProxima();
+
+    return;
+
+  }
+
+  contadorMusicas++;
+
+  if(contadorMusicas >= 3){
+
+    contadorMusicas = 0;
+
+    const anuncio =
+    await obterAnuncio();
+
+    if(anuncio){
+
+      tocandoAnuncio = true;
+
+      player.loadVideoById(
+        anuncio.video_id
+      );
+
+      return;
+
+    }
+
+  }
+
+  tocarProxima();
+
+}
+
+
+async function obterAnuncio(){
+
+  const { data } =
+  await db
+  .from("anuncios")
+  .select("*")
+  .eq("ativo", true)
+  .limit(1);
+
+  return data?.[0];
+
+}
+// =========================
+// BUSCA YOUTUBE
+// =========================
+
+async function buscarYoutube(){
+
+  const termo =
+  document.getElementById(
+    "buscaYoutube"
+  ).value.trim();
+
+  if(!termo) return;
+
+  const url =
+  `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
+
+  const resp =
+  await fetch(url);
+
+  const dados =
+  await resp.json();
+
+  const resultados =
+  document.getElementById(
+    "resultadosYoutube"
+  );
+
+  resultados.innerHTML = "";
+
+  dados.items.forEach(item=>{
+
+    const div =
+    document.createElement("div");
+
+    div.className =
+    "itemResultado";
+    
+
+  div.innerHTML = `
+  <strong>${item.snippet.title}</strong>
+  <br>
+
+  <button class="btnPlayAgora">
+    ▶ Reproduzir
+  </button>
+
+  <button class="btnAdicionar">
+    ➕ Adicionar
+  </button>
+`;
+    
+
+const botoes =
+div.querySelectorAll("button");
+
+botoes[0].onclick = ()=>{
+
+  reproduzirAgora(
+    item.id.videoId
+  );
+
+};
+
+botoes[1].onclick = ()=>{
+
+  adicionarPlaylist(
+    item.id.videoId,
+    item.snippet.title
+  );
+
+};
+
+    
+
+    resultados.appendChild(div);
+
+  });
+
+}
+
+// =========================
+// PLAYLIST
+// =========================
+
+async function adicionarPlaylist(
+  videoId,
+  titulo
+){
+
+await db
+.from("playlist")
+.insert({
+  video_id:videoId,
+  titulo:titulo,
+  lista_id:listaAtual
+});
+
+  await carregarPlaylist();
+document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+}
+
+async function carregarPlaylist(){
+
+  const { data } =
+  await db
+  .from("playlist")
+  .select("*")
+  .order("id");
+
+  playlist =
+  data || [];
+
+  renderizarPlaylist();
+
+  if(
+    playlist.length &&
+    !player.getVideoData()?.video_id
+  ){
+
+    tocarIndice(0);
+
+  }
+
+}
+
+function renderizarPlaylist(){
+
+  const lista =
+  document.getElementById(
+    "listaPlaylist"
+  );
+
+  lista.innerHTML = "";
+
+  playlist.forEach((item,index)=>{
+
+    const div =
+    document.createElement("div");
+
+        div.className =
+index === indiceAtual
+? "itemPlaylist musicaAtual"
+: "itemPlaylist";
+
+div.innerHTML = `
+  <span
+    onclick="tocarDaPlaylist(${index})"
+    style="cursor:pointer">
+
+    ${index+1}. ${item.titulo}
+
+  </span>
+
+  <button class="btnRemoverPlaylist">
+    ❌
+  </button>
+`;
+
+    div.querySelector("button")
+    .onclick = ()=>{
+
+      removerMusica(
+        item.id
+      );
+
+    };
+
+    lista.appendChild(div);
+
+  });
+
+}
+
+async function removerMusica(id){
+
+  await db
+  .from("playlist")
+  .delete()
+  .eq("id",id);
+
+  await carregarPlaylist();
+
+}
+
+// =========================
+// REPRODUÇÃO
+// =========================
+
+async function tocarIndice(
+  indice
+){
+
+  if(
+    indice >= playlist.length
+  ) return;
+
+  indiceAtual =
+  indice;
+  renderizarPlaylist();
+  const musica =
+  playlist[indice];
+
+  player.loadVideoById(
+    musica.video_id
+  );
+
+  await db
+  .from("player_status")
+  .upsert({
+    id:1,
+    video_id:
+    musica.video_id,
+    indice:indice
+  });
+
+}
+
+function tocarProxima(){
+
+  if(!playlist.length)
+    return;
+
+  if(modoAleatorio){
+
+    let proximo;
+
+    do{
+
+      proximo =
+      Math.floor(
+        Math.random() *
+        playlist.length
+      );
+
+    }while(
+      playlist.length > 1 &&
+      proximo === indiceAtual
+    );
+
+    tocarIndice(
+      proximo
+    );
+
+    return;
+
+  }
+
+  const proximo =
+  indiceAtual + 1;
+
+  if(
+    proximo >=
+    playlist.length
+  ){
+
+    tocarIndice(0);
+
+    return;
+
+  }
+
+  tocarIndice(
+    proximo
+  );
+
+}
+
+
+
+function tocarDaPlaylist(indice){
+
+  indiceAtual = indice;
+renderizarPlaylist();
+  player.loadVideoById(
+    playlist[indice].video_id
+  );
+
+}
+// =========================
+// RECUPERAR STATUS
+// =========================
+
+async function restaurarPlayer(){
+
+  const { data } =
+  await db
+  .from("player_status")
+  .select("*")
+  .eq("id",1)
+  .single();
+
+  if(!data) return;
+
+  indiceAtual =
+  data.indice || 0;
+
+  if(
+    playlist[indiceAtual]
+  ){
+
+    tocarIndice(
+      indiceAtual
+    );
+
+  }
+
+}
+
+// =========================
+// INICIALIZAÇÃO
+// =========================
+
+async function iniciarPlayerTV(){
+
+  await carregarPlaylist();
+
+  await restaurarPlayer();
+
+}
+
+function reproduzirAgora(videoId){
+
+  indiceAnterior =
+  indiceAtual;
+
+  reproduzindoTemporario =
+  true;
+
+  player.loadVideoById(
+    videoId
+  );
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+
+}
+
+function alternarAleatorio(){
+
+  modoAleatorio =
+  !modoAleatorio;
+
+  mostrarToast(
+   modoAleatorio
+    ? "Modo aleatório ligado"
+    : "Modo aleatório desligado"
+  );
+  }
+  
+  
+  
+  
+function onPlayerReady(){
+
+  document.getElementById(
+    "loadingPlayer"
+  ).style.display = "none";
+
+}
+
+
+async function carregarListas(){
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .order("nome");
+
+  renderizarListas(data);
+
+}
+
+
+
+async function criarLista(nome){
+
+  await db
+  .from("listas")
+  .insert({
+    nome:nome
+  });
+
+  carregarListas();
+
+}
+
+function renderizarListas(listas){
+
+  const container =
+  document.getElementById(
+    "listaPastas"
+  );
+
+  container.innerHTML = "";
+
+  listas.forEach(lista=>{
+
+    const div =
+    document.createElement("div");
+
+    div.className =
+    "itemPasta";
+
+    div.innerHTML = `
+      <span>
+        📁 ${lista.nome}
+      </span>
+
+      <button
+        onclick="abrirConfigLista(${lista.id})">
+        ⚙️
+      </button>
+    `;
+
+    div.onclick = ()=>{
+
+      abrirLista(
+        lista.id
+      );
+
+    };
+
+    div.ondblclick = ()=>{
+
+      excluirLista(
+        lista.id
+      );
+
+    };
+
+    container.appendChild(div);
+
+  });
+
+}
+
+async function excluirLista(id){
+
+  if(
+    !confirm(
+      "Excluir esta lista?"
+    )
+  ) return;
+
+  await db
+  .from("listas")
+  .delete()
+  .eq("id",id);
+
+  carregarListas();
+
+}
+
+async function abrirLista(id){
+
+  listaAtual = id;
+
+  const { data } =
+  await db
+  .from("playlist")
+  .select("*")
+  .eq("lista_id",id)
+  .order("id");
+
+  playlist = data || [];
+
+  renderizarPlaylist();
+
+}
+
+
+
+
+
+
+
+
+atualizarBadge();
+carregarHoje();
+
+setTimeout(()=>{
+
+  document
+  .getElementById("bootLoading")
+  .classList.add("hide");
+
+},300);
+
+console.log(playlist);
+
+</script>
+
+</body>
+</html>
