@@ -3811,7 +3811,7 @@ async function restaurarPlayer(){
 
 async function iniciarPlayerTV(){
 
-//  await restaurarPlayer();
+  await abrirListaAutomatica();
 
 }
 
@@ -4035,16 +4035,19 @@ async function abrirListaAutomatica(){
   .eq("dia_semana", diaHoje)
   .limit(1);
 
-  if(
-    data &&
-    data.length
-  ){
+if(data && data.length){
 
-    await abrirLista(
-      data[0].id
-    );
+  await abrirLista(
+    data[0].id
+  );
+
+  if(playlist.length){
+
+    tocarIndice(0);
 
   }
+
+}
 
 }
 
