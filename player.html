@@ -605,6 +605,48 @@
   text-align:center;
   padding:20px;
 }
+
+.modalListas{
+  position:fixed;
+  inset:0;
+
+  background:
+  rgba(0,0,0,.7);
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+color: black;
+  z-index:9999;
+}
+
+.boxModalListas{
+
+  background:white;
+
+  padding:20px;
+
+  border-radius:12px;
+
+  width:90%;
+  max-width:400px;
+
+}
+
+#listaDestino div{
+
+  padding:12px;
+
+  border:1px solid #ddd;
+
+  margin:8px 0;
+
+  cursor:pointer;
+
+  border-radius:8px;
+
+}
 </style>
 
 </head>
@@ -880,10 +922,52 @@
 <button style="width:100px" onclick="alternarAleatorio()">
   🔀 Aleatório
 </button>
+
+<button onclick="novaLista()">
+  ➕ Nova Lista
+</button>
    <div id="listaPastas"></div>
 
 <div id="listaPlaylist"></div>
+<div id="modalListas"
+       class="modalListas"
+       style="display:none">
 
+    <div class="boxModalListas">
+
+      <h3>
+        Salvar em qual lista?
+      </h3>
+
+      <div id="listaDestino"></div>
+<div id="modalConfigLista"
+       class="modalListas"
+       style="display:none">
+
+    <div class="boxModalListas">
+
+      <h3 id="tituloConfigLista"></h3>
+
+      <div id="diasSemana"></div>
+
+      <button onclick="salvarConfigLista()">
+        Salvar
+      </button>
+
+      <button onclick="fecharConfigLista()">
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+      <button
+      onclick="fecharModalListas()">
+        Cancelar
+      </button>
+
+    </div></div>
   </div>
 
 </div>
@@ -1146,6 +1230,8 @@ let reproduzindoTemporario = false;
 let indiceAnterior = 0;
 let modoAleatorio = false
 let listaAtual = null;
+let listaConfigAtual = null;
+let diaSelecionado = 0;
   
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
@@ -2854,12 +2940,109 @@ async function abrirFinanceiro(){
 // ABRIR CONFIG
 // =========================
 
-function abrirConfig(){
 
-  abrirTela("telaConfig");
+
+async function abrirConfigLista(
+  id
+){
+
+  listaConfigAtual = id;
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("id",id)
+  .single();
+
+  document.getElementById(
+    "tituloConfigLista"
+  ).innerText =
+  "📁 " + data.nome;
+
+  diaSelecionado =
+  data.dia_semana || 0;
+
+  renderizarDias();
+
+  document.getElementById(
+    "modalConfigLista"
+  ).style.display =
+  "flex";
 
 }
 
+function renderizarDias(){
+
+  const nomes = [
+    "Nenhum",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+    "Domingo"
+  ];
+
+  const div =
+  document.getElementById(
+    "diasSemana"
+  );
+
+  div.innerHTML = "";
+
+  nomes.forEach((nome,i)=>{
+
+    const item =
+    document.createElement("div");
+
+    item.className =
+    "itemDia";
+
+    item.innerHTML =
+    (diaSelecionado === i
+      ? "✅ "
+      : "") + nome;
+
+    item.onclick = ()=>{
+
+      diaSelecionado = i;
+
+      renderizarDias();
+
+    };
+
+    div.appendChild(item);
+
+  });
+
+}
+
+async function salvarConfigLista(){
+
+  await db
+  .from("listas")
+  .update({
+    dia_semana:
+    diaSelecionado
+  })
+  .eq(
+    "id",
+    listaConfigAtual
+  );
+
+  fecharConfigLista();
+
+}
+
+function fecharConfigLista(){
+
+  document.getElementById(
+    "modalConfigLista"
+  ).style.display = "none";
+
+}
 // =========================
 // ABRIR VENCIMENTOS
 // =========================
@@ -2881,9 +3064,10 @@ console.log(
   setTimeout(async ()=>{
 
     await iniciarPlayerTV();
+   
 
   },500);
-
+ carregarListas();
 }
 
 
@@ -3302,18 +3486,47 @@ async function adicionarPlaylist(
   titulo
 ){
 
-await db
-.from("playlist")
-.insert({
-  video_id:videoId,
-  titulo:titulo,
-  lista_id:listaAtual
-});
+  musicaPendente = {
+    videoId,
+    titulo
+  };
 
-  await carregarPlaylist();
-document.getElementById(
-    "resultadosYoutube"
-  ).innerHTML = "";
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .order("nome");
+
+  const lista =
+  document.getElementById(
+    "listaDestino"
+  );
+
+  lista.innerHTML = "";
+
+  data.forEach(item=>{
+
+    const div =
+    document.createElement("div");
+
+    div.innerHTML =
+    `📁 ${item.nome}`;
+
+    div.onclick = ()=>{
+
+      salvarNaLista(
+        item.id
+      );
+
+    };
+
+    lista.appendChild(div);
+
+  });
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "flex";
 
 }
 
@@ -3340,6 +3553,42 @@ async function carregarPlaylist(){
   }
 
 }
+async function salvarNaLista(
+  listaId
+){
+
+  await db
+  .from("playlist")
+  .insert({
+
+    video_id:
+    musicaPendente.videoId,
+
+    titulo:
+    musicaPendente.titulo,
+
+    lista_id:
+    listaId
+
+  });
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "none";
+
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+  if(listaId === listaAtual){
+
+    await carregarPlaylist();
+
+  }
+
+}
+
+
 
 function renderizarPlaylist(){
 
@@ -3580,13 +3829,22 @@ function onPlayerReady(){
 
 async function carregarListas(){
 
-  const { data } =
+  const { data, error } =
   await db
   .from("listas")
   .select("*")
   .order("nome");
 
-  renderizarListas(data);
+  if(error){
+
+    console.error(error);
+    return;
+
+  }
+
+  renderizarListas(
+    data || []
+  );
 
 }
 
@@ -3627,7 +3885,7 @@ function renderizarListas(listas){
       </span>
 
       <button
-        onclick="abrirConfigLista(${lista.id})">
+      onclick="event.stopPropagation();abrirConfigLista(${lista.id})">
         ⚙️
       </button>
     `;
@@ -3654,6 +3912,13 @@ function renderizarListas(listas){
 
 }
 
+function fecharModalListas(){
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "none";
+
+}
 async function excluirLista(id){
 
   if(
@@ -3679,7 +3944,7 @@ async function abrirLista(id){
   await db
   .from("playlist")
   .select("*")
-  .eq("lista_id",id)
+  .eq("lista_id", id)
   .order("id");
 
   playlist = data || [];
@@ -3687,6 +3952,27 @@ async function abrirLista(id){
   renderizarPlaylist();
 
 }
+
+async function novaLista(){
+
+  const nome =
+  prompt(
+    "Nome da lista:"
+  );
+
+  if(!nome)
+    return;
+
+  await db
+  .from("listas")
+  .insert({
+    nome:nome
+  });
+
+  carregarListas();
+
+}
+
 
 
 
@@ -3706,7 +3992,8 @@ setTimeout(()=>{
 
 },300);
 
-console.log(playlist);
+
+
 
 </script>
 
