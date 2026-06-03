@@ -3078,20 +3078,20 @@ async function abrirTelaVencimentos(){
 
 }
 
-async function abrirPlayerTV(){
-console.log(
-  document.getElementById("player")
-);
+ function abrirPlayerTV(){
+
   abrirTela("telaPlayer");
 
-  setTimeout(async ()=>{
+  
 
-    await iniciarPlayerTV();
-   
+     iniciarPlayerTV();
 
-  },500);
- carregarListas();
- abrirListaAutomatica();
+    carregarListas();
+
+    abrirListaAutomatica();
+
+  
+
 }
 
 
