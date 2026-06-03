@@ -605,6 +605,55 @@
   text-align:center;
   padding:20px;
 }
+
+.modalListas{
+  position:fixed;
+  inset:0;
+
+  background:
+  rgba(0,0,0,.7);
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+color: black;
+  z-index:999999999;
+}
+
+.boxModalListas{
+
+  background:white;
+
+  padding:20px;
+
+  border-radius:12px;
+
+  width:90%;
+  max-width:400px;
+
+}
+
+
+#listaDestino div{
+
+  padding:12px;
+
+  border:1px solid #ddd;
+
+  margin:8px 0;
+
+  cursor:pointer;
+
+  border-radius:8px;
+
+}
+.pastaAtiva{
+  background:#1e88e5;
+  color:white;
+  font-weight:bold;
+}
+
 </style>
 
 </head>
@@ -843,7 +892,6 @@
 
 </div>
 
-
 <div id="telaPlayer" class="telaSistema">
 
   <div class="topTela">
@@ -870,17 +918,74 @@
 
     <div style="height:15px"></div>
 
-  <div id="loadingPlayer">
-  ⏳ Carregando player...
-</div>
+    <div id="loadingPlayer">
+      ⏳ Carregando player...
+    </div>
 
-<div id="player"></div>
+    <div id="player"></div>
 
     <div style="height:15px"></div>
-<button style="width:100px" onclick="alternarAleatorio()">
-  🔀 Aleatório
-</button>
+
+    <button
+      style="width:100px"
+      onclick="alternarAleatorio()">
+      🔀 Aleatório
+    </button>
+
+    <button onclick="novaLista()">
+      ➕ Nova Lista
+    </button>
+
+    <div id="listaPastas"></div>
+
     <div id="listaPlaylist"></div>
+
+  </div>
+
+</div>
+
+<!-- MODAL ESCOLHER LISTA -->
+
+<div id="modalListas"
+     class="modalListas"
+     style="display:none">
+
+  <div class="boxModalListas">
+
+    <h3>
+      Salvar em qual lista?
+    </h3>
+
+    <div id="listaDestino"></div>
+
+    <button
+      onclick="fecharModalListas()">
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
+
+<!-- MODAL CONFIGURAÇÃO -->
+
+<div id="modalConfigLista"
+     class="modalListas"
+     style="display:none">
+
+  <div class="boxModalListas">
+
+    <h3 id="tituloConfigLista"></h3>
+
+    <div id="diasSemana"></div>
+
+    <button onclick="salvarConfigLista()">
+      Salvar
+    </button>
+
+    <button onclick="fecharConfigLista()">
+      Cancelar
+    </button>
 
   </div>
 
@@ -1142,7 +1247,10 @@ db.auth.onAuthStateChange((event, session) => {
 let contadorMusicas = 0;
 let reproduzindoTemporario = false;
 let indiceAnterior = 0;
-let modoAleatorio = false;
+let modoAleatorio = false
+let listaAtual = null;
+let listaConfigAtual = null;
+let diaSelecionado = 0;
   
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
@@ -2851,12 +2959,113 @@ async function abrirFinanceiro(){
 // ABRIR CONFIG
 // =========================
 
-function abrirConfig(){
 
-  abrirTela("telaConfig");
+
+async function abrirConfigLista(
+  id
+){
+
+  listaConfigAtual = id;
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("id",id)
+  .single();
+
+  document.getElementById(
+    "tituloConfigLista"
+  ).innerText =
+  "📁 " + data.nome;
+
+  diaSelecionado =
+  data.dia_semana || 0;
+
+  renderizarDias();
+console.log(
+  document.getElementById(
+    "modalConfigLista"
+  )
+);
+  document.getElementById(
+    "modalConfigLista"
+  ).style.display =
+  "flex";
 
 }
 
+function renderizarDias(){
+
+  const nomes = [
+    "Nenhum",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+    "Domingo"
+  ];
+
+  const div =
+  document.getElementById(
+    "diasSemana"
+  );
+
+  div.innerHTML = "";
+
+  nomes.forEach((nome,i)=>{
+
+    const item =
+    document.createElement("div");
+
+    item.className =
+    "itemDia";
+
+    item.innerHTML =
+    (diaSelecionado === i
+      ? "✅ "
+      : "") + nome;
+
+    item.onclick = ()=>{
+
+      diaSelecionado = i;
+
+      renderizarDias();
+
+    };
+
+    div.appendChild(item);
+
+  });
+
+}
+
+async function salvarConfigLista(){
+
+  await db
+  .from("listas")
+  .update({
+    dia_semana:
+    diaSelecionado
+  })
+  .eq(
+    "id",
+    listaConfigAtual
+  );
+
+  fecharConfigLista();
+
+}
+
+function fecharConfigLista(){
+
+  document.getElementById(
+    "modalConfigLista"
+  ).style.display = "none";
+
+}
 // =========================
 // ABRIR VENCIMENTOS
 // =========================
@@ -2878,9 +3087,10 @@ console.log(
   setTimeout(async ()=>{
 
     await iniciarPlayerTV();
+   
 
   },500);
-
+ carregarListas();
 }
 
 
@@ -3299,17 +3509,47 @@ async function adicionarPlaylist(
   titulo
 ){
 
+  musicaPendente = {
+    videoId,
+    titulo
+  };
+
+  const { data } =
   await db
-  .from("playlist")
-  .insert({
-    video_id:videoId,
-    titulo:titulo
+  .from("listas")
+  .select("*")
+  .order("nome");
+
+  const lista =
+  document.getElementById(
+    "listaDestino"
+  );
+
+  lista.innerHTML = "";
+
+  data.forEach(item=>{
+
+    const div =
+    document.createElement("div");
+
+    div.innerHTML =
+    `📁 ${item.nome}`;
+
+    div.onclick = ()=>{
+
+      salvarNaLista(
+        item.id
+      );
+
+    };
+
+    lista.appendChild(div);
+
   });
 
-  await carregarPlaylist();
-document.getElementById(
-    "resultadosYoutube"
-  ).innerHTML = "";
+  document.getElementById(
+    "modalListas"
+  ).style.display = "flex";
 
 }
 
@@ -3336,6 +3576,42 @@ async function carregarPlaylist(){
   }
 
 }
+async function salvarNaLista(
+  listaId
+){
+
+  await db
+  .from("playlist")
+  .insert({
+
+    video_id:
+    musicaPendente.videoId,
+
+    titulo:
+    musicaPendente.titulo,
+
+    lista_id:
+    listaId
+
+  });
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "none";
+
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+  if(listaId === listaAtual){
+
+    await carregarPlaylist();
+
+  }
+
+}
+
+
 
 function renderizarPlaylist(){
 
@@ -3560,8 +3836,11 @@ function alternarAleatorio(){
     ? "Modo aleatório ligado"
     : "Modo aleatório desligado"
   );
-
-}
+  }
+  
+  
+  
+  
 function onPlayerReady(){
 
   document.getElementById(
@@ -3569,6 +3848,177 @@ function onPlayerReady(){
   ).style.display = "none";
 
 }
+
+
+async function carregarListas(){
+
+  const { data, error } =
+  await db
+  .from("listas")
+  .select("*")
+  .order("nome");
+
+  if(error){
+
+    console.error(error);
+    return;
+
+  }
+
+  renderizarListas(
+    data || []
+  );
+
+}
+
+
+
+async function criarLista(nome){
+
+  await db
+  .from("listas")
+  .insert({
+    nome:nome
+  });
+
+  carregarListas();
+
+}
+
+function renderizarListas(listas){
+
+  const container =
+  document.getElementById(
+    "listaPastas"
+  );
+
+  container.innerHTML = "";
+
+  listas.forEach(lista=>{
+
+    const div =
+    document.createElement("div");
+
+    div.className =
+    "itemPasta";
+div.className =
+lista.id === listaAtual
+? "pastaAtiva"
+: "pasta";
+    div.innerHTML = `
+      <span  style="display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  padding:10px;
+
+  border:1px solid #ddd;
+
+  border-radius:8px;
+
+  margin-bottom:8px;
+
+">
+        📁 ${lista.nome}
+      
+      <button style="margin-left:auto;"
+      onclick="event.stopPropagation();abrirConfigLista(${lista.id})">
+        ⚙️
+      </button>
+      
+      </span>
+
+    `;
+
+    div.onclick = ()=>{
+
+      abrirLista(
+        lista.id
+      );
+
+    };
+
+    div.ondblclick = ()=>{
+
+      excluirLista(
+        lista.id
+      );
+
+    };
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function fecharModalListas(){
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "none";
+
+}
+async function excluirLista(id){
+
+  if(
+    !confirm(
+      "Excluir esta lista?"
+    )
+  ) return;
+
+  await db
+  .from("listas")
+  .delete()
+  .eq("id",id);
+
+  carregarListas();
+
+}
+
+async function abrirLista(id){
+
+  listaAtual = id;
+
+  await carregarListas();
+
+  const { data } =
+  await db
+  .from("playlist")
+  .select("*")
+  .eq("lista_id", id)
+  .order("id");
+
+  playlist = data || [];
+
+  renderizarPlaylist();
+
+}
+
+async function novaLista(){
+
+  const nome =
+  prompt(
+    "Nome da lista:"
+  );
+
+  if(!nome)
+    return;
+
+  await db
+  .from("listas")
+  .insert({
+    nome:nome
+  });
+
+  carregarListas();
+
+}
+
+
+
 
 
 
@@ -3586,7 +4036,8 @@ setTimeout(()=>{
 
 },300);
 
-console.log(playlist);
+
+
 
 </script>
 
