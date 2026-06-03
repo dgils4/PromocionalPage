@@ -4029,8 +4029,14 @@ async function novaLista(){
 }
 async function abrirListaAutomatica(){
 
-  const diaHoje =
+  let diaHoje =
   new Date().getDay();
+
+  if(diaHoje === 0){
+
+    diaHoje = 7;
+
+  }
 
   const { data } =
   await db
