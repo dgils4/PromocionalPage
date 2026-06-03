@@ -3,6 +3,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Los Visionários Agenda</title>
+<script src="https://www.youtube.com/iframe_api"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#050b16;color:#fff}header{background:#0f172a;padding:14px;position:sticky;top:0;border-bottom:2px solid #1d4ed8}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-weight:700}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.card{background:#111827;padding:10px;border-radius:12px;text-align:center}.wrap{padding:12px}.toolbar{display:flex;gap:8px;margin-bottom:10px}.toolbar input,.toolbar select,.toolbar button{padding:10px;border:none;border-radius:10px}.toolbar button{background:#1d4ed8;color:#fff}.slot{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:8px}.time{padding-top:14px;color:#93c5fd}.cell{
   min-height:52px;
@@ -1182,7 +1183,7 @@ color: black;
 </div>
 </div>
 
-<script src="https://www.youtube.com/iframe_api"></script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -4035,19 +4036,23 @@ async function abrirListaAutomatica(){
   .eq("dia_semana", diaHoje)
   .limit(1);
 
-if(data && data.length){
+  if(data?.length){
 
-  await abrirLista(
-    data[0].id
-  );
+    await abrirLista(
+      data[0].id
+    );
+
+  }else{
+
+    await abrirLista(1);
+
+  }
 
   if(playlist.length){
 
     tocarIndice(0);
 
   }
-
-}
 
 }
 
