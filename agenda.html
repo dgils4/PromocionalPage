@@ -3091,7 +3091,12 @@ console.log(
 
   },500);
  carregarListas();
+ abrirListaAutomatica();
 }
+
+
+
+
 
 
 async function abrirFinanceiro(){
@@ -4014,6 +4019,30 @@ async function novaLista(){
   });
 
   carregarListas();
+
+}
+async function abrirListaAutomatica(){
+
+  const diaHoje =
+  new Date().getDay();
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("dia_semana", diaHoje)
+  .limit(1);
+
+  if(
+    data &&
+    data.length
+  ){
+
+    await abrirLista(
+      data[0].id
+    );
+
+  }
 
 }
 
