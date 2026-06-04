@@ -1565,11 +1565,14 @@ const item = mapa[h];
 
      d.innerHTML = `
      <div class="time">${h}</div>
-     <div style="background:${cor};color:${txt}" class="cell"
-     ontouchstart="segurarExcluir(event,'${item.id}')"
-     ontouchmove="moverDedo(event)"
-     ontouchend="cancelarSegurar()"
-     onclick="cliqueCard('${item.id}')">
+   <div
+ data-id="${item.id}"
+ style="background:${cor};color:${txt}"
+ class="cell"
+ ontouchstart="segurarExcluir(event,'${item.id}')"
+ ontouchmove="moverDedo(event)"
+ ontouchend="cancelarSegurar()"
+ onclick="cliqueCard('${item.id}')">
        ${item.nome_cliente || 'desconhecido'}<br>
 
        <small style="font-size:11px">
@@ -1596,6 +1599,38 @@ const item = mapa[h];
    agenda.appendChild(d);
    aplicarOcultacao();
  });
+ 
+if(window.ultimoAtendimentoId){
+
+  setTimeout(()=>{
+
+    const card =
+    document.querySelector(
+      `[data-id="${window.ultimoAtendimentoId}"]`
+    );
+
+    if(card){
+
+      card.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+      card.style.outline =
+      "3px solid #22c55e";
+
+      setTimeout(()=>{
+        card.style.outline = "";
+      },3000);
+
+    }
+
+    window.ultimoAtendimentoId = null;
+
+  },300);
+
+}
+ 
 fecharLoading();
 }
 
@@ -1714,22 +1749,35 @@ console.log(nomeFinal);
 
  let resposta;
 
- if(editandoId){
+let atendimentoSalvoId = null;
+
+if(editandoId){
    resposta = await db
    .from('atendimentos')
    .update(dados)
    .eq('id', editandoId);
- } else {
+
+   atendimentoSalvoId = editandoId;
+
+} else {
+
    resposta = await db
    .from('atendimentos')
-   .insert([dados]);
- }
+   .insert([dados])
+   .select()
+   .single();
+
+   atendimentoSalvoId = resposta.data?.id;
+}
 
  if(resposta.error){
    mostrarToast(resposta.error.message);
- fecharLoading();
+   fecharLoading();
    return;
- }
+}
+
+window.ultimoAtendimentoId =
+atendimentoSalvoId;
  
  if(clienteId){
 
@@ -2284,6 +2332,8 @@ let segurando = false;
 let iniciouX = 0;
 let iniciouY = 0;
 let moveu = false;
+
+let ultimoAtendimentoId = null;
 
 function segurarExcluir(event,id){
 
