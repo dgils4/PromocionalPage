@@ -654,37 +654,7 @@ color: black;
   color:white;
   font-weight:bold;
 }
-#bolhaPlayer{
 
-  display:none;
-
-  position:fixed;
-
-  right:20px;
-
-  bottom:20px;
-
-  width:60px;
-
-  height:60px;
-
-  border-radius:50%;
-
-  background:#222;
-
-  color:#fff;
-
-  font-size:28px;
-
-  cursor:pointer;
-
-  z-index:99999;
-
-  align-items:center;
-
-  justify-content:center;
-
-}
 </style>
 
 </head>
@@ -709,8 +679,6 @@ color: black;
     <p>Inicializando sistema...</p>
 
   </div></div>
-  
-
   
   <!-- ========================= -->
 <!-- 📊 TELA FATURAMENTO -->
@@ -929,9 +897,9 @@ color: black;
 
   <div class="topTela">
 
-  <button onclick="fecharPlayerTV()">
-  ← Voltar
-</button>
+    <button onclick="fecharTela('telaPlayer')">
+      ← Voltar
+    </button>
 
     <h2>🎵 Player TV</h2>
 
@@ -1261,12 +1229,7 @@ color: black;
 </div>
 </div>
 
-<div id="bolhaPlayer"
-onclick="abrirPlayerExistente()">
 
-  🎵
-
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -4309,32 +4272,7 @@ function fecharExcluirLista(){
 
 }
 
-function abrirPlayerExistente(){
 
-  abrirTela(
-    "telaPlayer"
-  );
-
-  document.getElementById(
-    "bolhaPlayer"
-  ).style.display =
-  "none";
-
-}
-
-function fecharPlayerTV(){
-
-  document.getElementById(
-    "telaPlayer"
-  ).style.display =
-  "none";
-
-  document.getElementById(
-    "bolhaPlayer"
-  ).style.display =
-  "flex";
-
-}
 
 
 
