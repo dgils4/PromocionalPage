@@ -624,7 +624,7 @@ color: black;
 
 .boxModalListas{
 
-  background:white;
+  background:#fff;
 
   padding:20px;
 
@@ -936,6 +936,29 @@ color: black;
     <button onclick="novaLista()">
       ➕ Nova Lista
     </button>
+    <div id="modalNovaLista"
+     class="modalListas"
+     style="display:none">
+
+  <div class="boxModalListas">
+
+    <h3>Nova Lista</h3>
+
+    <input style="margin-bottom:15px"
+      id="nomeNovaLista"
+      placeholder="Nome da lista">
+
+    <button onclick="salvarNovaLista()">
+      Salvar
+    </button>
+
+    <button onclick="fecharNovaLista()">
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
 
     <div id="listaPastas"></div>
 
@@ -4058,12 +4081,24 @@ async function abrirLista(id){
 
 }
 
-async function novaLista(){
+function novaLista(){
+
+  document.getElementById(
+    "nomeNovaLista"
+  ).value = "";
+
+  document.getElementById(
+    "modalNovaLista"
+  ).style.display = "flex";
+
+}
+
+async function salvarNovaLista(){
 
   const nome =
-  prompt(
-    "Nome da lista:"
-  );
+  document.getElementById(
+    "nomeNovaLista"
+  ).value.trim();
 
   if(!nome)
     return;
@@ -4074,9 +4109,20 @@ async function novaLista(){
     nome:nome
   });
 
+  fecharNovaLista();
+
   carregarListas();
 
 }
+
+function fecharNovaLista(){
+
+  document.getElementById(
+    "modalNovaLista"
+  ).style.display = "none";
+
+}
+
 async function abrirListaAutomatica(){
 
   let diaHoje =
