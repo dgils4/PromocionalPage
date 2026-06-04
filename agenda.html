@@ -959,6 +959,29 @@ color: black;
   </div>
 
 </div>
+<div id="modalExcluirLista"
+     class="modalListas"
+     style="display:none">
+
+  <div class="boxModalListas">
+
+    <h3>
+      Excluir Pasta?
+    </h3>
+
+    <p id="nomeListaExcluir"></p>
+
+    <button onclick="confirmarExcluirLista()">
+      Excluir
+    </button>
+
+    <button onclick="fecharExcluirLista()">
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
 
     <div id="listaPastas"></div>
 
@@ -1278,7 +1301,7 @@ let diaSelecionado = 0;
 let listasDoDia = [];
 
 let indiceListaAtual = 0;
-  
+let listaExcluirId = null;  
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
      somSucesso.preload = "auto";
@@ -3636,7 +3659,8 @@ async function adicionarPlaylist(
 }
 
 async function carregarPlaylist(){
-
+// Função antiga.
+// Não usar mais com o sistema de pastas.
   const { data } =
   await db
   .from("playlist")
@@ -3689,11 +3713,13 @@ async function salvarNaLista(
     "resultadosYoutube"
   ).innerHTML = "";
 
-  if(listaId === listaAtual){
+if(listaId === listaAtual){
 
-    await carregarPlaylist();
+  await abrirLista(
+    listaAtual
+  );
 
-  }
+}
 
 }
 
@@ -3754,7 +3780,9 @@ async function removerMusica(id){
   .delete()
   .eq("id",id);
 
-  await carregarPlaylist();
+  await abrirLista(
+    listaAtual
+  );
 
 }
 
@@ -4201,7 +4229,48 @@ async function abrirProximaListaOuLoop(){
   tocarIndice(0);
 
 }
+async function excluirLista(id){
 
+  listaExcluirId = id;
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("nome")
+  .eq("id", id)
+  .single();
+
+  document.getElementById(
+    "nomeListaExcluir"
+  ).innerText =
+   "📁 " + data.nome;
+
+  document.getElementById(
+    "modalExcluirLista"
+  ).style.display =
+  "flex";
+
+}
+async function confirmarExcluirLista(){
+
+  await db
+  .from("listas")
+  .delete()
+  .eq("id", listaExcluirId);
+
+  fecharExcluirLista();
+
+  carregarListas();
+
+}
+function fecharExcluirLista(){
+
+  document.getElementById(
+    "modalExcluirLista"
+  ).style.display =
+  "none";
+
+}
 
 
 
