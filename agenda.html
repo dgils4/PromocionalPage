@@ -654,6 +654,7 @@ color: black;
   color:white;
   font-weight:bold;
 }
+
 #bolhaPlayer{
 
   display:none;
@@ -662,7 +663,7 @@ color: black;
 
   right:20px;
 
-  bottom:20px;
+  bottom:120px;
 
   width:60px;
 
@@ -670,7 +671,7 @@ color: black;
 
   border-radius:50%;
 
-  background:#222;
+  background:#fefefe;
 
   color:#fff;
 
@@ -678,11 +679,43 @@ color: black;
 
   cursor:pointer;
 
-  z-index:99999;
+  z-index:9999999999;
 
   align-items:center;
 
   justify-content:center;
+
+}
+
+
+#bolhaPlayer::after{
+
+  content:"";
+
+  position:absolute;
+
+  inset:-6px;
+
+  border-radius:50%;
+
+  border:2px solid #fff;
+
+  animation:
+  onda 2s infinite;
+
+}
+
+@keyframes onda{
+
+  0%{
+    transform:scale(1);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1.6);
+    opacity:0;
+  }
 
 }
 
