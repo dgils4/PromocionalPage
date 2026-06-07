@@ -1531,6 +1531,27 @@ const hora = document.getElementById('hora');
 const nome = document.getElementById('nome');
 const fone = document.getElementById('fone');
 const barbeiro = document.getElementById('barbeiro');
+const barbeiroSalvo =
+localStorage.getItem(
+  "barbeiroPadrao"
+);
+
+if(barbeiroSalvo){
+  barbeiro.value =
+  barbeiroSalvo;
+}
+
+barbeiro.addEventListener(
+  "change",
+  ()=>{
+
+    localStorage.setItem(
+      "barbeiroPadrao",
+      barbeiro.value
+    );
+
+  }
+);
 const tipo = document.getElementById('tipo');
 const corte = document.getElementById('corte');
 const pag = document.getElementById('pag');
