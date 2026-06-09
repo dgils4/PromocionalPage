@@ -732,7 +732,57 @@ color: black;
   }
 
 }
+.cardProfissional{
 
+  display:flex;
+  align-items:center;
+  gap:15px;
+
+  background:#0f172a;
+
+  padding:12px;
+
+  margin-bottom:10px;
+
+  border-radius:14px;
+
+  border:1px solid #1e293b;
+
+}
+
+.fotoProf{
+
+  width:70px;
+  height:70px;
+
+  border-radius:50%;
+
+  object-fit:cover;
+
+  flex-shrink:0;
+
+}
+
+.infoProf{
+
+  flex:1;
+
+}
+
+.nomeProf{
+
+  font-size:18px;
+  font-weight:700;
+
+}
+
+.foneProf{
+
+  color:#94a3b8;
+
+  margin-top:4px;
+
+}
 </style>
 
 </head>
@@ -960,6 +1010,11 @@ placeholder="Nome do profissional">
 <input
 id="foneProfissional"
 placeholder="Telefone">
+
+<input
+id="fotoProfissional"
+type="file"
+accept="image/*">
 
 <button onclick="salvarProfissional()">
   💾 Salvar
@@ -3462,21 +3517,74 @@ async function salvarProfissional(){
     "foneProfissional"
   ).value.trim();
 
+  const arquivo =
+  document.getElementById(
+    "fotoProfissional"
+  ).files[0];
+
   if(!nome){
     mostrarToast("Informe o nome");
     return;
   }
 
-  const { error } = await db
+  let fotoUrl = null;
+
+  if(arquivo){
+
+    const nomeArquivo =
+    Date.now() + "_" +
+    arquivo.name;
+
+    const { error: erroUpload } =
+    await db.storage
+    .from("profissionais")
+    .upload(
+      nomeArquivo,
+      arquivo
+    );
+
+    if(erroUpload){
+
+      mostrarToast(
+        erroUpload.message
+      );
+
+      return;
+    }
+
+    const { data } =
+    db.storage
+    .from("profissionais")
+    .getPublicUrl(
+      nomeArquivo
+    );
+
+    fotoUrl =
+    data.publicUrl;
+
+  }
+
+  const { error } =
+  await db
   .from("profissionais")
   .insert([{
+
     nome,
-    telefone
+
+    telefone,
+
+    foto: fotoUrl
+
   }]);
 
   if(error){
-    mostrarToast(error.message);
+
+    mostrarToast(
+      error.message
+    );
+
     return;
+
   }
 
   document.getElementById(
@@ -3485,6 +3593,10 @@ async function salvarProfissional(){
 
   document.getElementById(
     "foneProfissional"
+  ).value = "";
+
+  document.getElementById(
+    "fotoProfissional"
   ).value = "";
 
   carregarProfissionais();
@@ -3512,19 +3624,120 @@ async function carregarProfissionais(){
 
   data.forEach(p => {
 
-    lista.innerHTML += `
-      <div class="card">
-        👤 ${p.nome}
-        <br>
-        <small>
-          ${p.telefone || ""}
-        </small>
-      </div>
-    `;
+lista.innerHTML += `
+
+<div
+  class="cardProfissional"
+
+  ontouchstart="
+  segurarExcluirProf(
+    event,
+    '${p.id}'
+  )"
+
+  ontouchmove="
+  cancelarSegurar()
+  "
+
+  ontouchend="
+  cancelarSegurar()
+  ">
+
+  <img
+    src="${
+      p.foto ||
+      'https://via.placeholder.com/70'
+    }"
+
+    class="fotoProf">
+
+  <div class="infoProf">
+
+    <div class="nomeProf">
+      ${p.nome}
+    </div>
+
+    <div class="foneProf">
+      📞 ${p.telefone || ""}
+    </div>
+
+  </div>
+
+</div>
+
+`;
 
   });
 
 }
+let timerExcluirProf = null;
+
+
+
+function segurarExcluirProf(
+  event,
+  id
+){
+
+  timerExcluirProf =
+  setTimeout(()=>{
+
+    abrirConfirmacao(
+      "🗑️ Excluir profissional?",
+      async ()=>{
+
+        await excluirProfissional(id);
+
+      }
+    );
+
+  },700);
+
+}
+
+function cancelarSegurar(){
+
+  clearTimeout(
+    timerExcluirProf
+  );
+
+}
+function cancelarSegurar(){
+
+  clearTimeout(
+    timerExcluirProf
+  );
+
+}
+async function excluirProfissional(id){
+
+  const { error } =
+  await db
+  .from("profissionais")
+  .delete()
+  .eq("id", id);
+
+  if(error){
+
+    mostrarToast(
+      error.message
+    );
+
+    console.log(error);
+
+    return;
+
+  }
+
+  mostrarToast(
+    "✅ Excluído"
+  );
+
+  carregarProfissionais();
+
+}
+
+
 
 function fecharConfigLista(){
 
