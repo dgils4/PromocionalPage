@@ -732,7 +732,57 @@ color: black;
   }
 
 }
+.cardProfissional{
 
+  display:flex;
+  align-items:center;
+  gap:15px;
+
+  background:#0f172a;
+
+  padding:12px;
+
+  margin-bottom:10px;
+
+  border-radius:14px;
+
+  border:1px solid #1e293b;
+
+}
+
+.fotoProf{
+
+  width:70px;
+  height:70px;
+
+  border-radius:50%;
+
+  object-fit:cover;
+
+  flex-shrink:0;
+
+}
+
+.infoProf{
+
+  flex:1;
+
+}
+
+.nomeProf{
+
+  font-size:18px;
+  font-weight:700;
+
+}
+
+.foneProf{
+
+  color:#94a3b8;
+
+  margin-top:4px;
+
+}
 </style>
 
 </head>
@@ -807,15 +857,12 @@ color: black;
     <input type="date" id="dataInicio">
 
     <input type="date" id="dataFim">
+    
+<select id="calProf">
 
-    <select id="calProf">
+  <option value="Todos">Todos</option>
 
-      <option value="Todos">Todos</option>
-      <option value="Gilberto">Gilberto</option>
-      <option value="Thiago">Thiago</option>
-      <option value="Visita">Visita</option>
-
-    </select>
+</select>
 
     <button onclick="calcularPeriodo()">
       Buscar
@@ -937,6 +984,43 @@ color: black;
 
     </div>
 
+  </div>
+
+</div>
+
+<div id="telaProfissionais" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaProfissionais')">
+      ← Voltar
+    </button>
+
+    <h2>👤 Profissionais</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <!-- campos e lista aqui -->
+<input
+id="nomeProfissional"
+placeholder="Nome do profissional">
+
+<input
+id="foneProfissional"
+placeholder="Telefone">
+
+<input
+id="fotoProfissional"
+type="file"
+accept="image/*">
+
+<button onclick="salvarProfissional()">
+  💾 Salvar
+</button>
+
+<div id="listaProfissionais"></div>
   </div>
 
 </div>
@@ -1199,6 +1283,10 @@ color: black;
   <button onclick="abrirFinanceiro()">
     💰 Financeiro
   </button>
+  
+  <button onclick="abrirProfissionais()">
+  👤 Profissionais
+</button>
 
   <button onclick="abrirConfig()">
     ⚙️ Configurações
@@ -1249,8 +1337,17 @@ color: black;
 </header>
 <div class='wrap'>
 <div class='toolbar'>
-<select id='filtro'><option>Todos</option><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
-<button onclick='carregarHoje()'>Atualizar</button>
+<select id="filtro">
+
+  <option value="Todos">
+    Todos
+  </option>
+
+</select>
+
+<button onclick="carregarHoje()">
+  Atualizar
+</button>
 
 
 </div>
@@ -1265,7 +1362,7 @@ color: black;
 <div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
 <input id='fone' placeholder='Telefone'>
 <div class='row'>
-<select id='barbeiro'><option>Gilberto</option><option>Thiago</option><option>Visita</option></select>
+<select id="barbeiro"></select>
 <select id='tipo'><option>avulso</option><option>plano</option></select>
 
 
@@ -2099,7 +2196,7 @@ fone.value = data.telefone || "";
 
 // 🔥 ESSENCIAL
 inputNome.dataset.id = data.cliente_id || "";
- barbeiro.value  = data.barbeiro || "Gilberto";
+ 
  tipo.value      = data.tipo_cliente || "avulso";
  corte.value     = data.numero_corte || "";
  pag.value       = data.forma_pagamento || "Pix";
@@ -2187,35 +2284,66 @@ function filtrarProf(nome){
   carregarHoje();
 }
 async function calcularFaturamento(){
-abrirLoading("Calculando...")
- const { data } = await db
- .from('atendimentos')
- .select('*');
 
- let totalGeral = 0;
- let gilberto = 0;
- let Thiago = 0;
-  let visita = 0;
+  abrirLoading("Calculando...");
 
- data.forEach(item => {
-   const v = Number(item.valor || 0);
-   totalGeral += v;
-   
+  const { data } = await db
+  .from("atendimentos")
+  .select("*");
 
-   if(item.barbeiro === "Gilberto") gilberto += v;
-   if(item.barbeiro === "Thiago") Thiago += v;
-   if(item.barbeiro === "Visita") visita += v;
- });
+  let totalGeral = 0;
 
- document.getElementById("fatResultado").innerHTML = `
-   <p>💈 Gilberto: R$ ${gilberto.toFixed(2)}</p>
-    <p>💈 Visita: R$ ${visita.toFixed(2)}</p>
-   <p>💈 Thiago: R$ ${Thiago.toFixed(2)}</p>
-   <hr>
-   <h3>Total: R$ ${totalGeral.toFixed(2)}</h3>
- `;
- mostrarToast('sucesso!');
- fecharLoading();
+  const totais = {};
+
+  data.forEach(item => {
+
+    const v =
+    Number(item.valor || 0);
+
+    totalGeral += v;
+
+    const nome =
+    item.barbeiro || "Sem profissional";
+
+    if(!totais[nome]){
+      totais[nome] = 0;
+    }
+
+    totais[nome] += v;
+
+  });
+
+  let html = "";
+
+  Object.keys(totais)
+  .sort()
+  .forEach(nome => {
+
+    html += `
+      <p>
+      💈 ${nome}:
+      R$ ${totais[nome].toFixed(2)}
+      </p>
+    `;
+
+  });
+
+  html += `
+    <hr>
+    <h3>
+      Total: R$
+      ${totalGeral.toFixed(2)}
+    </h3>
+  `;
+
+  document
+  .getElementById("fatResultado")
+  .innerHTML = html;
+
+  mostrarToast("Sucesso!");
+
+  fecharLoading();
+
 }
 
 
@@ -2275,9 +2403,7 @@ abrirLoading("Calculando...")
  }
 
  let total = 0;
- let gilberto = 0;
- let thiago = 0;
- let visita = 0;
+ const profissionais = {};
  let html = "";
 
  data.forEach(item => {
@@ -2285,9 +2411,14 @@ abrirLoading("Calculando...")
    const valor = Number(item.valor || 0);
    total += valor;
 
-   if(item.barbeiro === "Gilberto") gilberto++;
-   if(item.barbeiro === "Thiago") thiago++;
-      if(item.barbeiro === "Visita") visita++;
+ const nome =
+item.barbeiro || "Sem profissional";
+
+if(!profissionais[nome]){
+  profissionais[nome] = 0;
+}
+
+profissionais[nome]++;
 
    html += `
    <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
@@ -2297,14 +2428,25 @@ abrirLoading("Calculando...")
    </div>
    `;
  });
+let resumoProfissionais = "";
 
+Object.keys(profissionais)
+.sort()
+.forEach(nome => {
+
+  resumoProfissionais += `
+    <p>
+      💈 ${nome}:
+      ${profissionais[nome]}
+    </p>
+  `;
+
+});
  box.innerHTML = `
    <h3>Total recebido: R$ ${total.toFixed(2)}</h3>
 
    <p>📌 Atendimentos plano: ${data.length}</p>
-   <p>💈 Gilberto: ${gilberto}</p>
-   <p>💈 Thiago: ${thiago}</p>
-   <p>💈 Visita: ${visita}</p>
+   ${resumoProfissionais}
 
    <hr>
 
@@ -3164,6 +3306,101 @@ async function abrirFinanceiro(){
 
 }
 
+function abrirProfissionais(){
+
+  abrirTela(
+    "telaProfissionais"
+  );
+
+  carregarProfissionais();
+
+}
+async function carregarProfissionaisSelect(){
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .order("nome");
+
+  if(error) return;
+
+  barbeiro.innerHTML = "";
+
+  data.forEach(prof => {
+
+    barbeiro.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+  const barbeiroSalvo =
+  localStorage.getItem(
+    "barbeiroPadrao"
+  );
+
+  if(barbeiroSalvo){
+    barbeiro.value =
+    barbeiroSalvo;
+  }
+
+}
+
+async function carregarProfissionaisCalendario(){
+
+  const select =
+  document.getElementById("calProf");
+
+  select.innerHTML =
+  '<option value="Todos">Todos</option>';
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .order("nome");
+
+  if(error) return;
+
+  data.forEach(prof => {
+
+    select.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+}
+
+async function carregarProfissionaisFiltro(){
+
+  const filtro =
+  document.getElementById("filtro");
+
+  filtro.innerHTML =
+  '<option value="Todos">Todos</option>';
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .order("nome");
+
+  if(error) return;
+
+  data.forEach(prof => {
+
+    filtro.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+}
 // =========================
 // ABRIR CONFIG
 // =========================
@@ -3267,6 +3504,240 @@ async function salvarConfigLista(){
   fecharConfigLista();
 
 }
+
+async function salvarProfissional(){
+
+  const nome =
+  document.getElementById(
+    "nomeProfissional"
+  ).value.trim();
+
+  const telefone =
+  document.getElementById(
+    "foneProfissional"
+  ).value.trim();
+
+  const arquivo =
+  document.getElementById(
+    "fotoProfissional"
+  ).files[0];
+
+  if(!nome){
+    mostrarToast("Informe o nome");
+    return;
+  }
+
+  let fotoUrl = null;
+
+  if(arquivo){
+
+    const nomeArquivo =
+    Date.now() + "_" +
+    arquivo.name;
+
+    const { error: erroUpload } =
+    await db.storage
+    .from("profissionais")
+    .upload(
+      nomeArquivo,
+      arquivo
+    );
+
+    if(erroUpload){
+
+      mostrarToast(
+        erroUpload.message
+      );
+
+      return;
+    }
+
+    const { data } =
+    db.storage
+    .from("profissionais")
+    .getPublicUrl(
+      nomeArquivo
+    );
+
+    fotoUrl =
+    data.publicUrl;
+
+  }
+
+  const { error } =
+  await db
+  .from("profissionais")
+  .insert([{
+
+    nome,
+
+    telefone,
+
+    foto: fotoUrl
+
+  }]);
+
+  if(error){
+
+    mostrarToast(
+      error.message
+    );
+
+    return;
+
+  }
+
+  document.getElementById(
+    "nomeProfissional"
+  ).value = "";
+
+  document.getElementById(
+    "foneProfissional"
+  ).value = "";
+
+  document.getElementById(
+    "fotoProfissional"
+  ).value = "";
+
+  carregarProfissionais();
+
+}
+async function carregarProfissionais(){
+
+  const { data, error } =
+  await db
+  .from("profissionais")
+  .select("*")
+  .order("nome");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const lista =
+  document.getElementById(
+    "listaProfissionais"
+  );
+
+  lista.innerHTML = "";
+
+  data.forEach(p => {
+
+lista.innerHTML += `
+
+<div
+  class="cardProfissional"
+
+  ontouchstart="
+  segurarExcluirProf(
+    event,
+    '${p.id}'
+  )"
+
+  ontouchmove="
+  cancelarSegurar()
+  "
+
+  ontouchend="
+  cancelarSegurar()
+  ">
+
+  <img
+    src="${
+      p.foto ||
+      'https://via.placeholder.com/70'
+    }"
+
+    class="fotoProf">
+
+  <div class="infoProf">
+
+    <div class="nomeProf">
+      ${p.nome}
+    </div>
+
+    <div class="foneProf">
+      📞 ${p.telefone || ""}
+    </div>
+
+  </div>
+
+</div>
+
+`;
+
+  });
+
+}
+let timerExcluirProf = null;
+
+
+
+function segurarExcluirProf(
+  event,
+  id
+){
+
+  timerExcluirProf =
+  setTimeout(()=>{
+
+    abrirConfirmacao(
+      "🗑️ Excluir profissional?",
+      async ()=>{
+
+        await excluirProfissional(id);
+
+      }
+    );
+
+  },700);
+
+}
+
+function cancelarSegurar(){
+
+  clearTimeout(
+    timerExcluirProf
+  );
+
+}
+function cancelarSegurar(){
+
+  clearTimeout(
+    timerExcluirProf
+  );
+
+}
+async function excluirProfissional(id){
+
+  const { error } =
+  await db
+  .from("profissionais")
+  .delete()
+  .eq("id", id);
+
+  if(error){
+
+    mostrarToast(
+      error.message
+    );
+
+    console.log(error);
+
+    return;
+
+  }
+
+  mostrarToast(
+    "✅ Excluído"
+  );
+
+  carregarProfissionais();
+
+}
+
+
 
 function fecharConfigLista(){
 
@@ -4401,8 +4872,9 @@ function fecharPlayerTV(){
 
 
 
-
-
+carregarProfissionaisFiltro();
+carregarProfissionaisSelect();
+carregarProfissionaisCalendario();
 
 atualizarBadge();
 carregarHoje();
