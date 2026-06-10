@@ -783,6 +783,70 @@ color: black;
   margin-top:4px;
 
 }
+
+.cardFidelidade{
+  background:#111827;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.nomeFid{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.statusFid{
+  color:#f59e0b;
+  margin-bottom:8px;
+}
+
+.cortesFid{
+  margin-bottom:12px;
+  color:#d1d5db;
+}
+
+.acoesFid{
+  display:flex;
+  gap:10px;
+}
+
+.acoesFid button{
+  flex:1;
+}
+
+.alertaFidelidade{
+  background:#22c55e;
+  color:#fff;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:12px;
+  text-align:center;
+  font-weight:bold;
+
+  animation:pulsar 1.5s infinite;
+}
+
+@keyframes pulsar{
+
+  0%{
+    transform:scale(1);
+  }
+
+  50%{
+    transform:scale(1.03);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
+.cardPremiado{
+  border:2px solid #f59e0b;
+  box-shadow:0 0 15px rgba(245,158,11,.4);
+}
 </style>
 
 </head>
@@ -1025,6 +1089,35 @@ accept="image/*">
 
 </div>
 
+<div id="telaFidelidade" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaFidelidade')">
+      ← Voltar
+    </button>
+
+    <h2>🎁 Cartão Fidelidade</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+<div
+id="alertaFidelidade"
+class="alertaFidelidade"
+style="display:none">
+</div>
+
+    <input
+      id="buscaFidelidade"
+      placeholder="Buscar cliente"
+      oninput="carregarFidelidade()">
+
+    <div id="listaFidelidade"></div>
+
+  </div>
+
+</div>
 <!-- ========================= -->
 <!-- ⚙️ TELA CONFIG -->
 <!-- ========================= -->
@@ -1286,6 +1379,10 @@ accept="image/*">
   
   <button onclick="abrirProfissionais()">
   👤 Profissionais
+</button>
+
+<button onclick="abrirFidelidade()">
+  🎁 Fidelidade
 </button>
 
   <button onclick="abrirConfig()">
@@ -1939,7 +2036,7 @@ console.log(nomeFinal);
    .single();
 
    if(error){
-     abrirConfirmacao("Erro ao criar cliente")
+     firmacao("Erro ao criar cliente")
    fecharLoading();
      return;
    }
@@ -2030,6 +2127,11 @@ if(editandoId){
 
 window.ultimoAtendimentoId =
 atendimentoSalvoId;
+ 
+
+
+ 
+ 
  
  if(clienteId){
 
@@ -3399,6 +3501,302 @@ async function carregarProfissionaisFiltro(){
     `;
 
   });
+
+}
+
+
+
+
+function abrirFidelidade(){
+
+  abrirTela("telaFidelidade");
+
+  carregarFidelidade();
+
+}
+async function carregarFidelidade(){
+
+  const busca =
+  document.getElementById(
+    "buscaFidelidade"
+  ).value.trim();
+
+  let query = db
+  .from("clientes")
+  .select("*")
+  .order("nome");
+
+  if(busca){
+
+    query =
+    query.ilike(
+      "nome",
+      `%${busca}%`
+    );
+
+  }
+
+  const {
+    data,
+    error
+  } = await query;
+
+  if(error){
+
+    console.log(error);
+
+    return;
+
+  }
+  
+const { data: atendimentos } =
+await db
+.from("atendimentos")
+.select(
+  "cliente_id,tipo_cliente"
+)
+.eq("tipo_cliente","avulso");
+
+const mapaCortes = {};
+
+atendimentos.forEach(a=>{
+
+  if(!a.cliente_id) return;
+
+  if(!mapaCortes[a.cliente_id]){
+
+    mapaCortes[a.cliente_id] = 0;
+
+  }
+
+  mapaCortes[a.cliente_id]++;
+
+});
+
+  const lista =
+  document.getElementById(
+    "listaFidelidade"
+  );
+
+  lista.innerHTML = "";
+const premiosDisponiveis =
+data.filter(cli =>
+  cli.tem_fidelidade &&
+  (mapaCortes[cli.id] || 0) >= 10
+).length;
+const alerta =
+document.getElementById(
+  "alertaFidelidade"
+);
+
+if(premiosDisponiveis > 0){
+
+  alerta.style.display = "block";
+
+  alerta.innerHTML = `
+    🏆 Existem
+    ${premiosDisponiveis}
+    prêmio(s) disponível(is)
+  `;
+
+}else{
+
+  alerta.style.display = "none";
+
+}
+
+const premiados =
+data.filter(cli =>
+  cli.tem_fidelidade &&
+  (mapaCortes[cli.id] || 0) >= 10
+);
+
+const restantes =
+data.filter(cli =>
+  !(
+    cli.tem_fidelidade &&
+    (mapaCortes[cli.id] || 0) >= 10
+  )
+);
+
+const listaFinal = [
+  ...premiados,
+  ...restantes
+];
+
+  listaFinal.forEach(cli=>{
+
+const cortesTotal =
+mapaCortes[cli.id] || 0;
+
+const premiosGanhos =
+Math.floor(cortesTotal / 11);
+
+const premiosUsados =
+Number(cli.fidelidade_usados || 0);
+
+const premiosDisponiveis =
+premiosGanhos - premiosUsados;
+
+const cortes =
+cortesTotal % 11;
+
+  lista.innerHTML += `
+
+  <div class="
+  cardFidelidade
+  ${
+    cli.tem_fidelidade &&
+cortesTotal >= 10
+    ?
+
+    "cardPremiado"
+
+    :
+
+    ""
+  }
+">
+
+    <div class="nomeFid">
+      ${cli.nome}
+    </div>
+
+    <div class="statusFid">
+
+      ${
+        cli.tem_fidelidade
+        ? "🎁 Fidelidade Ativa"
+        : "⭕ Fidelidade Inativa"
+      }
+
+    </div>
+
+<div class="cortesFid">
+
+  ✂️ ${cortes}/10 cortes
+
+</div>
+
+    <div class="acoesFid">
+
+${
+ cli.tem_fidelidade &&
+premiosDisponiveis > 0
+
+  ?
+
+  `<button
+  onclick="usarPremio('${cli.id}')">
+
+    🎁 Usar Grátis
+
+  </button>`
+
+        :
+
+        ""
+      }
+
+      <button
+      onclick="
+      alternarFidelidade(
+        '${cli.id}',
+        ${cli.tem_fidelidade}
+      )
+      ">
+
+        ${
+          cli.tem_fidelidade
+          ? "❌ Desativar"
+          : "🎁 Ativar"
+        }
+
+      </button>
+
+    </div>
+
+  </div>
+
+  `;
+
+});
+
+}
+
+
+async function usarPremio(id){
+
+  const { data: cli, error } =
+  await db
+  .from("clientes")
+  .select("fidelidade_usados")
+  .eq("id", id)
+  .single();
+
+  if(error){
+    mostrarToast(error.message);
+    return;
+  }
+
+  const usados =
+  Number(cli.fidelidade_usados || 0);
+
+  const { error: erroUpdate } =
+  await db
+  .from("clientes")
+  .update({
+    fidelidade_usados:
+    usados + 1
+  })
+  .eq("id", id);
+
+  if(erroUpdate){
+    mostrarToast(erroUpdate.message);
+    return;
+  }
+
+  mostrarToast(
+    "🎁 Prêmio utilizado"
+  );
+
+  carregarFidelidade();
+
+}
+
+async function alternarFidelidade(
+  id,
+  ativo
+){
+
+  const { error } =
+  await db
+  .from("clientes")
+  .update({
+
+    tem_fidelidade:
+    !ativo
+
+  })
+  .eq("id", id);
+
+  if(error){
+
+    mostrarToast(
+      error.message
+    );
+
+    return;
+
+  }
+
+  mostrarToast(
+    !ativo
+    ? "🎁 Fidelidade ativada"
+    : "❌ Fidelidade removida"
+  );
+
+  carregarFidelidade();
 
 }
 // =========================
