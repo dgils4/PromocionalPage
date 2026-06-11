@@ -219,7 +219,8 @@ const { data: cli } = await db
   status_plano,
   nome,
   tem_fidelidade,
-  cortes_fidelidade
+  fidelidade_inicio,
+  fidelidade_usados
 `)
 .ilike("nome", `%${nome}%`)
 .limit(1)
@@ -229,19 +230,47 @@ let html = "";
 let statusTexto = "";
 let statusCor = "";
 let adesaoTexto = "";
+let cortesFidelidade = 0;
 let fidelidadeHtml = "";
 if(cli){
 
+if(
+  cli.tem_fidelidade &&
+  cli.fidelidade_inicio
+){
 
+  cortesFidelidade =
+  data.filter(a =>
+
+    a.tipo_cliente === "avulso" &&
+
+    a.data >=
+    cli.fidelidade_inicio
+
+  ).length;
+
+}
 
 if(
   cli.tem_fidelidade === true
 ){
 
-  const cortes =
-  Number(
-    cli.cortes_fidelidade || 0
-  );
+ let cortes =
+cortesFidelidade % 11;
+
+const premioDisponivel =
+
+Math.floor(
+  cortesFidelidade / 11
+) >
+
+Number(
+  cli.fidelidade_usados || 0
+);
+
+if(premioDisponivel){
+  cortes = 10;
+}
 
   const porcentagem =
   Math.min(
@@ -283,7 +312,12 @@ if(
     </div>
 
     ${
-      cortes >= 10
+      Math.floor(
+  cortesFidelidade / 11
+) >
+Number(
+  cli.fidelidade_usados || 0
+)
 
       ?
 
