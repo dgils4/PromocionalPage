@@ -847,6 +847,15 @@ color: black;
   border:2px solid #f59e0b;
   box-shadow:0 0 15px rgba(245,158,11,.4);
 }
+.avisoProximoPremio{
+  color:#f59e0b;
+  font-weight:bold;
+  margin-top:8px;
+}
+.cardQuasePremiado{
+  border:2px solid #f59e0b;
+  box-shadow:0 0 12px rgba(245,158,11,.4);
+}
 </style>
 
 </head>
@@ -3591,24 +3600,83 @@ const total =
 
   lista.innerHTML = "";
 const premiosDisponiveis =
-data.filter(cli =>
-  cli.tem_fidelidade &&
-  (mapaCortes[cli.id] || 0) >= 10
-).length;
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return (
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+}).length;
+
+const clientesProximoPremio =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  const premiosDisponiveis =
+  premiosGanhos - premiosUsados;
+
+  return (
+    cli.tem_fidelidade &&
+    cortesTotal % 11 === 10 &&
+    premiosDisponiveis === 0
+  );
+
+});
+
+
 const alerta =
 document.getElementById(
   "alertaFidelidade"
 );
 
+let mensagens = [];
+
+if(clientesProximoPremio.length > 0){
+
+  const nomes =
+  clientesProximoPremio
+  .map(c => c.nome)
+  .join("<br>");
+
+  mensagens.push(`
+    ⚠️ Corte grátis na próxima visita:<br><br>
+    ${nomes}
+  `);
+
+}
+
 if(premiosDisponiveis > 0){
+
+  mensagens.push(
+    `🏆 Existem ${premiosDisponiveis} prêmio(s) disponível(is)`
+  );
+
+}
+
+if(mensagens.length){
 
   alerta.style.display = "block";
 
-  alerta.innerHTML = `
-    🏆 Existem
-    ${premiosDisponiveis}
-    prêmio(s) disponível(is)
-  `;
+  alerta.innerHTML =
+  mensagens.join("<br><br>");
 
 }else{
 
@@ -3617,18 +3685,42 @@ if(premiosDisponiveis > 0){
 }
 
 const premiados =
-data.filter(cli =>
-  cli.tem_fidelidade &&
-  (mapaCortes[cli.id] || 0) >= 10
-);
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return (
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+});
 
 const restantes =
-data.filter(cli =>
-  !(
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return !(
     cli.tem_fidelidade &&
-    (mapaCortes[cli.id] || 0) >= 10
-  )
-);
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+});
 
 const listaFinal = [
   ...premiados,
@@ -3655,18 +3747,31 @@ cortesTotal % 11;
   lista.innerHTML += `
 
   <div class="
+  
   cardFidelidade
-  ${
+${
+  cli.tem_fidelidade &&
+  premiosDisponiveis > 0
+
+  ?
+
+  "cardPremiado"
+
+  :
+
+  (
     cli.tem_fidelidade &&
-cortesTotal >= 10
+    cortesTotal % 11 === 10
+
     ?
 
-    "cardPremiado"
+    "cardQuasePremiado"
 
     :
 
     ""
-  }
+  )
+}
 ">
 
     <div class="nomeFid">
@@ -3688,7 +3793,23 @@ cortesTotal >= 10
   ✂️ ${cortes}/10 cortes
 
 </div>
+<center style="margin-bottom:15px;letter-spacing:2px;">${
+  cli.tem_fidelidade &&
+  cortesTotal % 11 === 10 &&
+  premiosDisponiveis === 0
 
+  ?
+
+  `
+  <div class="avisoProximoPremio">
+    ⚠️ Próxima visita é grátis
+  </div>
+  `
+
+  :
+
+  ""
+}</center>
     <div class="acoesFid">
 
 ${
