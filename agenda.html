@@ -1436,10 +1436,7 @@ style="display:none">
 <div class='toolbar'>
 <select id="filtro">
 
-  <option value="Todos">
-    Todos
-  </option>
-
+  
 </select>
 
 <button onclick="carregarHoje()">
@@ -2808,12 +2805,7 @@ function cliqueCard(id){
 }
 
 
-const filtroSalvo =
-localStorage.getItem("filtroAgenda");
 
-if(filtroSalvo){
- filtro.value = filtroSalvo;
-}
 
 // ======================
 // TOAST
@@ -3447,7 +3439,16 @@ async function carregarProfissionaisSelect(){
     barbeiro.value =
     barbeiroSalvo;
   }
+const filtroSalvo =
+localStorage.getItem("filtroAgenda");
 
+if(
+  filtroSalvo &&
+  [...filtro.options]
+  .some(o => o.value === filtroSalvo)
+){
+  filtro.value = filtroSalvo;
+}
 }
 
 async function carregarProfissionaisCalendario(){
@@ -3553,23 +3554,33 @@ const { data: atendimentos } =
 await db
 .from("atendimentos")
 .select(
-  "cliente_id,tipo_cliente"
+  "cliente_id,tipo_cliente,data"
 )
 .eq("tipo_cliente","avulso");
 
 const mapaCortes = {};
 
-atendimentos.forEach(a=>{
+data.forEach(cli=>{
 
-  if(!a.cliente_id) return;
+  const inicio =
+  cli.fidelidade_inicio;
 
-  if(!mapaCortes[a.cliente_id]){
+const total =
 
-    mapaCortes[a.cliente_id] = 0;
+!cli.tem_fidelidade
 
-  }
+? 0
 
-  mapaCortes[a.cliente_id]++;
+: atendimentos.filter(a =>
+
+    a.cliente_id == cli.id &&
+
+    a.data >= cli.fidelidade_inicio
+
+  ).length;
+
+  mapaCortes[cli.id] =
+  total;
 
 });
 
@@ -3769,23 +3780,36 @@ async function alternarFidelidade(
   ativo
 ){
 
+  const dados = {
+
+    tem_fidelidade: !ativo
+
+  };
+
+  if(!ativo){
+
+    dados.fidelidade_inicio =
+new Date()
+.toLocaleDateString(
+  "sv-SE"
+);
+
+  }else{
+
+    dados.fidelidade_inicio =
+    null;
+
+  }
+
   const { error } =
   await db
   .from("clientes")
-  .update({
-
-    tem_fidelidade:
-    !ativo
-
-  })
+  .update(dados)
   .eq("id", id);
 
   if(error){
 
-    mostrarToast(
-      error.message
-    );
-
+    mostrarToast(error.message);
     return;
 
   }
@@ -4034,11 +4058,11 @@ lista.innerHTML += `
   )"
 
   ontouchmove="
-  cancelarSegurar()
+  cancelarSegurar2()
   "
 
   ontouchend="
-  cancelarSegurar()
+  cancelarSegurar2()
   ">
 
   <img
@@ -4093,20 +4117,14 @@ function segurarExcluirProf(
 
 }
 
-function cancelarSegurar(){
+function cancelarSegurar2(){
 
   clearTimeout(
     timerExcluirProf
   );
 
 }
-function cancelarSegurar(){
 
-  clearTimeout(
-    timerExcluirProf
-  );
-
-}
 async function excluirProfissional(id){
 
   const { error } =
