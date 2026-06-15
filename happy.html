@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>🎉 Feliz Aniversário 🎉</title>
+
+  
+<style>
+  
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:#111;
+  font-family:Arial,sans-serif;
+}
+
+/* CORTINA */
+
+#cortina{
+  position:fixed;
+  inset:0;
+  z-index:999;
+}
+
+.lado{
+  position:absolute;
+  top:0;
+  width:50%;
+  height:100%;
+  background:#8b0000;
+  transition:2s;
+}
+
+/* textura simples */
+
+.lado::after{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:
+  repeating-linear-gradient(
+    90deg,
+    rgba(255,255,255,.08) 0px,
+    rgba(255,255,255,.08) 8px,
+    transparent 8px,
+    transparent 20px
+  );
+}
+
+.esquerdo{
+  left:0;
+}
+
+.direito{
+  right:0;
+}
+
+#abrir{
+  position:absolute;
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%,-50%);
+
+  color:white;
+  font-size:24px;
+  text-align:center;
+
+  z-index:1000;
+}
+
+/* ABRIR */
+
+.abrir .esquerdo{
+  transform:translateX(-100%);
+}
+
+.abrir .direito{
+  transform:translateX(100%);
+}
+
+.abrir #abrir{
+  display:none;
+}
+
+/* CONTEÚDO */
+
+#conteudo{
+  width:100%;
+  height:100%;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  padding:20px;
+}
+
+#titulo{
+  color:gold;
+  text-align:center;
+  opacity:0;
+}
+
+#mensagem{
+  color:white;
+  text-align:center;
+  margin-top:15px;
+  opacity:0;
+}
+
+#slide{
+  width:90vw;
+  max-width:350px;
+
+  height:60vh;
+  object-fit:cover;
+
+  border-radius:20px;
+
+  margin-top:20px;
+
+  opacity:0;
+}
+
+#mensagemFinal{
+
+  position:fixed;
+
+  inset:0;
+
+  display:flex;
+
+  flex-direction:column;
+
+  justify-content:center;
+
+  align-items:center;
+
+  text-align:center;
+
+  padding:20px;
+
+  background:#111;
+
+  opacity:0;
+
+  visibility:hidden;
+
+  z-index:2000;
+  color:white;
+}
+
+#mensagemFinal.mostrar{
+
+  opacity:1 !important;
+
+  visibility:visible;
+
+  transition:1s;
+}
+
+#mensagemFinal h2{
+  margin-bottom:15px;
+}
+
+#mensagemFinal p{
+  margin-bottom:20px;
+  line-height:1.5;
+}
+.mostrar{
+  opacity:1 !important;
+  transition:1s;
+}
+
+#abrir{
+  position:absolute;
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%,-50%);
+
+  width:90%;
+
+  text-align:center;
+
+  color:white;
+
+  font-size:24px;
+
+  z-index:1000;
+}
+
+#tempo{
+  display:block;
+
+  font-size:32px;
+
+  font-weight:bold;
+
+  color:gold;
+
+  margin-top:10px;
+}
+#btnResgatar{
+  margin-top:20px;
+  padding:12px 24px;
+  border:none;
+  border-radius:10px;
+  font-size:18px;
+  width:auto;
+}
+#slide.mostrar{
+  animation:flutuar 3s ease-in-out infinite;
+}
+
+@keyframes flutuar{
+
+  0%{
+    transform:translateY(0);
+  }
+
+  50%{
+    transform:translateY(-10px);
+  }
+
+  100%{
+    transform:translateY(0);
+  }
+
+}
+</style>
+</head>
+
+<body>
+  
+  <audio
+  id="musica"
+  src="Audio/parabens.mp3"
+  preload="auto">
+</audio>
+
+  <!-- CORTINA -->
+  <div id="cortina">
+
+    <div class="lado esquerdo"></div>
+
+    <div class="lado direito"></div>
+
+  <div id="abrir">
+
+  <div id="contador">
+
+    🔒<br><br>
+
+    Sua surpresa será liberada em:
+
+    <br><br>
+
+    <span id="tempo"></span>
+
+  </div>
+
+</div>
+
+  </div>
+
+  <!-- CONTEÚDO -->
+  <main id="conteudo">
+
+    <h1 id="titulo">
+      🎉 Feliz Aniversário 🎉
+    </h1>
+
+    <p id="mensagem">
+      Que seu dia seja cheio de alegria,
+      saúde e momentos inesquecíveis.
+    </p>
+
+    <div id="galeria">
+
+      <img
+        id="slide"
+        src="imagens/im1.jpg"
+        alt="Foto">
+
+    </div>
+
+<div id="mensagemFinal">
+
+  ❤️<br><br>
+
+  Que todos os seus sonhos se realizem
+  e que nunca faltem motivos para sorrir.
+
+  <br><br><br>
+
+  <h2>🎁 Presente Especial 🎁</h2>
+
+  <p>
+    Você recebeu um Vale Corte
+    de R$ 100,00
+  </p>
+
+  <button id="btnResgatar">
+    Resgatar no WhatsApp
+  </button>
+
+</div>
+    
+    
+
+  </main>
+
+  <script>
+    const modoTeste = true;
+   const imagens = [
+  "imagens/im1.jpg",
+  "imagens/im2.jpg",
+  "imagens/im3.jpg",
+  "imagens/im4.jpg",
+  "imagens/im5.jpg",
+  "imagens/im6.jpg",
+  "imagens/im7.jpg",
+  "imagens/im8.jpg",
+  "imagens/im9.jpg",
+  "imagens/im10.jpg"
+];
+
+const cortina =
+document.getElementById("cortina");
+
+
+
+const titulo =
+document.getElementById("titulo");
+
+const mensagem =
+document.getElementById("mensagem");
+
+const slide =
+document.getElementById("slide");
+
+const mensagemFinal =
+document.getElementById("mensagemFinal");
+
+const dataLiberacao =
+new Date(2026, 5, 25, 0, 0, 0);
+
+const tempo =
+document.getElementById("tempo");
+
+const abrir =
+document.getElementById("abrir");
+
+atualizarContador();
+
+setInterval(
+  atualizarContador,
+  1000
+);
+function atualizarContador(){
+
+  if(modoTeste){
+
+    abrir.innerHTML = `
+      🎁<br>
+      Toque para abrir sua surpresa
+    `;
+
+    abrir.onclick = iniciarFesta;
+
+    return;
+  }
+
+  // restante do contador...
+}
+
+
+
+
+
+let indice = 0;
+
+abrir.addEventListener(
+  "click",
+  iniciarFesta
+);
+
+function iniciarFesta(){
+
+
+/*  const hoje = new Date();
+
+  // Ano, mês (0=jan) e dia
+  const dataLiberacao =
+  new Date(2026, 5, 25);
+
+  if(hoje < dataLiberacao){
+
+    alert(
+      "🎁 A surpresa só poderá ser aberta em 25/06/2026."
+    );
+
+    return;
+  }*/
+
+  const musica =
+  document.getElementById("musica");
+
+  musica.play().catch(()=>{});
+
+  cortina.classList.add("abrir");
+
+  setTimeout(()=>{
+    titulo.classList.add("mostrar");
+  },1500);
+
+  setTimeout(()=>{
+    mensagem.classList.add("mostrar");
+  },2500);
+
+  setTimeout(()=>{
+    slide.classList.add("mostrar");
+    iniciarSlides();
+  },3500);
+
+}
+
+function iniciarSlides(){
+
+  slide.src = imagens[0];
+
+  const intervalo = setInterval(()=>{
+
+    if(indice < imagens.length - 1){
+
+      indice++;
+
+      slide.classList.remove("mostrar");
+
+      setTimeout(()=>{
+
+        slide.src = imagens[indice];
+
+        slide.classList.add("mostrar");
+
+      },300);
+
+    }else{
+
+      clearInterval(intervalo);
+
+      setTimeout(()=>{
+
+        mensagemFinal.classList.add("mostrar");
+
+      },4000);
+
+    }
+
+  },4000);
+
+}
+    
+    document
+.getElementById("btnResgatar")
+?.addEventListener("click", ()=>{
+
+  const mensagem = encodeURIComponent(
+    "Olá! Recebi o Vale Corte de R$ 100,00 pelo site de aniversário e gostaria de resgatar."
+  );
+
+  window.open(
+    `https://wa.me/5581986919155?text=${mensagem}`,
+    "_blank"
+  );
+
+});
+    
+    
+  </script>
+
+</body>
+<!-- function atualizarContador(){
+
+  const agora =
+  new Date();
+
+  const diferenca =
+  dataLiberacao - agora;
+
+  if(diferenca <= 0){
+
+    abrir.innerHTML = `
+      🎁<br>
+      Toque para abrir sua surpresa
+    `;
+
+    abrir.onclick =
+    iniciarFesta;
+
+    return;
+  }
+
+  const dias =
+  Math.floor(
+    diferenca /
+    (1000 * 60 * 60 * 24)
+  );
+
+  const horas =
+  Math.floor(
+    (diferenca %
+    (1000 * 60 * 60 * 24))
+    /
+    (1000 * 60 * 60)
+  );
+
+  const minutos =
+  Math.floor(
+    (diferenca %
+    (1000 * 60 * 60))
+    /
+    (1000 * 60)
+  );
+
+  const segundos =
+  Math.floor(
+    (diferenca %
+    (1000 * 60))
+    /
+    1000
+  );
+
+  tempo.innerHTML = `
+    ${dias}d
+    ${horas}h
+    ${minutos}m
+    ${segundos}s
+  `;
+}-->
+</html>
