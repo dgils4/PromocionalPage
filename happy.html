@@ -125,19 +125,7 @@ body{
   opacity:0;
 }
 
-#slide{
-  width:90vw;
-  max-width:350px;
 
-  height:60vh;
-  object-fit:cover;
-
-  border-radius:20px;
-
-  margin-top:20px;
-
-  opacity:0;
-}
 
 #mensagemFinal{
 
@@ -245,6 +233,17 @@ body{
   }
 
 }
+#slide{
+  width:90vw;
+  max-width:350px;
+  height:60vh;
+  object-fit:cover;
+  border-radius:20px;
+  margin-top:20px;
+  opacity:0;
+
+  transition:opacity .5s;
+}
 </style>
 </head>
 
@@ -265,7 +264,7 @@ body{
 
   <div id="abrir">
 
-  <div id="contador">
+  <div id="contador" onclick="iniciarFesta()">
 
     🔒<br><br>
 
@@ -329,7 +328,7 @@ body{
   </main>
 
   <script>
-    const modoTeste = true;
+    const modoTeste = false;
    const imagens = [
   "imagens/im1.jpg",
   "imagens/im2.jpg",
@@ -376,130 +375,6 @@ setInterval(
   1000
 );
 function atualizarContador(){
-
-  if(modoTeste){
-
-    abrir.innerHTML = `
-      🎁<br>
-      Toque para abrir sua surpresa
-    `;
-
-    abrir.onclick = iniciarFesta;
-
-    return;
-  }
-
-  // restante do contador...
-}
-
-
-
-
-
-let indice = 0;
-
-
-
-function iniciarFesta(){
-
-
-/*  const hoje = new Date();
-
-  // Ano, mês (0=jan) e dia
-  const dataLiberacao =
-  new Date(2026, 5, 25);
-
-  if(hoje < dataLiberacao){
-
-    alert(
-      "🎁 A surpresa só poderá ser aberta em 25/06/2026."
-    );
-
-    return;
-  }*/
-
-  const musica =
-  document.getElementById("musica");
-
-  musica.play().catch(()=>{});
-
-  cortina.classList.add("abrir");
-
-  setTimeout(()=>{
-    titulo.classList.add("mostrar");
-  },1500);
-
-  setTimeout(()=>{
-    mensagem.classList.add("mostrar");
-  },2500);
-
-  setTimeout(()=>{
-    slide.classList.add("mostrar");
-    iniciarSlides();
-  },3500);
-
-}
-
-function iniciarSlides(){
-
-  slide.src = imagens[0];
-
-  const intervalo = setInterval(()=>{
-
-    if(indice < imagens.length - 1){
-
-      indice++;
-
-      slide.classList.remove("mostrar");
-
-      setTimeout(()=>{
-
-        slide.src = imagens[indice];
-
-        slide.classList.add("mostrar");
-
-      },300);
-
-    }else{
-
-      clearInterval(intervalo);
-
-      setTimeout(()=>{
-
-        mensagemFinal.classList.add("mostrar");
-
-      },4000);
-
-    }
-
-  },4000);
-
-}
-    
-    document
-.getElementById("btnResgatar")
-?.addEventListener("click", ()=>{
-
-
-  musica.pause();
-  musica.currentTime = 0;
-mensagemFinal.classList.remove("mostrar");
-  const mensagem = encodeURIComponent(
-    "Olá! Recebi o Vale Corte de R$ 100,00 pelo site de aniversário e gostaria de resgatar."
-  );
-
-  window.open(
-    `https://wa.me/5581986919155?text=${mensagem}`,
-    "_blank"
-  );
-
-});
-    
-    
-  </script>
-
-</body>
-<!-- function atualizarContador(){
 
   const agora =
   new Date();
@@ -556,5 +431,121 @@ mensagemFinal.classList.remove("mostrar");
     ${minutos}m
     ${segundos}s
   `;
-}-->
+}
+
+
+
+
+
+let indice = 0;
+
+
+
+function iniciarFesta(){
+
+
+  const hoje = new Date();
+
+  // Ano, mês (0=jan) e dia
+  const dataLiberacao =
+  new Date(2026, 5, 25);
+
+  if(hoje < dataLiberacao){
+
+    alert(
+      "🎁 A surpresa só poderá ser aberta em 25/06/2026."
+    );
+
+    return;
+  }
+
+  const musica =
+  document.getElementById("musica");
+
+  musica.play().catch(()=>{});
+
+  cortina.classList.add("abrir");
+
+  setTimeout(()=>{
+    titulo.classList.add("mostrar");
+  },1500);
+
+  setTimeout(()=>{
+    mensagem.classList.add("mostrar");
+  },2500);
+
+  setTimeout(()=>{
+    slide.classList.add("mostrar");
+    iniciarSlides();
+  },3500);
+
+}
+
+function iniciarSlides(){
+
+  indice = 0;
+
+  slide.src = imagens[0];
+
+  const intervalo = setInterval(()=>{
+
+    if(indice < imagens.length - 1){
+
+      // some a imagem atual
+      slide.style.opacity = "0";
+
+      setTimeout(()=>{
+
+        // só troca quando estiver invisível
+        indice++;
+
+        slide.src = imagens[indice];
+
+        // reaparece com a nova imagem
+        slide.style.opacity = "1";
+
+      },500);
+
+    }else{
+
+      clearInterval(intervalo);
+
+      setTimeout(()=>{
+
+        mensagemFinal.classList.add("mostrar");
+
+      },4000);
+
+    }
+
+  },4000);
+
+}
+
+
+    
+    document
+.getElementById("btnResgatar")
+?.addEventListener("click", ()=>{
+
+
+  musica.pause();
+  musica.currentTime = 0;
+mensagemFinal.classList.remove("mostrar");
+  const mensagem = encodeURIComponent(
+    "Olá! Recebi o Vale Corte de R$ 100,00 pelo site de aniversário e gostaria de resgatar."
+  );
+
+  window.open(
+    `https://wa.me/5581986919155?text=${mensagem}`,
+    "_blank"
+  );
+
+});
+    
+    
+  </script>
+
+</body>
+
 </html>
