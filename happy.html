@@ -398,10 +398,7 @@ function atualizarContador(){
 
 let indice = 0;
 
-abrir.addEventListener(
-  "click",
-  iniciarFesta
-);
+
 
 function iniciarFesta(){
 
@@ -483,6 +480,10 @@ function iniciarSlides(){
 .getElementById("btnResgatar")
 ?.addEventListener("click", ()=>{
 
+
+  musica.pause();
+  musica.currentTime = 0;
+mensagemFinal.classList.remove("mostrar");
   const mensagem = encodeURIComponent(
     "Olá! Recebi o Vale Corte de R$ 100,00 pelo site de aniversário e gostaria de resgatar."
   );
