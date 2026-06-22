@@ -1144,6 +1144,11 @@ style="display:none">
   </div>
 
   <div class="conteudoTela">
+    
+<button onclick="abrirConfigEmpresa()">
+      🏢 Empresa / Pix
+    </button>
+
 
     <button onclick="backupCSV()">
       📁 Backup CSV
@@ -1156,6 +1161,62 @@ style="display:none">
   </div>
 
 </div>
+
+<div id="telaConfigEmpresa" class="telaSistema" style="display:none;">
+
+  <div class="topTela">
+
+    <button onclick="fecharTelaConfig()">
+      ← Voltar
+    </button>
+
+    <h2>🏢 Configuração da Empresa</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <label>Nome da Empresa</label>
+    <input id="nomeEmpresa" type="text">
+
+    <label>Chave Pix</label>
+    <input id="chavePix" type="text">
+
+    <label>Tipo Pix</label>
+    <input id="tipoPix" type="text">
+
+    <label>Nome do Recebedor</label>
+    <input id="nomeRecebedor" type="text">
+
+    <label>WhatsApp</label>
+    <input id="whatsappConfig" type="text">
+
+    <label>Email</label>
+    <input id="emailConfig" type="text">
+
+    <label>Link Pagamento</label>
+    <input id="linkPagamento" type="text">
+
+
+    <button onclick="salvarConfiguracoes()" style="
+      width:100%;
+      margin-top:15px;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#16a34a;
+      color:#fff;
+      font-weight:700;
+    ">
+      💾 Salvar
+    </button>
+
+  </div>
+
+</div>
+
+
+
 
 <div id="telaPlayer" class="telaSistema">
 
@@ -3209,45 +3270,53 @@ async function abrirVencimentos(){
 
 async function cobrarCliente(nome){
 
+  // 🔎 busca cliente
   const { data, error } = await db
-  .from("clientes")
-  .select("telefone")
-  .eq("nome", nome)
-  .single();
+    .from("clientes")
+    .select("telefone")
+    .eq("nome", nome)
+    .single();
 
   if(error || !data){
-
-    mostrarToast(
-      "Cliente não encontrado"
-    );
-
+    mostrarToast("Cliente não encontrado");
     return;
   }
 
-  const telefone =
-  (data.telefone || "")
-  .replace(/\D/g,'');
+  const telefone = (data.telefone || "").replace(/\D/g,'');
 
-  if(
-    !telefone ||
-    telefone === "0"
-  ){
-
-    mostrarToast(
-      "Telefone não cadastrado"
-    );
-
+  if(!telefone){
+    mostrarToast("Telefone não cadastrado");
     return;
   }
 
-  const mensagem =
-`Olá ${nome}, seu plano da barbearia venceu.`;
+  // 🔎 busca config da empresa
+  const config = await getConfiguracao();
 
-  const url =
-`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+  const empresa = config?.nome_empresa || "Empresa";
+  const chavePix = config?.chave_pix || "";
+  const recebedor = config?.nome_recebedor || "";
+  const linkPagamento = config?.link_pagamento || "";
+
+  // 💬 mensagem completa
+  const mensagem = `
+Olá ${nome},
+
+Aqui é da ${empresa}.
+
+Identificamos que seu plano está em aberto.
+
+💳 Dados para pagamento:
+PIX: ${chavePix}
+Recebedor: ${recebedor}
+${linkPagamento ? `\n🔗 Link de pagamento:\n${linkPagamento}` : ""}
+
+Qualquer dúvida estou à disposição.
+`;
+
+  // 📲 abre WhatsApp direto com o número do cliente
+  const url = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
 
   window.open(url, "_blank");
-
 }
 
 
@@ -3311,6 +3380,7 @@ function fecharTela(id){
   document
   .getElementById(id)
   .classList.remove("ativa");
+  
 
 }
 
@@ -5411,6 +5481,135 @@ function fecharPlayerTV(){
     "bolhaPlayer"
   ).style.display = "flex";
 
+}
+function abrirConfig(){
+  abrirTela("telaConfig");
+}
+
+function abrirConfigEmpresa(){
+document.getElementById("telaConfigEmpresa").style.display = "block";
+  carregarConfiguracoes();
+}
+
+function fecharTelaConfig(){
+
+  const tela = document.getElementById("telaConfigEmpresa");
+
+  if(!tela){
+    console.log("TelaConfigEmpresa não encontrada");
+    return;
+  }
+
+  tela.style.display = "none";
+}
+
+async function getConfiguracao(){
+
+  const { data, error } = await db
+    .from("configuracoes_empresa")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+
+  if(error || !data){
+    console.log(error);
+    return null;
+  }
+
+  return data;
+}
+
+async function carregarConfiguracoes(){
+
+  const { data, error } = await db
+    .from("configuracoes_empresa")
+    .select("*")
+    .limit(1)
+    .single();
+
+  if(error || !data){
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("nomeEmpresa").value = data.nome_empresa || "";
+  document.getElementById("chavePix").value = data.chave_pix || "";
+  document.getElementById("tipoPix").value = data.tipo_pix || "";
+  document.getElementById("nomeRecebedor").value = data.nome_recebedor || "";
+  document.getElementById("whatsappConfig").value = data.whatsapp || "";
+  document.getElementById("emailConfig").value = data.email || "";
+  document.getElementById("linkPagamento").value = data.link_pagamento || "";
+ 
+}
+
+async function salvarConfiguracoes(){
+
+  const nome_empresa = document.getElementById("nomeEmpresa").value;
+  const chave_pix = document.getElementById("chavePix").value;
+  const tipo_pix = document.getElementById("tipoPix").value;
+  const nome_recebedor = document.getElementById("nomeRecebedor").value;
+  const whatsapp = document.getElementById("whatsappConfig").value;
+  const email = document.getElementById("emailConfig").value;
+  const link_pagamento = document.getElementById("linkPagamento").value;
+
+  // 🔎 busca se já existe configuração
+  const { data, error: err1 } = await db
+    .from("configuracoes_empresa")
+    .select("id")
+    .limit(1)
+    .maybeSingle();
+
+  if(err1){
+    console.log(err1);
+    alert(err1.message);
+    return;
+  }
+
+  // 🟢 SE NÃO EXISTE → INSERE
+  if(!data){
+
+    const { error } = await db
+      .from("configuracoes_empresa")
+      .insert([{
+        nome_empresa,
+        chave_pix,
+        tipo_pix,
+        nome_recebedor,
+        whatsapp,
+        email,
+        link_pagamento
+      }]);
+
+    if(error){
+      console.log(error);
+      alert(error.message);
+      return;
+    }
+
+  } else {
+
+    // 🟡 SE EXISTE → ATUALIZA
+    const { error } = await db
+      .from("configuracoes_empresa")
+      .update({
+        nome_empresa,
+        chave_pix,
+        tipo_pix,
+        nome_recebedor,
+        whatsapp,
+        email,
+        link_pagamento
+      })
+      .eq("id", data.id);
+
+    if(error){
+      console.log(error);
+      alert(error.message);
+      return;
+    }
+  }
+
+  alert("Configurações salvas com sucesso");
 }
 
 
