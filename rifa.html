@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Rifa</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#f4f4f4;
+font-family:Arial,sans-serif;
+}
+
+header{
+
+background:#2563eb;
+color:#fff;
+padding:18px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+
+}
+
+.container{
+
+max-width:700px;
+margin:auto;
+padding:20px;
+
+}
+
+.card{
+
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 5px 15px rgba(0,0,0,.12);
+
+}
+
+.card img{
+
+width:100%;
+height:260px;
+object-fit:cover;
+
+}
+
+.info{
+
+padding:20px;
+
+}
+
+.valor{
+
+font-size:28px;
+font-weight:bold;
+color:#16a34a;
+margin:15px 0;
+
+}
+
+.progresso{
+
+height:12px;
+background:#ddd;
+border-radius:20px;
+overflow:hidden;
+
+}
+
+.barra{
+
+height:100%;
+background:#22c55e;
+
+}
+
+#grade{
+
+display:grid;
+
+grid-template-columns:
+repeat(5,1fr);
+
+gap:10px;
+
+margin-top:20px;
+
+}
+
+.numero{
+
+height:55px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+border-radius:10px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+.disponivel{
+
+background:#22c55e;
+color:white;
+
+}
+
+.reservado{
+
+background:#facc15;
+
+}
+
+.pago{
+
+background:#ef4444;
+color:white;
+
+}
+
+.selecionado{
+
+background:#2563eb;
+color:white;
+
+}
+
+#resumo{
+
+margin-top:20px;
+
+padding:15px;
+
+background:white;
+
+border-radius:10px;
+
+}
+
+.btn{
+
+width:100%;
+
+margin-top:15px;
+
+padding:15px;
+
+border:none;
+
+background:#2563eb;
+
+color:white;
+
+font-size:18px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+}
+
+.modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,.6);
+
+  display: none; /* importante */
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.caixa{
+  width: 90%;
+  max-width: 400px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+
+.caixa h3{
+  margin-bottom: 10px;
+}
+
+.caixa input{
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.caixa button{
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+
+  cursor: pointer;
+  
+  
+}
+
+
+
+.aviso{
+  background: #fff3cd;
+  color: #856404;
+
+  padding: 10px;
+  border-radius: 8px;
+
+  font-size: 13px;
+  margin: 10px 0;
+}
+.fecharModal{
+  position: absolute;
+  top: 10px;
+  right: 12px;
+
+  background: transparent;
+  border: none;
+padding: 1px 5px;
+  font-size: 22px;
+  cursor: pointer;
+border: solid 1px #fff;
+  color: #fff;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+🎟️ Rifa Online
+
+</header>
+
+<div class="container">
+
+<div
+id="dados">
+
+Carregando...
+
+</div>
+
+<div
+id="grade">
+
+</div>
+
+<div
+id="resumo">
+
+Selecionados:
+<span id="qtd">0</span>
+
+<br><br>
+
+Total:
+
+R$
+
+<span id="total">0,00</span>
+
+<button
+class="btn"
+onclick="continuarCompra()">
+
+Continuar
+
+</button>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+
+const db =
+supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+</script>
+
+
+<script>
+  const params =
+new URLSearchParams(
+window.location.search
+);
+
+const rifaId =
+params.get("id");
+
+let valorNumero = 0;
+
+let selecionados = [];
+
+carregarRifa();
+
+async function carregarRifa(){
+
+  const { data: rifa, error } =
+  await db
+  .from("rifas")
+  .select("*")
+  .eq("id", rifaId)
+  .single();
+
+ if(error){
+  aviso("Rifa não encontrada. Redirecionando...");
+
+  setTimeout(() => {
+    window.location.href = "rifa0.html";
+  }, 2000);
+
+  return;
+}
+
+  valorNumero =
+  Number(rifa.valor_numero);
+
+  // quantidade vendida
+  const { count } =
+  await db
+  .from("rifa_numeros")
+  .select("*",{
+    count:"exact",
+    head:true
+  })
+  .eq("rifa_id",rifaId)
+  .eq("status","Pago");
+
+  const porcentagem =
+  Math.round(
+    (count||0) *
+    100 /
+    rifa.quantidade_numeros
+  );
+
+  document
+  .getElementById("dados")
+  .innerHTML = `
+
+<div class="card">
+
+<img src="${rifa.imagem}">
+
+<div class="info">
+
+<h2>${rifa.titulo}</h2>
+
+<p>${rifa.descricao}</p>
+
+<div class="valor">
+
+R$ ${valorNumero.toFixed(2)}
+
+</div>
+
+<div class="progresso">
+
+<div
+class="barra"
+style="width:${porcentagem}%">
+</div>
+
+</div>
+
+<br>
+
+${count||0}
+de
+${rifa.quantidade_numeros}
+vendidos
+
+</div>
+
+</div>
+
+`;
+
+ 
+
+carregarNumeros();
+
+}
+
+async function carregarNumeros(){
+
+  const grade =
+  document.getElementById("grade");
+
+  grade.innerHTML = "";
+
+  const { data } =
+  await db
+  .from("rifa_numeros")
+  .select("*")
+  .eq("rifa_id",rifaId)
+  .order("numero");
+
+  data.forEach(item=>{
+
+    let classe =
+    "disponivel";
+
+    if(item.status=="Reservado")
+      classe="reservado";
+
+    if(item.status=="Pago")
+      classe="pago";
+
+    grade.innerHTML += `
+
+
+  <div
+    class="numero ${classe}"
+    onclick="clicarNumero(${item.numero}, '${item.status}')"
+  >
+    ${item.numero}
+  </div>
+
+
+`;
+
+  });
+
+}
+
+
+
+function atualizarResumo(){
+
+  document
+  .getElementById("qtd")
+  .innerText =
+  selecionados.length;
+
+  document
+  .getElementById("total")
+  .innerText =
+  (
+    selecionados.length *
+    valorNumero
+  ).toFixed(2);
+
+}
+
+
+
+async function continuarCompra(){
+
+  if(selecionados.length == 0){
+    alert("Escolha pelo menos um número.");
+    return;
+  }
+
+  document.getElementById("modalCompra").style.display = "flex";
+}
+
+
+async function confirmarCompra(){
+
+  const nome = document.getElementById("nomeCliente").value.trim();
+  const telefone = document.getElementById("telefoneCliente").value.trim();
+
+  if(!nome){
+    aviso("Informe o nome");
+    return;
+  }
+
+  if(!telefone){
+    aviso("Informe o telefone");
+    return;
+  }
+
+  const reservaId = crypto.randomUUID();
+
+  for(const numero of selecionados){
+
+    const { data } = await db
+      .from("rifa_numeros")
+      .update({
+        status: "Reservado",
+        nome_cliente: nome,
+        telefone: telefone,
+        reserva_id: reservaId,
+        reservado_em: new Date().toISOString()
+      })
+      .eq("rifa_id", rifaId)
+      .eq("numero", numero)
+      .eq("status", "Disponivel")
+      .select();
+
+    if(!data || data.length === 0){
+      alert("Um número já foi reservado. Atualize a página.");
+      return;
+    }
+  }
+
+  // fecha modal
+  document.getElementById("modalCompra").style.display = "none";
+
+  // limpa seleção
+  selecionados = [];
+  atualizarResumo();
+
+  // vai pro pagamento
+  window.location.href = `pagamento.html?reserva=${reservaId}`;
+}
+
+let avisoAtivo = null;
+
+function aviso(msg){
+
+  if(avisoAtivo){
+    avisoAtivo.remove();
+  }
+
+  const div = document.createElement("div");
+  div.innerText = msg;
+
+  div.style = `
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#000;
+    color:#fff;
+    padding:12px 20px;
+    border-radius:10px;
+    z-index:9999;
+    font-size:14px;
+  `;
+
+  document.body.appendChild(div);
+
+  avisoAtivo = div;
+
+  setTimeout(() => {
+    div.remove();
+    avisoAtivo = null;
+  }, 2500);
+}
+
+function piscarNumero(el){
+  el.style.transition = "0.2s";
+  el.style.transform = "scale(1.1)";
+  setTimeout(() => {
+    el.style.transform = "scale(1)";
+  }, 150);
+}
+
+function clicarNumero(numero, status){
+
+  if(status === "Reservado"){
+   aviso("Número já está reservado");
+piscarNumero(el);
+    return;
+  }
+
+  if(status === "Pago"){
+    aviso("Número já foi vendido");
+piscarNumero(el);
+    return;
+  }
+
+  // só aqui deixa selecionar
+  selecionarNumeroPorClique(numero);
+}
+
+function selecionarNumeroPorClique(numero){
+
+  const el = [...document.querySelectorAll(".numero")]
+    .find(e => e.innerText == numero);
+
+  if(!el) return;
+
+  if(selecionados.includes(numero)){
+
+    selecionados = selecionados.filter(n => n != numero);
+    el.classList.remove("selecionado");
+
+  } else {
+
+    selecionados.push(numero);
+    el.classList.add("selecionado");
+  }
+
+  atualizarResumo();
+}
+function fecharModal(){
+  document.getElementById("modalCompra").style.display = "none";
+}
+
+
+</script>
+
+
+<div id="modalCompra" style="display:none" class="modal">
+
+  <div class="caixa">
+<div class="fecharModal" onclick="fecharModal()">×</div>
+    <h3>Finalizar compra</h3>
+
+    <div class="aviso">
+      ⚠️ Informe os dados do titular que fará o pagamento
+    </div>
+
+    <input id="nomeCliente" placeholder="Nome completo">
+    <input id="telefoneCliente" placeholder="Telefone">
+
+    <button onclick="confirmarCompra()">
+      Confirmar compra
+    </button>
+
+  </div>
+
+</div>
+
+
+</body>
+
+</html>
