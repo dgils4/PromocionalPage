@@ -856,6 +856,47 @@ color: black;
   border:2px solid #f59e0b;
   box-shadow:0 0 12px rgba(245,158,11,.4);
 }
+
+.cardPlano{
+
+    
+    border-radius:12px;
+    padding:15px;
+    margin-top:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+
+}
+
+.tituloPlano{
+
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:8px;
+
+}
+
+.subPlano{
+
+    color:#555;
+    margin-bottom:10px;
+
+}
+
+.precoPlano{
+
+    color:#2b8a3e;
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:10px;
+
+}
+
+.statusPlano{
+
+    font-weight:bold;
+
+}
+
 </style>
 
 </head>
@@ -880,6 +921,34 @@ color: black;
     <p>Inicializando sistema...</p>
 
   </div></div>
+  
+ <div id="telaRifa" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaRifa')">
+      ← Voltar
+    </button>
+
+    <h2>🎟️ Rifas</h2>
+
+  </div>
+
+  <div class="conteudoTela" style="padding:0px">
+
+    <iframe
+      src="https://www.barbearialosvisionarios.com.br/rifadm.html"
+      style="
+        width:100%;
+        height:calc(100vh - 70px);
+        border:none;
+      ">
+    </iframe>
+
+  </div>
+
+</div> 
+  
   
   <!-- ========================= -->
 <!-- 📊 TELA FATURAMENTO -->
@@ -1144,9 +1213,13 @@ style="display:none">
   </div>
 
   <div class="conteudoTela">
+   
+<button onclick="abrirConfigPlanos()">
+      🏢 Site / Planos
+    </button>   
     
 <button onclick="abrirConfigEmpresa()">
-      🏢 Empresa / Pix
+      🏢 Empresa / config
     </button>
 
 
@@ -1161,6 +1234,7 @@ style="display:none">
   </div>
 
 </div>
+
 
 <div id="telaConfigEmpresa" class="telaSistema" style="display:none;">
 
@@ -1212,6 +1286,98 @@ style="display:none">
     </button>
 
   </div>
+
+</div>
+
+
+
+<div id="telaConfigPlanos" class="telaSistema" style="display:none;">
+
+  <div class="topTela">
+
+    <button onclick="fecharTelaConfigPlanos()">
+      ← Voltar
+    </button>
+
+    <h2>Planos do Site</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+<label for="planoNome">Nome do Plano</label>
+<input
+id="planoNome"
+type="text"
+placeholder="Ex.: Plano Premium">
+
+<label for="planoSubtitulo">Subtítulo</label>
+<input
+id="planoSubtitulo"
+type="text"
+placeholder="Ex.: Combo Cabelo e Barba">
+
+<label for="planoDescricao">Benefícios do Plano</label>
+<textarea
+id="planoDescricao"
+rows="6"
+placeholder="Digite um benefício por linha.
+
+Exemplo:
+Até 4 cortes mensais
+Sobrancelha inclusa
+20% de desconto em depilação
+Visual sempre em dia"></textarea>
+
+<label for="planoPreco">Preço</label>
+<input
+id="planoPreco"
+type="text"
+placeholder="Ex.: R$ 64,99">
+
+<label for="planoLinkPagamento">Link de Pagamento</label>
+<input
+id="planoLinkPagamento"
+type="url"
+placeholder="Cole aqui o link do Mercado Pago">
+
+<label for="planoLinkDetalhes">Link 'Mais Detalhes'</label>
+<input
+id="planoLinkDetalhes"
+type="text"
+placeholder="Ex.: RegrasPlano.html">
+
+<label for="planoOrdem">Ordem de Exibição</label>
+<input
+id="planoOrdem"
+type="number"
+placeholder="1">
+
+<label class="checkPlano">
+<input
+id="planoAtivo"
+type="checkbox"
+checked>
+
+Plano disponível no site
+</label>
+
+<button onclick="salvarPlano()">
+💾 Salvar Plano
+</button>
+    
+
+
+  </div>
+<hr>
+
+<h2>
+📦 Planos Cadastrados
+<span id="totalPlanos">(0)</span>
+</h2>
+
+<div id="listaPlanos"></div>
+
 
 </div>
 
@@ -1455,6 +1621,10 @@ style="display:none">
   🎁 Fidelidade
 </button>
 
+<button onclick="abrirTelaRifa()">
+  🎟️ Rifa
+</button>
+
   <button onclick="abrirConfig()">
     ⚙️ Configurações
   </button>
@@ -1639,7 +1809,7 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
-  let tocandoAnuncio = false;
+let tocandoAnuncio = false;
 let contadorMusicas = 0;
 let reproduzindoTemporario = false;
 let indiceAnterior = 0;
@@ -1648,9 +1818,10 @@ let listaAtual = null;
 let listaConfigAtual = null;
 let diaSelecionado = 0;
 let listasDoDia = [];
-
+let planoEditando = null;
 let indiceListaAtual = 0;
-let listaExcluirId = null;  
+let listaExcluirId = null; 
+let tempoExcluirPlano;
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
      somSucesso.preload = "auto";
@@ -3401,6 +3572,10 @@ function toggleMenu(){
 // ABRIR HOJE
 // =========================
 
+
+
+
+
 function abrirHoje(){
 
   document
@@ -3424,6 +3599,15 @@ function abrirHoje(){
   carregarHoje();
 
 }
+
+function abrirTelaRifa(){
+abrirTela("telaRifa");
+
+}
+
+
+
+
 
 // =========================
 // ABRIR FATURAMENTO
@@ -5486,6 +5670,26 @@ function abrirConfig(){
   abrirTela("telaConfig");
 }
 
+
+
+
+function abrirConfigPlanos(){
+document.getElementById("telaConfigPlanos").style.display = "block";
+  
+}
+
+function fecharTelaConfigPlanos(){
+
+  const tela = document.getElementById("telaConfigPlanos");
+
+  if(!tela){
+    console.log("TelaConfigEmpresaPlanos não encontrada");
+    return;
+  }
+
+  tela.style.display = "none";
+}
+
 function abrirConfigEmpresa(){
 document.getElementById("telaConfigEmpresa").style.display = "block";
   carregarConfiguracoes();
@@ -5613,13 +5817,283 @@ async function salvarConfiguracoes(){
 }
 
 
+async function salvarPlano(){
 
+  const nome =
+  document.getElementById("planoNome").value.trim();
+
+  const subtitulo =
+  document.getElementById("planoSubtitulo").value.trim();
+
+  const descricao =
+  document.getElementById("planoDescricao").value.trim();
+
+  const preco =
+  document.getElementById("planoPreco").value.trim();
+
+  const linkPagamento =
+  document.getElementById("planoLinkPagamento").value.trim();
+
+  const linkDetalhes =
+  document.getElementById("planoLinkDetalhes").value.trim();
+
+  const ordem =
+  Number(document.getElementById("planoOrdem").value) || 0;
+
+  const ativo =
+  document.getElementById("planoAtivo").checked;
+
+  // Validações
+
+  if(nome === ""){
+    alert("Informe o nome do plano.");
+    return;
+  }
+
+  if(subtitulo === ""){
+    alert("Informe o subtítulo.");
+    return;
+  }
+
+  if(descricao === ""){
+    alert("Informe a descrição do plano.");
+    return;
+  }
+
+  if(preco === ""){
+    alert("Informe o preço.");
+    return;
+  }
+
+  if(linkPagamento === ""){
+    alert("Informe o link de pagamento.");
+    return;
+  }
+
+if(planoEditando){
+
+    const { error } = await db
+    .from("planos_site")
+    .update({
+
+        nome,
+        subtitulo,
+        descricao,
+        preco,
+        link_pagamento: linkPagamento,
+        link_detalhes: linkDetalhes,
+        ordem,
+        ativo
+
+    })
+    .eq("id", planoEditando);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("Plano atualizado!");
+
+    planoEditando = null;
+
+}else{
+
+    const { error } = await db
+    .from("planos_site")
+    .insert([{
+
+        nome,
+        subtitulo,
+        descricao,
+        preco,
+        link_pagamento: linkPagamento,
+        link_detalhes: linkDetalhes,
+        ordem,
+        ativo
+
+    }]);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("Plano salvo!");
+
+}
+
+  limparFormularioPlano();
+
+  carregarPlanos();
+
+}
+
+function limparFormularioPlano(){
+
+  document.getElementById("planoNome").value = "";
+  document.getElementById("planoSubtitulo").value = "";
+  document.getElementById("planoDescricao").value = "";
+  document.getElementById("planoPreco").value = "";
+  document.getElementById("planoLinkPagamento").value = "";
+  document.getElementById("planoLinkDetalhes").value = "";
+  document.getElementById("planoOrdem").value = "";
+  document.getElementById("planoAtivo").checked = true;
+  carregarPlanos();
+}
+
+async function carregarPlanos(){
+
+  const { data, error } = await db
+  .from("planos_site")
+  .select("*")
+  .order("ordem");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("totalPlanos").textContent =
+  `(${data.length})`;
+
+  const lista =
+  document.getElementById("listaPlanos");
+
+  lista.innerHTML = "";
+
+  data.forEach(plano=>{
+
+    lista.innerHTML += `
+     <div
+class="cardPlano"
+onclick="editarPlano(${plano.id})"
+ontouchstart="iniciarExcluirPlano(${plano.id})"
+ontouchend="cancelarExcluirPlano()"
+ontouchcancel="cancelarExcluirPlano()"
+
+onmousedown="iniciarExcluirPlano(${plano.id})"
+onmouseup="cancelarExcluirPlano()"
+onmouseleave="cancelarExcluirPlano()">
+
+
+
+        <div class="tituloPlano">
+          ${plano.nome}
+        </div>
+
+        <div class="subPlano">
+          ${plano.subtitulo}
+        </div>
+
+        <div class="precoPlano">
+          ${plano.preco}
+        </div>
+
+        <div class="statusPlano">
+          ${plano.ativo ? "🟢 Ativo" : "🔴 Inativo"}
+        </div>
+
+      </div>
+    `;
+
+  });
+
+}
+
+
+
+
+
+async function editarPlano(id){
+
+    const { data, error } = await db
+    .from("planos_site")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+    if(error) return;
+
+    planoEditando = id;
+
+    document.getElementById("planoNome").value = data.nome;
+    document.getElementById("planoSubtitulo").value = data.subtitulo;
+    document.getElementById("planoDescricao").value = data.descricao;
+    document.getElementById("planoPreco").value = data.preco;
+    document.getElementById("planoLinkPagamento").value = data.link_pagamento;
+    document.getElementById("planoLinkDetalhes").value = data.link_detalhes;
+    document.getElementById("planoOrdem").value = data.ordem;
+    document.getElementById("planoAtivo").checked = data.ativo;
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+function iniciarExcluirPlano(id){
+
+    tempoExcluirPlano = setTimeout(()=>{
+
+        if(confirm("Deseja excluir este plano?")){
+
+            excluirPlano(id);
+
+        }
+
+    },3000);
+
+}
+
+function cancelarExcluirPlano(){
+
+    clearTimeout(tempoExcluirPlano);
+
+}
+
+async function excluirPlano(id){
+
+    const { error } = await db
+    .from("planos_site")
+    .delete()
+    .eq("id",id);
+
+    if(error){
+
+        alert(error.message);
+        return;
+
+    }
+
+    if(planoEditando == id){
+
+        planoEditando = null;
+        limparFormularioPlano();
+
+    }
+
+    carregarPlanos();
+
+}
+
+
+
+carregarPlanos();
 carregarProfissionaisFiltro();
 carregarProfissionaisSelect();
 carregarProfissionaisCalendario();
 
 atualizarBadge();
-carregarHoje();
+
+setTimeout(()=>{
+
+carregarHoje();  
+
+},3000);
+
 
 setTimeout(()=>{
 
