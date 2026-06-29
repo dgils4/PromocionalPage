@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0">
+
+<title>Nova Rifa</title>
+
+<style>
+
+/* RESET */
+* {
+  margin:5px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  color: #111;
+  
+
+}
+
+/* LAYOUT */
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  
+  
+  
+}
+
+/* CARD */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+/* TITULOS */
+h2 {
+  margin-bottom: 15px;
+  font-size: 22px;
+}
+
+/* TEXTOS */
+p {
+  margin: 6px 0;
+  color: #444;
+  font-size: 15px;
+}
+
+/* INPUTS */
+input,
+textarea,
+select {
+  width: 98%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+/* BOTÕES PADRÃO */
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #2563eb;
+  color: #fff;
+  transition: .2s;
+}
+
+button:hover {
+  opacity: .9;
+  transform: scale(1.01);
+}
+
+/* VARIAÇÕES */
+.btnRifa {
+  background: #16a34a;
+}
+
+/* SIDEBAR */
+.btnMenu {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+  font-size: 24px;
+  padding:3px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 250px;
+  height: 100vh;
+  background: #222;
+  transition: .3s;
+  z-index: 1000;
+  padding-top: 20px;
+}
+
+.sidebar.ativo {
+  left: 0;
+}
+
+.sidebar h2 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.sidebar a:hover {
+  background: #333;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: none;
+  z-index: 999;
+}
+
+#overlay.ativo {
+  display: block;
+}
+
+/* GRID NUMEROS */
+#gradeNumeros {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.numero {
+  padding: 12px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.disponivel {
+  background: #53ff49;
+}
+
+.reservado {
+  background: #facc15;
+}
+
+.pago {
+  background: #ef4444;
+  color: #fff;
+}
+
+.premiado {
+  background: #f8d7da;
+}
+
+/* DASHBOARD */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.dashboardCard {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08);
+}
+
+.dashboardIcon {
+  font-size: 35px;
+  margin-bottom: 10px;
+}
+
+.dashboardTitulo {
+  font-size: 14px;
+  color: #666;
+}
+
+.dashboardNumero {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* LISTA */
+.rifaItem {
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+/* BOLAS SORTEIO */
+.caixa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.bola {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.bola.ativa {
+  background: gold;
+  transform: scale(1.2);
+}
+#conteudo{
+  padding-top:50px;
+}
+.miniaturaRifa{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:12px;
+  margin:15px 0;
+  border:1px solid #ddd;
+}
+
+</style>
+
+</head>
+<body>
+<button class="btnMenu" style="width:40px; height:40px"
+onclick="toggleMenu()">
+☰
+</button>
+
+<div id="sidebar" class="sidebar">
+
+  <h2>🎟️ Rifas</h2>
+
+<a href="#"
+onclick="abrirTela('dashboard')">
+📊 Dashboard
+</a>
+
+<a href="#"
+onclick="abrirTela('rifas')">
+🎟️ Rifas
+</a>
+
+<a href="#"
+onclick="abrirTela('participantes')">
+👥 Participantes
+</a>
+
+<a href="#"
+onclick="abrirTela('historico')">
+🏆 Histórico
+</a>
+
+</div>
+
+<div id="overlay"
+onclick="toggleMenu()">
+</div>
+
+<div id="conteudo">
+
+ 
+
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+
+const db =
+supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+</script>
+<script>
+
+const baseURL =
+"https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios";
+
+const somTick = new Audio(`${baseURL}/tick.mp3`);
+const somWin  = new Audio(`${baseURL}/win.mp3`);
+
+somTick.volume = 0.25;
+somWin.volume = 0.6;
+
+// 🔥 AQUI (logo depois dos áudios)
+function playSound(audio){
+
+  if(!audio) return;
+
+  try {
+    audio.pause();          // garante reset total
+    audio.currentTime = 0;
+
+    audio.play().catch(() => {});
+  } catch (e) {
+    console.log("erro áudio:", e);
+  }
+
+}
+
+
+ function toggleMenu(){
+
+  const menu =
+  document.getElementById(
+    "sidebar"
+  );
+
+  const overlay =
+  document.getElementById(
+    "overlay"
+  );
+
+  menu.classList.toggle(
+    "ativo"
+  );
+
+  overlay.classList.toggle(
+    "ativo"
+  );
+
+} 
+  
+  
+async function salvarRifa(){
+
+  const titulo =
+  document.getElementById("titulo").value.trim();
+
+  const descricao =
+  document.getElementById("descricao").value.trim();
+
+  const imagem =
+  document.getElementById("imagem").value.trim();
+
+  const valorNumero =
+  document.getElementById("valorNumero").value;
+
+  const quantidadeNumeros =
+  document.getElementById(
+    "quantidadeNumeros"
+  ).value;
+
+  const dataSorteio =
+  document.getElementById(
+    "dataSorteio"
+  ).value;
+
+  if(!titulo){
+    alert("Informe o título da rifa.");
+    return;
+  }
+
+  if(!descricao){
+    alert("Informe a descrição.");
+    return;
+  }
+
+  if(!imagem){
+    alert("Informe a imagem.");
+    return;
+  }
+
+  if(!valorNumero || Number(valorNumero) <= 0){
+    alert("Informe um valor válido.");
+    return;
+  }
+
+  if(!quantidadeNumeros ||
+     Number(quantidadeNumeros) <= 0){
+    alert("Informe a quantidade de números.");
+    return;
+  }
+
+  if(!dataSorteio){
+    alert("Informe a data do sorteio.");
+    return;
+  }
+
+const { data, error } =
+await db
+.from("rifas")
+.insert([{
+  titulo,
+  descricao,
+  imagem,
+  valor_numero: valorNumero,
+  quantidade_numeros: quantidadeNumeros,
+  data_sorteio: dataSorteio,
+  status: "Ativa"
+}])
+.select()
+.single();
+
+  if(error){
+    console.log(error);
+    alert("Erro ao salvar.");
+    return;
+  }
+
+  await gerarNumeros(
+    data.id,
+    quantidadeNumeros
+  );
+
+  alert("Rifa criada com sucesso!");
+  carregarRifas();
+  document.getElementById("titulo").value = "";
+
+document.getElementById("descricao").value = "";
+
+document.getElementById("imagem").value = "";
+
+document.getElementById("valorNumero").value = "";
+
+document.getElementById("quantidadeNumeros").value = "";
+
+document.getElementById("dataSorteio").value = "";
+}
+
+
+async function gerarNumeros(
+  rifaId,
+  quantidade
+){
+
+  const numeros = [];
+
+  for(
+    let i = 1;
+    i <= quantidade;
+    i++
+  ){
+
+    numeros.push({
+
+      rifa_id: rifaId,
+
+      numero: i,
+
+      status:
+      "Disponivel"
+
+    });
+
+  }
+
+  const { error } =
+  await db
+  .from("rifa_numeros")
+  .insert(numeros);
+
+  if(error){
+
+    console.log(error);
+
+  }
+
+}
+
+function abrirTela(tela){
+
+  const conteudo =
+  document.getElementById(
+    "conteudo"
+  );
+
+  if(tela === "dashboard"){
+
+conteudo.innerHTML = `
+
+<h2>📊 Dashboard</h2>
+
+<div class="dashboardGrid">
+
+  <div class="dashboardCard">
+    <div class="dashboardIcon">🎟️</div>
+    <div class="dashboardTitulo">Rifas</div>
+    <div
+      id="dashRifas"
+      class="dashboardNumero">
+      0
+    </div>
+  </div>
+
+  <div class="dashboardCard">
+    <div class="dashboardIcon">🔵</div>
+    <div class="dashboardTitulo">Pagos</div>
+    <div
+      id="dashPagos"
+      class="dashboardNumero">
+      0
+    </div>
+  </div>
+
+  <div class="dashboardCard">
+    <div class="dashboardIcon">🟡</div>
+    <div class="dashboardTitulo">Reservados</div>
+    <div
+      id="dashReservados"
+      class="dashboardNumero">
+      0
+    </div>
+  </div>
+
+  <div class="dashboardCard">
+    <div class="dashboardIcon">🏆</div>
+    <div class="dashboardTitulo">Sorteios</div>
+    <div
+      id="dashSorteios"
+      class="dashboardNumero">
+      0
+    </div>
+  </div>
+
+</div>
+
+`;
+carregarDashboard();
+  }
+
+  if(tela === "rifas"){
+
+    conteudo.innerHTML = `
+<div class="container">
+
+  <div class="card">
+
+    <h2>🎟️ Nova Rifa</h2>
+
+    <input
+      id="titulo"
+      placeholder="Título da rifa">
+
+    <textarea
+      id="descricao"
+      placeholder="Descrição">
+    </textarea>
+
+    <input
+      id="imagem"
+      placeholder="URL da imagem">
+
+    <input
+      id="valorNumero"
+      type="number"
+      step="0.01"
+      placeholder="Valor por número">
+
+    <input
+      id="quantidadeNumeros"
+      type="number"
+      placeholder="Quantidade de números">
+
+    <input
+      id="dataSorteio"
+      type="date">
+
+    <button class="btnRifa"
+      class="salvar"
+      onclick="salvarRifa()">
+      Salvar Rifa
+    </button>
+
+  </div>
+
+</div>
+
+    
+
+      <div
+        class="card"
+        style="margin-top:15px;">
+
+        <h2>
+          📋 Rifas Cadastradas
+        </h2>
+
+        <div id="listaRifas"></div>
+
+      </div>
+
+    </div>
+
+  `;
+
+  carregarRifas();
+
+}
+
+
+if(tela === "participantes"){
+
+  conteudo.innerHTML = `
+
+    <h2>👥 Participantes</h2>
+
+    <select
+      id="filtroRifa"
+      onchange="carregarParticipantes()">
+    </select>
+
+    <div id="listaParticipantes">
+      Selecione uma rifa.
+    </div>
+
+  `;
+
+  carregarFiltroRifas();
+
+}
+
+if(tela === "historico"){
+
+  conteudo.innerHTML = `
+    <h2>🏆 Histórico</h2>
+
+    <div id="listaHistorico">
+      Carregando...
+    </div>
+  `;
+
+  carregarHistorico();
+
+}
+
+  toggleMenu();
+
+}
+
+
+
+window.onload = () => {
+
+  abrirTela("dashboard");
+toggleMenu();
+};
+
+async function carregarRifas(){
+
+  const lista =
+  document.getElementById(
+    "listaRifas"
+  );
+
+  lista.innerHTML =
+  "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("rifas")
+  .select("*")
+  .order("id",
+  { ascending:false });
+
+  if(error){
+
+    console.log(error);
+
+    lista.innerHTML =
+    "Erro ao carregar.";
+
+    return;
+  }
+
+  if(data.length === 0){
+
+    lista.innerHTML =
+    "Nenhuma rifa cadastrada.";
+
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(rifa => {
+
+    lista.innerHTML += `
+
+<div
+  class="rifaItem"
+
+  onclick="abrirRifa(${rifa.id})"
+
+  ontouchstart="iniciarPressao(${rifa.id})"
+  ontouchend="cancelarPressao()"
+
+  onmousedown="iniciarPressao(${rifa.id})"
+  onmouseup="cancelarPressao()"
+>
+
+  <h3>${rifa.titulo}</h3>
+
+  <p>
+    ${rifa.quantidade_numeros}
+    números
+  </p>
+
+  <p>
+    R$
+    ${Number(
+      rifa.valor_numero
+    ).toFixed(2)}
+  </p>
+
+</div>
+
+`;
+
+  });
+
+}
+
+
+let timerExcluir = null;
+
+function iniciarPressao(rifaId){
+
+  timerExcluir = setTimeout(() => {
+
+    const confirmar =
+    confirm(
+      "Excluir esta rifa?"
+    );
+
+    if(confirmar){
+
+      excluirRifa(rifaId);
+
+    }
+
+  },3000);
+
+}
+
+function cancelarPressao(){
+
+  clearTimeout(
+    timerExcluir
+  );
+
+}
+
+async function excluirRifa(rifaId){
+
+  await db
+  .from("rifa_numeros")
+  .delete()
+  .eq("rifa_id",rifaId);
+
+  await db
+  .from("rifa_premios")
+  .delete()
+  .eq("rifa_id",rifaId);
+
+  await db
+  .from("rifa_sorteios")
+  .delete()
+  .eq("rifa_id",rifaId);
+
+  await db
+  .from("rifas")
+  .delete()
+  .eq("id",rifaId);
+
+  carregarRifas();
+
+}
+
+
+async function abrirRifa(id){
+
+  const { data, error } =
+  await db
+  .from("rifas")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+  if(error) return;
+
+  document
+  .getElementById("conteudo")
+  .innerHTML = `
+
+    <div class="container">
+
+      <div class="card">
+
+        <h2>
+          🎟️ ${data.titulo}
+        </h2>
+        
+        <img
+  src="${data.imagem}"
+  alt="${data.titulo}"
+  class="miniaturaRifa"
+  onerror="this.src='https://placehold.co/300x180?text=Imagem+Indisponível'">
+
+        <p>
+          ${data.descricao}
+        </p>
+<div id="estatisticas">
+Carregando...
+</div>
+        <hr>
+
+        <p>
+          💰 Valor:
+          R$ ${data.valor_numero}
+        </p>
+
+        <p>
+          🔢 Quantidade:
+          ${data.quantidade_numeros}
+        </p>
+
+        <p>
+          📅 Sorteio:
+          ${data.data_sorteio}
+        </p>
+
+        <p>
+          📌 Status:
+          ${data.status}
+        </p>
+
+        <br>
+<button onclick="editarRifa(${id})">
+✏️ Editar Rifa
+</button>
+
+<button onclick="abrirPremios(${id})">
+🏆 Prêmios
+</button>
+
+<button onclick="verNumeros(${id})">
+🔢 Números
+</button>
+
+<button onclick="abrirSorteio(${id})">
+🎲 Sortear
+</button>
+      </div>
+
+    </div>
+
+  `;
+carregarEstatisticas(id);
+}
+
+async function editarRifa(id){
+
+  const { data, error } =
+  await db
+  .from("rifas")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+  if(error) return;
+
+  document.getElementById("conteudo").innerHTML = `
+
+<div class="container">
+
+  <div class="card">
+
+    <h2>✏️ Editar Rifa</h2>
+
+    <input
+      id="editTitulo"
+      value="${data.titulo}">
+
+    <textarea
+      id="editDescricao">${data.descricao}</textarea>
+
+    <input
+      id="editImagem"
+      value="${data.imagem}">
+
+    <input
+      id="editValor"
+      type="number"
+      step="0.01"
+      value="${data.valor_numero}">
+
+    <input
+      id="editQuantidade"
+      type="number"
+      value="${data.quantidade_numeros}"
+      disabled>
+
+    <input
+      id="editData"
+      type="date"
+      value="${data.data_sorteio}">
+
+    <select id="editStatus">
+
+      <option ${data.status=="Ativa"?"selected":""}>
+        Ativa
+      </option>
+
+      <option ${data.status=="Pausada"?"selected":""}>
+        Pausada
+      </option>
+
+      <option ${data.status=="Encerrada"?"selected":""}>
+        Encerrada
+      </option>
+
+    </select>
+
+    <button onclick="salvarEdicao(${id})">
+      💾 Salvar Alterações
+    </button>
+
+    <button onclick="abrirRifa(${id})">
+      ↩ Voltar
+    </button>
+
+  </div>
+
+</div>
+
+`;
+
+}
+
+
+async function salvarEdicao(id){
+
+  await db
+  .from("rifas")
+  .update({
+
+    titulo:
+    document.getElementById("editTitulo").value,
+
+    descricao:
+    document.getElementById("editDescricao").value,
+
+    imagem:
+    document.getElementById("editImagem").value,
+
+    valor_numero:
+    document.getElementById("editValor").value,
+
+    data_sorteio:
+    document.getElementById("editData").value,
+
+    status:
+    document.getElementById("editStatus").value
+
+  })
+  .eq("id", id);
+
+  alert("Rifa atualizada.");
+
+  abrirRifa(id);
+
+}
+
+
+
+
+async function abrirPremios(rifaId){
+
+  const conteudo =
+  document.getElementById("conteudo");
+
+  conteudo.innerHTML = `
+
+    <div class="container">
+
+      <div class="card">
+
+        <h2>🏆 Prêmios</h2>
+
+        <input
+          id="posicao"
+          type="number"
+          placeholder="Posição">
+
+        <input
+          id="premio"
+          placeholder="Descrição do prêmio">
+
+        <button
+          class="btnRifa"
+          onclick="
+          salvarPremio(${rifaId})
+          ">
+          Adicionar Prêmio
+        </button>
+
+      </div>
+
+      <div
+        class="card"
+        style="margin-top:15px;">
+
+        <h2>
+          📋 Prêmios Cadastrados
+        </h2>
+
+        <div id="listaPremios">
+          Carregando...
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+  carregarPremios(rifaId);
+
+}
+async function verNumeros(rifaId){
+
+  document
+  .getElementById("conteudo")
+  .innerHTML = `
+
+    <div class="container">
+
+      <div class="card">
+
+        <h2>
+          🔢 Números da Rifa
+        </h2>
+
+        <div id="gradeNumeros">
+          Carregando...
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+  carregarNumeros(rifaId);
+
+}
+
+async function salvarPremio(rifaId){
+
+  const posicao =
+  document.getElementById(
+    "posicao"
+  ).value;
+
+  const premio =
+  document.getElementById(
+    "premio"
+  ).value.trim();
+
+  if(!posicao){
+
+    alert(
+      "Informe a posição."
+    );
+
+    return;
+  }
+
+  if(!premio){
+
+    alert(
+      "Informe o prêmio."
+    );
+
+    return;
+  }
+
+  const { error } =
+  await db
+  .from("rifa_premios")
+  .insert([{
+
+    rifa_id: rifaId,
+
+    posicao,
+
+    premio
+
+  }]);
+
+  if(error){
+
+    console.log(error);
+
+    alert(
+      "Erro ao salvar."
+    );
+
+    return;
+  }
+
+  document
+  .getElementById(
+    "posicao"
+  ).value = "";
+
+  document
+  .getElementById(
+    "premio"
+  ).value = "";
+
+  carregarPremios(rifaId);
+
+}
+async function carregarPremios(rifaId){
+
+  const lista =
+  document.getElementById(
+    "listaPremios"
+  );
+
+  const { data, error } =
+  await db
+  .from("rifa_premios")
+  .select("*")
+  .eq("rifa_id", rifaId)
+  .order("posicao");
+
+  if(error){
+
+    console.log(error);
+
+    lista.innerHTML =
+    "Erro ao carregar.";
+
+    return;
+  }
+
+  if(data.length === 0){
+
+    lista.innerHTML =
+    "Nenhum prêmio cadastrado.";
+
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+
+    lista.innerHTML += `
+
+      <div class="rifaItem">
+
+        <strong>
+          ${item.posicao}º Lugar
+        </strong>
+
+        <p>
+          ${item.premio}
+        </p>
+
+      </div>
+
+    `;
+
+  });
+
+}
+async function carregarNumeros(rifaId){
+
+  const grade =
+  document.getElementById(
+    "gradeNumeros"
+  );
+
+  const { data, error } =
+  await db
+  .from("rifa_numeros")
+  .select("*")
+  .eq("rifa_id", rifaId)
+  .order("numero");
+
+  if(error){
+
+    console.log(error);
+
+    grade.innerHTML =
+    "Erro ao carregar.";
+
+    return;
+
+  }
+
+  grade.innerHTML = "";
+
+  data.forEach(item => {
+
+    let classe = "disponivel";
+
+    if(item.status === "Reservado"){
+      classe = "reservado";
+    }
+
+    if(item.status === "Pago"){
+      classe = "pago";
+    }
+
+    if(item.status === "Premiado"){
+      classe = "premiado";
+    }
+
+    grade.innerHTML += `
+
+   <div
+class="numero ${classe}"
+onclick="abrirNumero(${item.id})">
+
+  ${item.numero}
+
+</div>
+
+    `;
+
+  });
+
+}
+
+async function abrirNumero(id){
+
+  const { data, error } =
+  await db
+  .from("rifa_numeros")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+  if(error) return;
+
+  // 🔵 Pago
+  if(data.status === "Pago"){
+
+    alert(
+
+`Número pago
+
+Cliente:
+${data.nome_cliente}
+
+Telefone:
+${data.telefone}`
+
+    );
+
+    return;
+
+  }
+
+  // 🟡 Reservado
+  if(data.status === "Reservado"){
+
+    const confirmar =
+    confirm(
+
+`Número reservado
+
+Cliente:
+${data.nome_cliente}
+
+Telefone:
+${data.telefone}
+
+Deseja confirmar o pagamento?`
+
+    );
+
+    if(confirmar){
+
+      await db
+      .from("rifa_numeros")
+      .update({
+        status:"Pago"
+      })
+      .eq("id",id);
+
+      carregarNumeros(
+        data.rifa_id
+      );
+
+    }
+
+    return;
+
+  }
+
+  // 🟢 Disponível
+  const nome =
+  prompt(
+    "Nome do cliente:",
+    ""
+  );
+
+  if(nome === null) return;
+
+  const telefone =
+  prompt(
+    "Telefone:",
+    ""
+  );
+
+  if(telefone === null) return;
+
+  await db
+  .from("rifa_numeros")
+  .update({
+    nome_cliente:nome,
+    telefone:telefone,
+    status:"Reservado"
+  })
+  .eq("id",id);
+
+  carregarNumeros(
+    data.rifa_id
+  );
+
+}
+
+async function carregarEstatisticas(rifaId){
+
+  const { data, error } =
+  await db
+  .from("rifa_numeros")
+  .select("status")
+  .eq("rifa_id", rifaId);
+
+  if(error) return;
+
+  const disponiveis =
+  data.filter(
+    item =>
+    item.status === "Disponivel"
+  ).length;
+
+  const reservados =
+  data.filter(
+    item =>
+    item.status === "Reservado"
+  ).length;
+
+  const pagos =
+  data.filter(
+    item =>
+    item.status === "Pago"
+  ).length;
+
+  document
+  .getElementById(
+    "estatisticas"
+  ).innerHTML = `
+
+    <p>
+      🟢 Disponíveis:
+      ${disponiveis}
+    </p>
+
+    <p>
+      🟡 Reservados:
+      ${reservados}
+    </p>
+
+    <p>
+      🔵 Pagos:
+      ${pagos}
+    </p>
+
+    <p>
+      🔢 Total:
+      ${data.length}
+    </p>
+
+  `;
+
+}
+
+async function abrirSorteio(rifaId){
+
+  const { data, error } =
+  await db
+  .from("rifa_numeros")
+  .select("*")
+  .eq("rifa_id", rifaId)
+  .eq("status", "Pago");
+
+  if(error) return;
+
+  if(data.length === 0){
+    alert("Nenhum número pago.");
+    return;
+  }
+
+  window.numerosSorteio = data;
+  window.rifaIdAtual = rifaId;
+
+  const conteudo =
+  document.getElementById("conteudo");
+
+  conteudo.innerHTML = `
+<div class="container">
+
+  <div class="card">
+
+    <h2>🎲 Sorteio</h2>
+
+    <div id="caixaNumeros" class="caixa"></div>
+
+ <button onclick="iniciarSorteio()">
+  Sortear
+</button>
+
+  </div>
+
+</div>
+
+  `;
+
+montarCaixa();
+
+}
+
+function montarCaixa(){
+
+  const caixa =
+  document.getElementById("caixaNumeros");
+
+  caixa.innerHTML = "";
+
+  window.bolas = [];
+
+  window.numerosSorteio.forEach(n => {
+
+    const div =
+    document.createElement("div");
+
+    div.className = "bola";
+    div.dataset.numero = n.numero;
+    div.innerText = n.numero;
+
+    window.bolas.push(div);
+    caixa.appendChild(div);
+
+  });
+
+}
+function iniciarSorteio(){
+
+  if(window.sorteando) return;
+  window.sorteando = true;
+
+  const duracaoTotal = 20000;
+  const inicio = Date.now();
+
+  let velocidade = 60;
+
+  const intervalo = setInterval(() => {
+
+    window.bolas.forEach(b => {
+      b.classList.remove("ativa");
+    });
+
+    const random =
+    window.bolas[
+      Math.floor(Math.random() * window.bolas.length)
+    ];
+
+    random.classList.add("ativa");
+
+    // 🔊 SOM (IMPORTANTE: RESET)
+    somTick.currentTime = 0;
+    somTick.play().catch(() => {});
+
+    const tempo = Date.now() - inicio;
+
+    // 🔥 desaceleração simples e estável
+    if(tempo > 5000) velocidade = 120;
+    if(tempo > 12000) velocidade = 220;
+
+  }, velocidade);
+
+  setTimeout(() => {
+
+  clearInterval(intervalo);
+
+  const vencedor =
+  window.bolas.find(b =>
+    b.classList.contains("ativa")
+  );
+
+  window.sorteando = false;
+
+  // 🔥 1. garantir micro delay (resolve bloqueio de áudio)
+  setTimeout(() => {
+
+    somWin.currentTime = 0;
+
+    somWin.play()
+    .then(() => {
+      console.log("WIN tocou");
+    })
+    .catch((err) => {
+      console.log("erro win:", err);
+    });
+
+  }, 50);
+
+
+
+  // 🔥 2. alert depois do som começar
+setTimeout(async () => {
+
+  const numeroVencedor =
+  window.numerosSorteio.find(
+    n => n.numero == vencedor.dataset.numero
+  );
+
+  await db
+  .from("rifa_sorteios")
+  .insert([{
+    rifa_id: window.rifaIdAtual,
+    numero_vencedor: numeroVencedor.numero,
+    nome_vencedor: numeroVencedor.nome_cliente
+  }]);
+
+  alert(
+`🏆 VENCEDOR
+
+Número: ${vencedor.dataset.numero}`
+  );
+
+}, 300);
+
+}, duracaoTotal);
+
+}
+
+
+async function carregarHistorico(){
+
+  const lista =
+  document.getElementById(
+    "listaHistorico"
+  );
+
+  const { data, error } =
+  await db
+  .from("rifa_sorteios")
+  .select(`
+    *,
+    rifas(titulo)
+  `)
+  .order("id",
+  {ascending:false});
+
+  if(error){
+    lista.innerHTML =
+    "Erro ao carregar.";
+    return;
+  }
+
+  if(data.length === 0){
+    lista.innerHTML =
+    "Nenhum sorteio.";
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+
+    lista.innerHTML += `
+
+      <div class="rifaItem">
+
+        <h3>
+          🏆 ${item.rifas?.titulo}
+        </h3>
+
+        <p>
+          Número:
+          ${item.numero_vencedor}
+        </p>
+
+        <p>
+          Vencedor:
+          ${item.nome_vencedor}
+        </p>
+
+      </div>
+
+    `;
+
+  });
+
+}
+
+async function carregarDashboard(){
+
+  const { data: rifas } =
+  await db
+  .from("rifas")
+  .select("id");
+
+  const { data: numeros } =
+  await db
+  .from("rifa_numeros")
+  .select("status");
+
+  const { data: sorteios } =
+  await db
+  .from("rifa_sorteios")
+  .select("id");
+
+  const pagos =
+  numeros.filter(
+    n => n.status === "Pago"
+  ).length;
+
+  const reservados =
+  numeros.filter(
+    n => n.status === "Reservado"
+  ).length;
+
+  document.getElementById(
+    "dashRifas"
+  ).innerText =
+  rifas.length;
+
+  document.getElementById(
+    "dashPagos"
+  ).innerText =
+  pagos;
+
+  document.getElementById(
+    "dashReservados"
+  ).innerText =
+  reservados;
+
+  document.getElementById(
+    "dashSorteios"
+  ).innerText =
+  sorteios.length;
+
+}
+
+async function carregarParticipantes(){
+
+  const rifaId =
+  document.getElementById(
+    "filtroRifa"
+  ).value;
+
+  const lista =
+  document.getElementById(
+    "listaParticipantes"
+  );
+
+  if(!rifaId){
+
+    lista.innerHTML =
+    "Selecione uma rifa.";
+
+    return;
+
+  }
+
+  const { data, error } =
+  await db
+  .from("rifa_numeros")
+  .select("*")
+  .eq("rifa_id", rifaId)
+  .not("nome_cliente","is",null)
+  .order("nome_cliente");
+
+  if(error){
+
+    lista.innerHTML =
+    "Erro ao carregar.";
+
+    return;
+
+  }
+
+  if(data.length === 0){
+
+    lista.innerHTML =
+    "Nenhum participante.";
+
+    return;
+
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+
+    lista.innerHTML += `
+
+      <div class="rifaItem">
+
+        <h3>
+          ${item.nome_cliente}
+        </h3>
+
+        <p>
+          📞 ${item.telefone || "-"}
+        </p>
+
+        <p>
+          🎟 Número:
+          ${item.numero}
+        </p>
+
+        <p>
+          📌 ${item.status}
+        </p>
+
+      </div>
+
+    `;
+
+  });
+
+}
+
+async function carregarFiltroRifas(){
+
+  const filtro =
+  document.getElementById("filtroRifa");
+
+  const { data } =
+  await db
+  .from("rifas")
+  .select("id,titulo")
+  .order("titulo");
+
+  filtro.innerHTML =
+  '<option value="">Selecione uma rifa</option>';
+
+  data.forEach(rifa => {
+
+    filtro.innerHTML += `
+      <option value="${rifa.id}">
+        ${rifa.titulo}
+      </option>
+    `;
+
+  });
+
+}
+carregarDashboard();
+
+</script>
+
+</body>
+</html>
