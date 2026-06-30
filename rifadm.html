@@ -24,6 +24,8 @@ body {
   background: #f3f4f6;
   color: #111;
   
+  margin:0;
+  
 
 }
 
@@ -1273,17 +1275,35 @@ async function carregarNumeros(rifaId){
       classe = "premiado";
     }
 
-    grade.innerHTML += `
+grade.innerHTML += `
 
-   <div
-class="numero ${classe}"
-onclick="abrirNumero(${item.id})">
+<div
+  class="numero ${classe}"
+  onclick="abrirNumero(${item.id})"
+
+  ${
+    item.status === "Reservado" ||
+    item.status === "Pago"
+
+    ?
+
+    `
+    ontouchstart="segurarLiberarNumero(event, ${item.id})"
+    ontouchmove="cancelarSegurar()"
+    ontouchend="cancelarSegurar()"
+    `
+
+    :
+
+    ""
+
+  }>
 
   ${item.numero}
 
 </div>
 
-    `;
+`;
 
   });
 
@@ -1819,6 +1839,56 @@ async function carregarFiltroRifas(){
   });
 
 }
+let timerLiberar;
+
+function segurarLiberarNumero(event, id){
+
+  timerLiberar = setTimeout(async()=>{
+
+    if(confirm("Liberar este número?")){
+
+      await liberarNumero(id);
+
+    }
+
+  },1000);
+
+}
+
+function cancelarSegurar(){
+
+  clearTimeout(timerLiberar);
+
+}
+
+async function liberarNumero(id){
+
+  const { data } = await db
+    .from("rifa_numeros")
+    .select("rifa_id")
+    .eq("id", id)
+    .single();
+
+  const { error } = await db
+    .from("rifa_numeros")
+    .update({
+      nome_cliente: null,
+      telefone: null,
+      status: "Disponivel"
+    })
+    .eq("id", id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  await carregarNumeros(data.rifa_id);
+
+  alert("Número liberado!");
+}
+
+
 carregarDashboard();
 
 </script>
