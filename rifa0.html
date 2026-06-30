@@ -10,7 +10,13 @@ content="width=device-width,initial-scale=1">
 
 <title>Rifas Online</title>
 
-<style>*{
+<style>
+
+
+
+*{
+
+font-family: system-ui, Arial, "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
 
 margin:0;
 padding:0;
@@ -169,7 +175,28 @@ cursor:pointer;
 
 background:#1e40af;
 
-}</style>
+}
+
+.btnShare{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#16a34a;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.btnShare:hover{
+  transform:scale(1.02);
+  opacity:0.9;
+}
+
+</style>
 
 </head>
 
@@ -322,6 +349,10 @@ Participar
 
 </button>
 
+<button class="btnShare" onclick="compartilharRifa()">
+  📤 Compartilhar Rifa
+</button>
+
 </div>
 
 </div>
@@ -329,6 +360,33 @@ Participar
 `;
 
   }
+
+}
+
+
+function compartilharRifa(){
+
+  const url = "https://www.barbearialosvisionarios.com.br/rifa0.html";
+
+  const texto = "️🤭 Participe da nossa Rifa! Clique no link abaixo e garanta sua chance de ganhar prêmios 👇";
+
+  // 🔥 tenta compartilhar nativo (celular)
+  if(navigator.share){
+
+    navigator.share({
+      title: "Rifa Los Visionários",
+      text: texto,
+      url: url
+    });
+
+    return;
+  }
+
+  // fallback WhatsApp
+  const whatsapp =
+  `https://wa.me/?text=${encodeURIComponent(texto + " " + url)}`;
+
+  window.open(whatsapp, "_blank");
 
 }
 
