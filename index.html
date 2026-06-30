@@ -53,6 +53,7 @@
 }
 
 #popupBox {
+  width:90%;
     background: #fff;
     padding: 30px;
     border-radius: 10px;
@@ -752,21 +753,35 @@ border: 2px solid #00aaff;
 </head>
 <body>
 
-  <a href="https://wa.me/5581988166464" target="_blank" class="whatsapp-float">
+  <a id="btnWhatsapp" href="" target="_blank" class="whatsapp-float">
     <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
   </a>
 
-  <div id="popupOverlay">
-    <div id="popupBox">
-        <div class="h8">Seja Bem Vindo!</div>
-        <div class="p1">
-            Agora você pode consultar nossa tabela<div style="font-weight: bolder;"><br>PREÇOS</div><br>
-            nos destaques "ABAIXO"<br>
-            <div style="font-weight: bolder;"></div>
-        </div>
-        <div class="p1">Agradecemos a compreensão e confiança.</div>
-        <button id="fecharPopup">Entendi</button>
+<div id="popupOverlay">
+
+  <div id="popupBox">
+
+    <div
+      id="popupTitulo"
+      class="h8">
     </div>
+
+    <div
+      id="popupTexto"
+      class="p1">
+    </div>
+
+    <div class="p1">
+      Agradecemos a compreensão e confiança.
+    </div>
+
+    <button
+      id="fecharPopup"
+      onclick="fecharPopup()">
+    </button>
+
+  </div>
+
 </div>
 
 <!------Menu lateral-->
@@ -776,6 +791,8 @@ border: 2px solid #00aaff;
     <a href="#">Quem Somos</a>
     <a href="grupo.html">Entre para o grupo</a>
     <a href="consulta.html">Consulta do cliente</a>
+    
+    <a href="apresentarifa.html">Partipe da Rifa</a>
     <a href="#contatos">Contato</a>
 </div>
 
@@ -806,7 +823,7 @@ border: 2px solid #00aaff;
     <div id="logo">
         <img class="tamlogo" src="img/novalogo.jpg" alt="logo">
     </div>
-    <h1>Barbearia _los_visionários</h1>
+    <h1 id="nomeEmpresa">Barbearia _los_visionários</h1>
 
 </div>
 
@@ -923,65 +940,8 @@ border: 2px solid #00aaff;
 <div class="container">
     <h1 style="color:black;font-size:30px;font-weight:bold">Escolha Seu Plano</h1>
 
-    <div class="planos">
-
-        <div class="plano">
-            <div class="textplano">Plano Básico</div>
-            <p>Torne-se um visionário.</p>
-            <div class="planodescricao"><li>Até 4 Cortes Mensais.</li><li>Visual sempre em dia.</li><li>Economia de 35%.</li><li>Sobrancelha incluso.</li>
-            <li>20% desc... em depilacão</li></div>
-            <div class="preco">R$ 64,99</div>
-            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=5a816e35bc024f7492fb89afcf89b043')">
-                Escolher Plano
-            </button>
-            
-            <div class="detalhes"><a href="Regrasplano.html">Mais Detalhes</a></div>
-            
-        </div>
-
-        <div class="plano">
-            <div class="textplano">Plano Intermediário</div>
-            <p>Barba Visionária.</p>
-            <div class="planodescricao"><li>Até 4 Barbas Mensais.</li><li>Visual sempre em dia.</li><li>Economia de 18,8%</li><li>Sobrancelha incluso.</li>
-             <li>20% desc... em depilacão</li></div>
-            <div class="preco">R$ 64,99</div>
-            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=59d529bb242140ea9ca598def30c9744')">
-                Escolher Plano
-            </button>
-            
-             <div class="detalhes"><a href="Regrasplano.html">Mais Detalhes</a></div>
-            
-        </div>
-
-        <div class="plano">
-            <div class="textplano">Plano Premium</div>
-            <p>Combo Cabelo e Barba.</p>
-            <div class="planodescricao"><li>Até 4 Combos Mensais.</li><li>Visual sempre em dia.</li><li>Economia de 33%</li> <li>Sobrancelha incluso.</li>
-<li>20% desc... em depilacão.</li>
-            </div>
-            <div class="preco">R$ 119,99</div>
-            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=37c154adf063465088380b1b7198faa0')">
-                Escolher Plano
-            </button>
-            
-            <div class="detalhes"><a href="Regrasplano.html">Mais Detalhes</a></div>
-            
-        </div>
-        
-                <div class="plano">
-            <div class="textplano">Plano Fléxivel</div>
-            <p>Pai e Filho</p>
-            <div class="planodescricao"><li>Até 3 pessoas</li><li>Cobre até 6 corte/mês</li><li>Economia de 25%</li><li>Sobrancelha incluso.</li>
-             <li>20% desc... em depilacão</li></div>
-            <div class="preco">R$ 119,99</div>
-            <button onclick="irParaPagamento('https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=b9b0da32840245a8b336f002755c54fc')">
-                Escolher Plano
-            </button>
-            
-            <div class="detalhes"><a href="Regrasplano.html">Mais Detalhes</a></div>
-        </div>
-
-    </div>
+   
+    <div class="planos" id="listaPlanos"></div>
 </div>
 
 <!-- area html calendario-------------------------------->
@@ -1014,7 +974,7 @@ border: 2px solid #00aaff;
 
   <div class="footer-container">
 
-    <h3>Barbearia Los Visionários 💈</h3>
+    <h3 id="nomeEmpresaFooter">Barbearia Los Visionários 💈</h3>
 <br>
     <div>Jaboatão dos Guararapes - PE</div>
 
@@ -1057,15 +1017,91 @@ border: 2px solid #00aaff;
         
             
             
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+
+const db =
+supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+</script>
+
+
 
 
 
 
 
 <script>
+  
+async function carregarPlanosSite(){
+
+    const { data: planos } = await db
+    .from("planos_site")
+    .select("*")
+    .eq("ativo", true)
+    .order("ordem");
+
+const lista = document.getElementById("listaPlanos");
+
+lista.innerHTML = "";
+
+planos.forEach(plano => {
+
+    const itens = plano.descricao
+        .split("\n")
+        .map(item => `<li>${item}</li>`)
+        .join("");
+
+    lista.innerHTML += `
+        <div class="plano">
+
+            <div class="textplano">
+                ${plano.nome}
+            </div>
+
+            <p>${plano.subtitulo}</p>
+
+            <div class="planodescricao">
+                ${itens}
+            </div>
+
+            <div class="preco">
+                ${plano.preco}
+            </div>
+
+            <button onclick="irParaPagamento('${plano.link_pagamento}')">
+                Escolher Plano
+            </button>
+
+            <div class="detalhes">
+                <a href="${plano.link_detalhes}">
+                    Mais Detalhes
+                </a>
+            </div>
+
+        </div>
+    `;
+
+});
+
+}
+
+carregarPlanosSite();
+
+
+
+
+
+  
+  
 //popup script---------------------//
 setTimeout(function() {
-    document.getElementById("popupOverlay").style.display = "flex";
+
+   carregarPopup();  
 }, 3000); // aparece após 3 segundos
 
 document.getElementById("fecharPopup").addEventListener("click", function() {
@@ -1195,6 +1231,73 @@ function fecharTela() {
   telas.forEach(t => t.classList.remove('ativa'));
   telaAtual = null;
 }
+
+
+async function carregarConfiguracoesSite(){
+
+  const { data, error } =
+  await db
+  .from("configuracoes_empresa")
+  .select("*")
+  .single();
+
+  if(error || !data) return;
+
+  const nome = data.nome_empresa || "";
+  const whatsapp = (data.whatsapp || "").replace(/\D/g,"");
+
+  document.getElementById("nomeEmpresa").textContent = nome;
+
+  document.getElementById("nomeEmpresaFooter").textContent =
+  `${nome} 💈`;
+
+  document.title = nome;
+
+  document.getElementById("btnWhatsapp").href =
+  `https://wa.me/${whatsapp}`;
+}
+
+async function carregarPopup(){
+
+  const { data, error } = await db
+  .from("configuracoes_empresa")
+  .select(`
+    aviso_ativo,
+    aviso_titulo,
+    aviso_texto,
+    aviso_botao
+  `)
+  .eq("id",1)
+  .single();
+
+  if(error) return;
+
+  if(!data.aviso_ativo){
+    return;
+  }
+
+  document.getElementById("popupTitulo").innerHTML =
+  data.aviso_titulo || "";
+
+  document.getElementById("popupTexto").innerHTML =
+  data.aviso_texto || "";
+
+  document.getElementById("fecharPopup").innerHTML =
+  data.aviso_botao || "Entendi";
+
+  document.getElementById("popupOverlay").style.display =
+  "flex";
+
+}
+
+
+
+carregarConfiguracoesSite();
+
+
+
+
+
   </script>
 
   
