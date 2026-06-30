@@ -213,9 +213,8 @@
 
   inset:0;
 
-  background:rgba(0,0,0,.5);
-
-  z-index:9999998;
+background:rgba(0,0,0,.5);
+  z-index:999999999999;
 
   display:none;
 
@@ -897,6 +896,70 @@ color: black;
 
 }
 
+
+.itemResultado{
+  margin-bottom:10px;
+}
+
+.videoBox{
+  display:flex;
+  gap:10px;
+  background:#000;
+  padding:10px;
+  border-radius:10px;
+  align-items:center;
+  color:#fff;
+}
+
+.thumbYoutube{
+  width:120px;
+  height:70px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+.infoVideo{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.botoesVideo{
+  display:flex;
+  gap:8px;
+}
+
+.btnPlayAgora,
+.btnAdicionar{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.cardCliente{
+  background:transparent;
+  padding:15px;
+  border-radius:12px;
+  border: solid 1px #fff;
+  margin-top:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  color:#fff;
+}
+
+.nomeCliente{
+  font-weight:bold;
+  font-size:16px;
+  margin-bottom:8px;
+}
+
+.infoCliente{
+  font-size:14px;
+  color:#fff;
+  margin-top:4px;
+}
 </style>
 
 </head>
@@ -1569,13 +1632,10 @@ Plano disponível no site
   <div id="sidebar" class="sidebar">
   
   
- <h2 style="margin-bottom:10px">
+ <h2 style="margin-bottom:10px" onclick="abrirHoje()">
     📋 Menu
   </h2>
 
-  <button onclick="abrirHoje()">
-    📅 Agenda
-  </button>
 
   <button onclick="abrirCalendario()">
     📆 Buscar Período
@@ -2082,6 +2142,8 @@ function renderSkeleton(){
 
 
 async function carregarHoje(){
+
+  
 abrirLoading();
   renderSkeleton();
 
@@ -2105,8 +2167,9 @@ abrirLoading();
 
  if(error){
    mostrarToast(error.message);
+    fecharLoading();
    return;
-   fecharLoading()
+  
    
  }
 
@@ -2124,13 +2187,17 @@ abrirLoading();
  planos.textContent =
  data.filter(x => x.tipo_cliente === 'plano').length;
 
- horarios.forEach(h => {
 
-   // 🔥 CORREÇÃO AQUI
 const mapa = {};
 data.forEach(i => {
  mapa[i.hora.slice(0,5)] = i;
 });
+
+
+
+ horarios.forEach(h => {
+
+  
 
 const item = mapa[h];
 
@@ -2696,19 +2763,27 @@ async function calcularFaturamento(){
 // =========================
 // FECHAR MENU
 // =========================
-
 function fecharMenu(){
 
   document
-  .getElementById("sidebar")
-  .classList.remove("ativo");
+    .getElementById("sidebar")
+    .classList.remove("ativo");
 
   document
-  .getElementById("overlayMenu")
-  .classList.remove("show");
+    .getElementById("overlayMenu")
+    .classList.remove("show");
 
 }
+function iniciarAutoFecharMenu(){
 
+  // cancela qualquer timer antigo
+  clearTimeout(timerMenu);
+
+  timerMenu = setTimeout(() => {
+    fecharMenu();
+  }, 30000); // 30 segundos
+
+}
 
 
 async function calcularPlanos(){
@@ -2963,7 +3038,7 @@ async function backupCSV(){
  link.click();
 
 }
-
+let timerMenu = null;
 let timerPress = null;
 let segurando = false;
 let iniciouX = 0;
@@ -3521,25 +3596,15 @@ async function atualizarBadge(){
 
 function abrirTela(id){
 
-  // fecha todas
   document
-  .querySelectorAll(".telaSistema")
-  .forEach(tela => {
+    .querySelectorAll(".telaSistema")
+    .forEach(tela => tela.classList.remove("ativa"));
 
-    tela.classList.remove("ativa");
-
-  });
-
-  // abre tela
   document
-  .getElementById(id)
-  .classList.add("ativa");
+    .getElementById(id)
+    .classList.add("ativa");
 
-  // fecha sidebar
-  document
-  .getElementById("sidebar")
-  .classList.remove("ativo");
-
+  fecharMenu(); // usa o padrão único
 }
 
 // =========================
@@ -3561,11 +3626,18 @@ function fecharTela(id){
 
 function toggleMenu(){
 
-  const menu =
-  document.getElementById("sidebar");
+  const menu = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlayMenu");
 
   menu.classList.toggle("ativo");
+  overlay.classList.toggle("show");
 
+  // se abriu o menu, inicia o timer
+  if(menu.classList.contains("ativo")){
+    iniciarAutoFecharMenu();
+  } else {
+    clearTimeout(timerMenu);
+  }
 }
 
 // =========================
@@ -3578,23 +3650,7 @@ function toggleMenu(){
 
 function abrirHoje(){
 
-  document
-  .querySelectorAll(".telaSistema")
-  .forEach(tela => {
-
-    tela.classList.remove("ativa");
-
-  });
-
-  // FECHA MENU
-  document
-  .getElementById("sidebar")
-  .classList.remove("ativo");
-
-  // FECHA OVERLAY
-  document
-  .getElementById("overlayMenu")
-  .classList.remove("show");
+fecharMenu();
 
   carregarHoje();
 
@@ -3773,6 +3829,121 @@ if(
 
 
 }
+
+
+async function carregarClientes(){
+
+  const busca =
+  document.getElementById("buscarCliente").value.trim();
+
+  let query = db
+    .from("clientes")
+    .select("*")
+    .order("nome");
+
+  if(busca){
+    query = query.ilike("nome", `%${busca}%`);
+  }
+
+  const { data: clientes, error } = await query;
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const { data: atendimentosRaw } = await db
+    .from("atendimentos")
+    .select("cliente_id,data,numero_corte,tipo_cliente")
+    .order("data", { ascending: false });
+
+  const atendimentos = atendimentosRaw || [];
+
+  // 🔥 MAPA ÚLTIMO ATENDIMENTO
+  const ultimoMap = {};
+
+  atendimentos.forEach(a => {
+    if(!a.cliente_id) return;
+    if(!ultimoMap[a.cliente_id]){
+      ultimoMap[a.cliente_id] = a;
+    }
+  });
+
+  const lista = document.getElementById("resultadoClientes");
+  lista.innerHTML = "";
+
+  if(!clientes.length){
+    lista.innerHTML = "<div class='msg'>Nenhum cliente encontrado</div>";
+    return;
+  }
+
+  clientes.forEach(cli => {
+
+    const ultimo = ultimoMap[cli.id];
+
+    // 🔥 ÚLTIMA VISITA
+    const ultimaVisita = ultimo?.data
+      ? new Date(ultimo.data).toLocaleDateString("pt-BR")
+      : "Sem visitas";
+
+    // 🔥 ÚLTIMO CORTE (derivado)
+    const numeroCorte =
+      ultimo?.numero_corte
+      ? `${ultimo.numero_corte}/4`
+      : "Sem corte";
+
+    // 🔥 STATUS PLANO
+    const statusPlano =
+      cli.status_plano || "não informado";
+
+    // 🔥 DATA ADESÃO
+    const adesao = cli.data_adesao_plano || "-";
+
+    // 🔥 RENOVAÇÃO
+    const renovacao = cli.ultima_renovacao || "-";
+
+    // 🔥 VENCIMENTO
+    const vencimento = cli.vencimento_plano || "-";
+
+    // 🔥 FIDELIDADE
+    const fidelidadeInicio = cli.fidelidade_inicio || "-";
+    const fidelidadeUsados = cli.fidelidade_usados || 0;
+
+    lista.innerHTML += `
+      <div class="cardCliente">
+
+        <div class="nomeCliente">
+          👤 ${cli.nome}
+        </div>
+
+        <div>📞 ${cli.telefone || "-"}</div>
+
+        <hr>
+
+        <div>📌 Plano: <b>${statusPlano}</b></div>
+        <div>📅 Adesão: ${adesao}</div>
+        <div>🔁 Renovação: ${renovacao}</div>
+        <div>⏳ Vencimento: ${vencimento}</div>
+
+        <hr>
+
+        <div>✂️ Último corte: <b>${numeroCorte}</b></div>
+        <div>📅 Última visita: <b>${ultimaVisita}</b></div>
+
+        <hr>
+
+        <div>🎁 Fidelidade início: ${fidelidadeInicio}</div>
+        <div>🎁 Fidelidade usados: ${fidelidadeUsados}</div>
+
+      </div>
+    `;
+  });
+}
+
+document
+.getElementById("buscarCliente")
+.addEventListener("input", carregarClientes);
+
 
 
 
@@ -4909,72 +5080,63 @@ async function obterAnuncio(){
 async function buscarYoutube(){
 
   const termo =
-  document.getElementById(
-    "buscaYoutube"
-  ).value.trim();
+    document.getElementById("buscaYoutube").value.trim();
 
   if(!termo) return;
 
   const url =
-  `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
 
-  const resp =
-  await fetch(url);
-
-  const dados =
-  await resp.json();
+  const resp = await fetch(url);
+  const dados = await resp.json();
 
   const resultados =
-  document.getElementById(
-    "resultadosYoutube"
-  );
+    document.getElementById("resultadosYoutube");
 
   resultados.innerHTML = "";
 
-  dados.items.forEach(item=>{
+  dados.items.forEach(item => {
 
-    const div =
-    document.createElement("div");
+    const div = document.createElement("div");
+    div.className = "itemResultado";
 
-    div.className =
-    "itemResultado";
-    
+    const thumb = `https://img.youtube.com/vi/${item.id.videoId}/hqdefault.jpg`;
 
-  div.innerHTML = `
-  <strong>${item.snippet.title}</strong>
-  <br>
+    div.innerHTML = `
+      <div class="videoBox">
 
-  <button class="btnPlayAgora">
-    ▶ Reproduzir
-  </button>
+        <img class="thumbYoutube" src="${thumb}">
 
-  <button class="btnAdicionar">
-    ➕ Adicionar
-  </button>
-`;
-    
+        <div class="infoVideo">
 
-const botoes =
-div.querySelectorAll("button");
+          <strong>${item.snippet.title}</strong>
 
-botoes[0].onclick = ()=>{
+          <div class="botoesVideo">
 
-  reproduzirAgora(
-    item.id.videoId
-  );
+            <button class="btnPlayAgora">
+              ▶ Reproduzir
+            </button>
 
-};
+            <button class="btnAdicionar">
+              ➕ Adicionar
+            </button>
 
-botoes[1].onclick = ()=>{
+          </div>
 
-  adicionarPlaylist(
-    item.id.videoId,
-    item.snippet.title
-  );
+        </div>
 
-};
+      </div>
+    `;
 
-    
+    const botoes = div.querySelectorAll("button");
+
+    botoes[0].onclick = () => {
+      reproduzirAgora(item.id.videoId);
+    };
+
+    botoes[1].onclick = () => {
+      adicionarPlaylist(item.id.videoId, item.snippet.title);
+    };
 
     resultados.appendChild(div);
 
@@ -6092,7 +6254,7 @@ setTimeout(()=>{
 
 carregarHoje();  
 
-},3000);
+},2000);
 
 
 setTimeout(()=>{
@@ -6103,10 +6265,11 @@ setTimeout(()=>{
 
 },300);
 
-
+document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
+document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
 
 
 </script>
-
+ 
 </body>
 </html>
