@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Rifas - Los Visionários</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0b1220;
+  color:#fff;
+}
+
+.container{
+  max-width:600px;
+  margin:auto;
+  padding:20px;
+  text-align:center;
+}
+
+h1{
+  font-size:28px;
+  margin-top:30px;
+  color:#60a5fa;
+}
+
+p{
+  font-size:16px;
+  line-height:1.5;
+  color:#cbd5e1;
+  margin-top:15px;
+}
+
+.card{
+  background:#111827;
+  padding:20px;
+  border-radius:16px;
+  margin-top:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+button{
+  margin-top:20px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{
+  transform:scale(1.02);
+  opacity:0.9;
+}
+
+.highlight{
+  color:#22c55e;
+  font-weight:bold;
+}
+button{
+  margin-top:20px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.25s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+/* hover moderno */
+button:hover{
+  transform:translateY(-2px) scale(1.02);
+  box-shadow:0 10px 25px rgba(37,99,235,.35);
+}
+
+/* efeito de brilho passando */
+button::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,.3),
+    transparent
+  );
+}
+
+/* animação do brilho */
+button:hover::before{
+  animation:shine 0.8s ease;
+}
+
+@keyframes shine{
+  0%{
+    left:-100%;
+  }
+  100%{
+    left:100%;
+  }
+}
+
+/* leve pulsar constante (chama atenção) */
+button{
+  animation:pulse 2.5s infinite;
+}
+
+@keyframes pulse{
+  0%{
+    box-shadow:0 0 0 0 rgba(37,99,235,.9);
+  }
+  70%{
+    box-shadow:0 0 0 10px rgba(37,99,235,0);
+  }
+  100%{
+    box-shadow:0 0 0 0 rgba(37,99,235,0);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>🎟️ Sistema de Rifas</h1>
+
+  <div class="card">
+
+    <p>
+      A <span class="highlight">Rifa</span> foi criada para trazer mais vantagem para os clientes,
+      com brincadeiras, interações e oportunidades reais de ganhar prêmios.
+    </p>
+
+    <p>
+      Aqui você participa de forma simples, transparente e divertida.
+      Cada número representa uma chance real de ganhar.
+    </p>
+
+    <p>
+      💡 Mais interação.  
+      🎁 Mais vantagens.  
+      🎲 Mais emoção.
+    </p>
+
+    <button onclick="abrirRifa()">
+      🎟️ Ver Rifas Disponíveis
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+function abrirRifa(){
+
+  // 👇 ajuste aqui para sua página real da rifa
+  window.location.href = "https://www.barbearialosvisionarios.com.br/rifa0.html";
+
+}
+
+</script>
+
+</body>
+</html>
