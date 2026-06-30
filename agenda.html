@@ -1276,9 +1276,14 @@ style="display:none">
   </div>
 
   <div class="conteudoTela">
+
+<button onclick="abrirConfigPopup()">
+       Site / Avisos
+    </button>   
+
    
 <button onclick="abrirConfigPlanos()">
-      🏢 Site / Planos
+       Site / Planos
     </button>   
     
 <button onclick="abrirConfigEmpresa()">
@@ -1351,6 +1356,53 @@ style="display:none">
   </div>
 
 </div>
+
+
+<div id="telaConfigPopup" class="telaSistema" style="display:none;">
+
+  <div class="topTela">
+
+    <button onclick="fecharTelaConfigPopup()">
+      ← Voltar
+    </button>
+
+    <h2>🏢 Configuração de Avisos</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+<label>
+
+  <input
+    type="checkbox"
+    id="avisoAtivo">
+
+  Exibir aviso ao abrir o site
+
+</label>
+
+<input
+  id="avisoTitulo"
+  placeholder="Título do aviso">
+
+<textarea
+  id="avisoTexto"
+  placeholder="Mensagem do aviso">
+</textarea>
+
+<input
+  id="avisoBotao"
+  placeholder="Texto do botão"
+  value="Entendi">
+ 
+<button onclick="salvarAviso()">
+💾 Salvar Aviso
+</button>
+  </div>
+
+</div>
+
 
 
 
@@ -5839,6 +5891,21 @@ function abrirConfigPlanos(){
 document.getElementById("telaConfigPlanos").style.display = "block";
   
 }
+function abrirConfigPopup(){
+document.getElementById("telaConfigPopup").style.display = "block";
+  
+}
+
+function fecharTelaConfigPopup(){
+
+  const tela = document.getElementById("telaConfigPopup");
+
+  if(!tela){
+    console.log("TelaConfig Popup não encontrada");
+    return;
+  }
+   tela.style.display = "none";
+}
 
 function fecharTelaConfigPlanos(){
 
@@ -6241,13 +6308,88 @@ async function excluirPlano(id){
 
 }
 
+async function salvarAviso(){
+
+  const aviso_ativo =
+  document.getElementById(
+    "avisoAtivo"
+  ).checked;
+
+  const aviso_titulo =
+  document.getElementById(
+    "avisoTitulo"
+  ).value.trim();
+
+  const aviso_texto =
+  document.getElementById(
+    "avisoTexto"
+  ).value.trim();
+
+  const aviso_botao =
+  document.getElementById(
+    "avisoBotao"
+  ).value.trim() || "Entendi";
+
+  const { error } = await db
+  .from("configuracoes_empresa")
+  .update({
+
+    aviso_ativo,
+
+    aviso_titulo,
+
+    aviso_texto,
+
+    aviso_botao
+
+  })
+  .eq("id", 1);
+
+  if(error){
+    console.log(error);
+    alert("Erro ao salvar.");
+    return;
+  }
+
+  mostrarToast("Aviso salvo com sucesso!");
+
+}
+
+async function carregarAviso(){
+
+  const { data, error } = await db
+  .from("configuracoes_empresa")
+  .select(`
+    aviso_ativo,
+    aviso_titulo,
+    aviso_texto,
+    aviso_botao
+  `)
+  .eq("id",1)
+  .single();
+
+  if(error) return;
+
+  document.getElementById("avisoAtivo").checked =
+  data.aviso_ativo;
+
+  document.getElementById("avisoTitulo").value =
+  data.aviso_titulo || "";
+
+  document.getElementById("avisoTexto").value =
+  data.aviso_texto || "";
+
+  document.getElementById("avisoBotao").value =
+  data.aviso_botao || "Entendi";
+
+}
 
 
 carregarPlanos();
 carregarProfissionaisFiltro();
 carregarProfissionaisSelect();
 carregarProfissionaisCalendario();
-
+carregarAviso();
 atualizarBadge();
 
 setTimeout(()=>{
