@@ -255,9 +255,9 @@ class="modal">
 <input
 id="descricao"
 placeholder="Descrição"
+list="sugestoesLista"
 oninput="buscarSugestoes(this.value)"
-onchange="preencherFormulario(this.value)"
-list="sugestoesLista">
+onchange="preencherFormulario(this.value)">
 
 <datalist id="sugestoesLista"></datalist>
 
@@ -753,13 +753,13 @@ async function preencherFormulario(descricao){
   const { data, error } = await db
     .from("investimentos")
     .select("*")
-  .order("id", { ascending: false })
-.limit(1)
-.single();
+    .eq("descricao", descricao)
+    .order("id", { ascending: false })
+    .limit(1)
+    .single();
 
   if(error || !data) return;
 
-  document.getElementById("descricao").value = data.descricao;
   document.getElementById("valorInvestido").value = data.valor_investido;
   document.getElementById("quantidade").value = data.quantidade;
   document.getElementById("precoVenda").value = data.preco_venda_previsto;
