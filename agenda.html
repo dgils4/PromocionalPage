@@ -6392,6 +6392,13 @@ carregarProfissionaisCalendario();
 carregarAviso();
 atualizarBadge();
 
+setInterval(() => {
+
+  carregarHoje();
+
+}, 300000);
+
+
 setTimeout(()=>{
 
 carregarHoje();  
