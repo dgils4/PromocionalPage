@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Pesquisa Campeonato EA SPORTS FC 26</title>
+
+<style>
+ * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #0f172a;
+    color: #e5e7eb;
+    padding: 20px;
+}
+
+/* Container principal */
+#container {
+    max-width: 800px;
+    margin: auto;
+    background: #111827;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #22c55e;
+}
+
+header p {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-bottom: 5px;
+}
+
+/* Seções */
+section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #1f2937;
+    border-radius: 10px;
+}
+
+section h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #60a5fa;
+}
+
+/* Inputs */
+input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: #0b1220;
+    color: #fff;
+}
+
+input[type="radio"] {
+    margin-right: 6px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+/* Simulação */
+#simulacao {
+    border: 1px solid #334155;
+}
+
+#simulacao div {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+}
+
+#simulacao hr {
+    margin: 10px 0;
+    border: 0;
+    border-top: 1px solid #334155;
+}
+
+/* Destaques */
+#primeiro {
+    color: #facc15;
+    font-weight: bold;
+}
+
+#segundo {
+    color: #cbd5e1;
+    font-weight: bold;
+}
+
+#organizacao {
+    color: #f87171;
+}
+
+/* Textarea */
+textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: #0b1220;
+    color: #fff;
+    font-size: 14px;
+    resize: none;
+}
+
+/* Botão */
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #22c55e;
+    color: #0b1220;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #16a34a;
+}
+
+/* Sucesso */
+#sucesso {
+    text-align: center;
+    padding: 30px;
+    background: #052e16;
+    border-radius: 10px;
+    border: 1px solid #16a34a;
+}
+
+#sucesso h2 {
+    color: #22c55e;
+    margin-bottom: 10px;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+
+    #container {
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 18px;
+    }
+
+    section h2 {
+        font-size: 15px;
+    }
+
+} 
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.hero-banner img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.7);
+}
+
+/* Texto por cima da imagem */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+}
+
+.hero-overlay h1 {
+    font-size: 22px;
+    color: #22c55e;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    margin-bottom: 8px;
+}
+
+.hero-overlay p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+
+    .hero-banner img {
+        height: 160px;
+    }
+
+    .hero-overlay h1 {
+        font-size: 18px;
+    }
+
+}
+</style>
+
+</head>
+
+<body>
+<div class="hero-banner">
+
+    <img
+        src="https://meups.com.br/wp-content/uploads/2019/12/PlayStation-4-Cooperative.jpg"
+        alt="Campeonato EA SPORTS FC 26"
+    >
+
+    <div class="hero-overlay">
+
+        <h1>🏆 Campeonato EA SPORTS FC 26</h1>
+
+        <p>Pesquisa de participação e premiação</p>
+
+    </div>
+
+</div>
+<div id="container">
+
+    <header>
+
+
+        <p>
+            Estamos planejando um campeonato e queremos saber a opinião dos futuros participantes.
+        </p>
+
+        <p>
+            As decisões serão tomadas com base na opinião da maioria dos participantes.
+        </p>
+
+        <p>
+            Esta pesquisa não garante vaga no campeonato.
+        </p>
+
+    </header>
+
+
+    <form id="formPesquisa">
+
+        <section>
+
+            <h2>Qual o melhor dia?</h2>
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="dia"
+                    value="Domingo">
+
+                Domingo
+
+            </label>
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="dia"
+                    value="Segunda">
+
+                Segunda-feira
+
+            </label>
+
+        </section>
+
+
+        <section>
+
+            <h2>Quanto você estaria disposto a pagar de inscrição?</h2>
+
+            <input
+                type="number"
+                id="valor"
+                min="1"
+                placeholder="Ex.: 25">
+
+        </section>
+
+
+        <section id="simulacao">
+
+            <h2>📊 Simulação</h2>
+
+            <p>
+                Simulação considerando 8 participantes.
+            </p>
+
+            <p>
+                A quantidade oficial será definida após o encerramento da pesquisa.
+            </p>
+
+            <div>
+
+                Participantes
+
+                <span id="participantes">
+
+                    8
+
+                </span>
+
+            </div>
+
+            <div>
+
+                Valor da inscrição
+
+                <span id="valorInscricao">
+
+                    R$0,00
+
+                </span>
+
+            </div>
+
+            <div>
+
+                Arrecadação
+
+                <span id="arrecadacao">
+
+                    R$0,00
+
+                </span>
+
+            </div>
+
+            <hr>
+
+            <div>
+
+                🏆 1º Lugar
+
+                <span id="primeiro">
+
+                    R$0,00
+
+                </span>
+
+            </div>
+
+            <div>
+
+                🥈 2º Lugar
+
+                <span id="segundo">
+
+                    R$0,00
+
+                </span>
+
+            </div>
+
+            <div>
+
+                🥉 3º Lugar
+
+                <span>
+
+                    Vale Corte Gratuito
+
+                </span>
+
+            </div>
+
+            <div>
+
+                Organização
+
+                <span id="organizacao">
+
+                    R$0,00
+
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <section>
+
+            <h2>Você tem alguma sugestão para tornar o campeonato ainda melhor?</h2>
+
+            <textarea
+                id="sugestao"
+                rows="6"
+                placeholder="Digite sua sugestão..."></textarea>
+
+        </section>
+
+
+        <button
+            type="submit">
+
+            Enviar Pesquisa
+
+        </button>
+
+    </form>
+
+
+    <section id="sucesso" hidden>
+
+        <h2>
+
+            ✅ Obrigado!
+
+        </h2>
+
+        <p>
+
+            Sua resposta foi registrada.
+
+        </p>
+
+    </section>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+
+const db =
+supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+</script>
+
+
+
+
+<script>
+  
+ let PARTICIPANTES = 8;
+
+let valorInput = document.getElementById("valor");
+let form = document.getElementById("formPesquisa");
+
+let diaSelecionado = null; 
+
+function criarIdentificador() {
+
+    if (!localStorage.getItem("identificador")) {
+        localStorage.setItem(
+            "identificador",
+            crypto.randomUUID()
+        );
+    }
+
+}
+
+
+function verificarResposta() {
+
+    if (localStorage.getItem("pesquisa_campeonato")) {
+
+        document.getElementById("formPesquisa").style.display = "none";
+        document.getElementById("sucesso").style.display = "block";
+
+    }
+
+}
+
+function calcularSimulacao() {
+
+    let valor = parseFloat(valorInput.value || 0);
+
+    let arrecadacao = PARTICIPANTES * valor;
+
+    let primeiro = arrecadacao * 0.60;
+    let segundo = arrecadacao * 0.20;
+    let organizacao = arrecadacao * 0.20;
+
+    document.getElementById("participantes").innerText = PARTICIPANTES;
+    document.getElementById("valorInscricao").innerText = formatarMoeda(valor);
+    document.getElementById("arrecadacao").innerText = formatarMoeda(arrecadacao);
+
+    document.getElementById("primeiro").innerText = formatarMoeda(primeiro);
+    document.getElementById("segundo").innerText = formatarMoeda(segundo);
+    document.getElementById("organizacao").innerText = formatarMoeda(organizacao);
+
+}
+
+function formatarMoeda(valor) {
+
+    return valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+
+}
+
+function capturarDia() {
+
+    let radios = document.getElementsByName("dia");
+
+    for (let r of radios) {
+        if (r.checked) {
+            diaSelecionado = r.value;
+        }
+    }
+
+}
+  
+  
+  function validar() {
+
+    if (!diaSelecionado) {
+        mostrarPopup("Selecione o dia da semana", "erro");
+        return false;
+    }
+
+    if (!valorInput.value || valorInput.value <= 0) {
+        mostrarPopup("Informe um valor válido", "erro");
+        return false;
+    }
+
+    return true;
+
+}
+
+async function enviarPesquisa() {
+
+    capturarDia();
+
+    if (!validar()) return;
+
+    let valor = parseFloat(valorInput.value);
+
+    const { error } = await db
+        .from("pesquisa_campeonato")
+        .insert([{
+            dia_semana: diaSelecionado,
+            valor_inscricao: valor,
+            sugestao_premio: document.getElementById("sugestao").value,
+            ip_local: localStorage.getItem("identificador")
+        }]);
+
+    if (error) {
+
+        mostrarPopup("Você já respondeu esta pesquisa", "erro");
+
+        localStorage.setItem("pesquisa_campeonato", "respondido");
+
+        return;
+
+    }
+
+    localStorage.setItem("pesquisa_campeonato", "respondido");
+
+    mostrarSucesso();
+
+}
+
+function mostrarSucesso() {
+
+    document.getElementById("formPesquisa").style.display = "none";
+    document.getElementById("sucesso").style.display = "block";
+
+}
+
+function iniciarEventos() {
+
+    valorInput.addEventListener("input", calcularSimulacao);
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        enviarPesquisa();
+    });
+
+}
+
+function init() {
+
+    criarIdentificador();
+    verificarResposta();
+    iniciarEventos();
+    calcularSimulacao();
+
+}
+
+init();
+  
+</script>
+
+</body>
+
+</html>
