@@ -213,9 +213,8 @@
 
   inset:0;
 
-  background:rgba(0,0,0,.5);
-
-  z-index:9999998;
+background:rgba(0,0,0,.5);
+  z-index:999999999999;
 
   display:none;
 
@@ -783,6 +782,184 @@ color: black;
   margin-top:4px;
 
 }
+
+.cardFidelidade{
+  background:#111827;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.nomeFid{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.statusFid{
+  color:#f59e0b;
+  margin-bottom:8px;
+}
+
+.cortesFid{
+  margin-bottom:12px;
+  color:#d1d5db;
+}
+
+.acoesFid{
+  display:flex;
+  gap:10px;
+}
+
+.acoesFid button{
+  flex:1;
+}
+
+.alertaFidelidade{
+  background:#22c55e;
+  color:#fff;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:12px;
+  text-align:center;
+  font-weight:bold;
+
+  animation:pulsar 1.5s infinite;
+}
+
+@keyframes pulsar{
+
+  0%{
+    transform:scale(1);
+  }
+
+  50%{
+    transform:scale(1.03);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
+.cardPremiado{
+  border:2px solid #f59e0b;
+  box-shadow:0 0 15px rgba(245,158,11,.4);
+}
+.avisoProximoPremio{
+  color:#f59e0b;
+  font-weight:bold;
+  margin-top:8px;
+}
+.cardQuasePremiado{
+  border:2px solid #f59e0b;
+  box-shadow:0 0 12px rgba(245,158,11,.4);
+}
+
+.cardPlano{
+
+    
+    border-radius:12px;
+    padding:15px;
+    margin-top:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+
+}
+
+.tituloPlano{
+
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:8px;
+
+}
+
+.subPlano{
+
+    color:#555;
+    margin-bottom:10px;
+
+}
+
+.precoPlano{
+
+    color:#2b8a3e;
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:10px;
+
+}
+
+.statusPlano{
+
+    font-weight:bold;
+
+}
+
+
+.itemResultado{
+  margin-bottom:10px;
+}
+
+.videoBox{
+  display:flex;
+  gap:10px;
+  background:#000;
+  padding:10px;
+  border-radius:10px;
+  align-items:center;
+  color:#fff;
+}
+
+.thumbYoutube{
+  width:120px;
+  height:70px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+.infoVideo{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.botoesVideo{
+  display:flex;
+  gap:8px;
+}
+
+.btnPlayAgora,
+.btnAdicionar{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.cardCliente{
+  background:transparent;
+  padding:15px;
+  border-radius:12px;
+  border: solid 1px #fff;
+  margin-top:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  color:#fff;
+}
+
+.nomeCliente{
+  font-weight:bold;
+  font-size:16px;
+  margin-bottom:8px;
+}
+
+.infoCliente{
+  font-size:14px;
+  color:#fff;
+  margin-top:4px;
+}
 </style>
 
 </head>
@@ -807,6 +984,34 @@ color: black;
     <p>Inicializando sistema...</p>
 
   </div></div>
+  
+ <div id="telaRifa" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaRifa')">
+      ← Voltar
+    </button>
+
+    <h2>🎟️ Rifas</h2>
+
+  </div>
+
+  <div class="conteudoTela" style="padding:0px">
+
+    <iframe
+      src="https://www.barbearialosvisionarios.com.br/rifadm.html"
+      style="
+        width:100%;
+        height:calc(100vh - 70px);
+        border:none;
+      ">
+    </iframe>
+
+  </div>
+
+</div> 
+  
   
   <!-- ========================= -->
 <!-- 📊 TELA FATURAMENTO -->
@@ -1025,6 +1230,35 @@ accept="image/*">
 
 </div>
 
+<div id="telaFidelidade" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaFidelidade')">
+      ← Voltar
+    </button>
+
+    <h2>🎁 Cartão Fidelidade</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+<div
+id="alertaFidelidade"
+class="alertaFidelidade"
+style="display:none">
+</div>
+
+    <input
+      id="buscaFidelidade"
+      placeholder="Buscar cliente"
+      oninput="carregarFidelidade()">
+
+    <div id="listaFidelidade"></div>
+
+  </div>
+
+</div>
 <!-- ========================= -->
 <!-- ⚙️ TELA CONFIG -->
 <!-- ========================= -->
@@ -1043,6 +1277,20 @@ accept="image/*">
 
   <div class="conteudoTela">
 
+<button onclick="abrirConfigPopup()">
+       Site / Avisos
+    </button>   
+
+   
+<button onclick="abrirConfigPlanos()">
+       Site / Planos
+    </button>   
+    
+<button onclick="abrirConfigEmpresa()">
+      🏢 Empresa / config
+    </button>
+
+
     <button onclick="backupCSV()">
       📁 Backup CSV
     </button>
@@ -1054,6 +1302,202 @@ accept="image/*">
   </div>
 
 </div>
+
+
+<div id="telaConfigEmpresa" class="telaSistema" style="display:none;">
+
+  <div class="topTela">
+
+    <button onclick="fecharTelaConfig()">
+      ← Voltar
+    </button>
+
+    <h2>🏢 Configuração da Empresa</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+    <label>Nome da Empresa</label>
+    <input id="nomeEmpresa" type="text">
+
+    <label>Chave Pix</label>
+    <input id="chavePix" type="text">
+
+    <label>Tipo Pix</label>
+    <input id="tipoPix" type="text">
+
+    <label>Nome do Recebedor</label>
+    <input id="nomeRecebedor" type="text">
+
+    <label>WhatsApp</label>
+    <input id="whatsappConfig" type="text">
+
+    <label>Email</label>
+    <input id="emailConfig" type="text">
+
+    <label>Link Pagamento</label>
+    <input id="linkPagamento" type="text">
+
+
+    <button onclick="salvarConfiguracoes()" style="
+      width:100%;
+      margin-top:15px;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#16a34a;
+      color:#fff;
+      font-weight:700;
+    ">
+      💾 Salvar
+    </button>
+
+  </div>
+
+</div>
+
+
+<div id="telaConfigPopup" class="telaSistema" style="display:none;">
+
+  <div class="topTela">
+
+    <button onclick="fecharTelaConfigPopup()">
+      ← Voltar
+    </button>
+
+    <h2>🏢 Configuração de Avisos</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+<label>
+
+  <input
+    type="checkbox"
+    id="avisoAtivo">
+
+  Exibir aviso ao abrir o site
+
+</label>
+
+<input
+  id="avisoTitulo"
+  placeholder="Título do aviso">
+
+<textarea
+  id="avisoTexto"
+  placeholder="Mensagem do aviso">
+</textarea>
+
+<input
+  id="avisoBotao"
+  placeholder="Texto do botão"
+  value="Entendi">
+ 
+<button onclick="salvarAviso()">
+💾 Salvar Aviso
+</button>
+  </div>
+
+</div>
+
+
+
+
+<div id="telaConfigPlanos" class="telaSistema" style="display:none;">
+
+  <div class="topTela">
+
+    <button onclick="fecharTelaConfigPlanos()">
+      ← Voltar
+    </button>
+
+    <h2>Planos do Site</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+
+<label for="planoNome">Nome do Plano</label>
+<input
+id="planoNome"
+type="text"
+placeholder="Ex.: Plano Premium">
+
+<label for="planoSubtitulo">Subtítulo</label>
+<input
+id="planoSubtitulo"
+type="text"
+placeholder="Ex.: Combo Cabelo e Barba">
+
+<label for="planoDescricao">Benefícios do Plano</label>
+<textarea
+id="planoDescricao"
+rows="6"
+placeholder="Digite um benefício por linha.
+
+Exemplo:
+Até 4 cortes mensais
+Sobrancelha inclusa
+20% de desconto em depilação
+Visual sempre em dia"></textarea>
+
+<label for="planoPreco">Preço</label>
+<input
+id="planoPreco"
+type="text"
+placeholder="Ex.: R$ 64,99">
+
+<label for="planoLinkPagamento">Link de Pagamento</label>
+<input
+id="planoLinkPagamento"
+type="url"
+placeholder="Cole aqui o link do Mercado Pago">
+
+<label for="planoLinkDetalhes">Link 'Mais Detalhes'</label>
+<input
+id="planoLinkDetalhes"
+type="text"
+placeholder="Ex.: RegrasPlano.html">
+
+<label for="planoOrdem">Ordem de Exibição</label>
+<input
+id="planoOrdem"
+type="number"
+placeholder="1">
+
+<label class="checkPlano">
+<input
+id="planoAtivo"
+type="checkbox"
+checked>
+
+Plano disponível no site
+</label>
+
+<button onclick="salvarPlano()">
+💾 Salvar Plano
+</button>
+    
+
+
+  </div>
+<hr>
+
+<h2>
+📦 Planos Cadastrados
+<span id="totalPlanos">(0)</span>
+</h2>
+
+<div id="listaPlanos"></div>
+
+
+</div>
+
+
+
 
 <div id="telaPlayer" class="telaSistema">
 
@@ -1240,13 +1684,10 @@ accept="image/*">
   <div id="sidebar" class="sidebar">
   
   
- <h2 style="margin-bottom:10px">
+ <h2 style="margin-bottom:10px" onclick="abrirHoje()">
     📋 Menu
   </h2>
 
-  <button onclick="abrirHoje()">
-    📅 Agenda
-  </button>
 
   <button onclick="abrirCalendario()">
     📆 Buscar Período
@@ -1286,6 +1727,14 @@ accept="image/*">
   
   <button onclick="abrirProfissionais()">
   👤 Profissionais
+</button>
+
+<button onclick="abrirFidelidade()">
+  🎁 Fidelidade
+</button>
+
+<button onclick="abrirTelaRifa()">
+  🎟️ Rifa
 </button>
 
   <button onclick="abrirConfig()">
@@ -1339,10 +1788,7 @@ accept="image/*">
 <div class='toolbar'>
 <select id="filtro">
 
-  <option value="Todos">
-    Todos
-  </option>
-
+  
 </select>
 
 <button onclick="carregarHoje()">
@@ -1475,7 +1921,7 @@ db.auth.onAuthStateChange((event, session) => {
 
 
 <script>
-  let tocandoAnuncio = false;
+let tocandoAnuncio = false;
 let contadorMusicas = 0;
 let reproduzindoTemporario = false;
 let indiceAnterior = 0;
@@ -1484,9 +1930,10 @@ let listaAtual = null;
 let listaConfigAtual = null;
 let diaSelecionado = 0;
 let listasDoDia = [];
-
+let planoEditando = null;
 let indiceListaAtual = 0;
-let listaExcluirId = null;  
+let listaExcluirId = null; 
+let tempoExcluirPlano;
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
      somSucesso.preload = "auto";
@@ -1747,6 +2194,8 @@ function renderSkeleton(){
 
 
 async function carregarHoje(){
+
+  
 abrirLoading();
   renderSkeleton();
 
@@ -1770,8 +2219,9 @@ abrirLoading();
 
  if(error){
    mostrarToast(error.message);
+    fecharLoading();
    return;
-   fecharLoading()
+  
    
  }
 
@@ -1789,13 +2239,17 @@ abrirLoading();
  planos.textContent =
  data.filter(x => x.tipo_cliente === 'plano').length;
 
- horarios.forEach(h => {
 
-   // 🔥 CORREÇÃO AQUI
 const mapa = {};
 data.forEach(i => {
  mapa[i.hora.slice(0,5)] = i;
 });
+
+
+
+ horarios.forEach(h => {
+
+  
 
 const item = mapa[h];
 
@@ -1887,9 +2341,30 @@ fecharLoading();
 }
 
 
+let tempoPlayer;
+
+function pausarPlayer(){
+
+  clearTimeout(tempoPlayer);
+
+  player.pauseVideo();
+
+  tempoPlayer = setTimeout(() => {
+
+    player.playVideo();
+
+  }, 2000);
+
+}
+
+
+
 
 async function salvarAtendimento(){
+ pausarPlayer(); 
+  
   abrirLoading("Processando...")
+  
   
 if(valorr.value.trim() === ""){
   valorr.value = 0;
@@ -1939,7 +2414,7 @@ console.log(nomeFinal);
    .single();
 
    if(error){
-     abrirConfirmacao("Erro ao criar cliente")
+     firmacao("Erro ao criar cliente")
    fecharLoading();
      return;
    }
@@ -2030,6 +2505,11 @@ if(editandoId){
 
 window.ultimoAtendimentoId =
 atendimentoSalvoId;
+ 
+
+
+ 
+ 
  
  if(clienteId){
 
@@ -2247,7 +2727,7 @@ inputNome.dataset.id = data.cliente_id || "";
 
 
 async function excluirAtendimento(id){
-
+pausarPlayer(); 
 abrirLoading("Excluindo...")
  const { error } = await db
  .from('atendimentos')
@@ -2356,19 +2836,27 @@ async function calcularFaturamento(){
 // =========================
 // FECHAR MENU
 // =========================
-
 function fecharMenu(){
 
   document
-  .getElementById("sidebar")
-  .classList.remove("ativo");
+    .getElementById("sidebar")
+    .classList.remove("ativo");
 
   document
-  .getElementById("overlayMenu")
-  .classList.remove("show");
+    .getElementById("overlayMenu")
+    .classList.remove("show");
 
 }
+function iniciarAutoFecharMenu(){
 
+  // cancela qualquer timer antigo
+  clearTimeout(timerMenu);
+
+  timerMenu = setTimeout(() => {
+    fecharMenu();
+  }, 30000); // 30 segundos
+
+}
 
 
 async function calcularPlanos(){
@@ -2623,7 +3111,7 @@ async function backupCSV(){
  link.click();
 
 }
-
+let timerMenu = null;
 let timerPress = null;
 let segurando = false;
 let iniciouX = 0;
@@ -2706,12 +3194,7 @@ function cliqueCard(id){
 }
 
 
-const filtroSalvo =
-localStorage.getItem("filtroAgenda");
 
-if(filtroSalvo){
- filtro.value = filtroSalvo;
-}
 
 // ======================
 // TOAST
@@ -3106,45 +3589,53 @@ async function abrirVencimentos(){
 
 async function cobrarCliente(nome){
 
+  // 🔎 busca cliente
   const { data, error } = await db
-  .from("clientes")
-  .select("telefone")
-  .eq("nome", nome)
-  .single();
+    .from("clientes")
+    .select("telefone")
+    .eq("nome", nome)
+    .single();
 
   if(error || !data){
-
-    mostrarToast(
-      "Cliente não encontrado"
-    );
-
+    mostrarToast("Cliente não encontrado");
     return;
   }
 
-  const telefone =
-  (data.telefone || "")
-  .replace(/\D/g,'');
+  const telefone = (data.telefone || "").replace(/\D/g,'');
 
-  if(
-    !telefone ||
-    telefone === "0"
-  ){
-
-    mostrarToast(
-      "Telefone não cadastrado"
-    );
-
+  if(!telefone){
+    mostrarToast("Telefone não cadastrado");
     return;
   }
 
-  const mensagem =
-`Olá ${nome}, seu plano da barbearia venceu.`;
+  // 🔎 busca config da empresa
+  const config = await getConfiguracao();
 
-  const url =
-`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+  const empresa = config?.nome_empresa || "Empresa";
+  const chavePix = config?.chave_pix || "";
+  const recebedor = config?.nome_recebedor || "";
+  const linkPagamento = config?.link_pagamento || "";
+
+  // 💬 mensagem completa
+  const mensagem = `
+Olá ${nome},
+
+Aqui é da ${empresa}.
+
+Identificamos que seu plano está em aberto.
+
+💳 Dados para pagamento:
+PIX: ${chavePix}
+Recebedor: ${recebedor}
+${linkPagamento ? `\n🔗 Link de pagamento:\n${linkPagamento}` : ""}
+
+Qualquer dúvida estou à disposição.
+`;
+
+  // 📲 abre WhatsApp direto com o número do cliente
+  const url = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
 
   window.open(url, "_blank");
-
 }
 
 
@@ -3178,25 +3669,15 @@ async function atualizarBadge(){
 
 function abrirTela(id){
 
-  // fecha todas
   document
-  .querySelectorAll(".telaSistema")
-  .forEach(tela => {
+    .querySelectorAll(".telaSistema")
+    .forEach(tela => tela.classList.remove("ativa"));
 
-    tela.classList.remove("ativa");
-
-  });
-
-  // abre tela
   document
-  .getElementById(id)
-  .classList.add("ativa");
+    .getElementById(id)
+    .classList.add("ativa");
 
-  // fecha sidebar
-  document
-  .getElementById("sidebar")
-  .classList.remove("ativo");
-
+  fecharMenu(); // usa o padrão único
 }
 
 // =========================
@@ -3208,6 +3689,7 @@ function fecharTela(id){
   document
   .getElementById(id)
   .classList.remove("ativa");
+  
 
 }
 
@@ -3217,40 +3699,44 @@ function fecharTela(id){
 
 function toggleMenu(){
 
-  const menu =
-  document.getElementById("sidebar");
+  const menu = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlayMenu");
 
   menu.classList.toggle("ativo");
+  overlay.classList.toggle("show");
 
+  // se abriu o menu, inicia o timer
+  if(menu.classList.contains("ativo")){
+    iniciarAutoFecharMenu();
+  } else {
+    clearTimeout(timerMenu);
+  }
 }
 
 // =========================
 // ABRIR HOJE
 // =========================
 
+
+
+
+
 function abrirHoje(){
 
-  document
-  .querySelectorAll(".telaSistema")
-  .forEach(tela => {
-
-    tela.classList.remove("ativa");
-
-  });
-
-  // FECHA MENU
-  document
-  .getElementById("sidebar")
-  .classList.remove("ativo");
-
-  // FECHA OVERLAY
-  document
-  .getElementById("overlayMenu")
-  .classList.remove("show");
+fecharMenu();
 
   carregarHoje();
 
 }
+
+function abrirTelaRifa(){
+abrirTela("telaRifa");
+
+}
+
+
+
+
 
 // =========================
 // ABRIR FATURAMENTO
@@ -3399,6 +3885,567 @@ async function carregarProfissionaisFiltro(){
     `;
 
   });
+
+
+
+const filtroSalvo =
+localStorage.getItem("filtroAgenda");
+
+if(
+  filtroSalvo &&
+  [...filtro.options]
+  .some(o => o.value === filtroSalvo)
+){
+  filtro.value = filtroSalvo;
+}
+
+
+
+}
+
+
+async function carregarClientes(){
+
+  const busca =
+  document.getElementById("buscarCliente").value.trim();
+
+  let query = db
+    .from("clientes")
+    .select("*")
+    .order("nome");
+
+  if(busca){
+    query = query.ilike("nome", `%${busca}%`);
+  }
+
+  const { data: clientes, error } = await query;
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const { data: atendimentosRaw } = await db
+    .from("atendimentos")
+    .select("cliente_id,data,numero_corte,tipo_cliente")
+    .order("data", { ascending: false });
+
+  const atendimentos = atendimentosRaw || [];
+
+  // 🔥 MAPA ÚLTIMO ATENDIMENTO
+  const ultimoMap = {};
+
+  atendimentos.forEach(a => {
+    if(!a.cliente_id) return;
+    if(!ultimoMap[a.cliente_id]){
+      ultimoMap[a.cliente_id] = a;
+    }
+  });
+
+  const lista = document.getElementById("resultadoClientes");
+  lista.innerHTML = "";
+
+  if(!clientes.length){
+    lista.innerHTML = "<div class='msg'>Nenhum cliente encontrado</div>";
+    return;
+  }
+
+  clientes.forEach(cli => {
+
+    const ultimo = ultimoMap[cli.id];
+
+    // 🔥 ÚLTIMA VISITA
+    const ultimaVisita = ultimo?.data
+      ? new Date(ultimo.data).toLocaleDateString("pt-BR")
+      : "Sem visitas";
+
+    // 🔥 ÚLTIMO CORTE (derivado)
+    const numeroCorte =
+      ultimo?.numero_corte
+      ? `${ultimo.numero_corte}/4`
+      : "Sem corte";
+
+    // 🔥 STATUS PLANO
+    const statusPlano =
+      cli.status_plano || "não informado";
+
+    // 🔥 DATA ADESÃO
+    const adesao = cli.data_adesao_plano || "-";
+
+    // 🔥 RENOVAÇÃO
+    const renovacao = cli.ultima_renovacao || "-";
+
+    // 🔥 VENCIMENTO
+    const vencimento = cli.vencimento_plano || "-";
+
+    // 🔥 FIDELIDADE
+    const fidelidadeInicio = cli.fidelidade_inicio || "-";
+    const fidelidadeUsados = cli.fidelidade_usados || 0;
+
+    lista.innerHTML += `
+      <div class="cardCliente">
+
+        <div class="nomeCliente">
+          👤 ${cli.nome}
+        </div>
+
+        <div>📞 ${cli.telefone || "-"}</div>
+
+        <hr>
+
+        <div>📌 Plano: <b>${statusPlano}</b></div>
+        <div>📅 Adesão: ${adesao}</div>
+        <div>🔁 Renovação: ${renovacao}</div>
+        <div>⏳ Vencimento: ${vencimento}</div>
+
+        <hr>
+
+        <div>✂️ Último corte: <b>${numeroCorte}</b></div>
+        <div>📅 Última visita: <b>${ultimaVisita}</b></div>
+
+        <hr>
+
+        <div>🎁 Fidelidade início: ${fidelidadeInicio}</div>
+        <div>🎁 Fidelidade usados: ${fidelidadeUsados}</div>
+
+      </div>
+    `;
+  });
+}
+
+document
+.getElementById("buscarCliente")
+.addEventListener("input", carregarClientes);
+
+
+
+
+
+function abrirFidelidade(){
+
+  abrirTela("telaFidelidade");
+
+  carregarFidelidade();
+
+}
+async function carregarFidelidade(){
+
+  const busca =
+  document.getElementById(
+    "buscaFidelidade"
+  ).value.trim();
+
+  let query = db
+  .from("clientes")
+  .select("*")
+  .order("nome");
+
+  if(busca){
+
+    query =
+    query.ilike(
+      "nome",
+      `%${busca}%`
+    );
+
+  }
+
+  const {
+    data,
+    error
+  } = await query;
+
+  if(error){
+
+    console.log(error);
+
+    return;
+
+  }
+  
+const { data: atendimentos } =
+await db
+.from("atendimentos")
+.select(
+  "cliente_id,tipo_cliente,data"
+)
+.eq("tipo_cliente","avulso");
+
+const mapaCortes = {};
+
+data.forEach(cli=>{
+
+  const inicio =
+  cli.fidelidade_inicio;
+
+const total =
+
+!cli.tem_fidelidade
+
+? 0
+
+: atendimentos.filter(a =>
+
+    a.cliente_id == cli.id &&
+
+    a.data >= cli.fidelidade_inicio
+
+  ).length;
+
+  mapaCortes[cli.id] =
+  total;
+
+});
+
+  const lista =
+  document.getElementById(
+    "listaFidelidade"
+  );
+
+  lista.innerHTML = "";
+const premiosDisponiveis =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return (
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+}).length;
+
+const clientesProximoPremio =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  const premiosDisponiveis =
+  premiosGanhos - premiosUsados;
+
+  return (
+    cli.tem_fidelidade &&
+    cortesTotal % 11 === 10 &&
+    premiosDisponiveis === 0
+  );
+
+});
+
+
+const alerta =
+document.getElementById(
+  "alertaFidelidade"
+);
+
+let mensagens = [];
+
+if(clientesProximoPremio.length > 0){
+
+  const nomes =
+  clientesProximoPremio
+  .map(c => c.nome)
+  .join("<br>");
+
+  mensagens.push(`
+    ⚠️ Corte grátis na próxima visita:<br><br>
+    ${nomes}
+  `);
+
+}
+
+if(premiosDisponiveis > 0){
+
+  mensagens.push(
+    `🏆 Existem ${premiosDisponiveis} prêmio(s) disponível(is)`
+  );
+
+}
+
+if(mensagens.length){
+
+  alerta.style.display = "block";
+
+  alerta.innerHTML =
+  mensagens.join("<br><br>");
+
+}else{
+
+  alerta.style.display = "none";
+
+}
+
+const premiados =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return (
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+});
+
+const restantes =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return !(
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+});
+
+const listaFinal = [
+  ...premiados,
+  ...restantes
+];
+
+  listaFinal.forEach(cli=>{
+
+const cortesTotal =
+mapaCortes[cli.id] || 0;
+
+const premiosGanhos =
+Math.floor(cortesTotal / 11);
+
+const premiosUsados =
+Number(cli.fidelidade_usados || 0);
+
+const premiosDisponiveis =
+premiosGanhos - premiosUsados;
+
+const cortes =
+cortesTotal % 11;
+
+  lista.innerHTML += `
+
+  <div class="
+  
+  cardFidelidade
+${
+  cli.tem_fidelidade &&
+  premiosDisponiveis > 0
+
+  ?
+
+  "cardPremiado"
+
+  :
+
+  (
+    cli.tem_fidelidade &&
+    cortesTotal % 11 === 10
+
+    ?
+
+    "cardQuasePremiado"
+
+    :
+
+    ""
+  )
+}
+">
+
+    <div class="nomeFid">
+      ${cli.nome}
+    </div>
+
+    <div class="statusFid">
+
+      ${
+        cli.tem_fidelidade
+        ? "🎁 Fidelidade Ativa"
+        : "⭕ Fidelidade Inativa"
+      }
+
+    </div>
+
+<div class="cortesFid">
+
+  ✂️ ${cortes}/10 cortes
+
+</div>
+<center style="margin-bottom:15px;letter-spacing:2px;">${
+  cli.tem_fidelidade &&
+  cortesTotal % 11 === 10 &&
+  premiosDisponiveis === 0
+
+  ?
+
+  `
+  <div class="avisoProximoPremio">
+    ⚠️ Próxima visita é grátis
+  </div>
+  `
+
+  :
+
+  ""
+}</center>
+    <div class="acoesFid">
+
+${
+ cli.tem_fidelidade &&
+premiosDisponiveis > 0
+
+  ?
+
+  `<button
+  onclick="usarPremio('${cli.id}')">
+
+    🎁 Usar Grátis
+
+  </button>`
+
+        :
+
+        ""
+      }
+
+      <button
+      onclick="
+      alternarFidelidade(
+        '${cli.id}',
+        ${cli.tem_fidelidade}
+      )
+      ">
+
+        ${
+          cli.tem_fidelidade
+          ? "❌ Desativar"
+          : "🎁 Ativar"
+        }
+
+      </button>
+
+    </div>
+
+  </div>
+
+  `;
+
+});
+
+}
+
+
+async function usarPremio(id){
+
+  const { data: cli, error } =
+  await db
+  .from("clientes")
+  .select("fidelidade_usados")
+  .eq("id", id)
+  .single();
+
+  if(error){
+    mostrarToast(error.message);
+    return;
+  }
+
+  const usados =
+  Number(cli.fidelidade_usados || 0);
+
+  const { error: erroUpdate } =
+  await db
+  .from("clientes")
+  .update({
+    fidelidade_usados:
+    usados + 1
+  })
+  .eq("id", id);
+
+  if(erroUpdate){
+    mostrarToast(erroUpdate.message);
+    return;
+  }
+
+  mostrarToast(
+    "🎁 Prêmio utilizado"
+  );
+
+  carregarFidelidade();
+
+}
+
+async function alternarFidelidade(
+  id,
+  ativo
+){
+
+  const dados = {
+
+    tem_fidelidade: !ativo
+
+  };
+
+  if(!ativo){
+
+    dados.fidelidade_inicio =
+new Date()
+.toLocaleDateString(
+  "sv-SE"
+);
+
+  }else{
+
+    dados.fidelidade_inicio =
+    null;
+
+  }
+
+  const { error } =
+  await db
+  .from("clientes")
+  .update(dados)
+  .eq("id", id);
+
+  if(error){
+
+    mostrarToast(error.message);
+    return;
+
+  }
+
+  mostrarToast(
+    !ativo
+    ? "🎁 Fidelidade ativada"
+    : "❌ Fidelidade removida"
+  );
+
+  carregarFidelidade();
 
 }
 // =========================
@@ -3636,11 +4683,11 @@ lista.innerHTML += `
   )"
 
   ontouchmove="
-  cancelarSegurar()
+  cancelarSegurar2()
   "
 
   ontouchend="
-  cancelarSegurar()
+  cancelarSegurar2()
   ">
 
   <img
@@ -3695,20 +4742,14 @@ function segurarExcluirProf(
 
 }
 
-function cancelarSegurar(){
+function cancelarSegurar2(){
 
   clearTimeout(
     timerExcluirProf
   );
 
 }
-function cancelarSegurar(){
 
-  clearTimeout(
-    timerExcluirProf
-  );
-
-}
 async function excluirProfissional(id){
 
   const { error } =
@@ -4112,72 +5153,63 @@ async function obterAnuncio(){
 async function buscarYoutube(){
 
   const termo =
-  document.getElementById(
-    "buscaYoutube"
-  ).value.trim();
+    document.getElementById("buscaYoutube").value.trim();
 
   if(!termo) return;
 
   const url =
-  `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
 
-  const resp =
-  await fetch(url);
-
-  const dados =
-  await resp.json();
+  const resp = await fetch(url);
+  const dados = await resp.json();
 
   const resultados =
-  document.getElementById(
-    "resultadosYoutube"
-  );
+    document.getElementById("resultadosYoutube");
 
   resultados.innerHTML = "";
 
-  dados.items.forEach(item=>{
+  dados.items.forEach(item => {
 
-    const div =
-    document.createElement("div");
+    const div = document.createElement("div");
+    div.className = "itemResultado";
 
-    div.className =
-    "itemResultado";
-    
+    const thumb = `https://img.youtube.com/vi/${item.id.videoId}/hqdefault.jpg`;
 
-  div.innerHTML = `
-  <strong>${item.snippet.title}</strong>
-  <br>
+    div.innerHTML = `
+      <div class="videoBox">
 
-  <button class="btnPlayAgora">
-    ▶ Reproduzir
-  </button>
+        <img class="thumbYoutube" src="${thumb}">
 
-  <button class="btnAdicionar">
-    ➕ Adicionar
-  </button>
-`;
-    
+        <div class="infoVideo">
 
-const botoes =
-div.querySelectorAll("button");
+          <strong>${item.snippet.title}</strong>
 
-botoes[0].onclick = ()=>{
+          <div class="botoesVideo">
 
-  reproduzirAgora(
-    item.id.videoId
-  );
+            <button class="btnPlayAgora">
+              ▶ Reproduzir
+            </button>
 
-};
+            <button class="btnAdicionar">
+              ➕ Adicionar
+            </button>
 
-botoes[1].onclick = ()=>{
+          </div>
 
-  adicionarPlaylist(
-    item.id.videoId,
-    item.snippet.title
-  );
+        </div>
 
-};
+      </div>
+    `;
 
-    
+    const botoes = div.querySelectorAll("button");
+
+    botoes[0].onclick = () => {
+      reproduzirAgora(item.id.videoId);
+    };
+
+    botoes[1].onclick = () => {
+      adicionarPlaylist(item.id.videoId, item.snippet.title);
+    };
 
     resultados.appendChild(div);
 
@@ -4869,15 +5901,531 @@ function fecharPlayerTV(){
   ).style.display = "flex";
 
 }
+function abrirConfig(){
+  abrirTela("telaConfig");
+}
 
 
 
+
+function abrirConfigPlanos(){
+document.getElementById("telaConfigPlanos").style.display = "block";
+  
+}
+function abrirConfigPopup(){
+document.getElementById("telaConfigPopup").style.display = "block";
+  
+}
+
+function fecharTelaConfigPopup(){
+
+  const tela = document.getElementById("telaConfigPopup");
+
+  if(!tela){
+    console.log("TelaConfig Popup não encontrada");
+    return;
+  }
+   tela.style.display = "none";
+}
+
+function fecharTelaConfigPlanos(){
+
+  const tela = document.getElementById("telaConfigPlanos");
+
+  if(!tela){
+    console.log("TelaConfigEmpresaPlanos não encontrada");
+    return;
+  }
+
+  tela.style.display = "none";
+}
+
+function abrirConfigEmpresa(){
+document.getElementById("telaConfigEmpresa").style.display = "block";
+  carregarConfiguracoes();
+}
+
+function fecharTelaConfig(){
+
+  const tela = document.getElementById("telaConfigEmpresa");
+
+  if(!tela){
+    console.log("TelaConfigEmpresa não encontrada");
+    return;
+  }
+
+  tela.style.display = "none";
+}
+
+async function getConfiguracao(){
+
+  const { data, error } = await db
+    .from("configuracoes_empresa")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+
+  if(error || !data){
+    console.log(error);
+    return null;
+  }
+
+  return data;
+}
+
+async function carregarConfiguracoes(){
+
+  const { data, error } = await db
+    .from("configuracoes_empresa")
+    .select("*")
+    .limit(1)
+    .single();
+
+  if(error || !data){
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("nomeEmpresa").value = data.nome_empresa || "";
+  document.getElementById("chavePix").value = data.chave_pix || "";
+  document.getElementById("tipoPix").value = data.tipo_pix || "";
+  document.getElementById("nomeRecebedor").value = data.nome_recebedor || "";
+  document.getElementById("whatsappConfig").value = data.whatsapp || "";
+  document.getElementById("emailConfig").value = data.email || "";
+  document.getElementById("linkPagamento").value = data.link_pagamento || "";
+ 
+}
+
+async function salvarConfiguracoes(){
+
+  const nome_empresa = document.getElementById("nomeEmpresa").value;
+  const chave_pix = document.getElementById("chavePix").value;
+  const tipo_pix = document.getElementById("tipoPix").value;
+  const nome_recebedor = document.getElementById("nomeRecebedor").value;
+  const whatsapp = document.getElementById("whatsappConfig").value;
+  const email = document.getElementById("emailConfig").value;
+  const link_pagamento = document.getElementById("linkPagamento").value;
+
+  // 🔎 busca se já existe configuração
+  const { data, error: err1 } = await db
+    .from("configuracoes_empresa")
+    .select("id")
+    .limit(1)
+    .maybeSingle();
+
+  if(err1){
+    console.log(err1);
+    alert(err1.message);
+    return;
+  }
+
+  // 🟢 SE NÃO EXISTE → INSERE
+  if(!data){
+
+    const { error } = await db
+      .from("configuracoes_empresa")
+      .insert([{
+        nome_empresa,
+        chave_pix,
+        tipo_pix,
+        nome_recebedor,
+        whatsapp,
+        email,
+        link_pagamento
+      }]);
+
+    if(error){
+      console.log(error);
+      alert(error.message);
+      return;
+    }
+
+  } else {
+
+    // 🟡 SE EXISTE → ATUALIZA
+    const { error } = await db
+      .from("configuracoes_empresa")
+      .update({
+        nome_empresa,
+        chave_pix,
+        tipo_pix,
+        nome_recebedor,
+        whatsapp,
+        email,
+        link_pagamento
+      })
+      .eq("id", data.id);
+
+    if(error){
+      console.log(error);
+      alert(error.message);
+      return;
+    }
+  }
+
+  alert("Configurações salvas com sucesso");
+}
+
+
+async function salvarPlano(){
+
+  const nome =
+  document.getElementById("planoNome").value.trim();
+
+  const subtitulo =
+  document.getElementById("planoSubtitulo").value.trim();
+
+  const descricao =
+  document.getElementById("planoDescricao").value.trim();
+
+  const preco =
+  document.getElementById("planoPreco").value.trim();
+
+  const linkPagamento =
+  document.getElementById("planoLinkPagamento").value.trim();
+
+  const linkDetalhes =
+  document.getElementById("planoLinkDetalhes").value.trim();
+
+  const ordem =
+  Number(document.getElementById("planoOrdem").value) || 0;
+
+  const ativo =
+  document.getElementById("planoAtivo").checked;
+
+  // Validações
+
+  if(nome === ""){
+    alert("Informe o nome do plano.");
+    return;
+  }
+
+  if(subtitulo === ""){
+    alert("Informe o subtítulo.");
+    return;
+  }
+
+  if(descricao === ""){
+    alert("Informe a descrição do plano.");
+    return;
+  }
+
+  if(preco === ""){
+    alert("Informe o preço.");
+    return;
+  }
+
+  if(linkPagamento === ""){
+    alert("Informe o link de pagamento.");
+    return;
+  }
+
+if(planoEditando){
+
+    const { error } = await db
+    .from("planos_site")
+    .update({
+
+        nome,
+        subtitulo,
+        descricao,
+        preco,
+        link_pagamento: linkPagamento,
+        link_detalhes: linkDetalhes,
+        ordem,
+        ativo
+
+    })
+    .eq("id", planoEditando);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("Plano atualizado!");
+
+    planoEditando = null;
+
+}else{
+
+    const { error } = await db
+    .from("planos_site")
+    .insert([{
+
+        nome,
+        subtitulo,
+        descricao,
+        preco,
+        link_pagamento: linkPagamento,
+        link_detalhes: linkDetalhes,
+        ordem,
+        ativo
+
+    }]);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("Plano salvo!");
+
+}
+
+  limparFormularioPlano();
+
+  carregarPlanos();
+
+}
+
+function limparFormularioPlano(){
+
+  document.getElementById("planoNome").value = "";
+  document.getElementById("planoSubtitulo").value = "";
+  document.getElementById("planoDescricao").value = "";
+  document.getElementById("planoPreco").value = "";
+  document.getElementById("planoLinkPagamento").value = "";
+  document.getElementById("planoLinkDetalhes").value = "";
+  document.getElementById("planoOrdem").value = "";
+  document.getElementById("planoAtivo").checked = true;
+  carregarPlanos();
+}
+
+async function carregarPlanos(){
+
+  const { data, error } = await db
+  .from("planos_site")
+  .select("*")
+  .order("ordem");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("totalPlanos").textContent =
+  `(${data.length})`;
+
+  const lista =
+  document.getElementById("listaPlanos");
+
+  lista.innerHTML = "";
+
+  data.forEach(plano=>{
+
+    lista.innerHTML += `
+     <div
+class="cardPlano"
+onclick="editarPlano(${plano.id})"
+ontouchstart="iniciarExcluirPlano(${plano.id})"
+ontouchend="cancelarExcluirPlano()"
+ontouchcancel="cancelarExcluirPlano()"
+
+onmousedown="iniciarExcluirPlano(${plano.id})"
+onmouseup="cancelarExcluirPlano()"
+onmouseleave="cancelarExcluirPlano()">
+
+
+
+        <div class="tituloPlano">
+          ${plano.nome}
+        </div>
+
+        <div class="subPlano">
+          ${plano.subtitulo}
+        </div>
+
+        <div class="precoPlano">
+          ${plano.preco}
+        </div>
+
+        <div class="statusPlano">
+          ${plano.ativo ? "🟢 Ativo" : "🔴 Inativo"}
+        </div>
+
+      </div>
+    `;
+
+  });
+
+}
+
+
+
+
+
+async function editarPlano(id){
+
+    const { data, error } = await db
+    .from("planos_site")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+    if(error) return;
+
+    planoEditando = id;
+
+    document.getElementById("planoNome").value = data.nome;
+    document.getElementById("planoSubtitulo").value = data.subtitulo;
+    document.getElementById("planoDescricao").value = data.descricao;
+    document.getElementById("planoPreco").value = data.preco;
+    document.getElementById("planoLinkPagamento").value = data.link_pagamento;
+    document.getElementById("planoLinkDetalhes").value = data.link_detalhes;
+    document.getElementById("planoOrdem").value = data.ordem;
+    document.getElementById("planoAtivo").checked = data.ativo;
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+function iniciarExcluirPlano(id){
+
+    tempoExcluirPlano = setTimeout(()=>{
+
+        if(confirm("Deseja excluir este plano?")){
+
+            excluirPlano(id);
+
+        }
+
+    },3000);
+
+}
+
+function cancelarExcluirPlano(){
+
+    clearTimeout(tempoExcluirPlano);
+
+}
+
+async function excluirPlano(id){
+
+    const { error } = await db
+    .from("planos_site")
+    .delete()
+    .eq("id",id);
+
+    if(error){
+
+        alert(error.message);
+        return;
+
+    }
+
+    if(planoEditando == id){
+
+        planoEditando = null;
+        limparFormularioPlano();
+
+    }
+
+    carregarPlanos();
+
+}
+
+async function salvarAviso(){
+
+  const aviso_ativo =
+  document.getElementById(
+    "avisoAtivo"
+  ).checked;
+
+  const aviso_titulo =
+  document.getElementById(
+    "avisoTitulo"
+  ).value.trim();
+
+  const aviso_texto =
+  document.getElementById(
+    "avisoTexto"
+  ).value.trim();
+
+  const aviso_botao =
+  document.getElementById(
+    "avisoBotao"
+  ).value.trim() || "Entendi";
+
+  const { error } = await db
+  .from("configuracoes_empresa")
+  .update({
+
+    aviso_ativo,
+
+    aviso_titulo,
+
+    aviso_texto,
+
+    aviso_botao
+
+  })
+  .eq("id", 1);
+
+  if(error){
+    console.log(error);
+    alert("Erro ao salvar.");
+    return;
+  }
+
+  mostrarToast("Aviso salvo com sucesso!");
+
+}
+
+async function carregarAviso(){
+
+  const { data, error } = await db
+  .from("configuracoes_empresa")
+  .select(`
+    aviso_ativo,
+    aviso_titulo,
+    aviso_texto,
+    aviso_botao
+  `)
+  .eq("id",1)
+  .single();
+
+  if(error) return;
+
+  document.getElementById("avisoAtivo").checked =
+  data.aviso_ativo;
+
+  document.getElementById("avisoTitulo").value =
+  data.aviso_titulo || "";
+
+  document.getElementById("avisoTexto").value =
+  data.aviso_texto || "";
+
+  document.getElementById("avisoBotao").value =
+  data.aviso_botao || "Entendi";
+
+}
+
+
+carregarPlanos();
 carregarProfissionaisFiltro();
 carregarProfissionaisSelect();
 carregarProfissionaisCalendario();
-
+carregarAviso();
 atualizarBadge();
-carregarHoje();
+
+setInterval(() => {
+
+  carregarHoje();
+
+}, 1800000);
+
+
+setTimeout(()=>{
+
+carregarHoje();  
+
+},2000);
+
 
 setTimeout(()=>{
 
@@ -4887,10 +6435,11 @@ setTimeout(()=>{
 
 },300);
 
-
+document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
+document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
 
 
 </script>
-
+ 
 </body>
 </html>
