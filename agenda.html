@@ -1803,13 +1803,13 @@ Plano disponível no site
 <div class='modal' id='modal'>
 <div class='box'>
 <h3>Novo Atendimento</h3>
-<input id='hora' placeholder='Hora ex: 09:00'>
+
 <input id="nome" placeholder="Nome do cliente" autocomplete="off">
 <div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
 <input id='fone' placeholder='Telefone'>
 <div class='row'>
 <select id="barbeiro"></select>
-<select id='tipo'><option>avulso</option><option>plano</option></select>
+<input id='hora' placeholder='Hora ex: 09:00'>
 
 
 </div>
@@ -2124,7 +2124,18 @@ for(let h=8; h<=20; h++){
 function abrir(h='') {
 
   modal.style.display = 'flex';
-  hora.value = h;
+ if(!h){
+
+  const agora = new Date();
+
+  h =
+    String(agora.getHours()).padStart(2,"0") +
+    ":" +
+    String(agora.getMinutes()).padStart(2,"0");
+
+}
+
+hora.value = h;
 inputNome.dataset.id = "";
   document.getElementById("boxPlanoAdmin").style.display = "none";
 
@@ -2240,6 +2251,28 @@ abrirLoading();
  data.filter(x => x.tipo_cliente === 'plano').length;
 
 
+const horariosAgenda = [...horarios];
+
+data.forEach(item => {
+
+  const h = item.hora.slice(0,5);
+
+  if(!horariosAgenda.includes(h)){
+    horariosAgenda.push(h);
+  }
+
+});
+
+horariosAgenda.sort((a,b)=>{
+
+  const [ha,ma] = a.split(":").map(Number);
+  const [hb,mb] = b.split(":").map(Number);
+
+  return (ha * 60 + ma) - (hb * 60 + mb);
+
+});
+
+
 const mapa = {};
 data.forEach(i => {
  mapa[i.hora.slice(0,5)] = i;
@@ -2247,7 +2280,7 @@ data.forEach(i => {
 
 
 
- horarios.forEach(h => {
+ horariosAgenda.forEach(h => {
 
   
 
@@ -2366,6 +2399,11 @@ async function salvarAtendimento(){
   abrirLoading("Processando...")
   
   
+const tipoCliente =
+  pag.value === "Plano Mensal"
+    ? "plano"
+    : "avulso";  
+  
 if(valorr.value.trim() === ""){
   valorr.value = 0;
 }  
@@ -2427,7 +2465,7 @@ console.log(nomeFinal);
  // ==========================
  let numeroCorteFinal = corte.value;
 
- if(tipo.value === "plano" && clienteId){
+ if(tipoCliente === "plano" && clienteId){
 
    if(numeroCorteFinal === ""){
 
@@ -2455,10 +2493,18 @@ console.log(nomeFinal);
  } else {
    numeroCorteFinal = "";
  }
+ 
+
+ 
 
  // ==========================
  // 🔥 DADOS
  // ==========================
+ let servicoFinal =
+  valor.value.trim() === ""
+    ? "sem serviço"
+    : valor.value.trim();
+ 
  const dados = {
    cliente_id: clienteId,
    data: dataInput.value,
@@ -2466,12 +2512,12 @@ console.log(nomeFinal);
    nome_cliente: nomeFinal,
    telefone: telefoneLimpo,
    barbeiro: barbeiro.value,
-   tipo_cliente: tipo.value,
+   tipo_cliente: tipoCliente,
    numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
    forma_pagamento: pag.value,
    valor: valorr.value,
    observacao: obs.value,
-   servico: valor.value
+   servico: servicoFinal,
  };
 
  let resposta;
@@ -2524,7 +2570,7 @@ atendimentoSalvoId;
 }
 
 
-if(tipo.value === "plano" && clienteId){
+if(tipoCliente === "plano" && clienteId){
 
    const { data: cli } = await db
    .from("clientes")
@@ -2677,7 +2723,7 @@ fone.value = data.telefone || "";
 // 🔥 ESSENCIAL
 inputNome.dataset.id = data.cliente_id || "";
  
- tipo.value      = data.tipo_cliente || "avulso";
+ 
  corte.value     = data.numero_corte || "";
  pag.value       = data.forma_pagamento || "Pix";
  valor.value     = data.servico || "";
@@ -2687,7 +2733,7 @@ inputNome.dataset.id = data.cliente_id || "";
  // ==========================
  // SE FOR PLANO
  // ==========================
- if(data.tipo_cliente === "plano"){
+ if(pag.value === "Plano Mensal"){
 
    document.getElementById("boxPlanoAdmin").style.display = "flex";
 
