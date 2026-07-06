@@ -960,6 +960,166 @@ color: black;
   color:#fff;
   margin-top:4px;
 }
+
+.linhaCheck{
+
+display:flex;
+align-items:center;
+justify-content:center;
+gap:12px;
+margin:18px 0;
+
+}
+
+.linhaCheck input{
+
+width:22px;
+height:22px;
+
+}
+
+.linhaCheck label{
+
+margin:0;
+font-size:18px;
+color:#fff;
+
+}
+
+
+.cardLembrete{
+
+background:#111827;
+border-left:5px solid #2563eb;
+border-radius:16px;
+padding:16px;
+margin-bottom:15px;
+box-shadow:0 6px 15px rgba(0,0,0,.25);
+
+}
+
+.topoCard{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:12px;
+
+}
+
+.status{
+
+background:#16a34a;
+padding:5px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:bold;
+
+}
+
+.item{
+
+margin:8px 0;
+color:#d1d5db;
+
+}
+
+.acoes{
+
+margin-top:15px;
+
+}
+
+.acoes button{
+
+width:100%;
+border:none;
+border-radius:12px;
+padding:12px;
+background:#dc2626;
+color:#fff;
+font-weight:bold;
+
+}
+
+
+.popupLembrete{
+
+position:fixed;
+
+top:-250px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+width:92%;
+max-width:420px;
+
+background:#111827;
+
+border-left:5px solid #2563eb;
+
+border-radius:16px;
+
+padding:16px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.45);
+
+z-index:9999;
+
+transition:.35s;
+
+color:#fff;
+
+}
+
+.popupLembrete.ativo{
+
+top:20px;
+
+}
+
+.popupTopo{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:12px;
+
+font-weight:bold;
+
+font-size:18px;
+
+}
+
+.popupTopo button{
+
+background:none;
+
+border:none;
+
+color:#fff;
+
+font-size:20px;
+
+cursor:pointer;
+
+}
+
+#textoLembrete{
+
+line-height:1.7;
+
+font-size:15px;
+
+white-space:pre-line;
+
+}
+
 </style>
 
 </head>
@@ -1229,6 +1389,86 @@ accept="image/*">
   </div>
 
 </div>
+
+<div id="telaLembrete" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaLembrete')">
+      ← Voltar
+    </button>
+
+    <h2>Lembrete</h2>
+
+  </div>
+
+ <div class="conteudoTela">
+
+<label>Barbeiro</label>
+<select id="lembreteBarbeiro">
+  <option value="Todos">Todos os barbeiros</option>
+  
+  
+</select>
+
+<label>Data Inicial</label>
+<input type="date" id="lembreteData">
+
+<label>Mensagem</label>
+<textarea
+id="lembreteMensagem"
+placeholder="Digite o lembrete">
+</textarea>
+
+<label>Tipo de repetição</label>
+<select id="tipoRepeticao" onchange="alterarTipoRepeticao()">
+  <option value="nenhum">Não repetir</option>
+  <option value="mensal">Mensal</option>
+  <option value="intervalo">Intervalo de dias</option>
+</select>
+
+<div id="boxIntervalo" style="display:none;">
+
+<label>Repetir a cada</label>
+
+<input
+type="number"
+id="intervaloDias"
+min="1"
+placeholder="Ex.: 4, 7, 15">
+
+</div>
+
+<div class="linhaCheck">
+
+  <input
+    type="checkbox"
+    id="lembreteAtivo"
+    checked>
+
+  <label for="lembreteAtivo">
+    Lembrete ativo
+  </label>
+
+</div>
+
+<button
+onclick="salvarLembrete()"
+style="margin-top:20px;">
+💾 Salvar Lembrete
+</button>
+
+<hr style="margin:25px 0;">
+
+<div id="listaLembretes"></div>
+
+</div>
+
+</div>
+
+
+
+
 
 <div id="telaFidelidade" class="telaSistema">
 
@@ -1733,6 +1973,10 @@ Plano disponível no site
   🎁 Fidelidade
 </button>
 
+<button onclick="abrirLembrete()">
+  🔔 Lembrete
+</button>
+
 <button onclick="abrirTelaRifa()">
   🎟️ Rifa
 </button>
@@ -1862,20 +2106,35 @@ Plano disponível no site
     height="50">
 
 </div>
+
+
+<div id="popupLembrete" class="popupLembrete">
+
+  <div class="popupTopo">
+
+    <span>🔔 Lembrete</span>
+
+    <button onclick="fecharPopupLembrete()">
+      ✕
+    </button>
+
+  </div>
+
+  <div id="textoLembrete"></div>
+
+</div>
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="supabase.js"></script>
+
+
 <script>
-let editandoId = null;
-const supabaseUrl = "https://cdechrtprerblmhllqav.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
 
 
-
-const { createClient } = supabase;
-
-const db = createClient(
- 'https://cdechrtprerblmhllqav.supabase.co',
- 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
-);
 
 
 
@@ -1893,7 +2152,7 @@ window.addEventListener("load", ()=>{
 
 });
 
-
+let editandoId = null;
 
 
 async function protegerPagina(){
@@ -2369,7 +2628,11 @@ if(window.ultimoAtendimentoId){
   },300);
 
 }
- 
+ setTimeout(async () => {
+
+  await verificarLembretesHoje();
+
+}, 1000);
 fecharLoading();
 }
 
@@ -4064,7 +4327,15 @@ document
 .addEventListener("input", carregarClientes);
 
 
+function abrirLembrete(){
 
+  abrirTela("telaLembrete");
+document.getElementById("lembreteData").value =
+new Date().toISOString().split("T")[0];
+  
+  carregarLembretes();
+
+}
 
 
 function abrirFidelidade(){
@@ -6452,12 +6723,349 @@ async function carregarAviso(){
 }
 
 
+async function salvarLembrete(){
+
+  const barbeiro =
+  document.getElementById("lembreteBarbeiro").value;
+
+  const data_inicial =
+  document.getElementById("lembreteData").value;
+
+  const mensagem =
+  document.getElementById("lembreteMensagem").value.trim();
+
+  const ativo =
+  document.getElementById("lembreteAtivo").checked;
+
+  const tipo_repeticao =
+  document.getElementById("tipoRepeticao").value;
+
+  const intervalo_dias =
+  Number(
+    document.getElementById("intervaloDias").value || 0
+  );
+
+  if(!data_inicial){
+    mostrarToast("Escolha a data.");
+    return;
+  }
+
+  if(mensagem === ""){
+    mostrarToast("Digite o lembrete.");
+    return;
+  }
+
+  const { error } = await db
+  .from("lembretes")
+  .insert([{
+
+    barbeiro,
+    data_inicial,
+    mensagem,
+    ativo,
+    tipo_repeticao,
+    intervalo_dias
+
+  }]);
+
+  if(error){
+    console.log(error);
+    mostrarToast("Erro ao salvar.");
+    return;
+  }
+
+  mostrarToast("Lembrete salvo.");
+
+ document.getElementById("lembreteData").value =
+new Date().toISOString().split("T")[0];
+
+  document.getElementById("lembreteMensagem").value = "";
+  document.getElementById("tipoRepeticao").value = "nenhum";
+  document.getElementById("intervaloDias").value = "";
+  document.getElementById("lembreteAtivo").checked = true;
+  document.getElementById("boxIntervalo").style.display = "none";
+
+  carregarLembretes();
+
+}
+
+async function carregarLembretes(){
+
+  const lista =
+  document.getElementById("listaLembretes");
+
+  lista.innerHTML = "Carregando...";
+
+  const { data, error } = await db
+  .from("lembretes")
+  .select("*")
+  .order("data_inicial", { ascending: true });
+
+  if(error){
+
+    console.log(error);
+
+    lista.innerHTML =
+    "Erro ao carregar lembretes.";
+
+    return;
+  }
+
+  if(!data || data.length === 0){
+
+    lista.innerHTML =
+    "Nenhum lembrete cadastrado.";
+
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+
+lista.innerHTML += `
+
+<div class="cardLembrete">
+
+  <div class="topoCard">
+
+    <strong>${item.barbeiro}</strong>
+
+  <button
+class="status"
+onclick="alternarLembrete(${item.id}, ${item.ativo})">
+
+${item.ativo ? "🟢 Ativo" : "🔴 Desativado"}
+
+</button>
+
+  </div>
+
+  <div class="item">
+    📅 ${new Date(item.data_inicial).toLocaleDateString()}
+  </div>
+
+  <div class="item">
+    📝 ${item.mensagem}
+  </div>
+
+  <div class="item">
+    🔁 ${
+      item.tipo_repeticao === "nenhum"
+        ? "Não repetir"
+      : item.tipo_repeticao === "mensal"
+        ? "Mensal"
+      : `A cada ${item.intervalo_dias} dias`
+    }
+  </div>
+
+  <div class="acoes">
+
+    <button onclick="excluirLembrete(${item.id})">
+      🗑 Excluir
+    </button>
+
+  </div>
+
+</div>
+
+`;
+
+  });
+
+}
+
+async function excluirLembrete(id){
+
+  if(!confirm("Excluir lembrete?"))
+    return;
+
+  await db
+  .from("lembretes")
+  .delete()
+  .eq("id", id);
+
+  carregarLembretes();
+
+}
+
+async function carregarBarbeirosLembrete(){
+
+  const select =
+  document.getElementById("lembreteBarbeiro");
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .order("nome");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  select.innerHTML = `
+    <option value="Todos">
+      Todos os barbeiros
+    </option>
+  `;
+
+  data.forEach(prof => {
+
+    select.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+}
+
+
+function alterarTipoRepeticao(){
+
+  const tipo =
+  document.getElementById("tipoRepeticao").value;
+
+  document.getElementById("boxIntervalo").style.display =
+    tipo === "intervalo"
+      ? "block"
+      : "none";
+
+}
+
+async function alternarLembrete(id, ativo){
+
+  await db
+  .from("lembretes")
+  .update({
+    ativo: !ativo
+  })
+  .eq("id", id);
+
+  carregarLembretes();
+
+}
+function mostrarPopupLembrete(texto){
+
+  document.getElementById(
+    "textoLembrete"
+  ).innerText = texto;
+
+  document.getElementById(
+    "popupLembrete"
+  ).classList.add("ativo");
+
+}
+
+function fecharPopupLembrete(){
+
+  document.getElementById(
+    "popupLembrete"
+  ).classList.remove("ativo");
+
+}
+
+async function verificarLembretesHoje(){
+
+  const hoje = dataInput.value;
+
+  const barbeiro = filtro.value;
+
+  const { data, error } = await db
+  .from("lembretes")
+  .select("*")
+  .eq("ativo", true);
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const lembretes = [];
+
+  data.forEach(item=>{
+
+    // barbeiro
+    if(
+      item.barbeiro !== "Todos" &&
+      item.barbeiro !== barbeiro
+    ) return;
+
+ // sem repetição
+if(item.tipo_repeticao === "nenhum"){
+
+  if(item.data_inicial === hoje){
+    lembretes.push("• " + item.mensagem);
+  }
+
+}
+
+// mensal
+else if(item.tipo_repeticao === "mensal"){
+
+  const diaHoje =
+  hoje.split("-")[2];
+
+  const diaInicial =
+  item.data_inicial.split("-")[2];
+
+  if(diaHoje === diaInicial){
+    lembretes.push("• " + item.mensagem);
+  }
+
+}
+
+// intervalo de dias
+else if(item.tipo_repeticao === "intervalo"){
+
+  const dataInicial =
+  new Date(item.data_inicial);
+
+  const dataHoje =
+  new Date(hoje);
+
+  const diferencaDias =
+  Math.floor(
+    (dataHoje - dataInicial) /
+    (1000 * 60 * 60 * 24)
+  );
+
+  if(
+    diferencaDias >= 0 &&
+    diferencaDias % item.intervalo_dias === 0
+  ){
+    lembretes.push("• " + item.mensagem);
+  }
+
+}
+    
+    
+
+  });
+
+  if(lembretes.length){
+
+    mostrarPopupLembrete(
+      lembretes.join("\n\n")
+    );
+
+  }
+  
+  
+  
+  
+
+}
+
 carregarPlanos();
 carregarProfissionaisFiltro();
 carregarProfissionaisSelect();
 carregarProfissionaisCalendario();
 carregarAviso();
 atualizarBadge();
+carregarBarbeirosLembrete();
 
 setInterval(() => {
 
@@ -6488,4 +7096,6 @@ document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMe
 </script>
  
 </body>
+
+<!--implementar audios-->
 </html>
