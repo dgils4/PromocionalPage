@@ -1020,7 +1020,7 @@ font-weight:bold;
 .item{
 
 margin:8px 0;
-color:#d1d5db;
+
 
 }
 
@@ -2628,11 +2628,7 @@ if(window.ultimoAtendimentoId){
   },300);
 
 }
- setTimeout(async () => {
 
-  await verificarLembretesHoje();
-
-}, 1000);
 fecharLoading();
 }
 
@@ -6841,15 +6837,15 @@ ${item.ativo ? "🟢 Ativo" : "🔴 Desativado"}
 
   </div>
 
-  <div class="item">
-    📅 ${new Date(item.data_inicial).toLocaleDateString()}
+  <div class="item" style="color:#d1d5db">
+  📅 ${item.data_inicial.split("-").reverse().join("/")}
   </div>
 
-  <div class="item">
+  <div class="item" style="color:#d1d5db">
     📝 ${item.mensagem}
   </div>
 
-  <div class="item">
+  <div class="item" style="color:#d1d5db">
     🔁 ${
       item.tipo_repeticao === "nenhum"
         ? "Não repetir"
@@ -6969,6 +6965,8 @@ function fecharPopupLembrete(){
 
 async function verificarLembretesHoje(){
 
+
+
   const hoje = dataInput.value;
 
   const barbeiro = filtro.value;
@@ -7077,6 +7075,12 @@ setInterval(() => {
 setTimeout(()=>{
 
 carregarHoje();  
+
+ setTimeout(async () => {
+
+  await verificarLembretesHoje();
+
+}, 1000);
 
 },2000);
 
