@@ -295,11 +295,18 @@ html{
   }
 
 }
-header div img{
-width:50px;
-height:50px;
-border-radius:50%;
-border: solid 3px #c6c6c6
+#logoEmpresa{
+    width:50px ;
+    height:50px ;
+    min-width:50px;
+    min-height:50px;
+    max-width:50px;
+    max-height:50px;
+    object-fit:cover;
+    border-radius:50%;
+    border:3px solid #c6c6c6;
+    display:block;
+    overflow:hidden;
 }
 </style>
 </head>
@@ -552,52 +559,7 @@ function irServicos(){
  });
 } 
 
-async function carregarSite(){
-  
-  
 
- const { data, error } = await db
- .from("configuracoes_site")
- .select("*")
- .limit(1)
- .single();
-
- if(error || !data){
-   return;
- }
-
-document.getElementById("logoEmpresa")
- .src = data.logo;
-
-
-
- // nome
- document.getElementById("tituloSite")
- .innerText =
- data.nome_empresa || "Advocacia";
-
- // cores
- document.documentElement
- .style
- .setProperty(
-   "--corPrimaria",
-   data.cor_primaria
- );
-
- document.documentElement
- .style
- .setProperty(
-   "--corSecundaria",
-   data.cor_secundaria
- );
-
- // whatsapp
- const botao =
- document.getElementById("botaoWhatsapp");
-
- botao.href =
- `https://wa.me/${data.whatsapp}`;
-}
 
 
 
