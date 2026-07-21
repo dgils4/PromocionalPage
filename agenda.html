@@ -1120,6 +1120,33 @@ white-space:pre-line;
 
 }
 
+.item{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+.item-servico{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+}
+
+.item-servico .nome{
+    flex:1;
+    font-weight:600;
+}
+
+.item-servico .preco{
+    color:#16a34a;
+    font-weight:bold;
+}
+
+.item input{
+    width:20px;
+    height:20px;
+}
+
 </style>
 
 </head>
@@ -2083,10 +2110,26 @@ Plano disponível no site
 
 <!-- Modal -->
 <div id="modalervicos" class="modal">
-  <div class="modal-content" >
+  <div class="modal-content">
+
     <h3 style="color:black;">Serviços</h3>
+
     <div id="listaServicos"></div>
-    <button onclick="fecharModil()">Fechar</button>
+
+    <div id="textoResumo"
+         style="
+           padding:10px;
+           color:black;
+           border-top:1px solid #ddd;
+           font-size:14px;
+         ">
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:15px;">
+      <button onclick="confirmarServicos()">Confirmar</button>
+      <button onclick="fecharModil()">Cancelar</button>
+    </div>
+
   </div>
 </div>
 <textarea id='obs' placeholder='Observação'></textarea>
@@ -2193,6 +2236,7 @@ let planoEditando = null;
 let indiceListaAtual = 0;
 let listaExcluirId = null; 
 let tempoExcluirPlano;
+let servicosSelecionados = [];
   
   const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
      somSucesso.preload = "auto";
@@ -2271,10 +2315,12 @@ async function sair(){
 }
 
   
- const modil = document.getElementById("modalervicos");
+const modil = document.getElementById("modalervicos");
 const lista = document.getElementById("listaServicos");
 const inputValor = document.getElementById("valor");
 const inputValorr = document.getElementById("valorr");
+const textoResumo =
+document.getElementById("textoResumo");
 
 // abrir modal ao clicar no input
 inputValor.addEventListener("click", () => {
@@ -2289,40 +2335,144 @@ function fecharModil() {
 }
 
 // buscar serviços no Supabase
+
+
 async function carregarervicos() {
+
   lista.innerHTML = "Carregando...";
 
   const { data, error } = await db
-    .from("servicos") // sua tabela
-    .select("nome, preco");
+    .from("servicos")
+    .select("nome, preco")
+    .order("nome");
 
   if (error) {
     lista.innerHTML = "Erro ao carregar";
     return;
   }
 
+  // Recupera os serviços já escritos no input
+  const selecionados = inputValor.value
+    .split(",")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  servicosSelecionados = [];
+
   lista.innerHTML = "";
 
   data.forEach(item => {
+
+    const marcado =
+      selecionados.includes(item.nome);
+
+    if(marcado){
+      servicosSelecionados.push({
+        nome: item.nome,
+        preco: Number(item.preco)
+      });
+    }
+
     const div = document.createElement("div");
-    div.classList.add("item");
+    div.className = "item";
 
-    div.innerHTML = `
-      <strong>${item.nome}</strong><br>
-      R$ ${item.preco}
-    `;
+div.innerHTML = `
+<label class="item-servico">
 
-    // quando clicar no serviço
-    div.onclick = () => {
-      inputValor.value = `${item.nome}`;
-        inputValorr.value = `${item.preco}`;
-      fecharModil();
-    
+  <input type="checkbox"
+    ${marcado ? "checked" : ""}>
+
+  <span class="nome">${item.nome}</span>
+
+  <span class="preco">
+    R$ ${Number(item.preco).toFixed(2).replace(".", ",")}
+  </span>
+
+</label>
+`;
+
+    const check = div.querySelector("input");
+
+    check.onchange = () => {
+
+      if(check.checked){
+
+        servicosSelecionados.push({
+          nome:item.nome,
+          preco:Number(item.preco)
+        });
+
+      }else{
+
+        servicosSelecionados =
+        servicosSelecionados.filter(
+          s => s.nome !== item.nome
+        );
+
+      }
+
+      atualizarResumoServicos();
+
     };
 
     lista.appendChild(div);
+
   });
-} 
+
+  lista.insertAdjacentHTML("beforeend",`
+
+ ">
+
+
+      
+
+    
+
+    </div>
+
+  `);
+
+  atualizarResumoServicos();
+
+}
+
+function atualizarResumoServicos(){
+
+  const nomes =
+  servicosSelecionados.map(x=>x.nome);
+
+  const total =
+  servicosSelecionados.reduce(
+    (s,x)=>s+x.preco,0
+  );
+
+  textoResumo.innerHTML = `
+    <strong>${nomes.length} serviço(s)</strong><br>
+    ${nomes.join(", ") || "Nenhum"}<br><br>
+
+    <strong>Total:
+    R$ ${total.toFixed(2)}</strong>
+  `;
+
+}
+
+function confirmarServicos(){
+
+  inputValor.value =
+  servicosSelecionados
+  .map(x=>x.nome)
+  .join(", ");
+
+  inputValorr.value =
+  servicosSelecionados
+  .reduce((s,x)=>s+x.preco,0)
+  .toFixed(2);
+
+  fecharModil();
+
+}
+
+
   const statusPlano = document.getElementById("statusPlano");
 const adesaoPlano = document.getElementById("adesaoPlano");  
   
