@@ -89,23 +89,46 @@ const db = createClient(
 
 async function entrar(){
 
-const email = document.getElementById("email").value.trim();
-const senha = document.getElementById("senha").value.trim();
-const msg = document.getElementById("msg");
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+  const msg = document.getElementById("msg");
 
-msg.innerHTML = "Entrando...";
+  msg.innerHTML = "Entrando...";
 
-const { error } = await db.auth.signInWithPassword({
- email,
- password: senha
-});
+  const { error } = await db.auth.signInWithPassword({
+    email,
+    password: senha
+  });
 
-if(error){
- msg.innerHTML = "Email ou senha inválidos";
- return;
-}
+  if(error){
+    msg.innerHTML = "Email ou senha inválidos";
+    return;
+  }
 
-location.href = "agenda.html";
+  // Usuário autenticado
+  const {
+    data: { user }
+  } = await db.auth.getUser();
+
+  // Busca informações do usuário
+  const { data: usuario, error: erroUsuario } = await db
+    .from("usuarios")
+    .select("*")
+    .eq("auth_user_id", user.id)
+    .single();
+
+  if (erroUsuario) {
+    msg.innerHTML = "Usuário não encontrado.";
+    return;
+  }
+
+  // Salva os dados para usar no sistema
+  localStorage.setItem("empresa_id", usuario.empresa_id);
+  localStorage.setItem("usuario_id", usuario.id);
+  localStorage.setItem("nome_usuario", usuario.nome);
+  localStorage.setItem("cargo", usuario.cargo);
+
+  location.href = "agenda.html";
 }
 </script>
 
