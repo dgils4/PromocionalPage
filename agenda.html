@@ -2201,12 +2201,33 @@ let editandoId = null;
 
 async function protegerPagina(){
 
- const { data } = await db.auth.getSession();
+  const { data } = await db.auth.getSession();
 
- if(!data.session){
-   location.href = "login.html";
-   return;
- }
+  if(!data.session){
+    location.href = "login.html";
+    return;
+  }
+
+  const user = data.session.user;
+
+  const { data: usuario, error } = await db
+    .from("usuarios")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .eq("auth_user_id", user.id)
+    .single();
+
+  if(error){
+    alert("Usuário não encontrado.");
+    await db.auth.signOut();
+    location.href = "login.html";
+    return;
+  }
+
+  localStorage.setItem("empresa_id", usuario.empresa_id);
+  localStorage.setItem("usuario_id", usuario.id);
+  localStorage.setItem("nome_usuario", usuario.nome);
+  localStorage.setItem("cargo", usuario.cargo);
 
 }
 
@@ -2219,6 +2240,8 @@ db.auth.onAuthStateChange((event, session) => {
  }
 
 });
+
+const empresaId = Number(localStorage.getItem("empresa_id"));
 </script>
 
 
@@ -2345,6 +2368,7 @@ async function carregarervicos() {
   const { data, error } = await db
     .from("servicos")
     .select("nome, preco")
+    .eq("empresa_id", empresaId)
     .order("nome");
 
   if (error) {
@@ -2630,6 +2654,7 @@ abrirLoading();
  let query = db
   .from('atendimentos')
   .select('*')
+  .eq("empresa_id", empresaId)
   .eq('data', hoje);
 
  if(prof !== "Todos"){
@@ -2855,10 +2880,12 @@ console.log(nomeFinal);
    const { data: novoCliente, error } = await db
    .from("clientes")
    .insert([{
+     empresa_id: empresaId,
      nome: nomeFinal,
     telefone: fone.value.trim() || null
    }])
    .select()
+   .eq("empresa_id", empresaId)
    .single();
 
    if(error){
@@ -2882,6 +2909,7 @@ console.log(nomeFinal);
      const { data: historico } = await db
      .from("atendimentos")
      .select("numero_corte,data,hora,id")
+     .eq("empresa_id", empresaId)
      .eq("cliente_id", clienteId)
      .eq("tipo_cliente", "plano")
      .order("data", { ascending:false })
@@ -2916,6 +2944,7 @@ console.log(nomeFinal);
     : valor.value.trim();
  
  const dados = {
+   empresa_id: empresaId,
    cliente_id: clienteId,
    data: dataInput.value,
    hora: hora.value,
@@ -2938,6 +2967,7 @@ if(editandoId){
    resposta = await db
    .from('atendimentos')
    .update(dados)
+    .eq("empresa_id", empresaId)
    .eq('id', editandoId);
 
    atendimentoSalvoId = editandoId;
@@ -2948,6 +2978,7 @@ if(editandoId){
    .from('atendimentos')
    .insert([dados])
    .select()
+   .eq("empresa_id", empresaId)
    .single();
 
    atendimentoSalvoId = resposta.data?.id;
@@ -2975,6 +3006,7 @@ atendimentoSalvoId;
    nome: nomeFinal,
    telefone: fone.value.trim() || null
  })
+  .eq("empresa_id", empresaId)
  .eq("id", clienteId);
 
 }
@@ -2987,6 +3019,7 @@ if(tipoCliente === "plano" && clienteId){
    .select(
      "data_adesao_plano,status_plano,ultima_renovacao"
    )
+   .eq("empresa_id", empresaId)
    .eq("id", clienteId)
    .single();
 
@@ -3017,6 +3050,8 @@ calcularVencimento(
 const { data, error } = await db
 .from("financeiro")
 .insert([{
+
+  empresa_id: empresaId,
 
   cliente_id: clienteId || null,
 
@@ -3071,6 +3106,7 @@ console.log(error);
    await db
    .from("clientes")
    .update(dadosUpdate)
+    .eq("empresa_id", empresaId)
    .eq("id", clienteId);
 }
 
@@ -3104,6 +3140,7 @@ if(valorr.value.trim() === ""){
  const { data, error } = await db
  .from('atendimentos')
  .select('*')
+ .eq("empresa_id", empresaId)
  .eq('id', id)
  .single();
 
@@ -3150,6 +3187,7 @@ inputNome.dataset.id = data.cliente_id || "";
    const { data: cli } = await db
    .from("clientes")
    .select("data_adesao_plano,status_plano")
+   .eq("empresa_id", empresaId)
    .eq("id", data.cliente_id)
    .single();
 
@@ -3188,6 +3226,7 @@ abrirLoading("Excluindo...")
  const { error } = await db
  .from('atendimentos')
  .delete()
+  .eq("empresa_id", empresaId)
  .eq('id', id);
 
  if(error){
@@ -3225,7 +3264,8 @@ async function calcularFaturamento(){
 
   const { data } = await db
   .from("atendimentos")
-  .select("*");
+  .select("*")
+  .eq("empresa_id", empresaId);
 
   let totalGeral = 0;
 
@@ -3331,6 +3371,7 @@ abrirLoading("Calculando...")
  const { data, error } = await db
  .from("atendimentos")
  .select("*")
+ .eq("empresa_id", empresaId)
  .eq("tipo_cliente", "plano")
  .gte("data", inicio)
  .lte("data", fim)
@@ -3418,6 +3459,7 @@ abrirLoading("Calculando...")
  let query = db
   .from("atendimentos")
   .select("*")
+  .eq("empresa_id", empresaId)
   .gte("data", inicio)   // maior ou igual
   .lte("data", fim);     // menor ou igual
 
@@ -3480,6 +3522,7 @@ inputNome.addEventListener("input", async () => {
  const { data, error } = await db
  .from("clientes")
  .select("id, nome, telefone")
+ .eq("empresa_id", empresaId)
  .ilike("nome", `%${texto}%`)
  .limit(5);
 
@@ -3525,6 +3568,7 @@ async function backupCSV(){
  const { data, error } = await db
  .from("atendimentos")
  .select("*")
+ .eq("empresa_id", empresaId)
  .order("data", { ascending: true });
 
  if(error){
@@ -3843,7 +3887,8 @@ async function buscarVencimentos(){
     nome,
     ultima_renovacao,
     status_plano
-  `);
+  `)
+  .eq("empresa_id", empresaId);
 
   if(error){
     return [];
@@ -4049,6 +4094,7 @@ async function cobrarCliente(nome){
   const { data, error } = await db
     .from("clientes")
     .select("telefone")
+    .eq("empresa_id", empresaId)
     .eq("nome", nome)
     .single();
 
@@ -4262,6 +4308,7 @@ async function carregarProfissionaisSelect(){
   const { data, error } = await db
   .from("profissionais")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(error) return;
@@ -4301,6 +4348,7 @@ async function carregarProfissionaisCalendario(){
   const { data, error } = await db
   .from("profissionais")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(error) return;
@@ -4328,6 +4376,7 @@ async function carregarProfissionaisFiltro(){
   const { data, error } = await db
   .from("profissionais")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(error) return;
@@ -4368,6 +4417,7 @@ async function carregarClientes(){
   let query = db
     .from("clientes")
     .select("*")
+    .eq("empresa_id", empresaId)
     .order("nome");
 
   if(busca){
@@ -4384,6 +4434,7 @@ async function carregarClientes(){
   const { data: atendimentosRaw } = await db
     .from("atendimentos")
     .select("cliente_id,data,numero_corte,tipo_cliente")
+    .eq("empresa_id", empresaId)
     .order("data", { ascending: false });
 
   const atendimentos = atendimentosRaw || [];
@@ -4502,6 +4553,7 @@ async function carregarFidelidade(){
   let query = db
   .from("clientes")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(busca){
@@ -4533,6 +4585,7 @@ await db
 .select(
   "cliente_id,tipo_cliente,data"
 )
+.eq("empresa_id", empresaId)
 .eq("tipo_cliente","avulso");
 
 const mapaCortes = {};
@@ -4883,6 +4936,7 @@ async function alterarInicioFidelidade(id){
     fidelidade_inicio: novaData,
     fidelidade_usados: 0
   })
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
 
@@ -4910,6 +4964,7 @@ async function usarPremio(id){
   await db
   .from("clientes")
   .select("fidelidade_usados")
+  .eq("empresa_id", empresaId)
   .eq("id", id)
   .single();
 
@@ -4928,6 +4983,7 @@ async function usarPremio(id){
     fidelidade_usados:
     usados + 1
   })
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
   if(erroUpdate){
@@ -4973,6 +5029,7 @@ new Date()
   await db
   .from("clientes")
   .update(dados)
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
   if(error){
@@ -5007,6 +5064,7 @@ async function abrirConfigLista(
   await db
   .from("listas")
   .select("*")
+  .eq("empresa_id", empresaId)
   .eq("id",id)
   .single();
 
@@ -5086,6 +5144,7 @@ async function salvarConfigLista(){
     dia_semana:
     diaSelecionado
   })
+   .eq("empresa_id", empresaId)
   .eq(
     "id",
     listaConfigAtual
@@ -5159,6 +5218,9 @@ async function salvarProfissional(){
   .from("profissionais")
   .insert([{
 
+
+   empresa_id: empresaId,
+
     nome,
 
     telefone,
@@ -5198,6 +5260,7 @@ async function carregarProfissionais(){
   await db
   .from("profissionais")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(error){
@@ -5299,6 +5362,7 @@ async function excluirProfissional(id){
   await db
   .from("profissionais")
   .delete()
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
   if(error){
@@ -5378,6 +5442,7 @@ async function abrirFinanceiro(){
   await db
   .from("financeiro")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("vencimento");
 
   if(error){
@@ -5458,6 +5523,7 @@ async function carregarFinanceiro(){
   await db
   .from("financeiro")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("vencimento", {
     ascending:true
   });
@@ -5549,6 +5615,7 @@ async function marcarPago(id){
     new Date()
 
   })
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
   mostrarToast("Pagamento confirmado");
@@ -5683,6 +5750,7 @@ async function obterAnuncio(){
   await db
   .from("anuncios")
   .select("*")
+  .eq("empresa_id", empresaId)
   .eq("ativo", true)
   .limit(1);
 
@@ -5778,6 +5846,7 @@ async function adicionarPlaylist(
   await db
   .from("listas")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   const lista =
@@ -5820,6 +5889,7 @@ async function carregarPlaylist(){
   await db
   .from("playlist")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("id");
 
   playlist =
@@ -5848,6 +5918,8 @@ async function salvarNaLista(
   await db
   .from("playlist")
   .insert({
+    
+    empresa_id: empresaId,
 
     video_id:
     musicaPendente.videoId,
@@ -5933,6 +6005,7 @@ async function removerMusica(id){
   await db
   .from("playlist")
   .delete()
+   .eq("empresa_id", empresaId)
   .eq("id",id);
 
   await abrirLista(
@@ -6045,6 +6118,7 @@ async function restaurarPlayer(){
   await db
   .from("player_status")
   .select("*")
+  .eq("empresa_id", empresaId)
   .eq("id",1)
   .single();
 
@@ -6123,6 +6197,7 @@ async function carregarListas(){
   await db
   .from("listas")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(error){
@@ -6145,6 +6220,7 @@ async function criarLista(nome){
   await db
   .from("listas")
   .insert({
+   empresa_id: empresaId,
     nome:nome
   });
 
@@ -6239,6 +6315,7 @@ async function excluirLista(id){
   await db
   .from("listas")
   .delete()
+   .eq("empresa_id", empresaId)
   .eq("id",id);
 
   carregarListas();
@@ -6255,6 +6332,7 @@ async function abrirLista(id){
   await db
   .from("playlist")
   .select("*")
+  .eq("empresa_id", empresaId)
   .eq("lista_id", id)
   .order("id");
 
@@ -6289,6 +6367,8 @@ async function salvarNovaLista(){
   await db
   .from("listas")
   .insert({
+    
+    empresa_id: empresaId,
     nome:nome
   });
 
@@ -6321,6 +6401,7 @@ async function abrirListaAutomatica(){
   await db
   .from("listas")
   .select("*")
+  .eq("empresa_id", empresaId)
   .eq("dia_semana", diaHoje)
   .order("id");
 
@@ -6392,6 +6473,7 @@ async function excluirLista(id){
   await db
   .from("listas")
   .select("nome")
+  .eq("empresa_id", empresaId)
   .eq("id", id)
   .single();
 
@@ -6411,6 +6493,7 @@ async function confirmarExcluirLista(){
   await db
   .from("listas")
   .delete()
+   .eq("empresa_id", empresaId)
   .eq("id", listaExcluirId);
 
   fecharExcluirLista();
@@ -6505,6 +6588,7 @@ async function getConfiguracao(){
   const { data, error } = await db
     .from("configuracoes_empresa")
     .select("*")
+    .eq("empresa_id", empresaId)
     .limit(1)
     .maybeSingle();
 
@@ -6521,6 +6605,7 @@ async function carregarConfiguracoes(){
   const { data, error } = await db
     .from("configuracoes_empresa")
     .select("*")
+    .eq("empresa_id", empresaId)
     .limit(1)
     .single();
 
@@ -6553,6 +6638,7 @@ async function salvarConfiguracoes(){
   const { data, error: err1 } = await db
     .from("configuracoes_empresa")
     .select("id")
+    .eq("empresa_id", empresaId)
     .limit(1)
     .maybeSingle();
 
@@ -6568,6 +6654,7 @@ async function salvarConfiguracoes(){
     const { error } = await db
       .from("configuracoes_empresa")
       .insert([{
+        empresa_id: empresaId,
         nome_empresa,
         chave_pix,
         tipo_pix,
@@ -6597,6 +6684,7 @@ async function salvarConfiguracoes(){
         email,
         link_pagamento
       })
+       .eq("empresa_id", empresaId)
       .eq("id", data.id);
 
     if(error){
@@ -6679,6 +6767,7 @@ if(planoEditando){
         ativo
 
     })
+     .eq("empresa_id", empresaId)
     .eq("id", planoEditando);
 
     if(error){
@@ -6695,7 +6784,7 @@ if(planoEditando){
     const { error } = await db
     .from("planos_site")
     .insert([{
-
+       empresa_id: empresaId,
         nome,
         subtitulo,
         descricao,
@@ -6740,6 +6829,7 @@ async function carregarPlanos(){
   const { data, error } = await db
   .from("planos_site")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("ordem");
 
   if(error){
@@ -6803,6 +6893,7 @@ async function editarPlano(id){
     const { data, error } = await db
     .from("planos_site")
     .select("*")
+    .eq("empresa_id", empresaId)
     .eq("id", id)
     .single();
 
@@ -6852,6 +6943,7 @@ async function excluirPlano(id){
     const { error } = await db
     .from("planos_site")
     .delete()
+     .eq("empresa_id", empresaId)
     .eq("id",id);
 
     if(error){
@@ -6907,6 +6999,7 @@ async function salvarAviso(){
     aviso_botao
 
   })
+   .eq("empresa_id", empresaId)
   .eq("id", 1);
 
   if(error){
@@ -6929,6 +7022,7 @@ async function carregarAviso(){
     aviso_texto,
     aviso_botao
   `)
+  .eq("empresa_id", empresaId)
   .eq("id",1)
   .single();
 
@@ -6984,7 +7078,7 @@ async function salvarLembrete(){
   const { error } = await db
   .from("lembretes")
   .insert([{
-
+   empresa_id: empresaId,
     barbeiro,
     data_inicial,
     mensagem,
@@ -7025,6 +7119,7 @@ async function carregarLembretes(){
   const { data, error } = await db
   .from("lembretes")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("data_inicial", { ascending: true });
 
   if(error){
@@ -7109,6 +7204,7 @@ async function excluirLembrete(id){
   await db
   .from("lembretes")
   .delete()
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
   carregarLembretes();
@@ -7123,6 +7219,7 @@ async function carregarBarbeirosLembrete(){
   const { data, error } = await db
   .from("profissionais")
   .select("*")
+  .eq("empresa_id", empresaId)
   .order("nome");
 
   if(error){
@@ -7168,6 +7265,7 @@ async function alternarLembrete(id, ativo){
   .update({
     ativo: !ativo
   })
+   .eq("empresa_id", empresaId)
   .eq("id", id);
 
   carregarLembretes();
@@ -7204,6 +7302,7 @@ async function verificarLembretesHoje(){
   const { data, error } = await db
   .from("lembretes")
   .select("*")
+  .eq("empresa_id", empresaId)
   .eq("ativo", true);
 
   if(error){
