@@ -1381,6 +1381,36 @@ white-space:pre-line;
 
 </div>
 
+
+<div id="telaServicos" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="fecharTela('telaServicos')">
+      ← Voltar
+    </button>
+
+    <h2>💈 Serviços</h2>
+
+  </div>
+
+  <div class="conteudoTela">
+    <iframe
+      src="https://www.barbearialosvisionarios.com.br/servicos.html"
+      style="
+        width:100%;
+        height:calc(100vh - 70px);
+        border:none;
+      ">
+    </iframe>
+
+</div>
+</div>
+
+
+
+
+
 <div id="telaProfissionais" class="telaSistema">
 
   <div class="topTela">
@@ -1997,6 +2027,10 @@ Plano disponível no site
   👤 Profissionais
 </button>
 
+ <button onclick="abrirServicos()">
+  💈 Serviços
+</button>
+
 <button onclick="abrirFidelidade()">
   🎁 Fidelidade
 </button>
@@ -2241,7 +2275,7 @@ db.auth.onAuthStateChange((event, session) => {
 
 });
 
-const empresaId = Number(localStorage.getItem("empresa_id"));
+
 </script>
 
 
@@ -4293,6 +4327,13 @@ async function abrirFinanceiro(){
   await carregarFinanceiro();
 
 }
+
+
+function abrirServicos(){
+
+  abrirTela(
+    "telaServicos"
+  );}
 
 function abrirProfissionais(){
 
