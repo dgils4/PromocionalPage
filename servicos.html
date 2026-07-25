@@ -72,19 +72,15 @@ button:hover{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
+<script src="supabase.js"></script>
 <script>  
-const { createClient } = supabase;  
-  
-const db = createClient(  
-'https://cdechrtprerblmhllqav.supabase.co',  
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'  
-);  
+
 
 // SALVAR
 async function salvarServico(){
 
   await db.from('servicos').insert([{
+    empresa_id: empresaId,
     nome: nome.value,
     preco: preco.value
   }]);
@@ -101,6 +97,7 @@ async function carregar(){
   const { data } = await db
     .from('servicos')
     .select('*')
+     .eq('empresa_id', empresaId)
     .order('id', { ascending: false });
 
   lista.innerHTML = '';
@@ -126,9 +123,10 @@ async function carregar(){
 async function excluirServico(id){
 
   await db
-    .from('servicos')
-    .delete()
-    .eq('id', id);
+  .from('servicos')
+  .delete()
+  .eq('id', id)
+  .eq('empresa_id', empresaId);
 
   carregar();
 }
