@@ -1,136 +1,753 @@
-<!-- login.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login - Los Visionários</title>
+
+<title>Los Visionários</title>
+
 <style>
-body{
+
+*{
+box-sizing:border-box;
 margin:0;
+padding:0;
 font-family:Arial,sans-serif;
+}
+
+body{
+
 background:#050b16;
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
 color:#fff;
+
 }
+
 .box{
+
 width:90%;
-max-width:380px;
+max-width:400px;
 background:#0f172a;
 padding:25px;
-border-radius:16px;
-box-shadow:0 0 20px #0006;
-display:flex;
-justify-content: center;
-flex-direction: column;
-align-items: center;
+border-radius:15px;
+box-shadow:0 0 25px #0007;
+
 }
+
 h2{
-margin-top:0;
+
 text-align:center;
+margin-bottom:20px;
+
 }
+
 input{
-width:80%;
-padding:12px;
-margin:8px 0;
-border:none;
-border-radius:10px;
-font-size:16px;
-}
-button{
-width:87%;
+
+width:100%;
 padding:12px;
 margin-top:10px;
 border:none;
 border-radius:10px;
-background:#1d4ed8;
-color:#fff;
+font-size:16px;
+
+}
+
+button{
+
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
+
 }
+
+button:hover{
+
+background:#1d4ed8;
+
+}
+
+.link{
+
+text-align:center;
+margin-top:15px;
+font-size:14px;
+
+}
+
+.link a{
+
+color:#60a5fa;
+cursor:pointer;
+text-decoration:none;
+
+}
+
 .msg{
-margin-top:10px;
+
+margin-top:15px;
 text-align:center;
 font-size:14px;
-color:#93c5fd;
+
 }
+
+.modal{
+
+display:none;
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:#0008;
+justify-content:center;
+align-items:center;
+z-index:999;
+
+}
+
+.modal-content{
+
+width:90%;
+max-width:420px;
+background:#0f172a;
+padding:25px;
+border-radius:15px;
+
+}
+
+.modal-content h3{
+
+text-align:center;
+margin-bottom:15px;
+
+}
+
+.fechar{
+
+background:#dc2626;
+
+}
+
+.fechar:hover{
+
+background:#b91c1c;
+
+}
+
 </style>
+
 </head>
+
 <body>
 
 <div class="box">
+
 <h2>💈 Los Visionários</h2>
 
-<input type="email" id="email" placeholder="Seu email">
-<input type="password" id="senha" placeholder="Sua senha">
+<input
+type="email"
+id="email"
+placeholder="Seu e-mail">
 
-<button onclick="entrar()">Entrar</button>
+<input
+type="password"
+id="senha"
+placeholder="Sua senha">
 
-<div class="msg" id="msg"></div>
+<button onclick="entrar()">
+
+Entrar
+
+</button>
+
+<div class="link">
+
+Não possui conta?
+
+<br><br>
+
+<a onclick="abrirCadastro()">
+
+Cadastre-se
+
+</a>
+
+</div>
+
+<div
+class="msg"
+id="msg">
+
+</div>
+
 </div>
 
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<div
+class="modal"
+id="modalCadastro">
+
+<div class="modal-content">
+
+<h3>
+
+Criar Conta
+
+</h3>
+
+<input
+id="empresa"
+placeholder="Nome da empresa">
+
+<input
+id="nome"
+placeholder="Seu nome">
+
+<input
+id="emailCadastro"
+type="email"
+placeholder="E-mail">
+
+<input
+id="senhaCadastro"
+type="password"
+placeholder="Senha">
+
+<input
+id="confirmarSenha"
+type="password"
+placeholder="Confirmar senha">
+
+<button onclick="cadastrar()">
+
+Criar Conta
+
+</button>
+
+<button
+class="fechar"
+onclick="fecharCadastro()">
+
+Cancelar
+
+</button>
+
+<div
+id="msgCadastro"
+class="msg">
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase.js"></script>
+
 <script>
+//========================
+// ABRIR / FECHAR CADASTRO
+//========================
 
-  
-  
-  
-const { createClient } = supabase;
+function abrirCadastro(){
 
-const db = createClient(
-'https://cdechrtprerblmhllqav.supabase.co',
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
-);
+  document
+  .getElementById("modalCadastro")
+  .style.display = "flex";
+
+}
+
+function fecharCadastro(){
+
+  document
+  .getElementById("modalCadastro")
+  .style.display = "none";
+
+}
+
+
+
+//========================
+// LOGIN
+//========================
 
 async function entrar(){
 
-  const email = document.getElementById("email").value.trim();
-  const senha = document.getElementById("senha").value.trim();
-  const msg = document.getElementById("msg");
+  const email =
+  document
+  .getElementById("email")
+  .value
+  .trim();
+
+  const senha =
+  document
+  .getElementById("senha")
+  .value
+  .trim();
+
+  const msg =
+  document
+  .getElementById("msg");
 
   msg.innerHTML = "Entrando...";
 
-  const { error } = await db.auth.signInWithPassword({
+
+
+  const { error } =
+  await db.auth.signInWithPassword({
+
     email,
     password: senha
+
+  });
+
+
+
+  if(error){
+
+    msg.innerHTML =
+    "Email ou senha inválidos.";
+
+    return;
+
+  }
+
+
+
+  const { data: sessao } =
+  await db.auth.getSession();
+
+  const user =
+  sessao.session.user;
+
+
+
+  const {
+
+    data: usuario,
+    error: erroUsuario
+
+  }
+
+  = await db
+
+  .from("usuarios")
+
+  .select("*")
+
+  .eq("auth_user_id", user.id)
+
+  .single();
+
+
+
+  if(erroUsuario){
+
+    msg.innerHTML =
+    "Usuário não encontrado.";
+
+    await db.auth.signOut();
+
+    return;
+
+  }
+
+
+
+  localStorage.setItem(
+
+    "empresa_id",
+
+    usuario.empresa_id
+
+  );
+
+
+
+  localStorage.setItem(
+
+    "usuario_id",
+
+    usuario.id
+
+  );
+
+
+
+  localStorage.setItem(
+
+    "cargo",
+
+    usuario.cargo
+
+  );
+
+
+
+  localStorage.setItem(
+
+    "nome_usuario",
+
+    usuario.nome
+
+  );
+
+
+
+  location.href =
+  "agenda.html";
+
+}
+
+
+
+//========================
+// SE JÁ ESTIVER LOGADO
+//========================
+
+(async()=>{
+
+const { data } =
+await db.auth.getSession();
+
+if(!data.session)
+return;
+
+
+
+const user =
+data.session.user;
+
+
+
+const {
+
+data: usuario
+
+}
+
+=
+
+await db
+
+.from("usuarios")
+
+.select("*")
+
+.eq("auth_user_id", user.id)
+
+.single();
+
+
+
+if(!usuario)
+return;
+
+
+
+localStorage.setItem(
+
+"empresa_id",
+
+usuario.empresa_id
+
+);
+
+localStorage.setItem(
+
+"usuario_id",
+
+usuario.id
+
+);
+
+localStorage.setItem(
+
+"cargo",
+
+usuario.cargo
+
+);
+
+localStorage.setItem(
+
+"nome_usuario",
+
+usuario.nome
+
+);
+
+
+
+location.href="agenda.html";
+
+})();
+
+async function cadastrar(){
+
+  const nomeEmpresa =
+    document.getElementById("empresa").value.trim();
+
+  const nome =
+    document.getElementById("nome").value.trim();
+
+  const email =
+    document.getElementById("emailCadastro").value.trim();
+
+  const senha =
+    document.getElementById("senhaCadastro").value;
+
+  const confirmar =
+    document.getElementById("confirmarSenha").value;
+
+  const msg =
+    document.getElementById("msgCadastro");
+
+  if(
+    !nomeEmpresa ||
+    !nome ||
+    !email ||
+    !senha
+  ){
+    msg.innerHTML = "Preencha todos os campos.";
+    return;
+  }
+
+  if(senha !== confirmar){
+    msg.innerHTML = "As senhas não conferem.";
+    return;
+  }
+
+  msg.innerHTML = "Criando conta...";
+
+  const {
+
+    data: auth,
+
+    error
+
+  }
+
+  = await db.auth.signUp({
+
+    email,
+
+    password: senha
+
   });
 
   if(error){
-    msg.innerHTML = "Email ou senha inválidos";
+
+    msg.innerHTML = error.message;
+
     return;
+
   }
 
-  // Usuário autenticado
-  const {
-    data: { user }
-  } = await db.auth.getUser();
+  const authUser = auth.user;
 
-  // Busca informações do usuário
-  const { data: usuario, error: erroUsuario } = await db
-    .from("usuarios")
-    .select("*")
-    .eq("auth_user_id", user.id)
-    .single();
+  if(!authUser){
 
-  if (erroUsuario) {
-    msg.innerHTML = "Usuário não encontrado.";
+    msg.innerHTML = "Erro ao criar usuário.";
+
     return;
+
   }
 
-  // Salva os dados para usar no sistema
-  localStorage.setItem("empresa_id", usuario.empresa_id);
-  localStorage.setItem("usuario_id", usuario.id);
-  localStorage.setItem("nome_usuario", usuario.nome);
-  localStorage.setItem("cargo", usuario.cargo);
+  const authId = authUser.id;
+  
+//=========================
+// CRIAR EMPRESA
+//=========================
 
-  location.href = "agenda.html";
+const {
+
+  data: empresa,
+
+  error: erroEmpresa
+
 }
+
+= await db
+
+.from("empresas")
+
+.insert({
+
+  nome: nomeEmpresa,
+
+  email: email
+
+})
+
+.select()
+
+.single();
+
+
+
+if(erroEmpresa){
+
+  msg.innerHTML = erroEmpresa.message;
+
+  return;
+
+}
+
+
+
+//=========================
+// CRIAR USUARIO
+//=========================
+
+const {
+
+  error: erroUsuario
+
+}
+
+= await db
+
+.from("usuarios")
+
+.insert({
+
+  auth_user_id: authId,
+
+  empresa_id: empresa.id,
+
+  nome: nome,
+
+  email: email,
+
+  cargo: "Administrador"
+
+});
+
+
+
+if(erroUsuario){
+
+  await db
+    .from("empresas")
+    .delete()
+    .eq("id", empresa.id);
+
+  msg.innerHTML = erroUsuario.message;
+
+  return;
+
+}
+
+
+
+//=========================
+// CONFIGURAÇÕES
+//=========================
+
+const {
+
+  error: erroConfig
+
+}
+
+= await db
+
+.from("configuracoes_empresa")
+
+.insert({
+
+  empresa_id: empresa.id,
+
+  nome_empresa: nomeEmpresa,
+
+  email: email
+
+});
+
+
+
+if(erroConfig){
+
+  await db
+    .from("usuarios")
+    .delete()
+    .eq("auth_user_id", authId);
+
+  await db
+    .from("empresas")
+    .delete()
+    .eq("id", empresa.id);
+
+  msg.innerHTML = erroConfig.message;
+
+  return;
+
+}
+
+//=========================
+// LOGIN AUTOMÁTICO
+//=========================
+
+const { error: erroLogin } =
+await db.auth.signInWithPassword({
+
+  email,
+  password: senha
+
+});
+
+if(erroLogin){
+
+  msg.innerHTML =
+  "Conta criada! Faça o login.";
+
+  fecharCadastro();
+
+  return;
+
+}
+
+
+
+//=========================
+// SALVAR DADOS
+//=========================
+
+localStorage.setItem(
+  "empresa_id",
+  empresa.id
+);
+
+localStorage.setItem(
+  "nome_usuario",
+  nome
+);
+
+fecharCadastro();
+
+location.href =
+"agenda.html";
+
+}
+
 </script>
 
 </body>
+
 </html>
