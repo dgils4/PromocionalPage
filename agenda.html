@@ -3294,7 +3294,7 @@ function filtrarProf(nome){
 }
 async function calcularFaturamento(){
 
-  abrirLoading("Calculando...");
+  
 
   const { data } = await db
   .from("atendimentos")
@@ -3352,7 +3352,7 @@ async function calcularFaturamento(){
 
   mostrarToast("Sucesso!");
 
-  fecharLoading();
+ 
 
 }
 
@@ -3397,6 +3397,7 @@ abrirLoading("Calculando...")
 
  if(!inicio || !fim){
    box.innerHTML = "Escolha as datas";
+fecharLoading("")
    return;
  }
 
@@ -3413,11 +3414,13 @@ abrirLoading("Calculando...")
 
  if(error){
    box.innerHTML = error.message;
+   fecharLoading("")
    return;
  }
 
  if(!data.length){
    box.innerHTML = "Nenhum cliente plano no período";
+   fecharLoading()
    return;
  }
 
@@ -3485,6 +3488,7 @@ abrirLoading("Calculando...")
 
  if(!inicio || !fim){
    resultado.innerHTML = "Selecione as duas datas";
+fecharLoading()
    return;
  }
 
@@ -3505,11 +3509,13 @@ abrirLoading("Calculando...")
 
  if(error){
    resultado.innerHTML = "Erro ao carregar";
+   fecharLoading()
    return;
  }
 
  if(!data.length){
    resultado.innerHTML = "Nenhum atendimento nesse período";
+   fecharLoading()
    return;
  }
 
