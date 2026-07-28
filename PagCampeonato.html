@@ -129,10 +129,134 @@ p{
 
 }
 
+.pix{
+
+    margin-top:20px;
+
+}
+
+.pix input{
+
+    width:100%;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#1f2937;
+
+    color:#FFF;
+
+    text-align:center;
+
+    margin-bottom:10px;
+
+}
+
+.pix button{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#22c55e;
+
+    color:#FFF;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.pix button:hover{
+
+    background:#16a34a;
+
+}
+
+#popup{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:30px;
+
+    transform:translateX(-50%) translateY(100px);
+
+    min-width:260px;
+
+    max-width:90%;
+
+    padding:15px 20px;
+
+    border-radius:10px;
+
+    color:#FFF;
+
+    font-weight:bold;
+
+    text-align:center;
+
+    opacity:0;
+
+    transition:.3s;
+
+    z-index:9999;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+}
+
+#popup.mostrar{
+
+    opacity:1;
+
+    transform:translateX(-50%) translateY(0);
+
+}
+
+#popup.sucesso{
+
+    background:#16a34a;
+
+}
+
+#popup.erro{
+
+    background:#dc2626;
+
+}
+
+#popup.aviso{
+
+    background:#f59e0b;
+
+    color:#000;
+
+}
+
+#popup.info{
+
+    background:#2563eb;
+
+}
+
 </style>
 
 </head>
-
+<div id="popup"></div>
 <body>
 
 <div class="container">
@@ -150,18 +274,74 @@ Escaneie o QR Code abaixo para realizar o pagamento da inscrição.
 
 <img
 class="qrcode"
-src="COLE_AQUI_O_LINK_DO_QRCODE"
+src="imagens/pag.jpg"
 alt="QR Code PIX">
 
 <div class="valor">
+  
 
 <h2>Valor da Inscrição</h2>
 
 <p>R$ 25,00</p>
 
 </div>
+<div class="pix">
+
+    <input
+        type="text"
+        id="chavePix"
+        value="c31e6161-353f-432a-bb66-9551336812d6"
+        readonly>
+
+    <button
+        type="button"
+        onclick="copiarPix()">
+
+        📋 Copiar Chave PIX
+
+    </button>
 
 </div>
+
+</div>
+
+<script>
+  let tempoPopup;
+
+function mostrarPopup(mensagem,tipo="info"){
+
+    const popup=document.getElementById("popup");
+
+    clearTimeout(tempoPopup);
+
+    popup.className="";
+
+    popup.classList.add(tipo);
+
+    popup.classList.add("mostrar");
+
+    popup.innerHTML=mensagem;
+
+    tempoPopup=setTimeout(()=>{
+
+        popup.classList.remove("mostrar");
+
+    },3000);
+
+}
+  async function copiarPix(){
+
+    const chave =
+    document.getElementById("chavePix").value;
+
+    await navigator.clipboard.writeText(chave);
+
+    mostrarPopup(
+        "Chave PIX copiada!",
+        "sucesso"
+    );
+
+}</script>
 
 </body>
 
