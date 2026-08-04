@@ -318,9 +318,12 @@ section:has(#final) h2 { border-left-color: #eab308; }         /* Dourado */
     <h2>Administração</h2>
     
     <!-- NOVO BOTÃO DENTRO DO MENU -->
-    <button id="btnModoAcesso" onclick="autenticarAdmin()" style="background: #334155; margin-bottom: 10px;">
-        👁️ Modo: Espectador
-    </button>
+ 
+       <div style="display: flex; gap: 10px; align-items: center; margin-top:15px">
+        <span id="modoAcesso" onclick="autenticarAdmin()">👁️ Espectador</span>
+       
+    </div>
+    
 
     <button id="btnParticipantes">👥 Participantes</button>
     <button id="btnSortear">🎲 Sortear Campeonato</button>
