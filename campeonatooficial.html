@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campeonato FIFA 26</title>
+    <!-- Supabase SDK JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; } 
+        body{ background:#0f172a; color:white; font-family:Arial, Helvetica, sans-serif; overflow-x:auto; } 
+        header{ height:70px; background:#111827; display:flex; align-items:center; justify-content:space-between; padding:15px 25px; border-bottom:1px solid #334155; } 
+        header h1{ font-size:24px; } 
+        header small{ color:#94a3b8; } 
+        header button{ width:45px; height:45px; border:0; border-radius:10px; background:#2563eb; color:white; font-size:22px; cursor:pointer; } 
+        #status{ background:#22c55e; padding:8px 18px; border-radius:20px; font-weight:bold; } 
+
+        /* MODAL PARTICIPANTES & PARTIDA */ 
+        #modalParticipantes, #modalPartida{ position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(5px); display:none; justify-content:center; align-items:center; z-index:2000; } 
+        #modalParticipantes.ativo, #modalPartida.ativo{ display:flex; } 
+        .box{ width:420px; max-width:90%; background:#111827; border:1px solid #334155; border-radius:20px; padding:25px; box-shadow: 0 20px 50px rgba(0,0,0,.6); animation:abrirModal .25s ease; position:relative; } 
+        @keyframes abrirModal{ from{ opacity:0; transform:scale(.8); } to{ opacity:1; transform:scale(1); } } 
+        .box h2{ text-align:center; margin-bottom:20px; color:#60a5fa; } 
+        .fechar{ position:absolute; right:15px; top:15px; width:35px; height:35px; border:none; border-radius:50%; background:#ef4444; color:white; font-size:18px; cursor:pointer; } 
+        #nomeParticipante, #avatar{ width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; margin-bottom:12px; } 
+        #nomeParticipante::placeholder{ color:#94a3b8; } 
+        #adicionarParticipante{ width:100%; padding: 12px; border:none; border-radius:8px; background:#2563eb; color:white; font-size:16px; font-weight:bold; cursor:pointer; } 
+        #adicionarParticipante:hover{ background:#1d4ed8; } 
+        #listaParticipantes{ margin-top:20px; max-height:300px; overflow:auto; } 
+        .participante{ display:flex; align-items:center; justify-content:space-between; background:#1e293b; padding:12px; margin-bottom:10px; border-radius:12px; } 
+        .participante span{ display:flex; align-items:center; gap:10px; } 
+        .participante button{ background:transparent; border:none; cursor:pointer; font-size:16px; }
+
+        /* MENU */ 
+        #menu{ position:fixed; top:0; left:-300px; width:280px; height:100vh; background:#111827; padding:25px; z-index:1000; transition:.3s; } 
+        #menu.ativo{ left:0; } 
+        #menu button{ width:100%; height:45px; margin-top:15px; border:0; border-radius:8px; background:#1e40af; color:white; cursor:pointer; font-weight:bold; } 
+        #menu button:hover{ background:#1d4ed8; }
+        #overlay{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; z-index:900; } 
+        #overlay.ativo{ display:block; } 
+
+        /* ÁREA CAMPEONATO */ 
+        #campeonato{ padding:25px; } 
+        section{ margin-bottom:40px; } 
+        section h2{ margin-bottom:15px; color:#60a5fa; } 
+        
+        /* FASES */ 
+        .fase{ display:flex; gap:25px; min-height:80px; align-items:center; flex-wrap:wrap; } 
+
+        /* CARDS DOS JOGOS */ 
+        .confronto{ width:260px; background:#111827; border:1px solid #334155; border-radius:18px; padding:15px; cursor:pointer; transition:.25s; box-shadow: 0 10px 25px rgba(0,0,0,.3); } 
+        .confronto:hover{ transform:translateY(-5px); border-color:#2563eb; } 
+        .jogador{ display:flex; align-items:center; justify-content:space-between; background:#1e293b; padding:12px; border-radius:12px; margin-bottom:8px; transition: background 0.3s ease, border 0.3s ease; } 
+        
+        /* ESTILOS DE STATUS DOS JOGADORES */
+        .jogador.vencedor { background: rgba(34, 197, 94, 0.2) !important; border: 1px solid #22c55e; color: #4ade80; }
+        .jogador.perdedor { background: rgba(239, 68, 68, 0.2) !important; border: 1px solid #ef4444; color: #f87171; opacity: 0.7; }
+        .jogador.aguardando { background: rgba(249, 115, 22, 0.15) !important; border: 1px dashed #f97316; color: #fb923c; }
+
+        .avatar{ width:40px; height:40px; border-radius:50%; display:flex; justify-content:center; align-items:center; background:#334155; font-size:22px; } 
+        .placar{ text-align:center; font-size:20px; font-weight:bold; margin:8px; color:#60a5fa; } 
+        .statusJogo{ text-align:center; margin-top:10px; font-size:13px; color:#94a3b8; } 
+
+        /* CAMPEÃO DESTAQUE */ 
+    /* CAMPEÃO E PÓDIO DESTAQUE */ 
+#secaoCampeao { display: none; margin-bottom: 30px; }
+#secaoCampeao.ativo { display: block; animation: fadeIn 0.5s ease; }
+
+#campeao { 
+    width: 100%; 
+    max-width: 600px; 
+    margin: 0 auto; 
+    background: #111827; 
+    border: 1px solid #334155; 
+    padding: 20px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+} 
+
+.podio-container { 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-end; 
+    gap: 15px; 
+}
+
+/* CARDS DE PRÊMIOS */
+.premio { 
+    flex: 1; 
+    padding: 15px 10px; 
+    border-radius: 15px; 
+    text-align: center; 
+    color: #000; 
+    font-weight: bold; 
+    transition: transform 0.3s ease;
+}
+
+/* 1º LUGAR - OURO */
+.premio.ouro { 
+    background: linear-gradient(135deg, #facc15, #ca8a04); 
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.5); 
+    transform: scale(1.08); 
+    order: 2; /* Fica no meio */
+}
+
+/* 2º LUGAR - PRATA */
+.premio.prata { 
+    background: linear-gradient(135deg, #e2e8f0, #94a3b8); 
+    box-shadow: 0 0 15px rgba(226, 232, 240, 0.3); 
+    order: 1; /* Fica na esquerda */
+}
+
+/* 3º LUGAR - BRONZE */
+.premio.bronze { 
+    background: linear-gradient(135deg, #fdba74, #c2410c); 
+    box-shadow: 0 0 15px rgba(253, 186, 116, 0.3); 
+    order: 3; /* Fica na direita */
+}
+
+.trofeu { font-size: 32px; margin-bottom: 5px; }
+.avatar-podio { font-size: 36px; margin: 5px 0; }
+.nome-podio { font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.premio small { font-size: 11px; opacity: 0.8; display: block; margin-top: 3px; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+       
+
+        /* ESTILOS INTERNOS DO MODAL DE PARTIDA */
+        #dadosPartida h3 { text-align: center; margin-bottom: 10px; }
+        #dadosPartida hr { border: 0; border-top: 1px solid #334155; margin: 15px 0; }
+        #opcoesVencedor { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        #opcoesVencedor button { padding: 12px; border: none; border-radius: 8px; background: #2563eb; color: white; font-weight: bold; cursor: pointer; }
+        #opcoesVencedor button:hover { background: #1d4ed8; }
+      
+      /* ==========================================
+   ESTILOS EXCLUSIVOS PARA CELULAR (<= 600px)
+   ========================================== */
+@media (max-width: 600px) {
+  header {
+    height: auto;               /* Deixa a altura se adaptar ao conteúdo */
+    padding: 10px 15px;         /* Diminui os espaços internos nas laterais */
+    gap: 10px;                  /* Garante um espaço seguro entre o botão, título e status */
+  }
+
+  header h1 {
+    font-size: 18px;            /* Diminui o título principal para não quebrar linha feio */
+    line-height: 1.2;
+  }
+
+  header small {
+    font-size: 11px;            /* Diminui o subtítulo "Sistema Oficial..." */
+    display: block;             /* Garante que o subtítulo fique na linha de baixo */
+  }
+
+  header button {
+    width: 38px;                /* Reduz levemente o botão do menu ☰ */
+    height: 38px;
+    font-size: 18px;
+    flex-shrink: 0;             /* Impede que o botão seja "esmagado" */
+  }
+
+  #status {
+    padding: 5px 12px;          /* Deixa a pílula de status "Aberto/Carregando" mais compacta */
+    font-size: 12px;
+    white-space: nowrap;        /* Impede que o texto do status quebre em 2 linhas */
+    flex-shrink: 0;
+  }
+}
+
+/* ESTILIZAÇÃO DOS TÍTULOS DAS FASES DA CHAVE */
+section h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #f8fafc;
+    background: linear-gradient(90deg, #1e293b 0%, rgba(30, 41, 59, 0) 100%);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #2563eb; /* Linha de destaque na esquerda */
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Opcional: Adiciona um efeito suave de gradiente na linha separadora */
+section {
+    position: relative;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.4); /* Linha sutil separando cada fase */
+    margin-bottom: 35px;
+}
+
+/* CORES EXCLUSIVAS POR FASE */
+#eliminatoria.fase + h2, 
+section:has(#eliminatoria) h2 { border-left-color: #cf2816fe; } /* Laranja */
+
+section:has(#quartas) h2 { border-left-color: #3b82f6; }       /* Azul */
+
+section:has(#semifinal) h2 { border-left-color: #a855f7; }     /* Roxo */
+
+section:has(#final) h2 { border-left-color: #eab308; }         /* Dourado */
+      
+  /* =======================================================
+   MODO TV / MONITOR GRANDE (Apenas para telas >= 1024px)
+   Não afeta em nada a visualização do celular!*/
+@media (min-width: 800px) {
+    
+    /* 1. Organiza o campeonato em colunas lado a lado na TV */
+    #campeonato {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    #campeonato section {
+        flex: 1;
+        min-width: 170px;
+        max-width: 210px;
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+
+    .fase {
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* Menos espaço entre os jogos */
+        align-items: center;
+    }
+
+    /* 2. CARD DO CONFRONTO ULTRA COMPACTO */
+    .confronto {
+        width: 100%;
+        max-width: 180px;      /* Largura bem reduzida (era 260px) */
+        padding: 6px 8px;      /* Padding mínimo nas bordas */
+        border-radius: 8px;
+    }
+
+    /* 3. RETÂNGULO DO JOGADOR MAIS "FINO" */
+    .jogador {
+        padding: 3px 6px;      /* Altura ultra enxuta */
+        margin-bottom: 2px;
+        font-size: 11px;       /* Texto menor e legível */
+        border-radius: 6px;
+    }
+
+    /* 4. AVATAR E EMOJIS PEQUENOS */
+    .avatar {
+        width: 20px;
+        height: 20px;
+        font-size: 13px;       /* Emoji pequeno */
+    }
+
+    .placar {
+        font-size: 12px;
+        margin: 2px 0;
+    }
+
+    .statusJogo {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+    /* Título da Fase bem discreto */
+    section h2 {
+        font-size: 12px;
+        padding: 4px 8px;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
+}
+/* BADGE DE MODO (ESPECTADOR / ADMIN) */
+#modoAcesso {
+    background: #475569;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#modoAcesso.admin {
+    background: #eab308;
+    color: #000;
+}
+
+    
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+ <!-- HEADER ORIGINAL (SEM O BADGE) -->
+<header>
+    <button id="btnMenu">☰</button>
+    <div>
+        <h1>🏆 Campeonato FIFA 26</h1>
+        <small>Sistema Oficial com Supabase</small>
+    </div>
+    <span id="status">Conectando...</span>
+</header>
+
+
+
+<!-- MENU LATERAL -->
+<div id="overlay"></div>
+<div id="menu">
+    <h2>Administração</h2>
+    
+    <!-- NOVO BOTÃO DENTRO DO MENU -->
+    <button id="btnModoAcesso" onclick="autenticarAdmin()" style="background: #334155; margin-bottom: 10px;">
+        👁️ Modo: Espectador
+    </button>
+
+    <button id="btnParticipantes">👥 Participantes</button>
+    <button id="btnSortear">🎲 Sortear Campeonato</button>
+    <button id="btnResetar" onclick="resetarCampeonato()">🔄 Reiniciar Tudo</button>
+</div>
+
+
+    <!-- ÁREA DO CAMPEONATO -->
+    <main id="campeonato">
+
+        <!-- DESTAQUE DO CAMPEÃO -->
+        <section id="secaoCampeao">
+            <h2>🎉 Grande Campeão</h2>
+            <div id="campeao"></div>
+        </section>
+
+        <section>
+            <h2>Eliminatória</h2>
+            <div id="eliminatoria" class="fase"></div>
+        </section>
+
+        <section>
+            <h2>Quartas de Final</h2>
+            <div id="quartas" class="fase"></div>
+        </section>
+
+        <section>
+            <h2>Semifinal</h2>
+            <div id="semifinal" class="fase"></div>
+        </section>
+
+        <section>
+            <h2>Final</h2>
+            <div id="final" class="fase"></div>
+        </section>
+    </main>
+
+    <!-- MODAL PARTICIPANTES -->
+    <div id="modalParticipantes">
+        <div class="box" style="height:70%; overflow:auto">
+            <button class="fechar">✕</button>
+            <h2>Participantes</h2>
+            
+            <input type="text" id="nomeParticipante" placeholder="Nome do Jogador">
+            <select id="avatar">
+                <option value="😀">😀 Riso</option>
+                <option value="😎">😎 Óculos</option>
+                <option value="🤠">🤠 Cowboy</option>
+                <option value="🐺">🐺 Lobo</option>
+                <option value="🦁">🦁 Leão</option>
+                <option value="🐯">🐯 Tigre</option>
+            </select>
+            
+            <button id="adicionarParticipante">Adicionar</button>
+
+            <div id="listaParticipantes"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PARTIDA -->
+    <div id="modalPartida">
+        <div class="box">
+            <button class="fechar">✕</button>
+            <h2>Confronto</h2>
+            <div id="dadosPartida"></div>
+            <div id="opcoesVencedor"></div>
+        </div>
+    </div>
+
+    <!-- SCRIPT JS CONECTADO AO SUPABASE -->
+    <script>
+        const { createClient } = supabase;
+        const db = createClient(
+            'https://cdechrtprerblmhllqav.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk'
+        );
+
+// CONFIGURAÇÃO DE SEGURANÇA
+const SENHA_MESTRE = "9707"; // 🔑 Altere aqui para a senha que você desejar
+let adminAutenticado = false;
+
+// Função para validar a senha do Administrador
+function checarSenha() {
+    if (adminAutenticado) return true;
+
+    const senhaDigitada = prompt("🔒 Digite a senha de Administrador para alterar os dados:");
+    
+    if (senhaDigitada === SENHA_MESTRE) {
+        adminAutenticado = true;
+        
+        // Atualiza a visualização do botão no Header
+        const badge = document.getElementById("modoAcesso");
+        if (badge) {
+            badge.innerText = "⚡ Modo Admin";
+            badge.classList.add("admin");
+        }
+        alert("🔓 Acesso liberado com sucesso!");
+        return true;
+    } else if (senhaDigitada !== null) {
+        alert("❌ Senha incorreta! Você está no modo Apenas Espectador.");
+    }
+    return false;
+}
+
+function autenticarAdmin() {
+    if (!adminAutenticado) {
+        checarSenha();
+    } else {
+        alert("Você já está autenticado como Administrador!");
+    }
+}
+ 
+
+
+
+
+
+        let participantes = [];
+        let confrontos = [];
+
+        // CARREGAR DADOS INICIAIS
+        async function carregarDados() {
+            document.getElementById("status").innerText = "Carregando...";
+            
+            const { data: partData } = await db.from('participantes').select('*');
+            if (partData) participantes = partData;
+
+            const { data: confData, error: confError } = await db.from('confrontos').select(`
+                *,
+                jogador1:participantes!confrontos_jogador1_id_fkey(*),
+                jogador2:participantes!confrontos_jogador2_id_fkey(*),
+                vencedor:participantes!confrontos_vencedor_id_fkey(*)
+            `).order('id', { ascending: true });
+
+            if (!confError && confData) {
+                confrontos = confData;
+            }
+
+            document.getElementById("status").innerText = "Aberto";
+            renderizarParticipantes();
+            renderizarTodasFases();
+            verificarCampeao();
+        }
+
+        carregarDados();
+
+        // CONTROLES DE MENU E MODAL
+        const btnMenu = document.getElementById("btnMenu");
+        const menu = document.getElementById("menu");
+        const overlay = document.getElementById("overlay");
+
+        btnMenu.onclick = () => { menu.classList.add("ativo"); overlay.classList.add("ativo"); };
+        overlay.onclick = fecharMenu;
+        function fecharMenu() { menu.classList.remove("ativo"); overlay.classList.remove("ativo"); }
+
+        const modalParticipantes = document.getElementById("modalParticipantes");
+        document.getElementById("btnParticipantes").onclick = () => {
+            modalParticipantes.classList.add("ativo");
+            fecharMenu();
+        };
+
+        document.querySelectorAll(".fechar").forEach(botao => {
+            botao.onclick = () => {
+                modalParticipantes.classList.remove("ativo");
+                document.getElementById("modalPartida").classList.remove("ativo");
+            };
+        });
+
+        // ADICIONAR PARTICIPANTE NO SUPABASE
+        document.getElementById("adicionarParticipante").onclick = async () => {
+          if (!checarSenha()) return; // ⛔ Trava aqui!
+            const nomeInput = document.getElementById("nomeParticipante");
+            const nome = nomeInput.value.trim();
+            const avatar = document.getElementById("avatar").value;
+
+            if (!nome) return alert("Digite um nome");
+
+            const { data, error } = await db.from('participantes').insert([{ nome, avatar }]).select();
+
+            if (error) return alert("Erro: " + error.message);
+
+            if (data) {
+                participantes.push(data[0]);
+                nomeInput.value = "";
+                renderizarParticipantes();
+            }
+        };
+
+        function renderizarParticipantes() {
+            const lista = document.getElementById("listaParticipantes");
+            lista.innerHTML = "";
+            participantes.forEach(p => {
+                lista.innerHTML += `
+                    <div class="participante">
+                        <span>${p.avatar} ${p.nome}</span>
+                        <button onclick="removerParticipante(${p.id})">❌</button>
+                    </div>
+                `;
+            });
+        }
+
+        // REMOVER PARTICIPANTE DO SUPABASE
+        async function removerParticipante(id) {
+          
+if (!checarSenha()) return; // ⛔ Trava aqui!
+          
+            if (!confirm("Deseja realmente excluir este participante do banco de dados?")) return;
+
+            const { error } = await db.from('participantes').delete().eq('id', id);
+            
+            if (error) {
+                return alert("Erro ao excluir do banco de dados: " + error.message);
+            }
+
+            participantes = participantes.filter(p => p.id !== id);
+            renderizarParticipantes();
+        }
+
+        // SORTEAR CAMPEONATO
+        document.getElementById("btnSortear").onclick = sortearCampeonato;
+
+     async function sortearCampeonato() {
+       if (!checarSenha()) return; // ⛔ Trava aqui!
+     const total = participantes.length;
+
+    // ⛔ 1. Bloqueia se tiver menos de 2 participantes
+    if (total < 2) {
+        return alert("Adicione pelo menos 2 participantes para iniciar!");
+    }
+
+    // ⛔ 2. Bloqueia especificamente 3, 5 e 6 participantes
+    const quantidadesProibidas = [3, 5, 6 , 7];
+    if (quantidadesProibidas.includes(total)) {
+        return alert(`Não é possível realizar o sorteio com ${total} participantes. Por favor, adicione ou remova jogadores.`);
+    }
+
+    // Apaga confrontos anteriores
+    await db.from('confrontos').delete().neq('id', 0);
+
+    const lista = [...participantes].sort(() => Math.random() - 0.5);
+    let novosConfrontos = [];
+
+    // SE HOUVER MAIS DE 8 PARTICIPANTES (8, 9, 10, 11, 12...)
+    if (lista.length > 8) {
+        // Reservamos 7 para irem direto para as Quartas
+        const diretosQuartas = lista.slice(0, 7);
+        // O restante entra na Eliminatória Escada
+        const participantesElim = lista.slice(7);
+
+        // 1. CRIAR OS JOGOS DA ELIMINATÓRIA (ESCADA)
+        // O 1º jogo é P0 vs P1
+        novosConfrontos.push({
+            fase: "Eliminatória",
+            jogador1_id: participantesElim[0].id,
+            jogador2_id: participantesElim[1].id,
+            vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente'
+        });
+
+        // Os próximos jogos colocam o vencedor anterior contra o próximo da fila (P2, P3, P4...)
+        for (let i = 2; i < participantesElim.length; i++) {
+            novosConfrontos.push({
+                fase: "Eliminatória",
+                jogador1_id: null, // Será preenchido pelo vencedor do jogo anterior
+                jogador2_id: participantesElim[i].id,
+                vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente'
+            });
+        }
+
+        // 2. CRIAR AS QUARTAS DE FINAL (7 preenchidos + 1 vaga 'Aguardando' o sobrevivente)
+        novosConfrontos.push(
+            { fase: "Quartas", jogador1_id: diretosQuartas[0].id, jogador2_id: null, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente' },
+            { fase: "Quartas", jogador1_id: diretosQuartas[1].id, jogador2_id: diretosQuartas[2].id, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente' },
+            { fase: "Quartas", jogador1_id: diretosQuartas[3].id, jogador2_id: diretosQuartas[4].id, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente' },
+            { fase: "Quartas", jogador1_id: diretosQuartas[5].id, jogador2_id: diretosQuartas[6].id, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente' }
+        );
+
+        // 3. SEMIFINAIS E FINAL
+        for (let i = 0; i < 2; i++) novosConfrontos.push({ fase: "Semifinal", jogador1_id: null, jogador2_id: null, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente' });
+        novosConfrontos.push({ fase: "Final", jogador1_id: null, jogador2_id: null, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente' });
+
+    } else {
+        // REGRA PADRÃO PARA 8 OU MENOS PARTICIPANTES
+        const estrutura = criarEstrutura(lista.length);
+        estrutura.forEach(fase => {
+            for (let i = 1; i <= fase.jogos; i++) {
+                novosConfrontos.push({
+                    fase: fase.nome, jogador1_id: null, jogador2_id: null,
+                    vencedor_id: null, vitorias_jogador1: 0, vitorias_jogador2: 0, status: 'Pendente'
+                });
+            }
+        });
+
+        const primeiraFase = novosConfrontos.filter(c => c.fase === estrutura[0].nome);
+        lista.forEach((p, i) => {
+            let jogo = primeiraFase[Math.floor(i / 2)];
+            if (i % 2 === 0) jogo.jogador1_id = p.id;
+            else jogo.jogador2_id = p.id;
+        });
+    }
+
+    const { error } = await db.from('confrontos').insert(novosConfrontos);
+    if (error) return alert("Erro ao sortear: " + error.message);
+
+    await carregarDados();
+    fecharMenu();
+}
+
+
+        function criarEstrutura(total) {
+            let fases = [];
+            if (total <= 2) fases.push({ nome: "Final", jogos: 1 });
+            else if (total <= 4) { fases.push({ nome: "Semifinal", jogos: 2 }); fases.push({ nome: "Final", jogos: 1 }); }
+            else { fases.push({ nome: "Quartas", jogos: 4 }); fases.push({ nome: "Semifinal", jogos: 2 }); fases.push({ nome: "Final", jogos: 1 }); }
+            return fases;
+        }
+
+        // RENDERIZAR CARD DOS JOGOS
+        function renderizarFase(lista, fase) {
+            let id = fase.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.innerHTML = "";
+
+            lista.forEach(jogo => {
+                const j1 = jogo.jogador1;
+                const j2 = jogo.jogador2;
+                const vencedorId = jogo.vencedor_id;
+
+                let classeJ1 = !j1 ? "aguardando" : (vencedorId ? (vencedorId === j1.id ? "vencedor" : "perdedor") : "");
+                let classeJ2 = !j2 ? "aguardando" : (vencedorId ? (vencedorId === j2.id ? "vencedor" : "perdedor") : "");
+
+                container.innerHTML += `
+                    <div class="confronto" onclick="abrirConfronto('${jogo.id}')">
+                        <div class="jogador ${classeJ1}">
+                            <span>
+                                <span class="avatar">${j1 ? j1.avatar : "⏳"}</span> 
+                                ${j1 ? j1.nome : "Aguardando"}
+                            </span>
+                            <strong>${jogo.vitorias_jogador1 || 0}</strong>
+                        </div>
+                        <div class="placar">VS</div>
+                        <div class="jogador ${classeJ2}">
+                            <span>
+                                <span class="avatar">${j2 ? j2.avatar : "⏳"}</span> 
+                                ${j2 ? j2.nome : "Aguardando"}
+                            </span>
+                            <strong>${jogo.vitorias_jogador2 || 0}</strong>
+                        </div>
+                        <div class="statusJogo">
+                            ${jogo.vencedor ? "🏆 " + jogo.vencedor.nome : jogo.fase}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        let confrontoSelecionado = null;
+
+        function abrirConfronto(id) {
+          // 1. Bloqueio ao abrir confronto/alterar placar
+
+    if (!checarSenha()) return; // ⛔ Trava aqui!
+          
+          
+            confrontoSelecionado = confrontos.find(c => c.id == id);
+            if (!confrontoSelecionado || !confrontoSelecionado.jogador1 || !confrontoSelecionado.jogador2) {
+                return alert("Este confronto aguarda a definição de ambos os jogadores!");
+            }
+
+            document.getElementById("dadosPartida").innerHTML = `
+                <h3>
+                    ${confrontoSelecionado.jogador1.avatar} ${confrontoSelecionado.jogador1.nome} 
+                    <br> ${confrontoSelecionado.vitorias_jogador1} x ${confrontoSelecionado.vitorias_jogador2} <br>
+                    ${confrontoSelecionado.jogador2.avatar} ${confrontoSelecionado.jogador2.nome}
+                </h3>
+            `;
+
+            if (confrontoSelecionado.vencedor) {
+                document.getElementById("opcoesVencedor").innerHTML = `
+                    <h3>🏆 Vencedor: ${confrontoSelecionado.vencedor.nome}</h3>
+                `;
+            } else {
+                document.getElementById("opcoesVencedor").innerHTML = `
+                    <button onclick="registrarVitoria(1)">🏆 Vitória de ${confrontoSelecionado.jogador1.nome}</button>
+                    <button onclick="registrarVitoria(2)">🏆 Vitória de ${confrontoSelecionado.jogador2.nome}</button>
+                `;
+            }
+
+            document.getElementById("modalPartida").classList.add("ativo");
+        }
+
+     async function registrarVitoria(numJogador) {
+    let v1 = confrontoSelecionado.vitorias_jogador1;
+    let v2 = confrontoSelecionado.vitorias_jogador2;
+
+    if (numJogador === 1) v1++;
+    else v2++;
+
+    let vencedorId = null;
+    let status = 'Em Andamento';
+
+    if (v1 === 2) {
+        vencedorId = confrontoSelecionado.jogador1.id;
+        status = 'Finalizado';
+    } else if (v2 === 2) {
+        vencedorId = confrontoSelecionado.jogador2.id;
+        status = 'Finalizado';
+    }
+
+    const { error } = await db.from('confrontos').update({
+        vitorias_jogador1: v1,
+        vitorias_jogador2: v2,
+        vencedor_id: vencedorId,
+        status: status
+    }).eq('id', confrontoSelecionado.id);
+
+    if (error) return alert("Erro ao atualizar confronto: " + error.message);
+
+    // 🟢 MUDANÇA AQUI: Passamos o confrontoSelecionado inteiro!
+    if (vencedorId) {
+        await promoverVencedor(confrontoSelecionado, vencedorId);
+    }
+
+    await carregarDados();
+    document.getElementById("modalPartida").classList.remove("ativo");
+}
+
+
+        // LÓGICA DE PROMOÇÃO DE VENCEDORES
+     async function promoverVencedor(confrontoAtual, vencedorId) {
+    const ordemFases = ["Eliminatória", "Quartas", "Semifinal", "Final"];
+
+    // ==========================================
+    // LÓGICA ESPECIAL PARA A ELIMINATÓRIA
+    // ==========================================
+    if (confrontoAtual.fase === "Eliminatória") {
+        // Buscar todos os jogos da eliminatória ordenados por ID
+        const { data: jogosElim } = await db.from('confrontos')
+            .select('*')
+            .eq('fase', 'Eliminatória')
+            .order('id', { ascending: true });
+
+        // Achar a posição (índice) do jogo que acabou de ser concluído
+        const indexAtual = jogosElim.findIndex(j => j.id === confrontoAtual.id);
+
+        // Se houver um PRÓXIMO jogo na eliminatória (ex: Jogo 2 onde o Manda está)
+        if (indexAtual !== -1 && indexAtual + 1 < jogosElim.length) {
+            const proximoJogoElim = jogosElim[indexAtual + 1];
+
+            // Injeta o Tiago na vaga 'jogador1_id' que estava "Aguardando"
+            const { error } = await db.from('confrontos')
+                .update({ jogador1_id: vencedorId })
+                .eq('id', proximoJogoElim.id);
+
+            if (error) console.error("Erro ao mover para o próximo jogo:", error);
+            return;
+        }
+
+        // Se já era o ÚLTIMO jogo da eliminatória, manda o vencedor para as Quartas
+        const { data: jogosQuartas } = await db.from('confrontos')
+            .select('*')
+            .eq('fase', 'Quartas')
+            .order('id', { ascending: true });
+
+        const jogoQuartasVago = jogosQuartas.find(c => !c.jogador1_id || !c.jogador2_id);
+        if (jogoQuartasVago) {
+            let campoUpdate = !jogoQuartasVago.jogador1_id ? { jogador1_id: vencedorId } : { jogador2_id: vencedorId };
+            await db.from('confrontos').update(campoUpdate).eq('id', jogoQuartasVago.id);
+        }
+        return;
+    }
+
+    // ==========================================
+    // LÓGICA PADRÃO PARA QUARTAS, SEMIFINAL E FINAL
+    // ==========================================
+    const indexFaseAtual = ordemFases.indexOf(confrontoAtual.fase);
+    if (indexFaseAtual === -1 || indexFaseAtual === ordemFases.length - 1) return;
+
+    const proximaFase = ordemFases[indexFaseAtual + 1];
+
+    const { data: proximosJogos } = await db.from('confrontos')
+        .select('*')
+        .eq('fase', proximaFase)
+        .order('id', { ascending: true });
+
+    if (!proximosJogos || proximosJogos.length === 0) return;
+
+    for (let jogo of proximosJogos) {
+        if (!jogo.jogador1_id) {
+            await db.from('confrontos').update({ jogador1_id: vencedorId }).eq('id', jogo.id);
+            break;
+        } else if (!jogo.jogador2_id) {
+            await db.from('confrontos').update({ jogador2_id: vencedorId }).eq('id', jogo.id);
+            break;
+        }
+    }
+}
+
+
+       async function verificarCampeao() {
+    const jogoFinal = confrontos.find(c => c.fase === "Final");
+    const secao = document.getElementById("secaoCampeao");
+    const container = document.getElementById("campeao");
+
+    if (jogoFinal && jogoFinal.vencedor) {
+        // 1. Campeão (Ouro)
+        const campeao = jogoFinal.vencedor;
+
+        // 2. Vice-Campeão (Prata - quem perdeu a final)
+        const vice = jogoFinal.jogador1_id === campeao.id ? jogoFinal.jogador2 : jogoFinal.jogador1;
+
+        // 3. 3º Lugar (Bronze - buscar perdedores das semifinais)
+        const jogosSemi = confrontos.filter(c => c.fase === "Semifinal" && c.vencedor_id);
+        let terceiro = null;
+
+        if (jogosSemi.length > 0) {
+            // Pega o perdedor da 1ª semifinal como referência para o 3º lugar
+            const perdedorSemi1 = jogosSemi[0].jogador1_id === jogosSemi[0].vencedor_id ? jogosSemi[0].jogador2 : jogosSemi[0].jogador1;
+            terceiro = perdedorSemi1;
+        }
+
+        // Renderiza o Pódio com Ouro, Prata e Bronze
+        container.innerHTML = `
+            <div class="podio-container">
+                <!-- 2º LUGAR (PRATA) -->
+                ${vice ? `
+                <div class="premio prata">
+                    <div class="trofeu">🥈</div>
+                    <div class="avatar-podio">${vice.avatar}</div>
+                    <div class="nome-podio">${vice.nome}</div>
+                    <small>2º Lugar</small>
+                </div>
+                ` : ''}
+
+                <!-- 1º LUGAR (OURO) -->
+                <div class="premio ouro">
+                    <div class="trofeu">🏆</div>
+                    <div class="avatar-podio">${campeao.avatar}</div>
+                    <div class="nome-podio">${campeao.nome}</div>
+                    <small>1º Lugar (Campeão)</small>
+                </div>
+
+                <!-- 3º LUGAR (BRONZE) -->
+                ${terceiro ? `
+                <div class="premio bronze">
+                    <div class="trofeu">🥉</div>
+                    <div class="avatar-podio">${terceiro.avatar}</div>
+                    <div class="nome-podio">${terceiro.nome}</div>
+                    <small>3º Lugar</small>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        secao.classList.add("ativo");
+
+        // 📜 SCROLL SUAVE PARA O TOPO DA TELA
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    } else {
+        secao.classList.remove("ativo");
+    }
+}
+
+
+        function renderizarTodasFases() {
+            ["Eliminatória", "Quartas", "Semifinal", "Final"].forEach(f => {
+                const jogos = confrontos.filter(c => c.fase === f);
+                renderizarFase(jogos, f);
+            });
+        }
+
+        async function resetarCampeonato() {
+          if (!checarSenha()) return; // ⛔ Trava aqui!
+            if (confirm("Tem certeza que deseja reiniciar o campeonato inteiro?")) {
+                await db.from('confrontos').delete().neq('id', 0);
+                await carregarDados();
+                fecharMenu();
+            }
+        }
+    </script>
+</body>
+</html>
