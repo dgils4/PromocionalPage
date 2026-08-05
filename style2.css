@@ -1,0 +1,103 @@
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tabela-despesas {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+/* Divisórias do Cabeçalho */
+.tabela-despesas th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 2px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+/* Divisórias das Linhas e Células */
+.tabela-despesas td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.tabela-despesas th:last-child,
+.tabela-despesas td:last-child {
+  border-right: none;
+}
+
+.tabela-despesas tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Estilização dos elementos internos da tabela */
+.col-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.col-data small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.badge-categoria {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.val-despesa {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.col-obs {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #64748b;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.sem-registros {
+  text-align: center;
+  padding: 24px;
+  color: #94a3b8;
+}
+
+/* Botões de Ação */
+.btn-acao {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-acao:hover {
+  background-color: #cbd5e1;
+}
