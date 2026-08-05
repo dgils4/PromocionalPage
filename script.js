@@ -1,0 +1,5206 @@
+
+
+
+
+
+
+window.addEventListener("load", ()=>{
+
+  if(typeof supabase === "undefined"){
+
+    mostrarToast("Supabase não carregou");
+
+  }else{
+
+    mostrarToast("Servidor OK");
+
+  }
+
+});
+
+let editandoId = null;
+
+
+async function protegerPagina(){
+
+  const { data } = await db.auth.getSession();
+
+  if(!data.session){
+    location.href = "login.html";
+    return;
+  }
+
+  const user = data.session.user;
+
+  const { data: usuario, error } = await db
+    .from("usuarios")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .eq("auth_user_id", user.id)
+    .single();
+
+  if(error){
+    alert("Usuário não encontrado.");
+    await db.auth.signOut();
+    location.href = "login.html";
+    return;
+  }
+
+  localStorage.setItem("empresa_id", usuario.empresa_id);
+  localStorage.setItem("usuario_id", usuario.id);
+  localStorage.setItem("nome_usuario", usuario.nome);
+  localStorage.setItem("cargo", usuario.cargo);
+
+}
+
+protegerPagina();
+
+db.auth.onAuthStateChange((event, session) => {
+
+ if(!session){
+   location.href = "login.html";
+ }
+
+});
+
+
+
+
+
+
+
+let tocandoAnuncio = false;
+let contadorMusicas = 0;
+let reproduzindoTemporario = false;
+let indiceAnterior = 0;
+let modoAleatorio = false
+let listaAtual = null;
+let listaConfigAtual = null;
+let diaSelecionado = 0;
+let listasDoDia = [];
+let planoEditando = null;
+let indiceListaAtual = 0;
+let listaExcluirId = null; 
+let tempoExcluirPlano;
+let servicosSelecionados = [];
+  
+  const somSucesso = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/concluido.mp3");
+     somSucesso.preload = "auto";
+   const exCluir = new Audio("https://cdechrtprerblmhllqav.supabase.co/storage/v1/object/public/audios/excluir.mp3");
+     exCluir.preload = "auto";  
+     
+     document.addEventListener("click", liberarAudio, {
+  once:true
+ 
+});
+
+function liberarAudio(){
+  somSucesso.play()
+  .then(()=>{
+    somSucesso.pause();
+    somSucesso.currentTime = 0;
+  });
+
+  exCluir.play()
+  .then(()=>{
+    exCluir.pause();
+    exCluir.currentTime = 0;
+  });
+
+}
+     
+     
+     
+     
+   
+  function vibrar(ms=150){
+  if(navigator.vibrate){
+    navigator.vibrate(ms);
+  }
+}   
+     
+  
+ function abrirLoading(texto = "Processando..."){
+
+  document.getElementById("textoLoading").innerText = texto;
+
+  document.getElementById("loading").style.display = "flex";
+}
+
+function fecharLoading(){
+vibrar();
+  document.getElementById("loading").style.display = "none";
+}
+ function gerarNomeKey(nome){
+  return nome
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+} 
+  
+async function sair(){
+
+  vibrar();
+
+  abrirConfirmacao(
+    "Deseja sair da conta?",
+    async ()=>{
+   if(navigator.vibrate){
+     navigator.vibrate(150);
+   }
+      await db.auth.signOut();
+
+      location.href = "login.html";
+
+    },
+    "🚪 Sair"
+  );
+
+}
+
+  
+const modil = document.getElementById("modalervicos");
+const lista = document.getElementById("listaServicos");
+const inputValor = document.getElementById("valor");
+const inputValorr = document.getElementById("valorr");
+const textoResumo =
+document.getElementById("textoResumo");
+
+// abrir modal ao clicar no input
+inputValor.addEventListener("click", () => {
+  modil.style.display = "block";
+  carregarervicos();
+});
+
+// fechar modal
+function fecharModil() {
+  modil.style.display = "none";
+  sugestoes.innerHTML = "";
+}
+
+// buscar serviços no Supabase
+
+
+async function carregarervicos() {
+
+  lista.innerHTML = "Carregando...";
+
+  const { data, error } = await db
+    .from("servicos")
+    .select("nome, preco")
+    .eq("empresa_id", empresaId)
+    .order("nome");
+
+  if (error) {
+    lista.innerHTML = "Erro ao carregar";
+    return;
+  }
+
+  // Recupera os serviços já escritos no input
+  const selecionados = inputValor.value
+    .split(",")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  servicosSelecionados = [];
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+
+    const marcado =
+      selecionados.includes(item.nome);
+
+    if(marcado){
+      servicosSelecionados.push({
+        nome: item.nome,
+        preco: Number(item.preco)
+      });
+    }
+
+    const div = document.createElement("div");
+    div.className = "item";
+
+div.innerHTML = `
+<label class="item-servico">
+
+  <input type="checkbox"
+    ${marcado ? "checked" : ""}>
+
+  <span class="nome">${item.nome}</span>
+
+  <span class="preco">
+    R$ ${Number(item.preco).toFixed(2).replace(".", ",")}
+  </span>
+
+</label>
+`;
+
+    const check = div.querySelector("input");
+
+    check.onchange = () => {
+
+      if(check.checked){
+
+        servicosSelecionados.push({
+          nome:item.nome,
+          preco:Number(item.preco)
+        });
+
+      }else{
+
+        servicosSelecionados =
+        servicosSelecionados.filter(
+          s => s.nome !== item.nome
+        );
+
+      }
+
+      atualizarResumoServicos();
+
+    };
+
+    lista.appendChild(div);
+
+  });
+
+  lista.insertAdjacentHTML("beforeend",`
+
+ ">
+
+
+      
+
+    
+
+    </div>
+
+  `);
+
+  atualizarResumoServicos();
+
+}
+
+function atualizarResumoServicos(){
+
+  const nomes =
+  servicosSelecionados.map(x=>x.nome);
+
+  const total =
+  servicosSelecionados.reduce(
+    (s,x)=>s+x.preco,0
+  );
+
+  textoResumo.innerHTML = `
+    <strong>${nomes.length} serviço(s)</strong><br>
+    ${nomes.join(", ") || "Nenhum"}<br><br>
+
+    <strong>Total:
+    R$ ${total.toFixed(2)}</strong>
+  `;
+
+}
+
+function confirmarServicos(){
+
+  inputValor.value =
+  servicosSelecionados
+  .map(x=>x.nome)
+  .join(", ");
+
+  inputValorr.value =
+  servicosSelecionados
+  .reduce((s,x)=>s+x.preco,0)
+  .toFixed(2);
+
+  fecharModil();
+
+}
+
+
+  const statusPlano = document.getElementById("statusPlano");
+const adesaoPlano = document.getElementById("adesaoPlano");  
+  
+const dataInput = document.getElementById('data');
+const agenda = document.getElementById('agenda');
+const modal = document.getElementById('modal');
+
+const hora = document.getElementById('hora');
+const nome = document.getElementById('nome');
+const fone = document.getElementById('fone');
+const barbeiro = document.getElementById('barbeiro');
+const barbeiroSalvo =
+localStorage.getItem(
+  "barbeiroPadrao"
+);
+
+if(barbeiroSalvo){
+  barbeiro.value =
+  barbeiroSalvo;
+}
+
+barbeiro.addEventListener(
+  "change",
+  ()=>{
+
+    localStorage.setItem(
+      "barbeiroPadrao",
+      barbeiro.value
+    );
+
+  }
+);
+const tipo = document.getElementById('tipo');
+const corte = document.getElementById('corte');
+const pag = document.getElementById('pag');
+const valor = document.getElementById('valor');
+const valorr = document.getElementById('valorr');
+const obs = document.getElementById('obs');
+
+const agora = new Date();
+
+const hoje =
+agora.getFullYear() + '-' +
+String(agora.getMonth()+1).padStart(2,'0') + '-' +
+String(agora.getDate()).padStart(2,'0');
+
+dataInput.value = hoje;
+dataInput.onchange = carregarHoje;
+
+const horarios = [];
+
+for(let h=8; h<=20; h++){
+ ['00','30'].forEach(m=>{
+   horarios.push(String(h).padStart(2,'0') + ':' + m);
+ });
+}
+
+function abrir(h='') {
+
+  modal.style.display = 'flex';
+ if(!h){
+
+  const agora = new Date();
+
+  h =
+    String(agora.getHours()).padStart(2,"0") +
+    ":" +
+    String(agora.getMinutes()).padStart(2,"0");
+
+}
+
+hora.value = h;
+inputNome.dataset.id = "";
+  document.getElementById("boxPlanoAdmin").style.display = "none";
+
+  const adesao = document.getElementById("adesaoPlano");
+  const status = document.getElementById("statusPlano");
+
+  if (adesao) adesao.value = "";
+  if (status) status.value = "ativo";
+
+  editandoId = null;
+  
+    
+  nome.value = "";
+  fone.value = "";
+  valor.value = "";
+  valorr.value = "";
+  obs.value = "";
+  corte.value = "";
+  pag.value = "Pix";
+}
+
+function fechar(){
+  modal.style.display = "none";
+  editandoId = null;
+
+  hora.value = "";
+  nome.value = "";
+  fone.value = "";
+  valor.value = "";
+  valorr.value = "";
+  obs.value = "";
+  corte.value = "";
+  pag.value = "Pix";
+  
+
+  document.getElementById("boxPlanoAdmin").style.display = "none";
+
+  const adesao = document.getElementById("adesaoPlano");
+  const status = document.getElementById("statusPlano");
+
+  if (adesao) adesao.value = "";
+  if (status) status.value = "ativo";
+
+}
+
+function renderSkeleton(){
+
+  agenda.innerHTML = "";
+
+  for(let i=0; i<8; i++){
+
+    agenda.innerHTML += `
+
+    <div class="slot">
+
+      <div class="time skeleton"></div>
+
+      <div class="cell skeleton-card"></div>
+
+    </div>
+
+    `;
+
+  }
+
+}
+
+
+async function carregarHoje(){
+
+  
+abrirLoading();
+  renderSkeleton();
+
+  vibrar();
+
+ agenda.innerHTML = '';
+
+ const hoje = dataInput.value;
+ const prof = filtro.value;
+
+ let query = db
+  .from('atendimentos')
+  .select('*')
+  .eq("empresa_id", empresaId)
+  .eq('data', hoje);
+
+ if(prof !== "Todos"){
+   query = query.eq('barbeiro', prof);
+ }
+
+ const { data, error } = await query.order('hora');
+
+ if(error){
+   mostrarToast(error.message);
+    fecharLoading();
+   return;
+  
+   
+ }
+
+ let soma = 0;
+
+ data.forEach(item => {
+   soma += Number(item.valor || 0);
+ });
+
+ document.getElementById('totalDia').textContent =
+ 'R$' + soma.toFixed(2).replace('.', ',');
+
+ qtd.textContent = data.length;
+
+ planos.textContent =
+ data.filter(x => x.tipo_cliente === 'plano').length;
+
+
+const horariosAgenda = [...horarios];
+
+data.forEach(item => {
+
+  const h = item.hora.slice(0,5);
+
+  if(!horariosAgenda.includes(h)){
+    horariosAgenda.push(h);
+  }
+
+});
+
+horariosAgenda.sort((a,b)=>{
+
+  const [ha,ma] = a.split(":").map(Number);
+  const [hb,mb] = b.split(":").map(Number);
+
+  return (ha * 60 + ma) - (hb * 60 + mb);
+
+});
+
+
+const mapa = {};
+data.forEach(i => {
+ mapa[i.hora.slice(0,5)] = i;
+});
+
+
+
+ horariosAgenda.forEach(h => {
+
+  
+
+const item = mapa[h];
+
+   const d = document.createElement('div');
+   d.className = 'slot';
+
+   if(item){
+
+     let cor = '#166534';
+     let txt = '#fff';
+
+     if(item.tipo_cliente === 'plano'){
+       cor = '#eab308';
+       txt = '#111';
+     }
+     else if(Number(item.valor) <= 0){
+       cor = '#991b1b';
+     }
+
+     d.innerHTML = `
+     <div class="time">${h}</div>
+   <div
+ data-id="${item.id}"
+ style="background:${cor};color:${txt}"
+ class="cell"
+ ontouchstart="segurarExcluir(event,'${item.id}')"
+ ontouchmove="moverDedo(event)"
+ ontouchend="cancelarSegurar()"
+ onclick="cliqueCard('${item.id}')">
+       ${item.nome_cliente || 'desconhecido'}<br>
+
+       <small style="font-size:11px">
+       ${item.tipo_cliente === 'plano'
+         ? 'Corte ' + item.numero_corte + '/4 • '
+         : ''
+       }
+
+       ${item.servico} •
+       ${item.forma_pagamento} •
+       R$${item.valor}
+       </small>
+     </div>
+     `;
+   } else {
+     d.innerHTML = `
+     <div class="time">${h}</div>
+     <div class="cell free" onclick="abrir('${h}')"><span style="margin-right:8px" class="material-symbols-rounded">
+calendar_month
+</span>Livre
+     </div>
+     `;
+   }
+
+   agenda.appendChild(d);
+   aplicarOcultacao();
+ });
+ 
+if(window.ultimoAtendimentoId){
+
+  setTimeout(()=>{
+
+    const card =
+    document.querySelector(
+      `[data-id="${window.ultimoAtendimentoId}"]`
+    );
+
+    if(card){
+
+      card.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+      card.style.outline =
+      "3px solid #22c55e";
+
+      setTimeout(()=>{
+        card.style.outline = "";
+      },3000);
+
+    }
+
+    window.ultimoAtendimentoId = null;
+
+  },300);
+
+}
+
+fecharLoading();
+}
+
+
+let tempoPlayer;
+
+function pausarPlayer(){
+
+  clearTimeout(tempoPlayer);
+
+  player.pauseVideo();
+
+  tempoPlayer = setTimeout(() => {
+
+    player.playVideo();
+
+  }, 2000);
+
+}
+
+
+
+
+async function salvarAtendimento(){
+ pausarPlayer(); 
+  
+  abrirLoading("Processando...")
+  
+  
+const tipoCliente =
+  pag.value === "Plano Mensal"
+    ? "plano"
+    : "avulso";  
+  
+if(valorr.value.trim() === ""){
+  valorr.value = 0;
+}  
+  
+  
+let telefoneLimpo = fone.value.replace(/\D/g,'');
+
+if(
+  telefoneLimpo !== "" &&
+  telefoneLimpo.length !== 11
+){
+   mostrarToast(
+     "Telefone deve ter 11 dígitos."
+   );
+
+   fone.focus();
+   fecharLoading();
+   return;
+}
+
+// só depois da validação
+if(telefoneLimpo === ""){
+   telefoneLimpo = null;
+}
+
+ // ==========================
+ // 🔥 CLIENTE (CORRIGIDO)
+ // ==========================
+ let clienteId = inputNome.dataset.id || null;
+
+ let nomeFinal = nome.value.trim() === ""
+   ? "desconhecido"
+   : nome.value.trim();
+console.log(clienteId);
+console.log(nomeFinal);
+ // cria cliente se não veio do autocomplete
+ if(!clienteId && nomeFinal !== "desconhecido"){
+
+   const { data: novoCliente, error } = await db
+   .from("clientes")
+   .insert([{
+     empresa_id: empresaId,
+     nome: nomeFinal,
+    telefone: fone.value.trim() || null
+   }])
+   .select()
+   .eq("empresa_id", empresaId)
+   .single();
+
+   if(error){
+     firmacao("Erro ao criar cliente")
+   fecharLoading();
+     return;
+   }
+
+   clienteId = novoCliente.id;
+ }
+
+ // ==========================
+ // 🔥 CORTE (PLANO)
+ // ==========================
+ let numeroCorteFinal = corte.value;
+
+ if(tipoCliente === "plano" && clienteId){
+
+   if(numeroCorteFinal === ""){
+
+     const { data: historico } = await db
+     .from("atendimentos")
+     .select("numero_corte,data,hora,id")
+     .eq("empresa_id", empresaId)
+     .eq("cliente_id", clienteId)
+     .eq("tipo_cliente", "plano")
+     .order("data", { ascending:false })
+     .order("hora", { ascending:false })
+     .order("id", { ascending:false })
+     .limit(1);
+
+     if(historico && historico.length > 0){
+
+       let ultimo = parseInt(historico[0].numero_corte,10) || 0;
+
+       numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
+
+     } else {
+       numeroCorteFinal = 1;
+     }
+   }
+
+ } else {
+   numeroCorteFinal = "";
+ }
+ 
+
+ 
+
+ // ==========================
+ // 🔥 DADOS
+ // ==========================
+ let servicoFinal =
+  valor.value.trim() === ""
+    ? "sem serviço"
+    : valor.value.trim();
+ 
+ const dados = {
+   empresa_id: empresaId,
+   cliente_id: clienteId,
+   data: dataInput.value,
+   hora: hora.value,
+   nome_cliente: nomeFinal,
+   telefone: telefoneLimpo,
+   barbeiro: barbeiro.value,
+   tipo_cliente: tipoCliente,
+   numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
+   forma_pagamento: pag.value,
+   valor: valorr.value,
+   observacao: obs.value,
+   servico: servicoFinal,
+ };
+
+ let resposta;
+
+let atendimentoSalvoId = null;
+
+if(editandoId){
+   resposta = await db
+   .from('atendimentos')
+   .update(dados)
+    .eq("empresa_id", empresaId)
+   .eq('id', editandoId);
+
+   atendimentoSalvoId = editandoId;
+
+} else {
+
+   resposta = await db
+   .from('atendimentos')
+   .insert([dados])
+   .select()
+   .eq("empresa_id", empresaId)
+   .single();
+
+   atendimentoSalvoId = resposta.data?.id;
+}
+
+ if(resposta.error){
+   mostrarToast(resposta.error.message);
+   fecharLoading();
+   return;
+}
+
+window.ultimoAtendimentoId =
+atendimentoSalvoId;
+ 
+
+
+ 
+ 
+ 
+ if(clienteId){
+
+ await db
+ .from("clientes")
+ .update({
+   nome: nomeFinal,
+   telefone: fone.value.trim() || null
+ })
+  .eq("empresa_id", empresaId)
+ .eq("id", clienteId);
+
+}
+
+
+if(tipoCliente === "plano" && clienteId){
+
+   const { data: cli } = await db
+   .from("clientes")
+   .select(
+     "data_adesao_plano,status_plano,ultima_renovacao"
+   )
+   .eq("empresa_id", empresaId)
+   .eq("id", clienteId)
+   .single();
+
+   let dadosUpdate = {
+     status_plano: statusPlano.value
+   };
+
+   // 🔥 RENOVAÇÃO AUTOMÁTICA
+   if(
+     !editandoId &&
+     Number(numeroCorteFinal) === 1
+   ){
+      dadosUpdate.ultima_renovacao =
+       dataInput.value;
+
+     dadosUpdate.status_plano =
+       "ativo";
+const valorPlano =
+Number(valorr.value || 0);
+
+const vencimento =
+calcularVencimento(
+  dataInput.value
+)
+.toISOString()
+.split("T")[0];
+
+const { data, error } = await db
+.from("financeiro")
+.insert([{
+
+  empresa_id: empresaId,
+
+  cliente_id: clienteId || null,
+
+  nome_cliente: nomeFinal,
+
+  telefone: telefoneLimpo || null,
+
+  tipo: "plano",
+
+  descricao: "Mensalidade Plano",
+
+  valor: Number(valorr.value || 0),
+
+  vencimento: vencimento,
+
+  status: "pendente",
+
+  forma_pagamento: "Plano Mensal",
+
+  observacao:
+  "Cobrança automática do plano"
+
+}])
+.select();
+
+console.log(data);
+console.log(error);
+
+
+}
+
+
+
+
+
+   // 🔥 ALTERA ADESÃO EDITANDO
+   if(editandoId){
+
+     dadosUpdate.data_adesao_plano =
+       adesaoPlano.value || null;
+
+   }
+
+   // 🔥 NOVO CLIENTE
+   else if(!cli?.data_adesao_plano){
+
+     dadosUpdate.data_adesao_plano =
+       adesaoPlano.value || dataInput.value;
+
+   }
+
+   await db
+   .from("clientes")
+   .update(dadosUpdate)
+    .eq("empresa_id", empresaId)
+   .eq("id", clienteId);
+}
+
+
+ somSucesso.currentTime = 0;
+somSucesso.play().catch(()=>{});
+fecharLoading();
+mostrarToast("✅ Salvo ")
+ editandoId = null;
+ modal.style.display = "none";
+
+ carregarHoje();
+}
+
+
+
+
+
+
+
+
+async function editarAtendimento(id){
+abrirLoading("Processando...")
+
+if(valorr.value.trim() === ""){
+  valorr.value = 0;
+}  
+ // ==========================
+ // BUSCA ATENDIMENTO
+ // ==========================
+ const { data, error } = await db
+ .from('atendimentos')
+ .select('*')
+ .eq("empresa_id", empresaId)
+ .eq('id', id)
+ .single();
+
+ if(error){
+   abrirConfirmacao(error.message);
+   fecharLoading();
+   return;
+ }
+
+ editandoId = id;
+
+ // ==========================
+ // ABRE MODAL
+ // ==========================
+ modal.style.display = "flex";
+
+ document.querySelector(".box h3").innerText =
+ "Editar Atendimento";
+fecharLoading()
+ // ==========================
+ // PREENCHE CAMPOS
+ // ==========================
+ hora.value      = data.hora || "";
+ nome.value = data.nome_cliente || "";
+fone.value = data.telefone || "";
+
+// 🔥 ESSENCIAL
+inputNome.dataset.id = data.cliente_id || "";
+ 
+ 
+ corte.value     = data.numero_corte || "";
+ pag.value       = data.forma_pagamento || "Pix";
+ valor.value     = data.servico || "";
+ valorr.value    = data.valor || "0";
+ obs.value       = data.observacao || "";
+
+ // ==========================
+ // SE FOR PLANO
+ // ==========================
+ if(pag.value === "Plano Mensal"){
+
+   document.getElementById("boxPlanoAdmin").style.display = "flex";
+
+   const { data: cli } = await db
+   .from("clientes")
+   .select("data_adesao_plano,status_plano")
+   .eq("empresa_id", empresaId)
+   .eq("id", data.cliente_id)
+   .single();
+
+   if(cli){
+
+     adesaoPlano.value =
+       cli.data_adesao_plano || "";
+
+     statusPlano.value =
+       cli.status_plano || "ativo";
+
+   }else{
+
+     adesaoPlano.value = "";
+     statusPlano.value = "ativo";
+
+   }
+
+ }else{
+
+   document.getElementById("boxPlanoAdmin").style.display = "none";
+
+   adesaoPlano.value = "";
+   statusPlano.value = "ativo";
+ }
+
+}
+
+
+
+
+
+async function excluirAtendimento(id){
+pausarPlayer(); 
+abrirLoading("Excluindo...")
+ const { error } = await db
+ .from('atendimentos')
+ .delete()
+  .eq("empresa_id", empresaId)
+ .eq('id', id);
+
+ if(error){
+   abrirConfirmacao(error.message);
+   fecharLoading()
+   return;
+ }
+
+ exCluir.currentTime = 0;
+exCluir.play().catch(()=>{});
+
+fecharLoading();
+
+ carregarHoje();
+
+}
+
+
+const filtro = document.getElementById('filtro');
+
+filtro.addEventListener("change", () => {
+ localStorage.setItem("filtroAgenda", filtro.value);
+ carregarHoje();
+});
+
+let profissionalAtual = "Todos";
+
+function filtrarProf(nome){
+  profissionalAtual = nome;
+  carregarHoje();
+}
+
+
+
+// =========================
+// TOGGLE MENU
+// =========================
+
+
+
+// =========================
+// FECHAR MENU
+// =========================
+function fecharMenu(){
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("ativo");
+
+  document
+    .getElementById("overlayMenu")
+    .classList.remove("show");
+
+}
+function iniciarAutoFecharMenu(){
+
+  // cancela qualquer timer antigo
+  clearTimeout(timerMenu);
+
+  timerMenu = setTimeout(() => {
+    fecharMenu();
+  }, 30000); // 30 segundos
+
+}
+
+
+async function calcularPlanos(){
+abrirLoading("Calculando...")
+ const inicio = document.getElementById("planoInicio").value;
+ const fim = document.getElementById("planoFim").value;
+ const box = document.getElementById("resultadoPlanos");
+
+ if(!inicio || !fim){
+   box.innerHTML = "Escolha as datas";
+fecharLoading("")
+   return;
+ }
+
+ box.innerHTML = "Carregando...";
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .eq("empresa_id", empresaId)
+ .eq("tipo_cliente", "plano")
+ .gte("data", inicio)
+ .lte("data", fim)
+ .order("data");
+
+ if(error){
+   box.innerHTML = error.message;
+   fecharLoading("")
+   return;
+ }
+
+ if(!data.length){
+   box.innerHTML = "Nenhum cliente plano no período";
+   fecharLoading()
+   return;
+ }
+
+ let total = 0;
+ const profissionais = {};
+ let html = "";
+
+ data.forEach(item => {
+
+   const valor = Number(item.valor || 0);
+   total += valor;
+
+ const nome =
+item.barbeiro || "Sem profissional";
+
+if(!profissionais[nome]){
+  profissionais[nome] = 0;
+}
+
+profissionais[nome]++;
+
+   html += `
+   <div style="background:#111827;padding:10px;margin:6px 0;border-radius:8px">
+     <strong>${item.nome_cliente}</strong><br>
+     ${item.data} - Corte ${item.numero_corte}/4<br>
+     <small>${item.barbeiro} • R$ ${valor.toFixed(2)}</small>
+   </div>
+   `;
+ });
+let resumoProfissionais = "";
+
+Object.keys(profissionais)
+.sort()
+.forEach(nome => {
+
+  resumoProfissionais += `
+    <p>
+      💈 ${nome}:
+      ${profissionais[nome]}
+    </p>
+  `;
+
+});
+ box.innerHTML = `
+   <h3>Total recebido: R$ ${total.toFixed(2)}</h3>
+
+   <p>📌 Atendimentos plano: ${data.length}</p>
+   ${resumoProfissionais}
+
+   <hr>
+
+   ${html}
+ `;
+ fecharLoading("sucesso!")
+}
+
+
+
+async function calcularPeriodo(){
+abrirLoading("Calculando...")
+ const inicio = document.getElementById("dataInicio").value;
+ const fim = document.getElementById("dataFim").value;
+ const prof = document.getElementById("calProf").value;
+ const resultado = document.getElementById("resultadoPeriodo");
+
+ if(!inicio || !fim){
+   resultado.innerHTML = "Selecione as duas datas";
+fecharLoading()
+   return;
+ }
+
+ resultado.innerHTML = "Carregando...";
+
+ let query = db
+  .from("atendimentos")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .gte("data", inicio)   // maior ou igual
+  .lte("data", fim);     // menor ou igual
+
+ if(prof !== "Todos"){
+   query = query.eq("barbeiro", prof);
+ }
+
+ const { data, error } = await query;
+
+ if(error){
+   resultado.innerHTML = "Erro ao carregar";
+   fecharLoading()
+   return;
+ }
+
+ if(!data.length){
+   resultado.innerHTML = "Nenhum atendimento nesse período";
+   fecharLoading()
+   return;
+ }
+
+ let total = 0;
+
+ let html = "";
+
+ data.forEach(item => {
+   total += Number(item.valor || 0);
+
+   html += `
+     <div style="background:#111827;margin:5px;padding:10px;border-radius:8px">
+       <strong>${item.data}</strong> - ${item.hora}<br>
+       ${item.nome_cliente} • ${item.barbeiro}<br>
+       <small>R$ ${item.valor}</small>
+     </div>
+   `;
+ });
+fecharLoading();
+mostrarToast("Concluido!")
+ resultado.innerHTML = `
+   <h3>💰 Total do período: R$ ${total.toFixed(2)}</h3>
+   ${html}
+ `;
+}
+
+
+
+
+
+
+const inputNome = document.getElementById("nome");
+const sugestoes = document.getElementById("sugestoes");
+
+inputNome.addEventListener("input", async () => {
+
+ const texto = inputNome.value.trim();
+
+ if(texto.length < 2){
+   sugestoes.innerHTML = "";
+   return;
+ }
+
+ const { data, error } = await db
+ .from("clientes")
+ .select("id, nome, telefone")
+ .eq("empresa_id", empresaId)
+ .ilike("nome", `%${texto}%`)
+ .limit(5);
+
+ if(error){
+   mostrarToast("Erro!")
+   return;
+ }
+
+ sugestoes.innerHTML = "";
+
+ // ✅ remover duplicados corretamente
+ const nomesUnicos = [...new Map(data.map(item => [item.nome, item])).values()];
+
+ nomesUnicos.forEach(cliente => {
+
+   const div = document.createElement("div");
+
+   div.style.padding = "10px";
+   div.style.cursor = "pointer";
+   div.style.borderBottom = "1px solid #333";
+   div.style.color = "#fff";
+
+   div.innerHTML = `
+     <strong>${cliente.nome}</strong><br>
+     <small>${cliente.telefone || ''}</small>
+   `;
+
+   div.onclick = () => {
+     inputNome.value = cliente.nome;
+     fone.value = cliente.telefone || "";
+     inputNome.dataset.id = cliente.id;
+     sugestoes.innerHTML = "";
+     inputNome.blur();
+   };
+
+   sugestoes.appendChild(div);
+ });
+
+});
+
+async function backupCSV(){
+
+ const { data, error } = await db
+ .from("atendimentos")
+ .select("*")
+ .eq("empresa_id", empresaId)
+ .order("data", { ascending: true });
+
+ if(error){
+   mostrarToast("Erro ao gerar backup");
+   return;
+ }
+
+ if(!data.length){
+   mostrarToast("Nenhum dado encontrado");
+   return;
+ }
+
+ let csv = "";
+
+ const colunas = Object.keys(data[0]);
+ csv += colunas.join(";") + "\n";
+
+ data.forEach(item => {
+
+   const linha = colunas.map(col => {
+     let valor = item[col] ?? "";
+     valor = String(valor).replace(/;/g, ",");
+     return `"${valor}"`;
+   }).join(";");
+
+   csv += linha + "\n";
+ });
+
+ const blob = new Blob([csv], {
+   type: "text/csv;charset=utf-8;"
+ });
+
+ const link = document.createElement("a");
+
+ const hoje = new Date().toISOString().slice(0,10);
+
+ link.href = URL.createObjectURL(blob);
+ link.download = "backup_atendimentos_" + hoje + ".csv";
+
+ link.click();
+
+}
+let timerMenu = null;
+let timerPress = null;
+let segurando = false;
+let iniciouX = 0;
+let iniciouY = 0;
+let moveu = false;
+
+let ultimoAtendimentoId = null;
+
+function segurarExcluir(event,id){
+
+ const toque = event.touches[0];
+
+ iniciouX = toque.clientX;
+ iniciouY = toque.clientY;
+ moveu = false;
+ segurando = false;
+
+ timerPress = setTimeout(async () => {
+
+   if(moveu) return;
+
+   segurando = true;
+
+   if(navigator.vibrate){
+     navigator.vibrate(150);
+   }
+
+  abrirConfirmacao(
+     "🗑️ Excluir atendimento?",
+     async ()=>{
+
+       await excluirAtendimento(id);
+
+       mostrarToast("✅ Excluído");
+
+     }
+   );
+
+ }, 700);
+
+}
+
+function moverDedo(event){
+
+ const toque = event.touches[0];
+
+ const dx = Math.abs(toque.clientX - iniciouX);
+ const dy = Math.abs(toque.clientY - iniciouY);
+
+ if(dx > 15 || dy > 15){
+   moveu = true;
+   clearTimeout(timerPress);
+ }
+
+}
+
+function cancelarSegurar(){
+ clearTimeout(timerPress);
+}
+
+
+
+ let ultimoClique = 0;
+
+function cliqueCard(id){
+
+ if(segurando){
+   segurando = false;
+   return;
+ }
+
+ const agora = new Date().getTime();
+
+ if(agora - ultimoClique < 400){
+   editarAtendimento(id);
+ }
+
+ ultimoClique = agora;
+
+}
+
+
+
+
+// ======================
+// TOAST
+// ======================
+
+function mostrarToast(texto){
+
+  const toast =
+  document.getElementById("toast");
+
+  toast.innerText = texto;
+
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },2500);
+
+}
+
+// ======================
+// CONFIRMAÇÃO
+// ======================
+
+let callbackConfirmacao = null;
+
+function abrirConfirmacao(
+  texto,
+  callback,
+  titulo = "Confirmação"
+){
+
+  document.getElementById(
+    "confirmTitulo"
+  ).innerText = titulo;
+
+  document.getElementById(
+    "confirmTexto"
+  ).innerText = texto;
+
+  callbackConfirmacao = callback;
+
+  document.getElementById(
+    "confirmModal"
+  ).style.display = "flex";
+
+}
+
+function fecharConfirmacao(){
+
+  document.getElementById(
+    "confirmModal"
+  ).style.display = "none";
+
+}
+
+document
+.getElementById("btnConfirmar")
+.onclick = async ()=>{
+
+  if(callbackConfirmacao){
+    await callbackConfirmacao();
+  }
+
+  fecharConfirmacao();
+
+};
+
+function tratarErro(error){
+  console.error(error);
+  mostrarToast(error.message || "Erro interno");
+  fecharLoading();
+}
+
+
+
+
+let oculto = false;
+
+let cacheValores = {
+  total: "",
+  clientes: "",
+  planos: ""
+};
+
+function toggleValores(){
+
+  oculto = !oculto;
+
+  const olho =
+  document.getElementById("btnOlho");
+
+  const total =
+  document.getElementById("totalDia");
+
+  const clientes =
+  document.getElementById("qtd");
+
+  const planos =
+  document.getElementById("planos");
+
+  if(oculto){
+
+    // salva valores atuais
+    cacheValores.total = total.innerText;
+    cacheValores.clientes = clientes.innerText;
+    cacheValores.planos = planos.innerText;
+
+    // esconde
+    total.innerText = "****";
+    clientes.innerText = "****";
+    planos.innerText = "****";
+
+    olho.innerText = "🙈";
+
+  }else{
+
+    // volta valores
+    total.innerText = cacheValores.total;
+    clientes.innerText = cacheValores.clientes;
+    planos.innerText = cacheValores.planos;
+
+    olho.innerText = "👁️";
+  }
+
+}
+function aplicarOcultacao(){
+
+  if(!oculto) return;
+
+  totalDia.innerText = "****";
+  qtd.innerText = "****";
+  planos.innerText = "****";
+
+}
+
+function calcularVencimento(
+  ultimaRenovacao
+){
+
+  const data =
+  new Date(ultimaRenovacao);
+
+  data.setDate(
+    data.getDate() + 30
+  );
+
+  return data;
+
+}
+
+
+function planoVencido(ultimaRenovacao){
+
+  const vencimento =
+  calcularVencimento(ultimaRenovacao);
+
+  if(!vencimento) return false;
+
+  return new Date() > vencimento;
+
+}
+function diasRestantesPlano(
+  ultimaRenovacao
+){
+
+  const vencimento =
+  calcularVencimento(
+    ultimaRenovacao
+  );
+
+  const hoje = new Date();
+
+  const diff =
+  vencimento - hoje;
+
+  return Math.ceil(
+    diff / (1000*60*60*24)
+  );
+
+}
+
+
+async function buscarVencimentos(){
+
+  const { data, error } =
+  await db
+  .from("clientes")
+  .select(`
+    nome,
+    ultima_renovacao,
+    status_plano
+  `)
+  .eq("empresa_id", empresaId);
+
+  if(error){
+    return [];
+  }
+
+  const lista = [];
+
+  data.forEach(cliente => {
+
+    if(
+      !cliente.ultima_renovacao
+    ) return;
+
+    const dias =
+    diasRestantesPlano(
+      cliente.ultima_renovacao
+    );
+
+    if(dias <= 7){
+
+      lista.push({
+
+        nome: cliente.nome,
+
+        dias,
+
+        vencimento:
+        calcularVencimento(
+          cliente.ultima_renovacao
+        )
+
+      });
+
+    }
+
+  });
+
+  return lista;
+
+}
+
+async function abrirVencimentos(){
+
+  const lista =
+  document.getElementById(
+    "listaVencimentos"
+  );
+
+  lista.innerHTML =
+  "Carregando...";
+
+  const vencimentos =
+  await buscarVencimentos();
+
+  if(!vencimentos.length){
+
+    lista.innerHTML =
+    "Nenhum vencimento próximo";
+
+  }else{
+
+    lista.innerHTML = "";
+
+   vencimentos.forEach(c => {
+
+  const venc =
+  new Date(c.vencimento);
+
+  const vencido =
+  c.dias <= 0;
+
+  lista.innerHTML += `
+
+  <div style="
+    background:linear-gradient(
+      145deg,
+      #111827,
+      #0f172a
+    );
+    border:1px solid ${
+      vencido ? "#dc2626" : "#1d4ed8"
+    };
+    border-left:5px solid ${
+      vencido ? "#ef4444" : "#3b82f6"
+    };
+    padding:14px;
+    margin-bottom:12px;
+    border-radius:16px;
+    box-shadow:
+      0 4px 15px rgba(0,0,0,.25);
+  ">
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    ">
+
+      <strong style="
+        font-size:16px;
+        color:#fff;
+      ">
+        ${c.nome}
+      </strong>
+
+      <span style="
+        background:${
+          vencido
+          ? "#7f1d1d"
+          : "#1e3a8a"
+        };
+        color:#fff;
+        padding:5px 10px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:700;
+      ">
+
+        ${
+          vencido
+          ? "Vencido"
+          : `${c.dias} dias`
+        }
+
+      </span>
+
+    </div>
+
+    <div style="
+      color:#cbd5e1;
+      font-size:14px;
+      line-height:1.6;
+    ">
+
+      <div>
+        📅 Vencimento:
+        <strong style="color:#fff">
+          ${venc.toLocaleDateString()}
+        </strong>
+      </div>
+
+      <div style="
+        margin-top:6px;
+        color:${
+          vencido
+          ? "#fca5a5"
+          : "#93c5fd"
+        };
+        font-weight:600;
+      ">
+
+        ${
+          vencido
+          ? "⚠️ Cliente precisa renovar"
+          : "Plano próximo do vencimento"
+        }
+         </div>
+         ${
+  vencido
+  ? `
+  <button
+    onclick="cobrarCliente('${c.nome}')"
+    style="
+      margin-top:12px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#16a34a;
+      color:#fff;
+      font-weight:700;
+    "
+  >
+    💬 Cobrar no WhatsApp
+  </button>
+  `
+  : ""
+}
+
+    </div>
+
+  </div>
+
+  `;
+
+});
+
+  }
+
+  document
+  .getElementById(
+    "modalVencimentos"
+  )
+  .style.display = "block";
+
+}
+
+
+async function cobrarCliente(nome){
+
+  // 🔎 busca cliente
+  const { data, error } = await db
+    .from("clientes")
+    .select("telefone")
+    .eq("empresa_id", empresaId)
+    .eq("nome", nome)
+    .single();
+
+  if(error || !data){
+    mostrarToast("Cliente não encontrado");
+    return;
+  }
+
+  const telefone = (data.telefone || "").replace(/\D/g,'');
+
+  if(!telefone){
+    mostrarToast("Telefone não cadastrado");
+    return;
+  }
+
+  // 🔎 busca config da empresa
+  const config = await getConfiguracao();
+
+  const empresa = config?.nome_empresa || "Empresa";
+  const chavePix = config?.chave_pix || "";
+  const recebedor = config?.nome_recebedor || "";
+  const linkPagamento = config?.link_pagamento || "";
+
+  // 💬 mensagem completa
+  const mensagem = `
+Olá ${nome},
+
+Aqui é da ${empresa}.
+
+Identificamos que seu plano está em aberto.
+
+💳 Dados para pagamento:
+PIX: ${chavePix}
+Recebedor: ${recebedor}
+${linkPagamento ? `\n🔗 Link de pagamento:\n${linkPagamento}` : ""}
+
+Qualquer dúvida estou à disposição.
+`;
+
+  // 📲 abre WhatsApp direto com o número do cliente
+  const url = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(url, "_blank");
+}
+
+
+function fecharVencimentos(){
+
+  document
+  .getElementById(
+    "modalVencimentos"
+  )
+  .style.display = "none";
+
+}
+
+
+
+async function atualizarBadge(){
+
+  const lista =
+  await buscarVencimentos();
+
+  document
+  .getElementById("badgeNotif")
+  .innerText = lista.length;
+
+}
+
+
+// =========================
+// ABRIR TELA
+// =========================
+
+function abrirTela(id){
+
+  document
+    .querySelectorAll(".telaSistema")
+    .forEach(tela => tela.classList.remove("ativa"));
+
+  document
+    .getElementById(id)
+    .classList.add("ativa");
+
+  fecharMenu(); // usa o padrão único
+}
+
+// =========================
+// FECHAR TELA
+// =========================
+
+function fecharTela(id){
+
+  document
+  .getElementById(id)
+  .classList.remove("ativa");
+  
+
+}
+
+// =========================
+// TOGGLE MENU
+// =========================
+
+function toggleMenu(){
+
+  const menu = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlayMenu");
+
+  menu.classList.toggle("ativo");
+  overlay.classList.toggle("show");
+
+  // se abriu o menu, inicia o timer
+  if(menu.classList.contains("ativo")){
+    iniciarAutoFecharMenu();
+  } else {
+    clearTimeout(timerMenu);
+  }
+}
+
+// =========================
+// ABRIR HOJE
+// =========================
+
+
+
+
+
+function abrirHoje(){
+
+fecharMenu();
+
+  carregarHoje();
+
+}
+
+function abrirTelaRifa(){
+abrirTela("telaRifa");
+
+}
+
+
+
+
+
+// =========================
+// ABRIR FATURAMENTO
+// =========================
+
+async function abrirDespesas(){
+
+  abrirTela("telaDespesas");
+
+ 
+
+}
+
+// =========================
+// ABRIR PLANOS
+// =========================
+
+function abrirPlanos(){
+
+  abrirTela("telaPlanos");
+
+}
+
+// =========================
+// ABRIR CALENDÁRIO
+// =========================
+
+function abrirCalendario(){
+
+  abrirTela("telaCalendario");
+
+}
+
+// =========================
+// ABRIR CLIENTES
+// =========================
+
+function abrirClientes(){
+
+  abrirTela("telaClientes");
+
+}
+
+// =========================
+// ABRIR FINANCEIRO
+// =========================
+
+async function abrirFinanceiro(){
+
+  abrirTela("telaFinanceiro");
+
+  await carregarFinanceiro();
+
+}
+
+
+function abrirServicos(){
+
+  abrirTela(
+    "telaServicos"
+  );}
+
+function abrirProfissionais(){
+
+  abrirTela(
+    "telaProfissionais"
+  );
+
+  carregarProfissionais();
+
+}
+async function carregarProfissionaisSelect(){
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(error) return;
+
+  barbeiro.innerHTML = "";
+
+  data.forEach(prof => {
+
+    barbeiro.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+  const barbeiroSalvo =
+  localStorage.getItem(
+    "barbeiroPadrao"
+  );
+
+  if(barbeiroSalvo){
+    barbeiro.value =
+    barbeiroSalvo;
+  }
+
+}
+
+async function carregarProfissionaisCalendario(){
+
+  const select =
+  document.getElementById("calProf");
+
+  select.innerHTML =
+  '<option value="Todos">Todos</option>';
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(error) return;
+
+  data.forEach(prof => {
+
+    select.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+}
+
+async function carregarProfissionaisFiltro(){
+
+  const filtro =
+  document.getElementById("filtro");
+
+  filtro.innerHTML =
+  '<option value="Todos">Todos</option>';
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(error) return;
+
+  data.forEach(prof => {
+
+    filtro.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+
+
+const filtroSalvo =
+localStorage.getItem("filtroAgenda");
+
+if(
+  filtroSalvo &&
+  [...filtro.options]
+  .some(o => o.value === filtroSalvo)
+){
+  filtro.value = filtroSalvo;
+}
+
+
+
+}
+
+
+async function carregarClientes(){
+
+  const busca =
+  document.getElementById("buscarCliente").value.trim();
+
+  let query = db
+    .from("clientes")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .order("nome");
+
+  if(busca){
+    query = query.ilike("nome", `%${busca}%`);
+  }
+
+  const { data: clientes, error } = await query;
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const { data: atendimentosRaw } = await db
+    .from("atendimentos")
+    .select("cliente_id,data,numero_corte,tipo_cliente")
+    .eq("empresa_id", empresaId)
+    .order("data", { ascending: false });
+
+  const atendimentos = atendimentosRaw || [];
+
+  // 🔥 MAPA ÚLTIMO ATENDIMENTO
+  const ultimoMap = {};
+
+  atendimentos.forEach(a => {
+    if(!a.cliente_id) return;
+    if(!ultimoMap[a.cliente_id]){
+      ultimoMap[a.cliente_id] = a;
+    }
+  });
+
+  const lista = document.getElementById("resultadoClientes");
+  lista.innerHTML = "";
+
+  if(!clientes.length){
+    lista.innerHTML = "<div class='msg'>Nenhum cliente encontrado</div>";
+    return;
+  }
+
+  clientes.forEach(cli => {
+
+    const ultimo = ultimoMap[cli.id];
+
+    // 🔥 ÚLTIMA VISITA
+    const ultimaVisita = ultimo?.data
+      ? new Date(ultimo.data).toLocaleDateString("pt-BR")
+      : "Sem visitas";
+
+    // 🔥 ÚLTIMO CORTE (derivado)
+    const numeroCorte =
+      ultimo?.numero_corte
+      ? `${ultimo.numero_corte}/4`
+      : "Sem corte";
+
+    // 🔥 STATUS PLANO
+    const statusPlano =
+      cli.status_plano || "não informado";
+
+    // 🔥 DATA ADESÃO
+    const adesao = cli.data_adesao_plano || "-";
+
+    // 🔥 RENOVAÇÃO
+    const renovacao = cli.ultima_renovacao || "-";
+
+    // 🔥 VENCIMENTO
+    const vencimento = cli.vencimento_plano || "-";
+
+    // 🔥 FIDELIDADE
+    const fidelidadeInicio = cli.fidelidade_inicio || "-";
+    const fidelidadeUsados = cli.fidelidade_usados || 0;
+
+    lista.innerHTML += `
+      <div class="cardCliente">
+
+        <div class="nomeCliente">
+          👤 ${cli.nome}
+        </div>
+
+        <div>📞 ${cli.telefone || "-"}</div>
+
+        <hr>
+
+        <div>📌 Plano: <b>${statusPlano}</b></div>
+        <div>📅 Adesão: ${adesao}</div>
+        <div>🔁 Renovação: ${renovacao}</div>
+        <div>⏳ Vencimento: ${vencimento}</div>
+
+        <hr>
+
+        <div>✂️ Último corte: <b>${numeroCorte}</b></div>
+        <div>📅 Última visita: <b>${ultimaVisita}</b></div>
+
+        <hr>
+
+        <div>🎁 Fidelidade início: ${fidelidadeInicio}</div>
+        <div>🎁 Fidelidade usados: ${fidelidadeUsados}</div>
+
+      </div>
+    `;
+  });
+}
+
+document
+.getElementById("buscarCliente")
+.addEventListener("input", carregarClientes);
+
+
+function abrirLembrete(){
+
+  abrirTela("telaLembrete");
+document.getElementById("lembreteData").value =
+new Date().toISOString().split("T")[0];
+  
+  carregarLembretes();
+
+}
+
+
+function abrirFidelidade(){
+
+  abrirTela("telaFidelidade");
+
+  carregarFidelidade();
+
+}
+async function carregarFidelidade(){
+
+  const busca =
+  document.getElementById(
+    "buscaFidelidade"
+  ).value.trim();
+
+  let query = db
+  .from("clientes")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(busca){
+
+    query =
+    query.ilike(
+      "nome",
+      `%${busca}%`
+    );
+
+  }
+
+  const {
+    data,
+    error
+  } = await query;
+
+  if(error){
+
+    console.log(error);
+
+    return;
+
+  }
+  
+const { data: atendimentos } =
+await db
+.from("atendimentos")
+.select(
+  "cliente_id,tipo_cliente,data"
+)
+.eq("empresa_id", empresaId)
+.eq("tipo_cliente","avulso");
+
+const mapaCortes = {};
+
+data.forEach(cli=>{
+
+  const inicio =
+  cli.fidelidade_inicio;
+
+const total =
+
+!cli.tem_fidelidade
+
+? 0
+
+: atendimentos.filter(a =>
+
+    a.cliente_id == cli.id &&
+
+    a.data >= cli.fidelidade_inicio
+
+  ).length;
+
+  mapaCortes[cli.id] =
+  total;
+
+});
+
+  const lista =
+  document.getElementById(
+    "listaFidelidade"
+  );
+
+  lista.innerHTML = "";
+const premiosDisponiveis =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return (
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+}).length;
+
+const clientesProximoPremio =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  const premiosDisponiveis =
+  premiosGanhos - premiosUsados;
+
+  return (
+    cli.tem_fidelidade &&
+    cortesTotal % 11 === 10 &&
+    premiosDisponiveis === 0
+  );
+
+});
+
+
+const alerta =
+document.getElementById(
+  "alertaFidelidade"
+);
+
+let mensagens = [];
+
+if(clientesProximoPremio.length > 0){
+
+  const nomes =
+  clientesProximoPremio
+  .map(c => c.nome)
+  .join("<br>");
+
+  mensagens.push(`
+    ⚠️ Corte grátis na próxima visita:<br><br>
+    ${nomes}
+  `);
+
+}
+
+if(premiosDisponiveis > 0){
+
+  mensagens.push(
+    `🏆 Existem ${premiosDisponiveis} prêmio(s) disponível(is)`
+  );
+
+}
+
+if(mensagens.length){
+
+  alerta.style.display = "block";
+
+  alerta.innerHTML =
+  mensagens.join("<br><br>");
+
+}else{
+
+  alerta.style.display = "none";
+
+}
+
+const premiados =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return (
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+});
+
+const restantes =
+data.filter(cli => {
+
+  const cortesTotal =
+  mapaCortes[cli.id] || 0;
+
+  const premiosGanhos =
+  Math.floor(cortesTotal / 11);
+
+  const premiosUsados =
+  Number(cli.fidelidade_usados || 0);
+
+  return !(
+    cli.tem_fidelidade &&
+    (premiosGanhos - premiosUsados) > 0
+  );
+
+});
+
+const listaFinal = [
+  ...premiados,
+  ...restantes
+];
+
+  listaFinal.forEach(cli=>{
+
+const cortesTotal =
+mapaCortes[cli.id] || 0;
+
+const premiosGanhos =
+Math.floor(cortesTotal / 11);
+
+const premiosUsados =
+Number(cli.fidelidade_usados || 0);
+
+const premiosDisponiveis =
+premiosGanhos - premiosUsados;
+
+const cortes =
+cortesTotal % 11;
+
+  lista.innerHTML += `
+
+  <div class="
+  
+  cardFidelidade
+${
+  cli.tem_fidelidade &&
+  premiosDisponiveis > 0
+
+  ?
+
+  "cardPremiado"
+
+  :
+
+  (
+    cli.tem_fidelidade &&
+    cortesTotal % 11 === 10
+
+    ?
+
+    "cardQuasePremiado"
+
+    :
+
+    ""
+  )
+}
+">
+
+    <div class="nomeFid">
+      ${cli.nome}
+    </div>
+    
+    
+
+    <div class="statusFid">
+
+      ${
+        cli.tem_fidelidade
+        ? "🎁 Fidelidade Ativa"
+        : "⭕ Fidelidade Inativa"
+      }
+
+    </div>
+    
+
+<div class="cortesFid">
+
+  ✂️ ${cortes}/10 cortes
+
+</div>
+<center style="margin-bottom:15px;letter-spacing:2px;">${
+  cli.tem_fidelidade &&
+  cortesTotal % 11 === 10 &&
+  premiosDisponiveis === 0
+
+  ?
+
+  `
+  <div class="avisoProximoPremio">
+    ⚠️ Próxima visita é grátis
+  </div>
+  `
+
+  :
+
+  ""
+}</center>
+    <div class="acoesFid">
+
+${
+ cli.tem_fidelidade &&
+premiosDisponiveis > 0
+
+  ?
+
+  `<button
+  onclick="usarPremio('${cli.id}')">
+
+    🎁 Usar Grátis
+
+  </button>`
+
+        :
+
+        ""
+      }
+
+      <button
+      onclick="
+      alternarFidelidade(
+        '${cli.id}',
+        ${cli.tem_fidelidade}
+      )
+      ">
+
+        ${
+          cli.tem_fidelidade
+          ? "❌ Desativar"
+          : "🎁 Ativar"
+        }
+
+      </button>
+      
+      
+
+    </div>
+<div style="
+position:absolute;
+right:0;
+top:0;
+display:flex;
+flex-direction:column;
+width:80px;
+
+
+">
+
+<button style="padding:4px 0px; background-color: red; margin-bottom:5px; font-size:10px" onclick="alterarInicioFidelidade('${cli.id}')">
+📅 Alterar início
+</button>
+
+
+
+<input style="padding:6px; background-color:transparent"
+ type="date" 
+ id="fidData-${cli.id}"
+ value="${cli.fidelidade_inicio || ''}"
+>
+
+
+</div>
+
+</div>
+
+  </div>
+
+  `;
+
+});
+
+}
+
+
+async function alterarInicioFidelidade(id){
+
+  const input =
+  document.getElementById(
+    `fidData-${id}`
+  );
+
+  const novaData = input.value;
+
+
+  if(!novaData){
+
+    alert("Escolha uma data");
+
+    return;
+
+  }
+
+
+  const { error } =
+  await db
+  .from("clientes")
+  .update({
+    fidelidade_inicio: novaData,
+    fidelidade_usados: 0
+  })
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+
+  if(error){
+
+    console.log(error);
+
+    alert("Erro ao atualizar");
+
+    return;
+
+  }
+
+
+  alert("Início da fidelidade atualizado!");
+
+  carregarFidelidade();
+
+}
+
+
+async function usarPremio(id){
+
+  const { data: cli, error } =
+  await db
+  .from("clientes")
+  .select("fidelidade_usados")
+  .eq("empresa_id", empresaId)
+  .eq("id", id)
+  .single();
+
+  if(error){
+    mostrarToast(error.message);
+    return;
+  }
+
+  const usados =
+  Number(cli.fidelidade_usados || 0);
+
+  const { error: erroUpdate } =
+  await db
+  .from("clientes")
+  .update({
+    fidelidade_usados:
+    usados + 1
+  })
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+  if(erroUpdate){
+    mostrarToast(erroUpdate.message);
+    return;
+  }
+
+  mostrarToast(
+    "🎁 Prêmio utilizado"
+  );
+
+  carregarFidelidade();
+
+}
+
+async function alternarFidelidade(
+  id,
+  ativo
+){
+
+  const dados = {
+
+    tem_fidelidade: !ativo
+
+  };
+
+  if(!ativo){
+
+    dados.fidelidade_inicio =
+new Date()
+.toLocaleDateString(
+  "sv-SE"
+);
+
+  }else{
+
+    dados.fidelidade_inicio =
+    null;
+
+  }
+
+  const { error } =
+  await db
+  .from("clientes")
+  .update(dados)
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+  if(error){
+
+    mostrarToast(error.message);
+    return;
+
+  }
+
+  mostrarToast(
+    !ativo
+    ? "🎁 Fidelidade ativada"
+    : "❌ Fidelidade removida"
+  );
+
+  carregarFidelidade();
+
+}
+// =========================
+// ABRIR CONFIG
+// =========================
+
+
+
+async function abrirConfigLista(
+  id
+){
+
+  listaConfigAtual = id;
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .eq("id",id)
+  .single();
+
+  document.getElementById(
+    "tituloConfigLista"
+  ).innerText =
+  "📁 " + data.nome;
+
+  diaSelecionado =
+  data.dia_semana || 0;
+
+  renderizarDias();
+console.log(
+  document.getElementById(
+    "modalConfigLista"
+  )
+);
+  document.getElementById(
+    "modalConfigLista"
+  ).style.display =
+  "flex";
+
+}
+
+function renderizarDias(){
+
+  const nomes = [
+    "Nenhum",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+    "Domingo"
+  ];
+
+  const div =
+  document.getElementById(
+    "diasSemana"
+  );
+
+  div.innerHTML = "";
+
+  nomes.forEach((nome,i)=>{
+
+    const item =
+    document.createElement("div");
+
+    item.className =
+    "itemDia";
+
+    item.innerHTML =
+    (diaSelecionado === i
+      ? "✅ "
+      : "") + nome;
+
+    item.onclick = ()=>{
+
+      diaSelecionado = i;
+
+      renderizarDias();
+
+    };
+
+    div.appendChild(item);
+
+  });
+
+}
+
+async function salvarConfigLista(){
+
+  await db
+  .from("listas")
+  .update({
+    dia_semana:
+    diaSelecionado
+  })
+   .eq("empresa_id", empresaId)
+  .eq(
+    "id",
+    listaConfigAtual
+  );
+
+  fecharConfigLista();
+
+}
+
+async function salvarProfissional(){
+
+  const nome =
+  document.getElementById(
+    "nomeProfissional"
+  ).value.trim();
+
+  const telefone =
+  document.getElementById(
+    "foneProfissional"
+  ).value.trim();
+
+  const arquivo =
+  document.getElementById(
+    "fotoProfissional"
+  ).files[0];
+
+  if(!nome){
+    mostrarToast("Informe o nome");
+    return;
+  }
+
+  let fotoUrl = null;
+
+  if(arquivo){
+
+    const nomeArquivo =
+    Date.now() + "_" +
+    arquivo.name;
+
+    const { error: erroUpload } =
+    await db.storage
+    .from("profissionais")
+    .upload(
+      nomeArquivo,
+      arquivo
+    );
+
+    if(erroUpload){
+
+      mostrarToast(
+        erroUpload.message
+      );
+
+      return;
+    }
+
+    const { data } =
+    db.storage
+    .from("profissionais")
+    .getPublicUrl(
+      nomeArquivo
+    );
+
+    fotoUrl =
+    data.publicUrl;
+
+  }
+
+  const { error } =
+  await db
+  .from("profissionais")
+  .insert([{
+
+
+   empresa_id: empresaId,
+
+    nome,
+
+    telefone,
+
+    foto: fotoUrl
+
+  }]);
+
+  if(error){
+
+    mostrarToast(
+      error.message
+    );
+
+    return;
+
+  }
+
+  document.getElementById(
+    "nomeProfissional"
+  ).value = "";
+
+  document.getElementById(
+    "foneProfissional"
+  ).value = "";
+
+  document.getElementById(
+    "fotoProfissional"
+  ).value = "";
+
+  carregarProfissionais();
+
+}
+async function carregarProfissionais(){
+
+  const { data, error } =
+  await db
+  .from("profissionais")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const lista =
+  document.getElementById(
+    "listaProfissionais"
+  );
+
+  lista.innerHTML = "";
+
+  data.forEach(p => {
+
+lista.innerHTML += `
+
+<div
+  class="cardProfissional"
+
+  ontouchstart="
+  segurarExcluirProf(
+    event,
+    '${p.id}'
+  )"
+
+  ontouchmove="
+  cancelarSegurar2()
+  "
+
+  ontouchend="
+  cancelarSegurar2()
+  ">
+
+  <img
+    src="${
+      p.foto ||
+      'https://via.placeholder.com/70'
+    }"
+
+    class="fotoProf">
+
+  <div class="infoProf">
+
+    <div class="nomeProf">
+      ${p.nome}
+    </div>
+
+    <div class="foneProf">
+      📞 ${p.telefone || ""}
+    </div>
+
+  </div>
+
+</div>
+
+`;
+
+  });
+
+}
+let timerExcluirProf = null;
+
+
+
+function segurarExcluirProf(
+  event,
+  id
+){
+
+  timerExcluirProf =
+  setTimeout(()=>{
+
+    abrirConfirmacao(
+      "🗑️ Excluir profissional?",
+      async ()=>{
+
+        await excluirProfissional(id);
+
+      }
+    );
+
+  },700);
+
+}
+
+function cancelarSegurar2(){
+
+  clearTimeout(
+    timerExcluirProf
+  );
+
+}
+
+async function excluirProfissional(id){
+
+  const { error } =
+  await db
+  .from("profissionais")
+  .delete()
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+  if(error){
+
+    mostrarToast(
+      error.message
+    );
+
+    console.log(error);
+
+    return;
+
+  }
+
+  mostrarToast(
+    "✅ Excluído"
+  );
+
+  carregarProfissionais();
+
+}
+
+
+
+function fecharConfigLista(){
+
+  document.getElementById(
+    "modalConfigLista"
+  ).style.display = "none";
+
+}
+// =========================
+// ABRIR VENCIMENTOS
+// =========================
+
+async function abrirTelaVencimentos(){
+
+  abrirTela("telaVencimentos");
+
+  await abrirVencimentos();
+
+}
+
+ function abrirPlayerTV(){
+
+  abrirTela("telaPlayer");
+
+  
+
+     iniciarPlayerTV();
+
+    carregarListas();
+
+    abrirListaAutomatica();
+
+  
+
+}
+
+
+
+
+
+
+async function abrirFinanceiro(){
+
+  abrirTela("telaFinanceiro");
+
+  const box =
+  document.getElementById(
+    "financeiroConteudo"
+  );
+
+  box.innerHTML = "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("financeiro")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("vencimento");
+
+  if(error){
+
+    box.innerHTML = error.message;
+    return;
+
+  }
+
+  if(!data.length){
+
+    box.innerHTML =
+    "Nenhuma cobrança";
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  data.forEach(item => {
+
+    const vencido =
+    new Date(item.vencimento)
+    < new Date();
+
+    box.innerHTML += `
+
+    <div class="cardTela">
+
+      <strong>
+        ${item.nome_cliente}
+      </strong>
+
+      <br><br>
+
+      💰 R$ ${item.valor}
+
+      <br>
+
+      📅 ${item.vencimento}
+
+      <br>
+
+      Status:
+      ${
+        item.status
+      }
+
+      <br><br>
+
+      <button
+      onclick="
+        marcarPago(${item.id})
+      ">
+
+        ✅ Marcar Pago
+
+      </button>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+async function carregarFinanceiro(){
+
+  const box =
+  document.getElementById(
+    "listaFinanceiro"
+  );
+
+  box.innerHTML = "Carregando...";
+
+  const { data, error } =
+  await db
+  .from("financeiro")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("vencimento", {
+    ascending:true
+  });
+
+  if(error){
+
+    box.innerHTML = error.message;
+
+    return;
+  }
+
+  if(!data.length){
+
+    box.innerHTML =
+    "Nenhuma cobrança";
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  data.forEach(item => {
+
+    const vencido =
+    item.status !== "pago" &&
+    new Date(item.vencimento)
+    < new Date();
+
+    box.innerHTML += `
+
+    <div class="cardTela">
+
+      <strong>
+        ${item.nome_cliente}
+      </strong>
+
+      <br><br>
+
+      💰 R$ ${item.valor}
+
+      <br>
+
+      📅 ${new Date(
+        item.vencimento
+      ).toLocaleDateString()}
+
+      <br><br>
+
+      <span style="
+        color:${
+          item.status === "pago"
+          ? "#22c55e"
+          : vencido
+          ? "#ef4444"
+          : "#facc15"
+        };
+        font-weight:700;
+      ">
+
+        ${
+          item.status === "pago"
+          ? "Pago"
+          : vencido
+          ? "Vencido"
+          : "Pendente"
+        }
+
+      </span>
+
+    </div>
+
+    `;
+
+  });
+
+}
+
+
+
+async function marcarPago(id){
+
+  await db
+  .from("financeiro")
+  .update({
+
+    status:"pago",
+
+    data_pagamento:
+    new Date()
+
+  })
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+  mostrarToast("Pagamento confirmado");
+
+  abrirFinanceiro();
+
+}
+
+
+function cobrarWhatsapp(
+ telefone,
+ nome,
+ valor
+){
+
+ if(
+   !telefone ||
+   telefone === "0"
+ ){
+
+   mostrarToast(
+     "Telefone não cadastrado"
+   );
+
+   return;
+ }
+
+ const msg =
+`Olá ${nome} 👋
+
+Seu plano da barbearia venceu.
+
+💰 Valor: R$ ${valor}
+
+PIX:
+CHAVE_PIX_AQUI
+
+Link:
+LINK_AQUI`;
+
+ const url =
+`https://wa.me/55${telefone}?text=${
+ encodeURIComponent(msg)
+}`;
+
+ window.open(url,"_blank");
+
+}
+
+const YOUTUBE_API_KEY = "AIzaSyCPxUdGtcFYtXMha7K5E9JaS2khDJXX8LU";
+
+let player;
+let playlist = [];
+let indiceAtual = 0;
+
+// =========================
+// PLAYER YOUTUBE
+// =========================
+
+function onYouTubeIframeAPIReady(){
+
+  player = new YT.Player("player",{
+    height:"390",
+    width:"100%",
+    events:{
+      onReady:onPlayerReady,
+      onStateChange:onPlayerStateChange
+    }
+  });
+
+}
+
+async function onPlayerStateChange(event){
+
+  if(event.data !== YT.PlayerState.ENDED)
+    return;
+if(reproduzindoTemporario){
+
+  reproduzindoTemporario =
+  false;
+
+  tocarIndice(
+    indiceAnterior
+  );
+
+  return;
+
+}
+
+
+  if(tocandoAnuncio){
+
+    tocandoAnuncio = false;
+
+    tocarProxima();
+
+    return;
+
+  }
+
+  contadorMusicas++;
+
+  if(contadorMusicas >= 3){
+
+    contadorMusicas = 0;
+
+    const anuncio =
+    await obterAnuncio();
+
+    if(anuncio){
+
+      tocandoAnuncio = true;
+
+      player.loadVideoById(
+        anuncio.video_id
+      );
+
+      return;
+
+    }
+
+  }
+
+  tocarProxima();
+
+}
+
+
+async function obterAnuncio(){
+
+  const { data } =
+  await db
+  .from("anuncios")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .eq("ativo", true)
+  .limit(1);
+
+  return data?.[0];
+
+}
+// =========================
+// BUSCA YOUTUBE
+// =========================
+
+async function buscarYoutube(){
+
+  const termo =
+    document.getElementById("buscaYoutube").value.trim();
+
+  if(!termo) return;
+
+  const url =
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(termo)}&key=${YOUTUBE_API_KEY}`;
+
+  const resp = await fetch(url);
+  const dados = await resp.json();
+
+  const resultados =
+    document.getElementById("resultadosYoutube");
+
+  resultados.innerHTML = "";
+
+  dados.items.forEach(item => {
+
+    const div = document.createElement("div");
+    div.className = "itemResultado";
+
+    const thumb = `https://img.youtube.com/vi/${item.id.videoId}/hqdefault.jpg`;
+
+    div.innerHTML = `
+      <div class="videoBox">
+
+        <img class="thumbYoutube" src="${thumb}">
+
+        <div class="infoVideo">
+
+          <strong>${item.snippet.title}</strong>
+
+          <div class="botoesVideo">
+
+            <button class="btnPlayAgora">
+              ▶ Reproduzir
+            </button>
+
+            <button class="btnAdicionar">
+              ➕ Adicionar
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+    const botoes = div.querySelectorAll("button");
+
+    botoes[0].onclick = () => {
+      reproduzirAgora(item.id.videoId);
+    };
+
+    botoes[1].onclick = () => {
+      adicionarPlaylist(item.id.videoId, item.snippet.title);
+    };
+
+    resultados.appendChild(div);
+
+  });
+
+}
+
+// =========================
+// PLAYLIST
+// =========================
+
+async function adicionarPlaylist(
+  videoId,
+  titulo
+){
+
+  musicaPendente = {
+    videoId,
+    titulo
+  };
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  const lista =
+  document.getElementById(
+    "listaDestino"
+  );
+
+  lista.innerHTML = "";
+
+  data.forEach(item=>{
+
+    const div =
+    document.createElement("div");
+
+    div.innerHTML =
+    `📁 ${item.nome}`;
+
+    div.onclick = ()=>{
+
+      salvarNaLista(
+        item.id
+      );
+
+    };
+
+    lista.appendChild(div);
+
+  });
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "flex";
+
+}
+
+async function carregarPlaylist(){
+// Função antiga.
+// Não usar mais com o sistema de pastas.
+  const { data } =
+  await db
+  .from("playlist")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("id");
+
+  playlist =
+  data || [];
+
+  renderizarPlaylist();
+
+  if(
+    playlist.length &&
+    !player.getVideoData()?.video_id
+  ){
+
+    tocarIndice(0);
+
+  }
+
+}
+
+
+
+
+async function salvarNaLista(
+  listaId
+){
+
+  await db
+  .from("playlist")
+  .insert({
+    
+    empresa_id: empresaId,
+
+    video_id:
+    musicaPendente.videoId,
+
+    titulo:
+    musicaPendente.titulo,
+
+    lista_id:
+    listaId
+
+  });
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "none";
+
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+if(listaId === listaAtual){
+
+  await abrirLista(
+    listaAtual
+  );
+
+}
+
+}
+
+
+
+function renderizarPlaylist(){
+
+  const lista =
+  document.getElementById(
+    "listaPlaylist"
+  );
+
+  lista.innerHTML = "";
+
+  playlist.forEach((item,index)=>{
+
+    const div =
+    document.createElement("div");
+
+        div.className =
+index === indiceAtual
+? "itemPlaylist musicaAtual"
+: "itemPlaylist";
+
+div.innerHTML = `
+  <span
+    onclick="tocarDaPlaylist(${index})"
+    style="cursor:pointer">
+
+    ${index+1}. ${item.titulo}
+
+  </span>
+
+  <button class="btnRemoverPlaylist">
+    ❌
+  </button>
+`;
+
+    div.querySelector("button")
+    .onclick = ()=>{
+
+      removerMusica(
+        item.id
+      );
+
+    };
+
+    lista.appendChild(div);
+
+  });
+
+}
+
+async function removerMusica(id){
+
+  await db
+  .from("playlist")
+  .delete()
+   .eq("empresa_id", empresaId)
+  .eq("id",id);
+
+  await abrirLista(
+    listaAtual
+  );
+
+}
+
+// =========================
+// REPRODUÇÃO
+// =========================
+
+async function tocarIndice(
+  indice
+){
+
+  if(
+    indice >= playlist.length
+  ) return;
+
+  indiceAtual =
+  indice;
+  renderizarPlaylist();
+  const musica =
+  playlist[indice];
+
+  player.loadVideoById(
+    musica.video_id
+  );
+
+  await db
+  .from("player_status")
+  .upsert({
+    id:1,
+    video_id:
+    musica.video_id,
+    indice:indice
+  });
+
+}
+
+async function tocarProxima(){
+
+  if(!playlist.length)
+    return;
+
+  if(modoAleatorio){
+
+    let proximo;
+
+    do{
+
+      proximo =
+      Math.floor(
+        Math.random() *
+        playlist.length
+      );
+
+    }while(
+      playlist.length > 1 &&
+      proximo === indiceAtual
+    );
+
+    tocarIndice(
+      proximo
+    );
+
+    return;
+
+  }
+
+  const proximo =
+  indiceAtual + 1;
+
+  if(
+    proximo >=
+    playlist.length
+  ){
+
+    await abrirProximaListaOuLoop();
+
+    return;
+
+  }
+
+  tocarIndice(
+    proximo
+  );
+
+}
+
+
+
+function tocarDaPlaylist(indice){
+
+  indiceAtual = indice;
+renderizarPlaylist();
+  player.loadVideoById(
+    playlist[indice].video_id
+  );
+
+}
+// =========================
+// RECUPERAR STATUS
+// =========================
+
+async function restaurarPlayer(){
+
+  const { data } =
+  await db
+  .from("player_status")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .eq("id",1)
+  .single();
+
+  if(!data) return;
+
+  indiceAtual =
+  data.indice || 0;
+
+  if(
+    playlist[indiceAtual]
+  ){
+
+    tocarIndice(
+      indiceAtual
+    );
+
+  }
+
+}
+
+// =========================
+// INICIALIZAÇÃO
+// =========================
+
+async function iniciarPlayerTV(){
+
+  await abrirListaAutomatica();
+
+}
+
+function reproduzirAgora(videoId){
+
+  indiceAnterior =
+  indiceAtual;
+
+  reproduzindoTemporario =
+  true;
+
+  player.loadVideoById(
+    videoId
+  );
+  document.getElementById(
+    "resultadosYoutube"
+  ).innerHTML = "";
+
+
+}
+
+function alternarAleatorio(){
+
+  modoAleatorio =
+  !modoAleatorio;
+
+  mostrarToast(
+   modoAleatorio
+    ? "Modo aleatório ligado"
+    : "Modo aleatório desligado"
+  );
+  }
+  
+  
+  
+  
+function onPlayerReady(){
+
+  document.getElementById(
+    "loadingPlayer"
+  ).style.display = "none";
+
+}
+
+
+async function carregarListas(){
+
+  const { data, error } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(error){
+
+    console.error(error);
+    return;
+
+  }
+
+  renderizarListas(
+    data || []
+  );
+
+}
+
+
+
+async function criarLista(nome){
+
+  await db
+  .from("listas")
+  .insert({
+   empresa_id: empresaId,
+    nome:nome
+  });
+
+  carregarListas();
+
+}
+
+function renderizarListas(listas){
+
+  const container =
+  document.getElementById(
+    "listaPastas"
+  );
+
+  container.innerHTML = "";
+
+  listas.forEach(lista=>{
+
+    const div =
+    document.createElement("div");
+
+    div.className =
+    "itemPasta";
+div.className =
+lista.id === listaAtual
+? "pastaAtiva"
+: "pasta";
+    div.innerHTML = `
+      <span  style="display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  padding:10px;
+
+  border:1px solid #ddd;
+
+  border-radius:8px;
+
+  margin-bottom:8px;
+
+">
+        📁 ${lista.nome}
+      
+      <button style="margin-left:auto;"
+      onclick="event.stopPropagation();abrirConfigLista(${lista.id})">
+        ⚙️
+      </button>
+      
+      </span>
+
+    `;
+
+    div.onclick = ()=>{
+
+      abrirLista(
+        lista.id
+      );
+
+    };
+
+    div.ondblclick = ()=>{
+
+      excluirLista(
+        lista.id
+      );
+
+    };
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function fecharModalListas(){
+
+  document.getElementById(
+    "modalListas"
+  ).style.display = "none";
+
+}
+async function excluirLista(id){
+
+  if(
+    !confirm(
+      "Excluir esta lista?"
+    )
+  ) return;
+
+  await db
+  .from("listas")
+  .delete()
+   .eq("empresa_id", empresaId)
+  .eq("id",id);
+
+  carregarListas();
+
+}
+
+async function abrirLista(id){
+
+  listaAtual = id;
+
+  await carregarListas();
+
+  const { data } =
+  await db
+  .from("playlist")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .eq("lista_id", id)
+  .order("id");
+
+  playlist = data || [];
+
+  renderizarPlaylist();
+
+}
+
+function novaLista(){
+
+  document.getElementById(
+    "nomeNovaLista"
+  ).value = "";
+
+  document.getElementById(
+    "modalNovaLista"
+  ).style.display = "flex";
+
+}
+
+async function salvarNovaLista(){
+
+  const nome =
+  document.getElementById(
+    "nomeNovaLista"
+  ).value.trim();
+
+  if(!nome)
+    return;
+
+  await db
+  .from("listas")
+  .insert({
+    
+    empresa_id: empresaId,
+    nome:nome
+  });
+
+  fecharNovaLista();
+
+  carregarListas();
+
+}
+
+function fecharNovaLista(){
+
+  document.getElementById(
+    "modalNovaLista"
+  ).style.display = "none";
+
+}
+
+async function abrirListaAutomatica(){
+
+  let diaHoje =
+  new Date().getDay();
+
+  if(diaHoje === 0){
+
+    diaHoje = 7;
+
+  }
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .eq("dia_semana", diaHoje)
+  .order("id");
+
+  listasDoDia =
+  data || [];
+
+  indiceListaAtual = 0;
+
+  if(
+    listasDoDia.length
+  ){
+
+    await abrirLista(
+      listasDoDia[0].id
+    );
+
+  }else{
+
+    await abrirLista(1);
+
+  }
+
+  if(
+    playlist.length
+  ){
+
+    tocarIndice(0);
+
+  }
+
+}
+
+async function abrirProximaListaOuLoop(){
+
+  if(
+    listasDoDia.length <= 1
+  ){
+
+    tocarIndice(0);
+    return;
+
+  }
+
+  indiceListaAtual++;
+
+  if(
+    indiceListaAtual >=
+    listasDoDia.length
+  ){
+
+    indiceListaAtual = 0;
+
+  }
+
+  await abrirLista(
+    listasDoDia[
+      indiceListaAtual
+    ].id
+  );
+
+  tocarIndice(0);
+
+}
+async function excluirLista(id){
+
+  listaExcluirId = id;
+
+  const { data } =
+  await db
+  .from("listas")
+  .select("nome")
+  .eq("empresa_id", empresaId)
+  .eq("id", id)
+  .single();
+
+  document.getElementById(
+    "nomeListaExcluir"
+  ).innerText =
+   "📁 " + data.nome;
+
+  document.getElementById(
+    "modalExcluirLista"
+  ).style.display =
+  "flex";
+
+}
+async function confirmarExcluirLista(){
+
+  await db
+  .from("listas")
+  .delete()
+   .eq("empresa_id", empresaId)
+  .eq("id", listaExcluirId);
+
+  fecharExcluirLista();
+
+  carregarListas();
+
+}
+function fecharExcluirLista(){
+
+  document.getElementById(
+    "modalExcluirLista"
+  ).style.display =
+  "none";
+
+}
+function abrirPlayerExistente(){
+
+  abrirTela("telaPlayer");
+
+  document.getElementById(
+    "bolhaPlayer"
+  ).style.display = "none";
+
+}
+function fecharPlayerTV(){
+
+  fecharTela("telaPlayer");
+
+  document.getElementById(
+    "bolhaPlayer"
+  ).style.display = "flex";
+
+}
+function abrirConfig(){
+  abrirTela("telaConfig");
+}
+
+
+
+
+function abrirConfigPlanos(){
+document.getElementById("telaConfigPlanos").style.display = "block";
+  
+}
+function abrirConfigPopup(){
+document.getElementById("telaConfigPopup").style.display = "block";
+  
+}
+
+function fecharTelaConfigPopup(){
+
+  const tela = document.getElementById("telaConfigPopup");
+
+  if(!tela){
+    console.log("TelaConfig Popup não encontrada");
+    return;
+  }
+   tela.style.display = "none";
+}
+
+function fecharTelaConfigPlanos(){
+
+  const tela = document.getElementById("telaConfigPlanos");
+
+  if(!tela){
+    console.log("TelaConfigEmpresaPlanos não encontrada");
+    return;
+  }
+
+  tela.style.display = "none";
+}
+
+function abrirConfigEmpresa(){
+document.getElementById("telaConfigEmpresa").style.display = "block";
+  carregarConfiguracoes();
+}
+
+function fecharTelaConfig(){
+
+  const tela = document.getElementById("telaConfigEmpresa");
+
+  if(!tela){
+    console.log("TelaConfigEmpresa não encontrada");
+    return;
+  }
+
+  tela.style.display = "none";
+}
+
+async function getConfiguracao(){
+
+  const { data, error } = await db
+    .from("configuracoes_empresa")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .limit(1)
+    .maybeSingle();
+
+  if(error || !data){
+    console.log(error);
+    return null;
+  }
+
+  return data;
+}
+
+async function carregarConfiguracoes(){
+
+  const { data, error } = await db
+    .from("configuracoes_empresa")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .limit(1)
+    .single();
+
+  if(error || !data){
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("nomeEmpresa").value = data.nome_empresa || "";
+  document.getElementById("chavePix").value = data.chave_pix || "";
+  document.getElementById("tipoPix").value = data.tipo_pix || "";
+  document.getElementById("nomeRecebedor").value = data.nome_recebedor || "";
+  document.getElementById("whatsappConfig").value = data.whatsapp || "";
+  document.getElementById("emailConfig").value = data.email || "";
+  document.getElementById("linkPagamento").value = data.link_pagamento || "";
+ 
+}
+
+async function salvarConfiguracoes(){
+
+  const nome_empresa = document.getElementById("nomeEmpresa").value;
+  const chave_pix = document.getElementById("chavePix").value;
+  const tipo_pix = document.getElementById("tipoPix").value;
+  const nome_recebedor = document.getElementById("nomeRecebedor").value;
+  const whatsapp = document.getElementById("whatsappConfig").value;
+  const email = document.getElementById("emailConfig").value;
+  const link_pagamento = document.getElementById("linkPagamento").value;
+
+  // 🔎 busca se já existe configuração
+  const { data, error: err1 } = await db
+    .from("configuracoes_empresa")
+    .select("id")
+    .eq("empresa_id", empresaId)
+    .limit(1)
+    .maybeSingle();
+
+  if(err1){
+    console.log(err1);
+    alert(err1.message);
+    return;
+  }
+
+  // 🟢 SE NÃO EXISTE → INSERE
+  if(!data){
+
+    const { error } = await db
+      .from("configuracoes_empresa")
+      .insert([{
+        empresa_id: empresaId,
+        nome_empresa,
+        chave_pix,
+        tipo_pix,
+        nome_recebedor,
+        whatsapp,
+        email,
+        link_pagamento
+      }]);
+
+    if(error){
+      console.log(error);
+      alert(error.message);
+      return;
+    }
+
+  } else {
+
+    // 🟡 SE EXISTE → ATUALIZA
+    const { error } = await db
+      .from("configuracoes_empresa")
+      .update({
+        nome_empresa,
+        chave_pix,
+        tipo_pix,
+        nome_recebedor,
+        whatsapp,
+        email,
+        link_pagamento
+      })
+       .eq("empresa_id", empresaId)
+      .eq("id", data.id);
+
+    if(error){
+      console.log(error);
+      alert(error.message);
+      return;
+    }
+  }
+
+  alert("Configurações salvas com sucesso");
+}
+
+
+async function salvarPlano(){
+
+  const nome =
+  document.getElementById("planoNome").value.trim();
+
+  const subtitulo =
+  document.getElementById("planoSubtitulo").value.trim();
+
+  const descricao =
+  document.getElementById("planoDescricao").value.trim();
+
+  const preco =
+  document.getElementById("planoPreco").value.trim();
+
+  const linkPagamento =
+  document.getElementById("planoLinkPagamento").value.trim();
+
+  const linkDetalhes =
+  document.getElementById("planoLinkDetalhes").value.trim();
+
+  const ordem =
+  Number(document.getElementById("planoOrdem").value) || 0;
+
+  const ativo =
+  document.getElementById("planoAtivo").checked;
+
+  // Validações
+
+  if(nome === ""){
+    alert("Informe o nome do plano.");
+    return;
+  }
+
+  if(subtitulo === ""){
+    alert("Informe o subtítulo.");
+    return;
+  }
+
+  if(descricao === ""){
+    alert("Informe a descrição do plano.");
+    return;
+  }
+
+  if(preco === ""){
+    alert("Informe o preço.");
+    return;
+  }
+
+  if(linkPagamento === ""){
+    alert("Informe o link de pagamento.");
+    return;
+  }
+
+if(planoEditando){
+
+    const { error } = await db
+    .from("planos_site")
+    .update({
+
+        nome,
+        subtitulo,
+        descricao,
+        preco,
+        link_pagamento: linkPagamento,
+        link_detalhes: linkDetalhes,
+        ordem,
+        ativo
+
+    })
+     .eq("empresa_id", empresaId)
+    .eq("id", planoEditando);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("Plano atualizado!");
+
+    planoEditando = null;
+
+}else{
+
+    const { error } = await db
+    .from("planos_site")
+    .insert([{
+       empresa_id: empresaId,
+        nome,
+        subtitulo,
+        descricao,
+        preco,
+        link_pagamento: linkPagamento,
+        link_detalhes: linkDetalhes,
+        ordem,
+        ativo
+
+    }]);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("Plano salvo!");
+
+}
+
+  limparFormularioPlano();
+
+  carregarPlanos();
+
+}
+
+function limparFormularioPlano(){
+
+  document.getElementById("planoNome").value = "";
+  document.getElementById("planoSubtitulo").value = "";
+  document.getElementById("planoDescricao").value = "";
+  document.getElementById("planoPreco").value = "";
+  document.getElementById("planoLinkPagamento").value = "";
+  document.getElementById("planoLinkDetalhes").value = "";
+  document.getElementById("planoOrdem").value = "";
+  document.getElementById("planoAtivo").checked = true;
+  carregarPlanos();
+}
+
+async function carregarPlanos(){
+
+  const { data, error } = await db
+  .from("planos_site")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("ordem");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  document.getElementById("totalPlanos").textContent =
+  `(${data.length})`;
+
+  const lista =
+  document.getElementById("listaPlanos");
+
+  lista.innerHTML = "";
+
+  data.forEach(plano=>{
+
+    lista.innerHTML += `
+     <div
+class="cardPlano"
+onclick="editarPlano(${plano.id})"
+ontouchstart="iniciarExcluirPlano(${plano.id})"
+ontouchend="cancelarExcluirPlano()"
+ontouchcancel="cancelarExcluirPlano()"
+
+onmousedown="iniciarExcluirPlano(${plano.id})"
+onmouseup="cancelarExcluirPlano()"
+onmouseleave="cancelarExcluirPlano()">
+
+
+
+        <div class="tituloPlano">
+          ${plano.nome}
+        </div>
+
+        <div class="subPlano">
+          ${plano.subtitulo}
+        </div>
+
+        <div class="precoPlano">
+          ${plano.preco}
+        </div>
+
+        <div class="statusPlano">
+          ${plano.ativo ? "🟢 Ativo" : "🔴 Inativo"}
+        </div>
+
+      </div>
+    `;
+
+  });
+
+}
+
+
+
+
+
+async function editarPlano(id){
+
+    const { data, error } = await db
+    .from("planos_site")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .eq("id", id)
+    .single();
+
+    if(error) return;
+
+    planoEditando = id;
+
+    document.getElementById("planoNome").value = data.nome;
+    document.getElementById("planoSubtitulo").value = data.subtitulo;
+    document.getElementById("planoDescricao").value = data.descricao;
+    document.getElementById("planoPreco").value = data.preco;
+    document.getElementById("planoLinkPagamento").value = data.link_pagamento;
+    document.getElementById("planoLinkDetalhes").value = data.link_detalhes;
+    document.getElementById("planoOrdem").value = data.ordem;
+    document.getElementById("planoAtivo").checked = data.ativo;
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+function iniciarExcluirPlano(id){
+
+    tempoExcluirPlano = setTimeout(()=>{
+
+        if(confirm("Deseja excluir este plano?")){
+
+            excluirPlano(id);
+
+        }
+
+    },3000);
+
+}
+
+function cancelarExcluirPlano(){
+
+    clearTimeout(tempoExcluirPlano);
+
+}
+
+async function excluirPlano(id){
+
+    const { error } = await db
+    .from("planos_site")
+    .delete()
+     .eq("empresa_id", empresaId)
+    .eq("id",id);
+
+    if(error){
+
+        alert(error.message);
+        return;
+
+    }
+
+    if(planoEditando == id){
+
+        planoEditando = null;
+        limparFormularioPlano();
+
+    }
+
+    carregarPlanos();
+
+}
+
+async function salvarAviso(){
+
+  const aviso_ativo =
+  document.getElementById(
+    "avisoAtivo"
+  ).checked;
+
+  const aviso_titulo =
+  document.getElementById(
+    "avisoTitulo"
+  ).value.trim();
+
+  const aviso_texto =
+  document.getElementById(
+    "avisoTexto"
+  ).value.trim();
+
+  const aviso_botao =
+  document.getElementById(
+    "avisoBotao"
+  ).value.trim() || "Entendi";
+
+  const { error } = await db
+  .from("configuracoes_empresa")
+  .update({
+
+    aviso_ativo,
+
+    aviso_titulo,
+
+    aviso_texto,
+
+    aviso_botao
+
+  })
+   .eq("empresa_id", empresaId)
+  .eq("id", 1);
+
+  if(error){
+    console.log(error);
+    alert("Erro ao salvar.");
+    return;
+  }
+
+  mostrarToast("Aviso salvo com sucesso!");
+
+}
+
+async function carregarAviso(){
+
+  const { data, error } = await db
+  .from("configuracoes_empresa")
+  .select(`
+    aviso_ativo,
+    aviso_titulo,
+    aviso_texto,
+    aviso_botao
+  `)
+  .eq("empresa_id", empresaId)
+  .eq("id",1)
+  .single();
+
+  if(error) return;
+
+  document.getElementById("avisoAtivo").checked =
+  data.aviso_ativo;
+
+  document.getElementById("avisoTitulo").value =
+  data.aviso_titulo || "";
+
+  document.getElementById("avisoTexto").value =
+  data.aviso_texto || "";
+
+  document.getElementById("avisoBotao").value =
+  data.aviso_botao || "Entendi";
+
+}
+
+
+async function salvarLembrete(){
+
+  const barbeiro =
+  document.getElementById("lembreteBarbeiro").value;
+
+  const data_inicial =
+  document.getElementById("lembreteData").value;
+
+  const mensagem =
+  document.getElementById("lembreteMensagem").value.trim();
+
+  const ativo =
+  document.getElementById("lembreteAtivo").checked;
+
+  const tipo_repeticao =
+  document.getElementById("tipoRepeticao").value;
+
+  const intervalo_dias =
+  Number(
+    document.getElementById("intervaloDias").value || 0
+  );
+
+  if(!data_inicial){
+    mostrarToast("Escolha a data.");
+    return;
+  }
+
+  if(mensagem === ""){
+    mostrarToast("Digite o lembrete.");
+    return;
+  }
+
+  const { error } = await db
+  .from("lembretes")
+  .insert([{
+   empresa_id: empresaId,
+    barbeiro,
+    data_inicial,
+    mensagem,
+    ativo,
+    tipo_repeticao,
+    intervalo_dias
+
+  }]);
+
+  if(error){
+    console.log(error);
+    mostrarToast("Erro ao salvar.");
+    return;
+  }
+
+  mostrarToast("Lembrete salvo.");
+
+ document.getElementById("lembreteData").value =
+new Date().toISOString().split("T")[0];
+
+  document.getElementById("lembreteMensagem").value = "";
+  document.getElementById("tipoRepeticao").value = "nenhum";
+  document.getElementById("intervaloDias").value = "";
+  document.getElementById("lembreteAtivo").checked = true;
+  document.getElementById("boxIntervalo").style.display = "none";
+
+  carregarLembretes();
+
+}
+
+async function carregarLembretes(){
+
+  const lista =
+  document.getElementById("listaLembretes");
+
+  lista.innerHTML = "Carregando...";
+
+  const { data, error } = await db
+  .from("lembretes")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("data_inicial", { ascending: true });
+
+  if(error){
+
+    console.log(error);
+
+    lista.innerHTML =
+    "Erro ao carregar lembretes.";
+
+    return;
+  }
+
+  if(!data || data.length === 0){
+
+    lista.innerHTML =
+    "Nenhum lembrete cadastrado.";
+
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  data.forEach(item => {
+
+lista.innerHTML += `
+
+<div class="cardLembrete">
+
+  <div class="topoCard">
+
+    <strong>${item.barbeiro}</strong>
+
+  <button
+class="status"
+onclick="alternarLembrete(${item.id}, ${item.ativo})">
+
+${item.ativo ? "🟢 Ativo" : "🔴 Desativado"}
+
+</button>
+
+  </div>
+
+  <div class="item" style="color:#d1d5db">
+  📅 ${item.data_inicial.split("-").reverse().join("/")}
+  </div>
+
+  <div class="item" style="color:#d1d5db">
+    📝 ${item.mensagem}
+  </div>
+
+  <div class="item" style="color:#d1d5db">
+    🔁 ${
+      item.tipo_repeticao === "nenhum"
+        ? "Não repetir"
+      : item.tipo_repeticao === "mensal"
+        ? "Mensal"
+      : `A cada ${item.intervalo_dias} dias`
+    }
+  </div>
+
+  <div class="acoes">
+
+    <button onclick="excluirLembrete(${item.id})">
+      🗑 Excluir
+    </button>
+
+  </div>
+
+</div>
+
+`;
+
+  });
+
+}
+
+async function excluirLembrete(id){
+
+  if(!confirm("Excluir lembrete?"))
+    return;
+
+  await db
+  .from("lembretes")
+  .delete()
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+  carregarLembretes();
+
+}
+
+async function carregarBarbeirosLembrete(){
+
+  const select =
+  document.getElementById("lembreteBarbeiro");
+
+  const { data, error } = await db
+  .from("profissionais")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .order("nome");
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  select.innerHTML = `
+    <option value="Todos">
+      Todos os barbeiros
+    </option>
+  `;
+
+  data.forEach(prof => {
+
+    select.innerHTML += `
+      <option value="${prof.nome}">
+        ${prof.nome}
+      </option>
+    `;
+
+  });
+
+}
+
+
+function alterarTipoRepeticao(){
+
+  const tipo =
+  document.getElementById("tipoRepeticao").value;
+
+  document.getElementById("boxIntervalo").style.display =
+    tipo === "intervalo"
+      ? "block"
+      : "none";
+
+}
+
+async function alternarLembrete(id, ativo){
+
+  await db
+  .from("lembretes")
+  .update({
+    ativo: !ativo
+  })
+   .eq("empresa_id", empresaId)
+  .eq("id", id);
+
+  carregarLembretes();
+
+}
+function mostrarPopupLembrete(texto){
+
+  document.getElementById(
+    "textoLembrete"
+  ).innerText = texto;
+
+  document.getElementById(
+    "popupLembrete"
+  ).classList.add("ativo");
+
+}
+
+function fecharPopupLembrete(){
+
+  document.getElementById(
+    "popupLembrete"
+  ).classList.remove("ativo");
+
+}
+
+async function verificarLembretesHoje(){
+
+
+
+  const hoje = dataInput.value;
+
+  const barbeiro = filtro.value;
+
+  const { data, error } = await db
+  .from("lembretes")
+  .select("*")
+  .eq("empresa_id", empresaId)
+  .eq("ativo", true);
+
+  if(error){
+    console.log(error);
+    return;
+  }
+
+  const lembretes = [];
+
+  data.forEach(item=>{
+
+    // barbeiro
+    if(
+      item.barbeiro !== "Todos" &&
+      item.barbeiro !== barbeiro
+    ) return;
+
+ // sem repetição
+if(item.tipo_repeticao === "nenhum"){
+
+  if(item.data_inicial === hoje){
+    lembretes.push("• " + item.mensagem);
+  }
+
+}
+
+// mensal
+else if(item.tipo_repeticao === "mensal"){
+
+  const diaHoje =
+  hoje.split("-")[2];
+
+  const diaInicial =
+  item.data_inicial.split("-")[2];
+
+  if(diaHoje === diaInicial){
+    lembretes.push("• " + item.mensagem);
+  }
+
+}
+
+// intervalo de dias
+else if(item.tipo_repeticao === "intervalo"){
+
+  const dataInicial =
+  new Date(item.data_inicial);
+
+  const dataHoje =
+  new Date(hoje);
+
+  const diferencaDias =
+  Math.floor(
+    (dataHoje - dataInicial) /
+    (1000 * 60 * 60 * 24)
+  );
+
+  if(
+    diferencaDias >= 0 &&
+    diferencaDias % item.intervalo_dias === 0
+  ){
+    lembretes.push("• " + item.mensagem);
+  }
+
+}
+    
+    
+
+  });
+
+  if(lembretes.length){
+
+    mostrarPopupLembrete(
+      lembretes.join("\n\n")
+    );
+
+  }
+  
+  
+  
+  
+
+}
+// Executa assim que a estrutura do documento estiver pronta
+document.addEventListener("DOMContentLoaded", () => {
+  carregarDespesas();
+});
+
+carregarPlanos();
+carregarProfissionaisFiltro();
+carregarProfissionaisSelect();
+carregarProfissionaisCalendario();
+carregarAviso();
+atualizarBadge();
+carregarBarbeirosLembrete();
+
+setInterval(() => {
+
+  carregarHoje();
+
+}, 1800000);
+
+
+setTimeout(()=>{
+
+carregarHoje();  
+
+ setTimeout(async () => {
+
+  await verificarLembretesHoje();
+
+}, 1000);
+
+},2000);
+
+
+setTimeout(()=>{
+
+  document
+  .getElementById("bootLoading")
+  .classList.add("hide");
+
+},300);
+
+document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
+document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
+
+
