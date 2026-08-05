@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Los Visionários Agenda</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style2.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+  <script>
+  window.onload = ()=>{
+
+  const script =
+  document.createElement("script");
+
+  script.src =
+  "https://www.youtube.com/iframe_api";
+
+  document.body.appendChild(
+    script
+  );
+
+};
+</script>
+  
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!-- ⏳ LOADERS DE CARREGAMENTO                  -->
+  <!-- ========================================== -->
+  <div id="loading" class="loading">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p id="textoLoading">Processando...</p>
+    </div>
+  </div>
+  
+  <div id="bootLoading" class="boot-loading">
+    <div class="boot-box">
+      <div class="boot-spinner"></div>
+      <h2>Los Visionários</h2>
+      <p>Inicializando sistema...</p>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 🖥️ TELAS DO SISTEMA (MODAIS FULLSCREEN)     -->
+  <!-- ========================================== -->
+
+  <!-- 🎟️ TELA RIFA -->
+  <div id="telaRifa" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaRifa')">← Voltar</button>
+      <h2>🎟️ Rifas</h2>
+    </div>
+    <div class="conteudoTela" style="padding:0px">
+      <iframe
+        src="https://www.barbearialosvisionarios.com.br/rifadm.html"
+        style="width:100%; height:calc(100vh - 70px); border:none;">
+      </iframe>
+    </div>
+  </div> 
+
+  <!-- 📊 TELA FATURAMENTO -->
+  <div id="telaDespesas" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaDespesas')">← Voltar</button>
+      <h2>📊 Despesas</h2>
+    </div>
+    <div class="conteudoTela">
+      <div class="tabela-container">
+  <table class="tabela-despesas">
+    <thead>
+      <tr>
+        <th>Data / Hora</th>
+        <th>Categoria</th>
+        <th>Descrição</th>
+        <th>Barbeiro</th>
+        <th>Forma Pag.</th>
+        <th>Observação</th>
+        <th class="text-right">Valor</th>
+        <th class="text-center">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="listaDespesas">
+      <!-- As linhas <tr> serão injetadas dinamicamente aqui -->
+    </tbody>
+  </table>
+</div>
+
+    </div>
+  </div>
+
+  <!-- 📅 TELA CALENDÁRIO -->
+  <div id="telaCalendario" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaCalendario')">← Voltar</button>
+      <h2>📅 Buscar Período</h2>
+    </div>
+    <div class="conteudoTela">
+      <input type="date" id="dataInicio">
+      <input type="date" id="dataFim">
+      <select id="calProf">
+        <option value="Todos">Todos</option>
+      </select>
+      <button onclick="calcularPeriodo()">Buscar</button>
+      <div id="resultadoPeriodo"></div>
+    </div>
+  </div>
+
+  <!-- 💳 TELA PLANOS -->
+  <div id="telaPlanos" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaPlanos')">← Voltar</button>
+      <h2>💳 Clientes Plano</h2>
+    </div>
+    <div class="conteudoTela">
+      <input type="date" id="planoInicio">
+      <input type="date" id="planoFim">
+      <button onclick="calcularPlanos()">Buscar</button>
+      <div id="resultadoPlanos"></div>
+    </div>
+  </div>
+
+  <!-- 🔔 TELA VENCIMENTOS -->
+  <div id="telaVencimentos" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaVencimentos')">← Voltar</button>
+      <h2>🔔 Vencimentos</h2>
+    </div>
+    <div class="conteudoTela">
+      <div id="listaVencimentos"></div>
+    </div>
+  </div>
+
+  <!-- 👥 TELA CLIENTES -->
+  <div id="telaClientes" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaClientes')">← Voltar</button>
+      <h2>👥 Clientes</h2>
+    </div>
+    <div class="conteudoTela">
+      <input type="text" id="buscarCliente" placeholder="Buscar cliente">
+      <div id="resultadoClientes"></div>
+    </div>
+  </div>
+
+  <!-- 💰 TELA FINANCEIRO -->
+  <div id="telaFinanceiro" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaFinanceiro')">← Voltar</button>
+      <h2>💰 Financeiro</h2>
+    </div>
+    <div class="conteudoTela">
+      <div id="financeiroConteudo">
+        <div id="listaFinanceiro"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 💈 TELA SERVIÇOS -->
+  <div id="telaServicos" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaServicos')">← Voltar</button>
+      <h2>💈 Serviços</h2>
+    </div>
+    <div class="conteudoTela">
+      <iframe
+        src="https://www.barbearialosvisionarios.com.br/servicos.html"
+        style="width:100%; height:calc(100vh - 70px); border:none;">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- 👤 TELA PROFISSIONAIS -->
+  <div id="telaProfissionais" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaProfissionais')">← Voltar</button>
+      <h2>👤 Profissionais</h2>
+    </div>
+    <div class="conteudoTela">
+      <input id="nomeProfissional" placeholder="Nome do profissional">
+      <input id="foneProfissional" placeholder="Telefone">
+      <input id="fotoProfissional" type="file" accept="image/*">
+      <button onclick="salvarProfissional()">💾 Salvar</button>
+      <div id="listaProfissionais"></div>
+    </div>
+  </div>
+
+  <!-- 🔔 TELA LEMBRETE -->
+  <div id="telaLembrete" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaLembrete')">← Voltar</button>
+      <h2>Lembrete</h2>
+    </div>
+    <div class="conteudoTela">
+      <label>Barbeiro</label>
+      <select id="lembreteBarbeiro">
+        <option value="Todos">Todos os barbeiros</option>
+      </select>
+
+      <label>Data Inicial</label>
+      <input type="date" id="lembreteData">
+
+      <label>Mensagem</label>
+      <textarea id="lembreteMensagem" placeholder="Digite o lembrete"></textarea>
+
+      <label>Tipo de repetição</label>
+      <select id="tipoRepeticao" onchange="alterarTipoRepeticao()">
+        <option value="nenhum">Não repetir</option>
+        <option value="mensal">Mensal</option>
+        <option value="intervalo">Intervalo de dias</option>
+      </select>
+
+      <div id="boxIntervalo" style="display:none;">
+        <label>Repetir a cada</label>
+        <input type="number" id="intervaloDias" min="1" placeholder="Ex.: 4, 7, 15">
+      </div>
+
+      <div class="linhaCheck">
+        <input type="checkbox" id="lembreteAtivo" checked>
+        <label for="lembreteAtivo">Lembrete ativo</label>
+      </div>
+
+      <button onclick="salvarLembrete()" style="margin-top:20px;">💾 Salvar Lembrete</button>
+      
+      <hr style="margin:25px 0;">
+      <div id="listaLembretes"></div>
+    </div>
+  </div>
+
+  <!-- 🎁 TELA FIDELIDADE -->
+  <div id="telaFidelidade" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaFidelidade')">← Voltar</button>
+      <h2>🎁 Cartão Fidelidade</h2>
+    </div>
+    <div class="conteudoTela">
+      <div id="alertaFidelidade" class="alertaFidelidade" style="display:none"></div>
+      <input id="buscaFidelidade" placeholder="Buscar cliente" oninput="carregarFidelidade()">
+      <div id="listaFidelidade"></div>
+    </div>
+  </div>
+
+  <!-- ⚙️ TELA CONFIG -->
+  <div id="telaConfig" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaConfig')">← Voltar</button>
+      <h2>⚙️ Configurações</h2>
+    </div>
+    <div class="conteudoTela">
+      <button onclick="abrirConfigPopup()">Site / Avisos</button>   
+      <button onclick="abrirConfigPlanos()">Site / Planos</button>   
+      <button onclick="abrirConfigEmpresa()">🏢 Empresa / config</button>
+      <button onclick="backupCSV()">📁 Backup CSV</button>
+      <button onclick="sair()">🚪 Sair</button>
+    </div>
+  </div>
+
+  <!-- 🏢 CONFIGURAÇÃO EMPRESA -->
+  <div id="telaConfigEmpresa" class="telaSistema" style="display:none;">
+    <div class="topTela">
+      <button onclick="fecharTelaConfig()">← Voltar</button>
+      <h2>🏢 Configuração da Empresa</h2>
+    </div>
+    <div class="conteudoTela">
+      <label>Nome da Empresa</label>
+      <input id="nomeEmpresa" type="text">
+
+      <label>Chave Pix</label>
+      <input id="chavePix" type="text">
+
+      <label>Tipo Pix</label>
+      <input id="tipoPix" type="text">
+
+      <label>Nome do Recebedor</label>
+      <input id="nomeRecebedor" type="text">
+
+      <label>WhatsApp</label>
+      <input id="whatsappConfig" type="text">
+
+      <label>Email</label>
+      <input id="emailConfig" type="text">
+
+      <label>Link Pagamento</label>
+      <input id="linkPagamento" type="text">
+
+      <button onclick="salvarConfiguracoes()" style="width:100%; margin-top:15px; padding:12px; border:none; border-radius:12px; background:#16a34a; color:#fff; font-weight:700;">
+        💾 Salvar
+      </button>
+    </div>
+  </div>
+
+  <!-- 🏢 CONFIGURAÇÃO AVISO POPUP -->
+  <div id="telaConfigPopup" class="telaSistema" style="display:none;">
+    <div class="topTela">
+      <button onclick="fecharTelaConfigPopup()">← Voltar</button>
+      <h2>🏢 Configuração de Avisos</h2>
+    </div>
+    <div class="conteudoTela">
+      <label>
+        <input type="checkbox" id="avisoAtivo">
+        Exibir aviso ao abrir o site
+      </label>
+      <input id="avisoTitulo" placeholder="Título do aviso">
+      <textarea id="avisoTexto" placeholder="Mensagem do aviso"></textarea>
+      <input id="avisoBotao" placeholder="Texto do botão" value="Entendi">
+      <button onclick="salvarAviso()">💾 Salvar Aviso</button>
+    </div>
+  </div>
+
+  <!-- 💳 CONFIGURAÇÃO PLANOS -->
+  <div id="telaConfigPlanos" class="telaSistema" style="display:none;">
+    <div class="topTela">
+      <button onclick="fecharTelaConfigPlanos()">← Voltar</button>
+      <h2>Planos do Site</h2>
+    </div>
+    <div class="conteudoTela">
+      <label for="planoNome">Nome do Plano</label>
+      <input id="planoNome" type="text" placeholder="Ex.: Plano Premium">
+
+      <label for="planoSubtitulo">Subtítulo</label>
+      <input id="planoSubtitulo" type="text" placeholder="Ex.: Combo Cabelo e Barba">
+
+      <label for="planoDescricao">Benefícios do Plano</label>
+      <textarea id="planoDescricao" rows="6" placeholder="Digite um benefício por linha.&#10;&#10;Exemplo:&#10;Até 4 cortes mensais&#10;Sobrancelha inclusa&#10;20% de desconto em depilação&#10;Visual sempre em dia"></textarea>
+
+      <label for="planoPreco">Preço</label>
+      <input id="planoPreco" type="text" placeholder="Ex.: R$ 64,99">
+
+      <label for="planoLinkPagamento">Link de Pagamento</label>
+      <input id="planoLinkPagamento" type="url" placeholder="Cole aqui o link do Mercado Pago">
+
+      <label for="planoLinkDetalhes">Link 'Mais Detalhes'</label>
+      <input id="planoLinkDetalhes" type="text" placeholder="Ex.: RegrasPlano.html">
+
+      <label for="planoOrdem">Ordem de Exibição</label>
+      <input id="planoOrdem" type="number" placeholder="1">
+
+      <label class="checkPlano">
+        <input id="planoAtivo" type="checkbox" checked>
+        Plano disponível no site
+      </label>
+
+      <button onclick="salvarPlano()">💾 Salvar Plano</button>
+    </div>
+    <hr>
+    <h2>📦 Planos Cadastrados <span id="totalPlanos">(0)</span></h2>
+    <div id="listaPlanos"></div>
+  </div>
+
+  <!-- 🎵 TELA PLAYER TV -->
+  <div id="telaPlayer" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharPlayerTV()">← Voltar</button>
+      <h2>🎵 Player TV</h2>
+    </div>
+    <div class="conteudoTela">
+      <input id="buscaYoutube" placeholder="Pesquisar música">
+      <button onclick="buscarYoutube()">🔍 Buscar</button>
+
+      <div id="resultadosYoutube"></div>
+      <div style="height:15px"></div>
+
+      <div id="loadingPlayer">⏳ Carregando player...</div>
+      <div id="player"></div>
+      <div style="height:15px"></div>
+
+      <button style="width:100px" onclick="alternarAleatorio()">🔀 Aleatório</button>
+      <button onclick="novaLista()">➕ Nova Lista</button>
+
+      <div id="modalNovaLista" class="modalListas" style="display:none">
+        <div class="boxModalListas">
+          <h3>Nova Lista</h3>
+          <input style="margin-bottom:15px" id="nomeNovaLista" placeholder="Nome da lista">
+          <button onclick="salvarNovaLista()">Salvar</button>
+          <button onclick="fecharNovaLista()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="modalExcluirLista" class="modalListas" style="display:none">
+        <div class="boxModalListas">
+          <h3>Excluir Pasta?</h3>
+          <p id="nomeListaExcluir"></p>
+          <button onclick="confirmarExcluirLista()">Excluir</button>
+          <button onclick="fecharExcluirLista()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="listaPastas"></div>
+      <div id="listaPlaylist"></div>
+    </div>
+  </div>
+
+  <!-- MODAL ESCOLHER LISTA -->
+  <div id="modalListas" class="modalListas" style="display:none">
+    <div class="boxModalListas">
+      <h3>Salvar em qual lista?</h3>
+      <div id="listaDestino"></div>
+      <button onclick="fecharModalListas()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIGURAÇÃO LISTA -->
+  <div id="modalConfigLista" class="modalListas" style="display:none">
+    <div class="boxModalListas">
+      <h3 id="tituloConfigLista"></h3>
+      <div id="diasSemana"></div>
+      <button onclick="salvarConfigLista()">Salvar</button>
+      <button onclick="fecharConfigLista()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICAÇÃO -->
+  <div id="toast" class="toast"></div>
+
+  <!-- MODAL CONFIRMAÇÃO -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-box">
+      <h3 id="confirmTitulo">Confirmação</h3>
+      <p id="confirmTexto">Deseja continuar?</p>
+      <div class="confirm-actions">
+        <button class="btn-cancelar" onclick="fecharConfirmacao()">Cancelar</button>
+        <button class="btn-confirmar" id="btnConfirmar">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 📌 SIDEBAR / MENU LATERAL                  -->
+  <!-- ========================================== -->
+  <div id="sidebar" class="sidebar">
+    <h2 style="margin-bottom:10px" onclick="abrirHoje()">📋 Menu</h2>
+    
+    
+  
+  <!-- 🔘 BOTÃO DE TEMA COMO ITEM DO MENU -->
+  <button id="btnTema" onclick="toggleTema()">
+    <span>Alternar Tema</span>
+    <span>🌙</span>
+  </button>
+
+  
+
+    <button onclick="abrirCalendario()">📆 Buscar Período</button>
+    <button onclick="abrirPlanos()">💳 Clientes Plano</button>
+    <button onclick="abrirDespesas()">📊 Despesas</button>
+    <button onclick="abrirTelaVencimentos()">
+      🔔 Vencimentos
+      <span id="badgeNotif" style="background:#dc2626; padding:3px 8px; border-radius:999px; margin-left:8px; font-size:12px;">0</span>
+    </button>
+    <button onclick="abrirClientes()">👥 Clientes</button>
+    <button onclick="abrirFinanceiro()">💰 Financeiro</button>
+    <button onclick="abrirProfissionais()">👤 Profissionais</button>
+    <button onclick="abrirServicos()">💈 Serviços</button>
+    <button onclick="abrirFidelidade()">🎁 Fidelidade</button>
+    <button onclick="abrirLembrete()">🔔 Lembrete</button>
+    <button onclick="abrirTelaRifa()">🎟️ Rifa</button>
+    <button onclick="abrirConfig()">⚙️ Configurações</button>
+    <button onclick="abrirPlayerTV()">🎵 Player TV</button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 🏠 HEADER & ESTRUTURA PRINCIPAL            -->
+  <!-- ========================================== -->
+   <div class="top" id="corTopo">
+      <button style="padding:0px" onclick="toggleMenu()"><span class="material-symbols-rounded">
+menu
+</span></button>
+
+      <!-- OVERLAY MENU (MANTIDO NA POSIÇÃO ORIGINAL) -->
+      <div id="overlayMenu" class="overlayMenu" onclick="fecharMenu()"></div>
+
+      <div class="brand">Los Visionários</div>
+      <button id="btnOlho" onclick="toggleValores()" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">️<span style="color:white" class="material-symbols-rounded">
+visibility
+</span></button>
+      
+      
+      <input type="date" id="data">
+    </div>
+  <header>
+   
+
+    <div class="stats">
+      <div class="card">
+     <div style="width:40px">
+        <span class="material-symbols-rounded">payments
+        </span>
+     </div>
+      <div>
+        <div>Hoje</div>
+        <strong id="totalDia">R$0</strong>
+        </div>
+      </div>
+      
+      
+      <div class="card"><div style="width:40px">
+        <span class="material-symbols-rounded">groups
+        </span>
+      </div>
+        
+        
+       <div> 
+         <div>Clientes</div>
+         <strong id="qtd">0</strong>
+       </div>
+       </div>
+       
+       
+      <div class="card"><div style="width:40px">
+        
+        <span class="material-symbols-rounded">workspace_premium
+        </span>
+        
+      </div>
+      
+      
+     <div> 
+       <div>Plano</div>
+       <strong id="planos">0</strong>
+     </div>
+     
+     </div>
+    
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <select id="filtro"></select>
+ <button id="btnAtualizar" onclick="carregarHoje()">
+  <span style="color:white" class="material-symbols-rounded">sync</span>
+  Atualizar
+</button>
+      
+      
+    </div>
+    <div id="agenda"></div>
+  </div>
+
+  <button class="fab" onclick="abrir()">+</button>
+
+  <!-- ========================================== -->
+  <!-- 📝 MODAL NOVO ATENDIMENTO                  -->
+  <!-- ========================================== -->
+  <div class="modal" id="modal">
+    <div class="box">
+      <h3>Novo Atendimento</h3>
+
+      <input id="nome" placeholder="Nome do cliente" autocomplete="off">
+      <div id="sugestoes" style="background:#111827; position:absolute; width:90%; max-width:400px;"></div>
+      <input id="fone" placeholder="Telefone">
+
+      <div class="row">
+        <select id="barbeiro"></select>
+        <input id="hora" placeholder="Hora ex: 09:00">
+      </div>
+
+      <div id="boxPlanoAdmin" style="display:none;">
+        <input type="date" id="adesaoPlano" style="margin-right:4px">
+        <select id="statusPlano" style="margin-left:4px">
+          <option value="ativo">Plano Ativo</option>
+          <option value="inativo">Plano Inativo</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <select id="corte">
+          <option value="">Não alterar</option>
+          <option value="1">Corte 1/4</option>
+          <option value="2">Corte 2/4</option>
+          <option value="3">Corte 3/4</option>
+          <option value="4">Corte 4/4</option>
+        </select>
+        <select id="pag">
+          <option>Pix</option>
+          <option>Dinheiro</option>
+          <option>Debito</option>
+          <option>Crédito</option>
+          <option>Plano Mensal</option>
+        </select>
+      </div>
+
+      <input id="valor" placeholder="Clique para escolher um serviço" readonly>
+      <input id="valorr" placeholder="valor" type="number">
+
+      <!-- Modal de Seleção de Serviços -->
+      <div id="modalervicos" class="modal">
+        <div class="modal-content">
+          <h3 style="color:black;">Serviços</h3>
+          <div id="listaServicos"></div>
+          <div id="textoResumo" style="padding:10px; color:black; border-top:1px solid #ddd; font-size:14px;"></div>
+          <div style="display:flex; gap:10px; margin-top:15px;">
+            <button onclick="confirmarServicos()">Confirmar</button>
+            <button onclick="fecharModil()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <textarea id="obs" placeholder="Observação"></textarea>
+
+      <div class="actions">
+        <button class="save" onclick="salvarAtendimento()">Salvar</button>
+        <button class="cancel" onclick="fechar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 💬 COMPONENTES FLUTUANTES                  -->
+  <!-- ========================================== -->
+  <div id="bolhaPlayer" onclick="abrirPlayerExistente()">
+    <img src="https://cdn3d.iconscout.com/3d/premium/thumb/colcheia-inclinada-com-feixe-3d-icon-png-download-9723872.png" alt="Player" width="50" height="50">
+  </div>
+
+  <div id="popupLembrete" class="popupLembrete">
+    <div class="popupTopo">
+      <span>🔔 Lembrete</span>
+      <button onclick="fecharPopupLembrete()">✕</button>
+    </div>
+    <div id="textoLembrete"></div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 📜 SCRIPTS JS                              -->
+  <!-- ========================================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+  <script src="script2.js"></script>
+
+</body>
+<!--implementar audios-->
+</html>
