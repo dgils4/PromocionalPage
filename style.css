@@ -8,6 +8,9 @@
   --bg-elemento: #111827;
   --texto: #ffffff;
   --borda: #1d4ed8;
+  
+  --bg-sidebar:#0f172a;
+
 }
 
 /* Regras quando o Modo Claro estiver ativo */
@@ -17,17 +20,14 @@ body.light-theme {
   --bg-elemento: #e2e8f0;
   --texto: #0f172a;
   --borda: #cbd5e1;
+  
+  --bg-sidebar:#2563eb; /* azul */
+
 }
 /* ========================================== */
 /* VARIÁVEIS DE CORES                         */
 /* ========================================== */
-:root {
-  --bg-principal: #050b16;
-  --bg-card: #0f172a;
-  --bg-elemento: #111827;
-  --texto: #ffffff;
-  --borda: #1d4ed8;
-}
+
 
 /* Regras quando o Modo Claro estiver ativo */
 /* Regras para o Modo Claro (Branco + Azul) */
@@ -79,6 +79,7 @@ header{
 .card{
   
   background: var(--bg-elemento);
+   box-shadow: 0px 0px 1px #2563eb;
   color: var(--texto);
   padding:8px 5px;
   border-radius:12px;
@@ -111,18 +112,23 @@ body.light-theme .time {
 
 .cell{
   min-height:52px;
-  background: var(--bg-elemento);
+  background:var(--bg-elemento);
   border:1px solid var(--borda);
   border-radius:12px;
   padding:8px;
-  transition: background 0.3s, border 0.3s;
-  display: flex;
-  align-items: center;
+  transition:background .3s,border .3s;
+
+  display:block;
+
 }
   
 .free{
-  background: var(--bg-elemento);
-  color: var(--texto);
+  background:var(--bg-elemento);
+  color:var(--texto);
+
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
   
   .booking{border-radius:10px;padding:8px;font-weight:700}.c1{background:#16a34a}.c2{background:#2563eb}.c3{background:#eab308;color:#111}.c4{background:#dc2626}.small{font-size:12px;font-weight:400}.fab{position:fixed;right:16px;bottom:16px;background:#1d4ed8;border:none;color:#fff;width:56px;height:56px;border-radius:50%;font-size:28px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:12px}.box{width:100%;max-width:420px;background:#0f172a;border-radius:16px;padding:14px}.box h3{margin-top:0}.box input,.box select,.box textarea{width:100%;margin:6px 0;padding:10px;border:none;border-radius:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:10px;border:none;border-radius:10px}.save{background:#1d4ed8;color:#fff}.cancel{background:#374151;color:#fff}
@@ -202,7 +208,9 @@ body.light-theme .time {
 
   height:100%;
 
-  background:#0f172a;
+ 
+  background:var(--bg-sidebar);
+
 
   z-index:9999999;
 
@@ -246,9 +254,11 @@ body.light-theme .time {
 
   border:none;
 
-  background:#111827;
+ 
+  background:var(--bg-card);
 
-  color:#fff;
+
+  color: var(--texto);
 
   padding:14px;
 
