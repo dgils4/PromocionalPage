@@ -1070,17 +1070,41 @@ fecharLoading();
 
 const filtro = document.getElementById('filtro');
 
-filtro.addEventListener("change", () => {
- localStorage.setItem("filtroAgenda", filtro.value);
- carregarHoje();
-});
-
 let profissionalAtual = "Todos";
 
 function filtrarProf(nome){
   profissionalAtual = nome;
+  localStorage.setItem("filtroAgenda", nome);
   carregarHoje();
 }
+
+
+// quando carregar o sistema
+function iniciarFiltro(){
+
+  const salvo = localStorage.getItem("filtroAgenda");
+
+  if(salvo){
+
+    profissionalAtual = salvo;
+
+    filtro.value = salvo;
+
+  }
+
+  carregarHoje();
+}
+
+
+filtro.addEventListener("change", () => {
+
+  profissionalAtual = filtro.value;
+
+  localStorage.setItem("filtroAgenda", filtro.value);
+
+  carregarHoje();
+
+});
 
 
 
@@ -2015,7 +2039,7 @@ async function abrirDespesas(){
 
   abrirTela("telaDespesas");
 
- 
+await carregarDespesas();
 
 }
 
@@ -5181,7 +5205,7 @@ setInterval(() => {
 
 setTimeout(()=>{
 
-carregarHoje();  
+iniciarFiltro() 
 
  setTimeout(async () => {
 
