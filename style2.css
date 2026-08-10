@@ -117,7 +117,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 99999999999999999999;
 }
 
 /* Card central do modal */
@@ -129,6 +129,7 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   overflow: hidden;
   animation: fadeIn 0.2s ease-out;
+  
 }
 
 .modal-header {
@@ -233,70 +234,53 @@
   to { opacity: 1; transform: scale(1); }
 }
 .cardDespesa{
+  background:var(--bg-card);
+  border:1px solid var(--borda);
+  border-radius:14px;
 
-  background:#1e293b;
-  color:#fff;
-
-  border-radius:12px;
-
-  padding:15px;
-
+  padding:14px;
   margin-bottom:12px;
-
-  box-shadow:
-  0 4px 10px rgba(0,0,0,.25);
-
 }
-
 
 .topoDespesa{
-
   display:flex;
-
   justify-content:space-between;
-
   align-items:center;
-
-  margin-bottom:10px;
-
-}
-
-
-.topoDespesa strong{
-
-  font-size:16px;
-
-}
-
-
-.topoDespesa span{
-
-  color:#22c55e;
-
-  font-weight:bold;
-
-  font-size:17px;
-
-}
-
-
-.cardDespesa div{
-
-  margin-top:8px;
-
-  color:#cbd5e1;
-
-}
-
-
-.acoesDespesa{
-
-  margin-top:15px;
-
-  display:flex;
-
   gap:10px;
 
+  margin-bottom:10px;
+}
+
+.topoDespesa strong{
+  font-size:17px;
+  color:var(--texto);
+}
+
+.valorDespesa{
+  color:#22c55e;
+  font-size:18px;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+.infoDespesa{
+  color:var(--texto);
+  opacity:.8;
+  font-size:14px;
+  margin-top:6px;
+}
+
+.acoesDespesa{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.acoesDespesa button{
+  border:none;
+  border-radius:8px;
+  padding:8px 12px;
+  cursor:pointer;
 }
 
 
@@ -312,4 +296,117 @@
 
   padding:8px 12px;
 
+}
+
+
+.resumoDespesas{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:10px;
+  margin:15px 0;
+}
+
+.resumoItem{
+  background:var(--bg-card);
+  border:1px solid var(--borda);
+  border-radius:12px;
+  padding:12px;
+
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.resumoItem span{
+  color:var(--texto);
+  font-size:14px;
+}
+
+.resumoItem strong{
+  color:var(--texto);
+  font-size:19px;
+}
+
+/* ==========================================
+   CALENDÁRIO EXCLUSIVO DAS DESPESAS
+   ========================================== */
+
+.dataDespesas{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  margin-bottom:15px;
+}
+
+.campoDataDespesa{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  background:var(--bg-elemento);
+  border:1px solid var(--borda);
+
+  border-radius:10px;
+  padding:7px 10px;
+
+  flex:1;
+  max-width:250px;
+}
+
+.campoDataDespesa span{
+  font-size:20px;
+  line-height:1;
+}
+
+.inputDataDespesa{
+  width:100% !important;
+  min-width:0 !important;
+
+  margin:0 !important;
+  padding:3px !important;
+
+  border:none !important;
+  outline:none !important;
+
+  background:transparent !important;
+  color:var(--texto) !important;
+
+  font-size:15px !important;
+  font-family:inherit !important;
+
+  box-shadow:none !important;
+}
+
+/* Remove estilos de foco herdados */
+.inputDataDespesa:focus{
+  border:none !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+/* Botões de navegação */
+.btnDataDespesa{
+  width:42px;
+  height:42px;
+
+  border:none;
+  border-radius:10px;
+
+  background:var(--bg-elemento);
+  color:var(--texto);
+
+  border:1px solid var(--borda);
+
+  font-size:16px;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.btnDataDespesa:active{
+  transform:scale(.95);
 }
