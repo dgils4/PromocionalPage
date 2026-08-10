@@ -1,3 +1,8 @@
+// 
+
+let despesaEditandoId = null;
+
+
 // Alterna a classe no body e salva a preferência
 function toggleTema() {
   const body = document.body;
@@ -45,24 +50,63 @@ document.addEventListener('DOMContentLoaded', carregarTemaSalvo);
 
 
 // Abrir o Modal e preencher data/hora atuais por padrão
-function abrirModalDespesa() {
-  
+function abrirModalDespesa(){
+
+  const modal =
+    document.getElementById("modalDespesa");
+
+  if(!modal) return;
+
+  // Limpa qualquer edição anterior
+  limparModalDespesa();
+
+  // Restaura título
+  const titulo =
+    document.querySelector(
+      "#modalDespesa .modal-header h2"
+    );
+
+  if(titulo){
+    titulo.textContent =
+      "Lançar Nova Despesa";
+  }
+
+  // Restaura botão
+  const botao =
+    document.querySelector(
+      "#modalDespesa .btn-salvar"
+    );
+
+  if(botao){
+    botao.textContent =
+      "Salvar Despesa";
+  }
+
+  // Carrega profissionais
   carregarProfissionaisDespesa();
-  
-  const modal = document.getElementById("modalDespesa");
-  if (!modal) return;
 
-const hoje = new Date();
+  // Data atual
+  const hoje = new Date();
 
-modalData.value =
-hoje.getFullYear() +
-"-" +
-String(hoje.getMonth()+1).padStart(2,"0") +
-"-" +
-String(hoje.getDate()).padStart(2,"0");
-  document.getElementById("modalHora").value = hoje.toTimeString().substring(0, 5);
+  modalData.value =
+    hoje.getFullYear() +
+    "-" +
+    String(
+      hoje.getMonth() + 1
+    ).padStart(2,"0") +
+    "-" +
+    String(
+      hoje.getDate()
+    ).padStart(2,"0");
 
-  modal.style.display = "flex";
+  // Hora atual
+  modalHora.value =
+    hoje.toTimeString()
+    .substring(0,5);
+
+  modal.style.display =
+    "flex";
+
 }
 
 
@@ -94,20 +138,51 @@ document.getElementById("modalObservacao");
 
 
 // Fechar o Modal
-function fecharModalDespesa() {
-  const modal = document.getElementById("modalDespesa");
-  if (modal) modal.style.display = "none";
-  document.getElementById("formDespesa").reset();
+function fecharModalDespesa(){
+
+  const modal =
+    document.getElementById("modalDespesa");
+
+  limparModalDespesa();
+
+  if(modal){
+    modal.style.display = "none";
+  }
+
+  const titulo =
+    document.querySelector(
+      "#modalDespesa .modal-header h2"
+    );
+
+  if(titulo){
+    titulo.textContent =
+      "Lançar Nova Despesa";
+  }
+
+  const botao =
+    document.querySelector(
+      "#modalDespesa .btn-salvar"
+    );
+
+  if(botao){
+    botao.textContent =
+      "Salvar Despesa";
+  }
+
 }
 
 async function salvarDespesa(event){
 
   event.preventDefault();
 
-  abrirLoading("Salvando despesa...");
+  abrirLoading(
+    despesaEditandoId
+      ? "Salvando alterações..."
+      : "Salvando despesa..."
+  );
 
   const empresaId =
-  Number(localStorage.getItem("empresa_id"));
+    Number(localStorage.getItem("empresa_id"));
 
   const dados = {
 
@@ -140,25 +215,84 @@ async function salvarDespesa(event){
 
   };
 
-  const { error } = await db
-  .from("despesas")
-  .insert([dados]);
 
+  let error = null;
+
+
+  // =========================
+  // EDITANDO
+  // =========================
+
+  if(despesaEditandoId){
+
+    const resposta =
+      await db
+      .from("despesas")
+      .update(dados)
+      .eq("id", despesaEditandoId)
+      .eq("empresa_id", empresaId);
+
+    error = resposta.error;
+
+  }
+
+
+  // =========================
+  // NOVA DESPESA
+  // =========================
+
+  else{
+
+    const resposta =
+      await db
+      .from("despesas")
+      .insert([dados]);
+
+    error = resposta.error;
+
+  }
+
+carregarDespesas();
   fecharLoading();
+
 
   if(error){
 
-    mostrarToast(error.message);
+    mostrarToast(
+      error.message
+    );
 
     return;
 
   }
 
-  mostrarToast("✅ Despesa salva");
+
+  if(despesaEditandoId){
+
+    mostrarToast(
+      "✅ Despesa atualizada"
+    );
+
+  }else{
+
+    mostrarToast(
+      "✅ Despesa salva"
+    );
+
+  }
+
+
+  // Volta para modo nova despesa
+  despesaEditandoId = null;
+
 
   fecharModalDespesa();
 
-  document.getElementById("formDespesa").reset();
+
+  document
+    .getElementById("formDespesa")
+    .reset();
+
 
   carregarDespesas();
 
@@ -172,44 +306,139 @@ async function carregarDespesas(){
   abrirLoading("Carregando...");
 
   const empresaId =
-  Number(localStorage.getItem("empresa_id"));
+    Number(localStorage.getItem("empresa_id"));
 
-
-let query = db
-.from("despesas")
-.select("*")
-.eq("empresa_id", empresaId)
-.eq(
-  "data",
-  dataInput.value
-)
-.order("hora",{ascending:false});
-
-
-  // FILTRO POR BARBEIRO
-  const filtro =
+const campoData =
   document.getElementById(
-    "filtroBarbeiroDespesa"
+    "dataDespesa"
   );
 
+if(!campoData){
+
+  fecharLoading();
+
+  console.log(
+    "Campo dataDespesa não encontrado"
+  );
+
+  return;
+
+}
+
+
+// Se ainda estiver vazio,
+// coloca a data de hoje.
+
+if(!campoData.value){
+
+  const hoje =
+    new Date();
+
+  campoData.value =
+    hoje.getFullYear() +
+    "-" +
+    String(
+      hoje.getMonth() + 1
+    ).padStart(2,"0") +
+    "-" +
+    String(
+      hoje.getDate()
+    ).padStart(2,"0");
+
+}
+
+
+const dataSelecionada =
+  campoData.value;
+
+  // ==========================================
+  // DATA BASE
+  // ==========================================
+
+  const dataBase =
+    new Date(
+      dataSelecionada + "T00:00:00"
+    );
+
+  const ano =
+    dataBase.getFullYear();
+
+  const mes =
+    dataBase.getMonth();
+
+  const diaSelecionado =
+    dataBase.getDate();
+
+
+  // ==========================================
+  // PRIMEIRO E ÚLTIMO DIA DO MÊS
+  // ==========================================
+
+  const inicioMes =
+    `${ano}-${String(mes + 1).padStart(2,"0")}-01`;
+
+  const ultimoDia =
+    new Date(
+      ano,
+      mes + 1,
+      0
+    ).getDate();
+
+  const fimMes =
+    `${ano}-${String(mes + 1).padStart(2,"0")}-${String(ultimoDia).padStart(2,"0")}`;
+
+
+  // ==========================================
+  // FILTRO DE BARBEIRO
+  // ==========================================
+
+  const filtro =
+    document.getElementById(
+      "filtroBarbeiroDespesa"
+    );
+
+  const barbeiroSelecionado =
+    filtro
+      ? filtro.value
+      : "Todos";
+
+
+  // ==========================================
+  // BUSCA AS DESPESAS DO DIA
+  // ==========================================
+
+  let query = db
+    .from("despesas")
+    .select("*")
+    .eq("empresa_id", empresaId)
+    .eq("data", dataSelecionada)
+    .order("hora", {
+      ascending: false
+    });
+
+
+  // Filtro de barbeiro na tabela
+
   if(
-    filtro &&
-    filtro.value !== "Todos"
+    barbeiroSelecionado !== "Todos"
   ){
 
     query = query.eq(
       "barbeiro",
-      filtro.value
+      barbeiroSelecionado
     );
 
   }
 
 
+  // ==========================================
   // BUSCA POR DESCRIÇÃO
+  // ==========================================
+
   const busca =
-  document.getElementById(
-    "buscaDespesa"
-  );
+    document.getElementById(
+      "buscaDespesa"
+    );
 
   if(
     busca &&
@@ -226,8 +455,14 @@ let query = db
   }
 
 
-  const { data, error } =
-  await query;
+  // ==========================================
+  // EXECUTA BUSCA DO DIA
+  // ==========================================
+
+  const {
+    data,
+    error
+  } = await query;
 
 
   if(error){
@@ -245,10 +480,82 @@ let query = db
   }
 
 
+  // ==========================================
+  // BUSCA TODAS AS DESPESAS DO MÊS
+  // ==========================================
+
+  const {
+    data: despesasMes,
+    error: erroMes
+  } = await db
+
+    .from("despesas")
+
+    .select(
+      "valor, barbeiro, data, categoria"
+    )
+
+    .eq(
+      "empresa_id",
+      empresaId
+    )
+
+    .gte(
+      "data",
+      inicioMes
+    )
+
+    .lte(
+      "data",
+      fimMes
+    );
+
+
+  if(erroMes){
+
+    fecharLoading();
+
+    mostrarToast(
+      erroMes.message
+    );
+
+    console.log(erroMes);
+
+    return;
+
+  }
+
+
+  // ==========================================
+  // FILTRA O MÊS PELO BARBEIRO
+  // ==========================================
+
+  let despesasMesFiltradas =
+    despesasMes || [];
+
+
+  if(
+    barbeiroSelecionado !== "Todos"
+  ){
+
+    despesasMesFiltradas =
+      despesasMesFiltradas.filter(
+        item =>
+          item.barbeiro ===
+          barbeiroSelecionado
+      );
+
+  }
+
+
+  // ==========================================
+  // LISTA DA TABELA
+  // ==========================================
+
   const lista =
-  document.getElementById(
-    "listaDespesas"
-  );
+    document.getElementById(
+      "listaDespesas"
+    );
 
 
   if(!lista){
@@ -265,192 +572,312 @@ let query = db
 
 
   lista.innerHTML = "";
-let categorias = {};
-let totalMes = 0;
-
-  let total = 0;
 
 
-  data.forEach(item=>{
-totalMes += Number(item.valor);
+  // ==========================================
+  // TOTAIS
+  // ==========================================
+
+  let totalDia = 0;
+
+  let totalMes = 0;
+
+  let categorias = {};
 
 
-if(!categorias[item.categoria]){
-  categorias[item.categoria] = 0;
-}
+  // ==========================================
+  // DESPESAS DO DIA
+  // ==========================================
+
+  data.forEach(item => {
+
+    const valor =
+      Number(item.valor);
 
 
-categorias[item.categoria] +=
-Number(item.valor);
+    totalDia += valor;
 
-    total += Number(
-      item.valor
-    );
 
+    // Categoria
+
+
+
+
+    // ========================================
+    // LINHA DA TABELA
+    // ========================================
 
     lista.innerHTML += `
 
-<div class="cardDespesa">
+      <div class="cardDespesa">
 
-  <div class="topoDespesa">
+        <div class="topoDespesa">
 
-    <strong>
-      ${item.categoria}
-    </strong>
+          <strong>
+            ${item.categoria}
+          </strong>
 
-    <span>
-      R$ ${
-        Number(item.valor)
-        .toFixed(2)
-        .replace(".",",")
-      }
-    </span>
+          <span>
+            R$
+            ${valor
+              .toFixed(2)
+              .replace(".",",")}
+          </span>
 
-  </div>
+        </div>
 
+        <div>
+          📅 ${item.data}
+          •
+          ${item.hora || ""}
+        </div>
 
-  <div>
-    📅 ${item.data} • ${item.hora}
-  </div>
+        <div>
+          👤 ${item.barbeiro || ""}
+        </div>
 
+        <div>
+          📝 ${item.descricao || ""}
+        </div>
 
-  <div>
-    👤 ${item.barbeiro}
-  </div>
+        <div>
+          💳 ${item.forma_pagamento || ""}
+        </div>
 
+        <div class="acoesDespesa">
 
-  <div>
-    📝 ${item.descricao}
-  </div>
+          <button
+            onclick="editarDespesa(${item.id})">
 
+            ✏️
 
-  <div class="acoesDespesa">
+          </button>
 
-    <button onclick="editarDespesa(${item.id})">
-      ✏️
-    </button>
+          <button
+            onclick="excluirDespesa(${item.id})">
 
-    <button onclick="excluirDespesa(${item.id})">
-      🗑️
-    </button>
+            🗑️
 
-  </div>
+          </button>
 
-</div>
+        </div>
 
-`;
+      </div>
+
+    `;
 
   });
-gastosDia.textContent =
-"R$ " +
-total
-.toFixed(2)
-.replace(".",",");
 
 
-quantidadeGastos.textContent =
-data.length;
+  // ==========================================
+  // TOTAL DO MÊS
+  // ==========================================
+
+  despesasMesFiltradas.forEach(item => {
+
+    totalMes +=
+      Number(item.valor);
+
+  });// ==========================================
+// GASTOS POR CATEGORIA DO MÊS
+// ==========================================
 
 
-gastosMes.textContent =
-"R$ " +
-totalMes
-.toFixed(2)
-.replace(".",",");
 
+despesasMesFiltradas.forEach(item => {
 
-mediaGastos.textContent =
-"R$ " +
-(
- totalMes /
- new Date().getDate()
-)
-.toFixed(2)
-.replace(".",",");
+  const categoria =
+    item.categoria &&
+    item.categoria.trim()
+      ? item.categoria.trim()
+      : "Outros";
 
-const resumo =
-document.getElementById(
-"resumoCategorias"
-);
+  const valor =
+    Number(item.valor) || 0;
 
+  if(!categorias[categoria]){
+    categorias[categoria] = 0;
+  }
 
-resumo.innerHTML = "";
-
-
-Object.keys(categorias)
-.forEach(cat=>{
-
-
-resumo.innerHTML += `
-
-<div class="linhaCategoria">
-
-<span>
-${cat}
-</span>
-
-<strong>
-R$ ${
-categorias[cat]
-.toFixed(2)
-.replace(".",",")
-}
-</strong>
-
-</div>
-
-`;
-
+  categorias[categoria] += valor;
 
 });
 
 
-  const totalElement =
-  document.getElementById(
-    "gastoHoje"
-  );
+  // ==========================================
+  // GASTOS DO DIA
+  // ==========================================
 
+  const gastosDia =
+    document.getElementById(
+      "gastosDia"
+    );
 
-  if(totalElement){
+  if(gastosDia){
 
-    totalElement.textContent =
-    "R$ " +
-    total
-    .toFixed(2)
-    .replace(".",",");
+    gastosDia.textContent =
+      "R$ " +
+      totalDia
+        .toFixed(2)
+        .replace(".",",");
 
   }
 
 
+  // ==========================================
+  // QUANTIDADE DE DESPESAS
+  // ==========================================
+
+  const quantidadeGastos =
+    document.getElementById(
+      "quantidadeGastos"
+    );
+
+  if(quantidadeGastos){
+
+    quantidadeGastos.textContent =
+      data.length;
+
+  }
+
+
+  // ==========================================
+  // GASTOS DO MÊS
+  // ==========================================
+
+  const gastosMes =
+    document.getElementById(
+      "gastosMes"
+    );
+
+  if(gastosMes){
+
+    gastosMes.textContent =
+      "R$ " +
+      totalMes
+        .toFixed(2)
+        .replace(".",",");
+
+  }
+
+
+  // ==========================================
+  // MÉDIA DIÁRIA
+  // ==========================================
+
+  const mediaGastos =
+    document.getElementById(
+      "mediaGastos"
+    );
+
+  if(mediaGastos){
+
+    const media =
+      totalMes /
+      Math.max(
+        1,
+        diaSelecionado
+      );
+
+    mediaGastos.textContent =
+      "R$ " +
+      media
+        .toFixed(2)
+        .replace(".",",");
+
+  }
+
+
+  // ==========================================
+  // RESUMO POR CATEGORIA
+  // ==========================================
+
+  const resumo =
+  document.getElementById(
+    "resumoCategorias"
+  );
+
+if(resumo){
+
+  resumo.innerHTML = "";
+
+  Object.entries(categorias)
+    .forEach(([categoria, valor]) => {
+
+      resumo.innerHTML += `
+
+        <div class="linhaCategoria">
+
+          <span>
+            ${categoria}
+          </span>
+
+          <strong>
+            R$ ${valor
+              .toFixed(2)
+              .replace(".",",")}
+          </strong>
+
+        </div>
+
+      `;
+
+    });
+
+
+  }
+
+
+  // ==========================================
+  // FINAL
+  // ==========================================
+
   fecharLoading();
 
-
 }
+
+
+
+
+
+
+
+
+
 
 
 
 async function carregarProfissionaisDespesa(){
 
   const empresaId =
-  Number(localStorage.getItem("empresa_id"));
+    Number(localStorage.getItem("empresa_id"));
 
   const select =
-  document.getElementById("barbeiroDespesa");
+    document.getElementById(
+      "barbeiroDespesa"
+    );
 
   if(!select) return;
 
   select.innerHTML =
-  '<option value="Todos">Todos</option>';
+    '<option value="" disabled>Selecione o barbeiro</option>';
 
-  const { data, error } = await db
-    .from("profissionais")
-    .select("*")
-    .eq("empresa_id", empresaId)
-    .order("nome");
+  const { data, error } =
+    await db
+      .from("profissionais")
+      .select("*")
+      .eq("empresa_id", empresaId)
+      .order("nome");
 
-  if(error) return;
+  if(error){
 
-  data.forEach(prof=>{
+    console.log(error);
+
+    return;
+
+  }
+
+  data.forEach(prof => {
 
     select.innerHTML += `
       <option value="${prof.nome}">
@@ -460,30 +887,70 @@ async function carregarProfissionaisDespesa(){
 
   });
 
+
+  // ==========================================
+  // RECUPERA BARBEIRO SALVO
+  // ==========================================
+
+  const barbeiroSalvo =
+    localStorage.getItem(
+      "barbeiroDespesa"
+    );
+
+  if(
+    barbeiroSalvo &&
+    [...select.options].some(
+      option =>
+        option.value === barbeiroSalvo
+    )
+  ){
+
+    select.value =
+      barbeiroSalvo;
+
+  } else {
+
+    select.value = "";
+
+  }
+
 }
 
 async function carregarProfissionaisFiltroDespesa(){
 
   const empresaId =
-  Number(localStorage.getItem("empresa_id"));
+    Number(localStorage.getItem("empresa_id"));
 
   const filtro =
-  document.getElementById(
-    "filtroBarbeiroDespesa"
-  );
+    document.getElementById(
+      "filtroBarbeiroDespesa"
+    );
 
-  filtro.innerHTML =
-  '<option value="Todos">Todos os barbeiros</option>';
+  if(!filtro) return;
+
+  filtro.innerHTML = `
+    <option value="Todos">
+      Todos os barbeiros
+    </option>
+  `;
 
   const { data, error } = await db
     .from("profissionais")
-    .select("*")
+    .select("nome")
     .eq("empresa_id", empresaId)
     .order("nome");
 
-  if(error) return;
+  if(error){
 
-  data.forEach(prof=>{
+    console.log(
+      "Erro ao carregar barbeiros:",
+      error
+    );
+
+    return;
+  }
+
+  data.forEach(prof => {
 
     filtro.innerHTML += `
       <option value="${prof.nome}">
@@ -494,3 +961,304 @@ async function carregarProfissionaisFiltroDespesa(){
   });
 
 }
+
+async function excluirDespesa(id){
+
+  const confirmar =
+    confirm("Deseja realmente excluir esta despesa?");
+
+  if(!confirmar) return;
+
+  abrirLoading("Excluindo...");
+
+  const empresaId =
+    Number(localStorage.getItem("empresa_id"));
+
+  const { error } = await db
+    .from("despesas")
+    .delete()
+    .eq("id", id)
+    .eq("empresa_id", empresaId);
+
+  if(error){
+
+    fecharLoading();
+
+    mostrarToast(error.message);
+
+    return;
+  }
+
+  fecharLoading();
+
+  mostrarToast("🗑️ Despesa excluída");
+
+  carregarDespesas();
+}
+
+
+async function editarDespesa(id){
+
+  abrirLoading("Carregando despesa...");
+
+  const empresaId =
+    Number(localStorage.getItem("empresa_id"));
+
+
+  // ==========================================
+  // BUSCA A DESPESA
+  // ==========================================
+
+  const {
+    data,
+    error
+  } = await db
+    .from("despesas")
+    .select("*")
+    .eq("id", id)
+    .eq("empresa_id", empresaId)
+    .single();
+
+
+  if(error){
+
+    fecharLoading();
+
+    mostrarToast(
+      error.message
+    );
+
+    console.log(error);
+
+    return;
+
+  }
+
+
+  // ==========================================
+  // MODO EDIÇÃO
+  // ==========================================
+
+  despesaEditandoId = id;
+
+
+  // ==========================================
+  // ABRE O MODAL
+  // ==========================================
+
+  const modal =
+    document.getElementById(
+      "modalDespesa"
+    );
+
+  if(!modal){
+
+    fecharLoading();
+
+    return;
+
+  }
+
+  modal.style.display = "flex";
+
+
+  // ==========================================
+  // CARREGA PROFISSIONAIS PRIMEIRO
+  // ==========================================
+
+  await carregarProfissionaisDespesa();
+
+
+  // ==========================================
+  // PREENCHER CAMPOS
+  // ==========================================
+
+  modalData.value =
+    data.data || "";
+
+  modalHora.value =
+    data.hora || "";
+
+  modalValor.value =
+    data.valor || "";
+
+  modalCategoria.value =
+    data.categoria || "";
+
+  modalDescricao.value =
+    data.descricao || "";
+
+  modalPagamento.value =
+    data.forma_pagamento || "";
+
+
+  // ==========================================
+  // BARBEIRO
+  // ==========================================
+
+  if(barbeiroDespesa){
+
+    barbeiroDespesa.value =
+      data.barbeiro || "";
+
+  }
+
+
+  modalObservacao.value =
+    data.observacao || "";
+
+
+  // ==========================================
+  // ALTERA TÍTULO
+  // ==========================================
+
+  const titulo =
+    document.querySelector(
+      "#modalDespesa .modal-header h2"
+    );
+
+  if(titulo){
+
+    titulo.textContent =
+      "Editar Despesa";
+
+  }
+
+
+  // ==========================================
+  // ALTERA BOTÃO
+  // ==========================================
+
+  const botao =
+    document.querySelector(
+      "#modalDespesa .btn-salvar"
+    );
+
+  if(botao){
+
+    botao.textContent =
+      "Salvar Alterações";
+
+  }
+
+
+  fecharLoading();
+
+}
+
+
+function limparModalDespesa(){
+
+  const ids = [
+    "modalData",
+    "modalHora",
+    "modalValor",
+    "modalCategoria",
+    "modalDescricao",
+    "modalPagamento",
+    "barbeiroDespesa",
+    "modalObservacao"
+  ];
+
+  ids.forEach(id => {
+
+    const campo =
+      document.getElementById(id);
+
+    if(!campo) return;
+
+    if(campo.tagName === "SELECT"){
+      campo.selectedIndex = 0;
+    }else{
+      campo.value = "";
+    }
+
+  });
+
+  despesaEditandoId = null;
+
+}
+
+function inicializarDataDespesas(){
+
+  const input =
+    document.getElementById(
+      "dataDespesa"
+    );
+
+  if(!input) return;
+
+  const hoje =
+    new Date();
+
+  const data =
+    hoje.getFullYear() +
+    "-" +
+    String(
+      hoje.getMonth() + 1
+    ).padStart(2,"0") +
+    "-" +
+    String(
+      hoje.getDate()
+    ).padStart(2,"0");
+
+  input.value = data;
+
+}
+
+function alterarDataDespesa(dias){
+
+  const input =
+    document.getElementById(
+      "dataDespesa"
+    );
+
+  if(!input || !input.value)
+    return;
+
+  const data =
+    new Date(
+      input.value + "T00:00:00"
+    );
+
+  data.setDate(
+    data.getDate() + dias
+  );
+
+  input.value =
+    data.getFullYear() +
+    "-" +
+    String(
+      data.getMonth() + 1
+    ).padStart(2,"0") +
+    "-" +
+    String(
+      data.getDate()
+    ).padStart(2,"0");
+
+  carregarDespesas();
+
+}
+
+
+function salvarBarbeiroDespesa(){
+
+  const select =
+    document.getElementById(
+      "barbeiroDespesa"
+    );
+
+  if(!select) return;
+
+  if(select.value){
+
+    localStorage.setItem(
+      "barbeiroDespesa",
+      select.value
+    );
+
+  }
+
+}
+
+carregarProfissionaisFiltroDespesa()
