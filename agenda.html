@@ -71,9 +71,39 @@
     <div class="conteudoTela">
      <div class="tabelaDespesas">
        
+       <div class="dataDespesas">
+
+  <button
+    type="button"
+    class="btnDataDespesa"
+    onclick="alterarDataDespesa(-1)">
+    ◀
+  </button>
+
+  <div class="campoDataDespesa">
+
+    <span>📅</span>
+
+    <input
+      type="date"
+      id="dataDespesa"
+      class="inputDataDespesa"
+      onchange="carregarDespesas()">
+
+  </div>
+
+  <button
+    type="button"
+    class="btnDataDespesa"
+    onclick="alterarDataDespesa(1)">
+    ▶
+  </button>
+
+</div>
+       
        <div class="filtrosDespesas">
 
-  <select id="filtroBarbeiroDespesa"
+  <select style="margin-bottom:10px" id="filtroBarbeiroDespesa"
           onchange="carregarDespesas()">
 
     <option value="Todos">
@@ -92,7 +122,7 @@
 
 <div class="resumoDespesas">
 
-  <div class="cardResumo">
+  <div class="cardResumo resumoItem">
     <span>💸 Gastos do dia</span>
     <strong id="gastosDia">
       R$ 0,00
@@ -100,7 +130,7 @@
   </div>
 
 
-  <div class="cardResumo">
+  <div class="cardResumo resumoItem">
     <span>📦 Quantidade</span>
     <strong id="quantidadeGastos">
       0
@@ -108,7 +138,7 @@
   </div>
 
 
-  <div class="cardResumo">
+  <div class="cardResumo resumoItem">
     <span>📅 Gastos no mês</span>
     <strong id="gastosMes">
       R$ 0,00
@@ -116,7 +146,7 @@
   </div>
 
 
-  <div class="cardResumo">
+  <div class="cardResumo resumoItem">
     <span>📊 Média diária</span>
     <strong id="mediaGastos">
       R$ 0,00
@@ -129,7 +159,7 @@
 
 </div>
 <h3>
-📊 Gastos por categoria
+📊 Gastos por categoria no mês
 </h3>
 
 <div id="resumoCategorias">
@@ -544,6 +574,8 @@
             <option>Marketing</option>
             <option>Manutenção</option>
             <option>Alimentacão</option>
+             <option>Bebidas</option>
+             <option>Gasolina</option>
             <option>Outros</option>
 
           </select>
@@ -560,11 +592,19 @@
 
           <label>Barbeiro</label>
 
-          <select id="barbeiroDespesa">
+ <select
+  id="barbeiroDespesa"
+  required
+  onchange="salvarBarbeiroDespesa()">
 
-            <option>Carregando...</option>
+  <option
+    value=""
+    selected
+    disabled>
+    Selecione o barbeiro
+  </option>
 
-          </select>
+</select>
 
         </div>
 
