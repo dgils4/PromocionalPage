@@ -2038,8 +2038,10 @@ abrirTela("telaRifa");
 async function abrirDespesas(){
 
   abrirTela("telaDespesas");
-
+inicializarDataDespesas();
 await carregarDespesas();
+
+
 
 }
 
