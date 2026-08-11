@@ -1,0 +1,2941 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>🏆 Campeonato FC 26</title>
+
+
+<style>
+
+/* =========================================
+   RESET
+========================================= */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+    font-family:Arial,sans-serif;
+
+}
+
+
+/* =========================================
+   BODY
+========================================= */
+
+body{
+
+    background:#0f172a;
+
+    color:#e5e7eb;
+
+    padding:20px;
+
+}
+
+
+.container{
+
+    width:100%;
+
+    max-width:1000px;
+
+    margin:auto;
+
+}
+
+
+/* =========================================
+   TOPO
+========================================= */
+
+.topo{
+
+    text-align:center;
+
+    margin-bottom:25px;
+
+}
+
+.topo h1{
+
+    color:#22c55e;
+
+    margin-bottom:8px;
+
+}
+
+.topo p{
+
+    color:#94a3b8;
+
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.card{
+
+    background:#111827;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.25);
+
+}
+
+.card h2{
+
+    font-size:18px;
+
+    margin-bottom:18px;
+
+    color:#60a5fa;
+
+}
+
+
+/* =========================================
+   BOTÕES
+========================================= */
+
+button{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#22c55e;
+
+    color:#052e16;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    margin-top:10px;
+
+}
+
+button:hover{
+
+    background:#16a34a;
+
+}
+
+.btn-azul{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+.btn-azul:hover{
+
+    background:#1d4ed8;
+
+}
+
+.btn-vermelho{
+
+    background:#dc2626;
+
+    color:white;
+
+}
+
+.btn-vermelho:hover{
+
+    background:#b91c1c;
+
+}
+
+
+/* =========================================
+   INFO PARTICIPANTES
+========================================= */
+
+.info-participantes{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#1f2937;
+
+    padding:14px;
+
+    border-radius:8px;
+
+    margin-bottom:15px;
+
+}
+
+.contador{
+
+    color:#22c55e;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================
+   TABELA CLASSIFICAÇÃO
+========================================= */
+
+.tabela-container{
+
+    width:100%;
+
+    overflow-x:auto;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    min-width:700px;
+
+}
+
+th{
+
+    background:#1f2937;
+
+    color:#94a3b8;
+
+    font-size:12px;
+
+    padding:12px 8px;
+
+}
+
+td{
+
+    padding:12px 8px;
+
+    text-align:center;
+
+    border-bottom:
+        1px solid #263244;
+
+    font-size:14px;
+
+}
+
+td:nth-child(2){
+
+    text-align:left;
+
+    font-weight:bold;
+
+}
+
+tbody tr:first-child{
+
+    background:
+        rgba(34,197,94,.10);
+
+}
+
+tbody tr:nth-child(1)
+td:first-child{
+
+    color:#facc15;
+
+    font-weight:bold;
+
+}
+
+tbody tr:nth-child(2)
+td:first-child{
+
+    color:#cbd5e1;
+
+    font-weight:bold;
+
+}
+
+tbody tr:nth-child(3)
+td:first-child{
+
+    color:#cd7f32;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================
+   SORTEIO
+========================================= */
+
+.sorteio-info{
+
+    background:#0b1220;
+
+    border-radius:8px;
+
+    padding:15px;
+
+    color:#94a3b8;
+
+    line-height:1.6;
+
+    margin-bottom:15px;
+
+}
+
+.rodada{
+
+    margin-bottom:20px;
+
+}
+
+.rodada-titulo{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#1f2937;
+
+    padding:12px;
+
+    border-radius:8px 8px 0 0;
+
+    color:#60a5fa;
+
+    font-weight:bold;
+
+}
+
+.jogos-rodada{
+
+    background:#0b1220;
+
+    padding:10px;
+
+    border-radius:0 0 8px 8px;
+
+}
+
+.jogo{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding:12px;
+
+    border-bottom:
+        1px solid #1f2937;
+
+}
+
+.jogo:last-child{
+
+    border-bottom:none;
+
+}
+
+.jogador{
+
+    flex:1;
+
+    font-weight:bold;
+
+}
+
+.jogador-direita{
+
+    text-align:right;
+
+}
+
+.placar{
+
+    min-width:70px;
+
+    text-align:center;
+
+    color:#22c55e;
+
+    font-weight:bold;
+
+    font-size:18px;
+
+}
+
+.jogo-finalizado{
+
+    opacity:.75;
+
+}
+
+.badge-finalizada{
+
+    font-size:10px;
+
+    color:#22c55e;
+
+    display:block;
+
+    margin-top:3px;
+
+}
+
+
+/* =========================================
+   REGISTRAR PARTIDA
+========================================= */
+
+.jogadores{
+
+    display:grid;
+
+    grid-template-columns:
+        1fr 50px 1fr;
+
+    gap:15px;
+
+    align-items:end;
+
+}
+
+.jogadores label{
+
+    display:block;
+
+    margin-bottom:7px;
+
+    font-size:13px;
+
+    color:#94a3b8;
+
+}
+
+select,
+input{
+
+    width:100%;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#0b1220;
+
+    color:white;
+
+    outline:none;
+
+    margin-bottom:8px;
+
+}
+
+.vs{
+
+    text-align:center;
+
+    font-weight:bold;
+
+    color:#22c55e;
+
+    padding-bottom:20px;
+
+}
+
+
+/* =========================================
+   MODAL
+========================================= */
+
+.modal{
+
+    display:none;
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+        rgba(0,0,0,.75);
+
+    z-index:9999;
+
+    padding:20px;
+
+    overflow-y:auto;
+
+}
+
+.modal-conteudo{
+
+    background:#111827;
+
+    max-width:450px;
+
+    margin:40px auto;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    position:relative;
+
+}
+
+.modal-conteudo h2{
+
+    color:#22c55e;
+
+    margin-bottom:20px;
+
+}
+
+.modal-conteudo h3{
+
+    color:#94a3b8;
+
+    font-size:15px;
+
+    margin:20px 0 10px;
+
+}
+
+.fechar{
+
+    position:absolute;
+
+    top:10px;
+
+    right:10px;
+
+    width:35px;
+
+    height:35px;
+
+    padding:0;
+
+    margin:0;
+
+    background:#1f2937;
+
+    color:white;
+
+}
+
+.fechar:hover{
+
+    background:#374151;
+
+}
+
+
+/* =========================================
+   PARTICIPANTE MODAL
+========================================= */
+
+.participante-modal{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    background:#1f2937;
+
+    padding:10px;
+
+    border-radius:8px;
+
+    margin-bottom:8px;
+
+}
+
+.participante-modal span{
+
+    font-weight:bold;
+
+}
+
+.btn-remover{
+
+    width:auto;
+
+    margin:0;
+
+    padding:8px 12px;
+
+    background:#dc2626;
+
+    color:white;
+
+    font-size:13px;
+
+}
+
+
+/* =========================================
+   POPUP
+========================================= */
+
+.popup{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:25px;
+
+    transform:
+        translate(-50%,30px);
+
+    background:#1f2937;
+
+    color:white;
+
+    padding:14px 20px;
+
+    border-radius:10px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.4);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.3s;
+
+    z-index:20000;
+
+    max-width:90%;
+
+    text-align:center;
+
+}
+
+.popup.mostrar{
+
+    opacity:1;
+
+    transform:
+        translate(-50%,0);
+
+}
+
+.popup.sucesso{
+
+    border-left:
+        4px solid #22c55e;
+
+}
+
+.popup.erro{
+
+    border-left:
+        4px solid #ef4444;
+
+}
+
+.popup.aviso{
+
+    border-left:
+        4px solid #facc15;
+
+}
+
+
+/* =========================================
+   VAZIO
+========================================= */
+
+.vazio{
+
+    color:#64748b;
+
+    text-align:center;
+
+    padding:15px;
+
+}
+
+
+/* =========================================
+   CELULAR
+========================================= */
+
+@media(max-width:600px){
+
+    body{
+
+        padding:10px;
+
+    }
+
+    .card{
+
+        padding:15px;
+
+    }
+
+    .jogadores{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .vs{
+
+        padding:0;
+
+    }
+
+    .jogo{
+
+        font-size:13px;
+
+    }
+
+    .placar{
+
+        min-width:55px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- =====================================
+     TOPO
+===================================== -->
+
+<header class="topo">
+
+    <h1>🏆 Campeonato FC 26</h1>
+
+    <p>
+        Campeonato de pontos corridos
+    </p>
+
+</header>
+
+
+
+<!-- =====================================
+     PARTICIPANTES
+===================================== -->
+
+<section class="card">
+
+    <h2>👥 Participantes</h2>
+
+
+    <div class="info-participantes">
+
+        <span>
+            Jogadores cadastrados
+        </span>
+
+        <span
+            id="contadorParticipantes"
+            class="contador">
+
+            0
+
+        </span>
+
+    </div>
+<button
+    class="btn-vermelho"
+    onclick="resetarCampeonato()">
+
+    🔄 Resetar sorteio
+
+</button>
+
+    <button
+        class="btn-azul"
+        onclick="abrirModalParticipantes()">
+
+        👥 Gerenciar participantes
+
+    </button>
+
+</section>
+
+
+
+<!-- =====================================
+     SORTEIO
+===================================== -->
+
+<section class="card">
+
+    <h2>🎲 Sorteio dos confrontos</h2>
+
+
+    <div class="sorteio-info">
+
+        <strong>
+            Como funciona:
+        </strong>
+
+        <br><br>
+
+        Todos os participantes enfrentarão
+        todos os outros jogadores uma vez.
+
+        <br><br>
+
+        O sistema fará um sorteio para
+        definir a ordem das rodadas sem
+        repetir confrontos.
+
+        <br><br>
+
+        Com 8 participantes serão:
+
+        <strong>
+            7 rodadas e 28 partidas.
+        </strong>
+
+    </div>
+
+
+    <button
+        id="btnSortear"
+        onclick="sortearCampeonato()">
+
+        🎲 Sortear confrontos
+
+    </button>
+
+
+    <div
+        id="areaSorteio"
+        style="margin-top:20px;">
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================
+     CLASSIFICAÇÃO
+===================================== -->
+
+<section class="card">
+
+    <h2>📊 Classificação</h2>
+
+
+    <div class="tabela-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Jogador</th>
+
+                    <th>J</th>
+
+                    <th>V</th>
+
+                    <th>E</th>
+
+                    <th>D</th>
+
+                    <th>GP</th>
+
+                    <th>GC</th>
+
+                    <th>SG</th>
+
+                    <th>Pts</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody
+                id="tabelaClassificacao">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================
+     REGISTRAR PARTIDA
+===================================== -->
+
+<section class="card">
+
+    <h2>⚽ Registrar partida</h2>
+
+
+    <div class="jogadores">
+
+
+        <div>
+
+            <label>
+                Jogador 1
+            </label>
+
+
+            <select id="jogador1">
+
+                <option value="">
+                    Selecione
+                </option>
+
+            </select>
+
+
+            <input
+                type="number"
+                id="gols1"
+                min="0"
+                placeholder="Gols">
+
+        </div>
+
+
+        <div class="vs">
+
+            VS
+
+        </div>
+
+
+        <div>
+
+            <label>
+                Jogador 2
+            </label>
+
+
+            <select id="jogador2">
+
+                <option value="">
+                    Selecione
+                </option>
+
+            </select>
+
+
+            <input
+                type="number"
+                id="gols2"
+                min="0"
+                placeholder="Gols">
+
+        </div>
+
+
+    </div>
+
+
+    <button
+        onclick="registrarPartida()">
+
+        ⚽ Registrar resultado
+
+    </button>
+
+</section>
+
+
+
+<!-- =====================================
+     PARTIDAS
+===================================== -->
+
+<section class="card">
+
+    <h2>📋 Partidas do campeonato</h2>
+
+
+    <div id="listaPartidas">
+
+        <p class="vazio">
+
+            Nenhuma partida sorteada.
+
+        </p>
+
+    </div>
+
+</section>
+
+
+</div>
+
+
+
+<!-- =====================================
+     MODAL PARTICIPANTES
+===================================== -->
+
+<div
+    id="modalParticipantes"
+    class="modal">
+
+
+    <div class="modal-conteudo">
+
+
+        <button
+            class="fechar"
+            onclick="fecharModalParticipantes()">
+
+            ✕
+
+        </button>
+
+
+        <h2>
+            👥 Participantes
+        </h2>
+
+
+        <h3>
+            Adicionar jogador
+        </h3>
+
+
+        <input
+            type="text"
+            id="nomeParticipante"
+            placeholder="Nome do jogador">
+
+
+        <button
+            onclick="adicionarParticipante()">
+
+            ➕ Adicionar jogador
+
+        </button>
+
+
+        <h3>
+            Participantes cadastrados
+        </h3>
+
+
+        <div
+            id="listaParticipantesModal">
+
+            <p class="vazio">
+                Carregando...
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================
+     POPUP
+===================================== -->
+
+<div
+    id="popup"
+    class="popup">
+
+</div>
+
+
+
+<!-- =====================================
+     SUPABASE
+===================================== -->
+
+<script src="
+https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
+"></script>
+
+<script src="supabase.js"></script>
+
+
+
+<script>
+
+
+/* =========================================
+   VARIÁVEIS
+========================================= */
+
+let participantes = [];
+
+let partidas = [];
+
+let sorteioRealizado = false;
+
+
+/* =========================================
+   POPUP
+========================================= */
+
+let popupTimer;
+
+
+function mostrarPopup(
+    mensagem,
+    tipo = "sucesso"
+){
+
+    const popup =
+        document.getElementById(
+            "popup"
+        );
+
+
+    popup.textContent =
+        mensagem;
+
+
+    popup.className =
+        "popup mostrar " +
+        tipo;
+
+
+    clearTimeout(
+        popupTimer
+    );
+
+
+    popupTimer =
+        setTimeout(() => {
+
+            popup.classList.remove(
+                "mostrar"
+            );
+
+        },3000);
+
+}
+
+
+
+/* =========================================
+   CARREGAR PARTICIPANTES
+========================================= */
+
+async function carregarParticipantes(){
+
+
+    const { data, error } =
+
+        await db
+
+            .from("participantes")
+
+            .select("*")
+
+            .order("nome");
+
+
+    if(error){
+
+        console.error(error);
+
+        mostrarPopup(
+            "Erro ao carregar participantes.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    participantes =
+        data || [];
+
+
+    document.getElementById(
+        "contadorParticipantes"
+    ).textContent =
+        participantes.length;
+
+
+    carregarSelects();
+
+    atualizarClassificacao();
+
+    carregarListaParticipantes();
+
+}
+
+
+
+/* =========================================
+   CARREGAR SELECTS
+========================================= */
+
+function carregarSelects(){
+
+
+    const select1 =
+        document.getElementById(
+            "jogador1"
+        );
+
+
+    const select2 =
+        document.getElementById(
+            "jogador2"
+        );
+
+
+    select1.innerHTML = `
+        <option value="">
+            Selecione
+        </option>
+    `;
+
+
+    select2.innerHTML = `
+        <option value="">
+            Selecione
+        </option>
+    `;
+
+
+    participantes.forEach(
+        jogador => {
+
+
+        select1.innerHTML += `
+
+            <option
+                value="${jogador.id}">
+
+                ${escaparHTML(
+                    jogador.nome
+                )}
+
+            </option>
+
+        `;
+
+
+        select2.innerHTML += `
+
+            <option
+                value="${jogador.id}">
+
+                ${escaparHTML(
+                    jogador.nome
+                )}
+
+            </option>
+
+        `;
+
+
+    });
+
+}
+
+
+
+/* =========================================
+   CARREGAR PARTIDAS
+========================================= */
+
+async function carregarPartidas(){
+
+
+    const { data, error } =
+
+        await db
+
+            .from("partidas")
+
+            .select(`
+
+                *,
+
+                jogador1:participantes!partidas_jogador1_id_fkey(
+                    id,
+                    nome
+                ),
+
+                jogador2:participantes!partidas_jogador2_id_fkey(
+                    id,
+                    nome
+                )
+
+            `)
+
+            .order(
+                "rodada",
+                {
+                    ascending:true
+                }
+            );
+
+
+    if(error){
+
+        console.error(error);
+
+        mostrarPopup(
+            "Erro ao carregar partidas.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    partidas =
+        data || [];
+
+
+    sorteioRealizado =
+        partidas.length > 0;
+
+
+    atualizarBotaoSorteio();
+
+    atualizarClassificacao();
+
+    mostrarPartidas();
+
+}
+
+
+
+/* =========================================
+   VERIFICAR SE JÁ EXISTE SORTEIO
+========================================= */
+
+function atualizarBotaoSorteio(){
+
+
+    const botao =
+        document.getElementById(
+            "btnSortear"
+        );
+
+
+    if(sorteioRealizado){
+
+        botao.disabled = true;
+
+        botao.textContent =
+            "✅ Confrontos já sorteados";
+
+        botao.style.opacity =
+            ".6";
+
+        botao.style.cursor =
+            "not-allowed";
+
+    }
+
+    else{
+
+        botao.disabled = false;
+
+        botao.textContent =
+            "🎲 Sortear confrontos";
+
+        botao.style.opacity =
+            "1";
+
+        botao.style.cursor =
+            "pointer";
+
+    }
+
+}
+
+
+
+/* =========================================
+   SORTEAR CAMPEONATO
+========================================= */
+
+async function sortearCampeonato(){
+
+
+    if(sorteioRealizado){
+
+        mostrarPopup(
+            "O sorteio já foi realizado.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    const quantidade =
+        participantes.length;
+
+
+    if(
+        quantidade < 2
+    ){
+
+        mostrarPopup(
+            "Cadastre pelo menos 2 participantes.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        quantidade % 2 !== 0
+    ){
+
+        mostrarPopup(
+            "A quantidade de participantes precisa ser par.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    const confirmar =
+        confirm(
+
+            `Serão sorteados os confrontos de ${quantidade} participantes.\n\n` +
+
+            `Cada jogador enfrentará todos os outros uma vez.\n\n` +
+
+            `Deseja realizar o sorteio?`
+
+        );
+
+
+    if(!confirmar)
+        return;
+
+
+    const confrontos =
+        gerarConfrontos(participantes);
+
+
+    if(
+        confrontos.length === 0
+    ){
+
+        mostrarPopup(
+            "Não foi possível gerar os confrontos.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    /* ===============================
+       SALVAR PARTIDAS
+    =============================== */
+
+    const registros =
+        confrontos.map(
+            jogo => ({
+
+                jogador1_id:
+                    jogo.jogador1_id,
+
+                jogador2_id:
+                    jogo.jogador2_id,
+
+                gols1:
+                    null,
+
+                gols2:
+                    null,
+
+                fase:
+                    "pontos_corridos",
+
+                rodada:
+                    jogo.rodada,
+
+                status:
+                    "pendente"
+
+            })
+        );
+
+
+    const { error } =
+
+        await db
+
+            .from("partidas")
+
+            .insert(registros);
+
+
+    if(error){
+
+        console.error(error);
+
+        mostrarPopup(
+            "Erro ao salvar o sorteio.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    mostrarPopup(
+        "🎲 Sorteio realizado com sucesso!",
+        "sucesso"
+    );
+
+
+    await carregarPartidas();
+
+}
+
+
+
+/* =========================================
+   GERAR CONFRONTOS
+========================================= */
+
+function gerarConfrontos(listaOriginal){
+
+
+    /*
+       Método do círculo.
+
+       Exemplo com 8 jogadores:
+
+       7 rodadas
+
+       4 jogos por rodada
+
+       Cada jogador enfrenta
+       todos os outros exatamente uma vez.
+    */
+
+
+    let lista =
+        [...listaOriginal];
+
+
+    /* EMBARALHAR */
+
+    lista =
+        lista.sort(
+            () => Math.random() - .5
+        );
+
+
+    const rodadas = [];
+
+
+    const total =
+        lista.length;
+
+
+    const metade =
+        total / 2;
+
+
+    for(
+        let rodada = 1;
+        rodada <= total - 1;
+        rodada++
+    ){
+
+
+        const jogos = [];
+
+
+        for(
+            let i = 0;
+            i < metade;
+            i++
+        ){
+
+
+            const jogadorA =
+                lista[i];
+
+
+            const jogadorB =
+                lista[
+                    total - 1 - i
+                ];
+
+
+            /*
+               Alternamos a posição
+               para não deixar sempre
+               o mesmo jogador como
+               jogador1.
+            */
+
+            if(
+                rodada % 2 === 0
+            ){
+
+                jogos.push({
+
+                    rodada:
+
+                        rodada,
+
+                    jogador1_id:
+
+                        jogadorB.id,
+
+                    jogador2_id:
+
+                        jogadorA.id
+
+                });
+
+            }
+
+            else{
+
+                jogos.push({
+
+                    rodada:
+
+                        rodada,
+
+                    jogador1_id:
+
+                        jogadorA.id,
+
+                    jogador2_id:
+
+                        jogadorB.id
+
+                });
+
+            }
+
+        }
+
+
+        rodadas.push(
+            ...jogos
+        );
+
+
+        /*
+           Método do círculo:
+
+           Mantemos o primeiro
+           jogador parado e
+           giramos os demais.
+        */
+
+        const primeiro =
+            lista[0];
+
+
+        const restantes =
+            lista.slice(1);
+
+
+        restantes.unshift(
+            restantes.pop()
+        );
+
+
+        lista = [
+            primeiro,
+            ...restantes
+        ];
+
+    }
+
+
+    return rodadas;
+
+}
+
+
+
+/* =========================================
+   REGISTRAR RESULTADO
+========================================= */
+
+async function registrarPartida(){
+
+
+    const jogador1 =
+        Number(
+            document.getElementById(
+                "jogador1"
+            ).value
+        );
+
+
+    const jogador2 =
+        Number(
+            document.getElementById(
+                "jogador2"
+            ).value
+        );
+
+
+    const gols1 =
+        document.getElementById(
+            "gols1"
+        ).value;
+
+
+    const gols2 =
+        document.getElementById(
+            "gols2"
+        ).value;
+
+
+
+    if(
+        !jogador1 ||
+        !jogador2
+    ){
+
+        mostrarPopup(
+            "Selecione os dois jogadores.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        jogador1 === jogador2
+    ){
+
+        mostrarPopup(
+            "Os jogadores precisam ser diferentes.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        gols1 === "" ||
+        gols2 === ""
+    ){
+
+        mostrarPopup(
+            "Informe o placar.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Procurar a partida
+       correspondente.
+    */
+
+    const partida =
+        partidas.find(
+            p =>
+
+                (
+                    p.jogador1_id ===
+                    jogador1 &&
+
+                    p.jogador2_id ===
+                    jogador2
+
+                )
+
+                ||
+
+                (
+
+                    p.jogador1_id ===
+                    jogador2 &&
+
+                    p.jogador2_id ===
+                    jogador1
+
+                )
+        );
+
+
+    if(!partida){
+
+        mostrarPopup(
+            "Esse confronto não existe no sorteio.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        partida.status ===
+        "finalizada"
+    ){
+
+        mostrarPopup(
+            "Essa partida já foi finalizada.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    const { error } =
+
+        await db
+
+            .from("partidas")
+
+            .update({
+
+                gols1:
+
+                    partida.jogador1_id ===
+                    jogador1
+
+                        ? Number(gols1)
+
+                        : Number(gols2),
+
+
+                gols2:
+
+                    partida.jogador1_id ===
+                    jogador1
+
+                        ? Number(gols2)
+
+                        : Number(gols1),
+
+
+                status:
+                    "finalizada"
+
+            })
+
+            .eq(
+                "id",
+                partida.id
+            );
+
+
+    if(error){
+
+        console.error(error);
+
+        mostrarPopup(
+            "Erro ao registrar resultado.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "jogador1"
+    ).value = "";
+
+
+    document.getElementById(
+        "jogador2"
+    ).value = "";
+
+
+    document.getElementById(
+        "gols1"
+    ).value = "";
+
+
+    document.getElementById(
+        "gols2"
+    ).value = "";
+
+
+    mostrarPopup(
+        "⚽ Resultado registrado!",
+        "sucesso"
+    );
+
+
+    await carregarPartidas();
+
+}
+
+
+
+/* =========================================
+   CLASSIFICAÇÃO
+========================================= */
+
+function atualizarClassificacao(){
+
+
+    const tabela =
+        document.getElementById(
+            "tabelaClassificacao"
+        );
+
+
+    const classificacao =
+
+        participantes.map(
+            jogador => ({
+
+
+                id:
+                    jogador.id,
+
+
+                nome:
+                    jogador.nome,
+
+
+                J:0,
+
+                V:0,
+
+                E:0,
+
+                D:0,
+
+
+                GP:0,
+
+                GC:0,
+
+
+                SG:0,
+
+                Pts:0
+
+            })
+        );
+
+
+    partidas.forEach(
+        partida => {
+
+
+        /*
+           Partidas pendentes
+           não entram na tabela.
+        */
+
+        if(
+            partida.status !==
+            "finalizada"
+        )
+
+            return;
+
+
+        const j1 =
+            classificacao.find(
+                jogador =>
+
+                    jogador.id ===
+                    partida.jogador1_id
+            );
+
+
+        const j2 =
+            classificacao.find(
+                jogador =>
+
+                    jogador.id ===
+                    partida.jogador2_id
+            );
+
+
+        if(!j1 || !j2)
+            return;
+
+
+        const gols1 =
+            Number(partida.gols1);
+
+
+        const gols2 =
+            Number(partida.gols2);
+
+
+        /* JOGOS */
+
+        j1.J++;
+
+        j2.J++;
+
+
+        /* GOLS */
+
+        j1.GP += gols1;
+
+        j1.GC += gols2;
+
+
+        j2.GP += gols2;
+
+        j2.GC += gols1;
+
+
+        /* RESULTADO */
+
+        if(
+            gols1 > gols2
+        ){
+
+            j1.V++;
+
+            j2.D++;
+
+            j1.Pts += 3;
+
+        }
+
+        else if(
+            gols2 > gols1
+        ){
+
+            j2.V++;
+
+            j1.D++;
+
+            j2.Pts += 3;
+
+        }
+
+        else{
+
+            j1.E++;
+
+            j2.E++;
+
+            j1.Pts++;
+
+            j2.Pts++;
+
+        }
+
+    });
+
+
+
+    /* SALDO */
+
+    classificacao.forEach(
+        jogador => {
+
+        jogador.SG =
+            jogador.GP -
+            jogador.GC;
+
+    });
+
+
+
+    /* ORDENAR */
+
+    classificacao.sort(
+        (a,b) => {
+
+
+        if(
+            b.Pts !== a.Pts
+        )
+
+            return b.Pts -
+                   a.Pts;
+
+
+        if(
+            b.SG !== a.SG
+        )
+
+            return b.SG -
+                   a.SG;
+
+
+        if(
+            b.GP !== a.GP
+        )
+
+            return b.GP -
+                   a.GP;
+
+
+        return a.nome.localeCompare(
+            b.nome
+        );
+
+    });
+
+
+
+    /* RENDERIZAR */
+
+    tabela.innerHTML = "";
+
+
+    classificacao.forEach(
+        (jogador,index) => {
+
+
+        const tr =
+            document.createElement(
+                "tr"
+            );
+
+
+        const saldo =
+
+            jogador.SG > 0
+
+                ? "+" +
+                  jogador.SG
+
+                : jogador.SG;
+
+
+        tr.innerHTML = `
+
+            <td>
+                ${index + 1}
+            </td>
+
+            <td>
+                ${escaparHTML(
+                    jogador.nome
+                )}
+            </td>
+
+            <td>
+                ${jogador.J}
+            </td>
+
+            <td>
+                ${jogador.V}
+            </td>
+
+            <td>
+                ${jogador.E}
+            </td>
+
+            <td>
+                ${jogador.D}
+            </td>
+
+            <td>
+                ${jogador.GP}
+            </td>
+
+            <td>
+                ${jogador.GC}
+            </td>
+
+            <td>
+                ${saldo}
+            </td>
+
+            <td>
+
+                <strong>
+                    ${jogador.Pts}
+                </strong>
+
+            </td>
+
+        `;
+
+
+        tabela.appendChild(
+            tr
+        );
+
+
+    });
+
+}
+
+
+
+/* =========================================
+   MOSTRAR PARTIDAS
+========================================= */
+
+function mostrarPartidas(){
+
+
+    const lista =
+        document.getElementById(
+            "listaPartidas"
+        );
+
+
+    if(
+        partidas.length === 0
+    ){
+
+        lista.innerHTML = `
+
+            <p class="vazio">
+
+                Nenhuma partida sorteada.
+
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+       Agrupar por rodada
+    */
+
+    const rodadas = {};
+
+
+    partidas.forEach(
+        partida => {
+
+
+        const rodada =
+            partida.rodada || 0;
+
+
+        if(
+            !rodadas[rodada]
+        )
+
+            rodadas[rodada] = [];
+
+
+        rodadas[rodada].push(
+            partida
+        );
+
+    });
+
+
+    lista.innerHTML = "";
+
+
+    Object.keys(rodadas)
+
+        .sort(
+            (a,b) =>
+                Number(a) -
+                Number(b)
+        )
+
+        .forEach(
+            rodada => {
+
+
+        let html = `
+
+            <div class="rodada">
+
+                <div class="rodada-titulo">
+
+                    <span>
+                        ⚽ Rodada ${rodada}
+                    </span>
+
+                    <span>
+                        ${rodadas[rodada].length}
+                        jogos
+                    </span>
+
+                </div>
+
+                <div class="jogos-rodada">
+
+        `;
+
+
+        rodadas[rodada].forEach(
+            partida => {
+
+
+            const finalizada =
+                partida.status ===
+                "finalizada";
+
+
+            html += `
+
+                <div class="
+                    jogo
+                    ${finalizada
+                        ? 'jogo-finalizado'
+                        : ''}
+                ">
+
+                    <span class="jogador">
+
+                        ${escaparHTML(
+                            partida.jogador1.nome
+                        )}
+
+                    </span>
+
+
+                    <span class="placar">
+
+                        ${
+                            finalizada
+
+                            ?
+
+                            `${partida.gols1}
+                             ×
+                             ${partida.gols2}`
+
+                            :
+
+                            "VS"
+
+                        }
+
+                        ${
+                            finalizada
+
+                            ?
+
+                            `<small
+                                class="badge-finalizada">
+
+                                Finalizada
+
+                            </small>`
+
+                            :
+
+                            ""
+
+                        }
+
+                    </span>
+
+
+                    <span
+                        class="
+                            jogador
+                            jogador-direita
+                        ">
+
+                        ${escaparHTML(
+                            partida.jogador2.nome
+                        )}
+
+                    </span>
+
+                </div>
+
+            `;
+
+        });
+
+
+        html += `
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        lista.innerHTML +=
+            html;
+
+
+    });
+
+}
+
+
+
+/* =========================================
+   MODAL PARTICIPANTES
+========================================= */
+
+function abrirModalParticipantes(){
+
+
+    document.getElementById(
+        "modalParticipantes"
+    ).style.display =
+        "block";
+
+
+    carregarListaParticipantes();
+
+}
+
+
+function fecharModalParticipantes(){
+
+
+    document.getElementById(
+        "modalParticipantes"
+    ).style.display =
+        "none";
+
+}
+
+
+
+/* =========================================
+   LISTAR PARTICIPANTES
+========================================= */
+
+async function carregarListaParticipantes(){
+
+
+    const lista =
+        document.getElementById(
+            "listaParticipantesModal"
+        );
+
+
+    const { data, error } =
+
+        await db
+
+            .from("participantes")
+
+            .select("*")
+
+            .order("nome");
+
+
+    if(error){
+
+        console.error(error);
+
+        lista.innerHTML = `
+
+            <p class="vazio">
+
+                Erro ao carregar participantes.
+
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    if(
+        !data ||
+        data.length === 0
+    ){
+
+        lista.innerHTML = `
+
+            <p class="vazio">
+
+                Nenhum participante cadastrado.
+
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    lista.innerHTML = "";
+
+
+    data.forEach(
+        jogador => {
+
+
+        lista.innerHTML += `
+
+            <div
+                class="participante-modal">
+
+                <span>
+
+                    ${escaparHTML(
+                        jogador.nome
+                    )}
+
+                </span>
+
+
+                <button
+
+                    class="btn-remover"
+
+                    onclick="
+                        removerParticipante(
+                            ${jogador.id}
+                        )
+                    ">
+
+                    🗑️
+
+                </button>
+
+            </div>
+
+        `;
+
+
+    });
+
+}
+
+
+
+/* =========================================
+   ADICIONAR PARTICIPANTE
+========================================= */
+
+async function adicionarParticipante(){
+
+
+    const input =
+        document.getElementById(
+            "nomeParticipante"
+        );
+
+
+    const nome =
+        input.value.trim();
+
+
+    if(!nome){
+
+        mostrarPopup(
+            "Digite o nome do jogador.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Verificar nome repetido
+    */
+
+    const existe =
+        participantes.some(
+            jogador =>
+
+                jogador.nome
+                    .trim()
+                    .toLowerCase()
+                ===
+                nome
+                    .toLowerCase()
+        );
+
+
+    if(existe){
+
+        mostrarPopup(
+            "Esse jogador já está cadastrado.",
+            "aviso"
+        );
+
+        return;
+
+    }
+
+
+    const { error } =
+
+        await db
+
+            .from("participantes")
+
+            .insert({
+
+                nome:
+                    nome,
+
+                pago:
+                    false
+
+            });
+
+
+    if(error){
+
+        console.error(error);
+
+        mostrarPopup(
+            "Erro ao adicionar jogador.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    input.value = "";
+
+
+    mostrarPopup(
+        "👤 Jogador adicionado!",
+        "sucesso"
+    );
+
+
+    await carregarParticipantes();
+
+}
+
+
+
+/* =========================================
+   REMOVER PARTICIPANTE
+========================================= */
+
+async function removerParticipante(
+    id
+){
+
+
+    /*
+       Se o sorteio já foi realizado,
+       não permitimos remover.
+    */
+
+    if(sorteioRealizado){
+
+        mostrarPopup(
+
+            "O sorteio já foi realizado. " +
+            "Não remova participantes agora.",
+
+            "aviso"
+
+        );
+
+        return;
+
+    }
+
+
+    const jogador =
+        participantes.find(
+            p => p.id === id
+        );
+
+
+    if(!jogador)
+        return;
+
+
+    const confirmar =
+        confirm(
+
+            `Remover ${jogador.nome}?`
+
+        );
+
+
+    if(!confirmar)
+        return;
+
+
+    const { error } =
+
+        await db
+
+            .from("participantes")
+
+            .delete()
+
+            .eq(
+                "id",
+                id
+            );
+
+
+    if(error){
+
+        console.error(error);
+
+        mostrarPopup(
+            "Erro ao remover jogador.",
+            "erro"
+        );
+
+        return;
+
+    }
+
+
+    mostrarPopup(
+        "Jogador removido.",
+        "sucesso"
+    );
+
+
+    await carregarParticipantes();
+
+}
+
+
+
+/* =========================================
+   ESCAPAR HTML
+========================================= */
+
+function escaparHTML(
+    texto
+){
+
+    return String(texto)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+
+/* =========================================
+   FECHAR MODAL CLICANDO FORA
+========================================= */
+
+document.getElementById(
+    "modalParticipantes"
+).addEventListener(
+    "click",
+    function(event){
+
+        if(
+            event.target === this
+        ){
+
+            fecharModalParticipantes();
+
+        }
+
+    }
+);
+
+
+
+/* =========================================
+   INICIAR
+========================================= */
+
+async function iniciar(){
+
+    await carregarParticipantes();
+
+    await carregarPartidas();
+
+}
+async function resetarCampeonato(){
+
+    const confirmar = confirm(
+        "⚠️ ATENÇÃO!\n\n" +
+        "Isso vai apagar todas as partidas, confrontos e resultados " +
+        "do campeonato.\n\n" +
+        "Os participantes serão mantidos.\n\n" +
+        "Deseja realmente resetar?"
+    );
+
+    if(!confirmar) return;
+
+
+    // 🗑️ 1. Apaga as partidas
+    const { error: erroPartidas } = await db
+        .from("partidas")
+        .delete()
+        .not("id", "is", null);
+
+    if(erroPartidas){
+
+        console.error("Erro ao apagar partidas:", erroPartidas);
+
+        mostrarPopup(
+            "Erro ao apagar as partidas.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    // 🗑️ 2. Apaga os confrontos
+    const { error: erroConfrontos } = await db
+        .from("confrontos")
+        .delete()
+        .not("id", "is", null);
+
+    if(erroConfrontos){
+
+        console.error("Erro ao apagar confrontos:", erroConfrontos);
+
+        mostrarPopup(
+            "Erro ao apagar os confrontos.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    // 🔄 Atualiza a tela
+    await carregarPartidas();
+
+    mostrarPopup(
+        "🔄 Campeonato resetado!",
+        "sucesso"
+    );
+}
+
+iniciar();
+
+
+</script>
+
+</body>
+
+</html>
