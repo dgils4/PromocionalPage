@@ -5,515 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema Jurídico</title>
 
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-
-body{
-  background:#fdf2f8;
-  font-family:Arial,sans-serif;
-  color:#000000;
-  padding:15px;
-}
-.loading{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:99999;
-}
-
-.loading-box{
-  background:#fff;
-  padding:25px;
-  border-radius:16px;
-  text-align:center;
-  min-width:220px;
-  color:black;
-}
-
-.spinner{
-  width:45px;
-  height:45px;
-  border:5px solid #eee;
-  border-top:5px solid #f97316;
-  border-radius:50%;
-  animation:girar 1s linear infinite;
-  margin:auto;
-  margin-bottom:15px;
-}
-
-@keyframes girar{
-  100%{
-    transform:rotate(360deg);
-  }
-}
-
-
-
-.header{
-  background:#ffffff;
-  padding:15px;
-  border-radius:16px;
-  margin-bottom:15px;
-  border:1px solid #f9a8d4;
-}
-
-.header h1{
-  font-size:22px;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  
-  
-  margin-top:15px;
-
-  
-}
-
-.card{
-  background:#fce7f3;
-  padding:12px;
-  border-radius:12px;
-  text-align:center;
-  margin: 2px;
-}
-
-.card strong{
-  display:block;
-  margin-top:5px;
-  font-size:18px;
-  color:#db2777;
-}
-
-.toolbar{
-  display:flex;
-  gap:10px;
-  margin-bottom:15px;
-}
-
-.toolbar input{
-  flex:1;
-  
-  min-width:0;
-  padding:12px;
-  border:solid 1px black;
-  border-radius:10px;
-}
-
-.toolbar select{
-  width:120px;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-}
-
-.toolbar button{
-  padding:0 16px;
-  border:none;
-  border-radius:10px;
-  background:#db2777;
-  color:#fff;
-  font-weight:bold;
-}
-
-.lista{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.processo{
-  background:#ffffff;
-  border:1px solid #f9a8d4;
-  border-radius:14px;
-  padding:14px;
-  
-}
-.processo:hover{
-   background:#eaeaea;
-}
-
-.topo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.status{
-  margin-left: auto;
-  padding:5px 10px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
-}
-
-.andamento{
-  background:#facc15;
-  color:#78350f;
-}
-
-.atrasado{
-  background:#ef4444;
-  color:#fff;
-}
-
-.finalizado{
-  background:#22c55e;
-  color:#fff;
-}
-
-.info{
-  margin-top:10px;
-  line-height:1.6;
-  color:#000;
-}
-
-.acoes{
-  display:flex;
-  gap:10px;
-  margin-top:15px;
-}
-
-.acoes button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  color:#ffffff;
-  font-weight:bold;
-}
-
-.editar{
-  background:#db2777;
-}
-
-.fab{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  width:60px;
-  height:60px;
-  border:none;
-  border-radius:50%;
-  background:#db2777;
-  color:#ffffff;
-  font-size:30px;
-}
-
-
-.sidebar.ativo{
-  left:0px
-}
-.btnLateral{
-  position: fixed;
-  left:0px;
-  bottom: 0px;
-  padding:15px 0px;
-  width: 100%;
-  opacity: 0;
-  text-align: center;
-  background-color: pink;
-}
-
-
-
-
-
-
-.sidebar{
-  position:fixed;
-  top:0;
-  left:-270px;
-  width:250px;
-  height:100%;
-  background:#ffffff;
-  padding:15px;
-  transition:.3s;
-  z-index:9999;
-
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-
-  box-shadow:0 0 20px rgba(0,0,0,.15);
-}
-
-.sidebar.ativo{
-  left:0;
-}
-
-.sidebar button{
-  border:none;
-  padding:14px;
-  border-radius:12px;
-  text-align:left;
-
-  background:#fce7f3;
-  color:#831843;
-
-  font-size:15px;
-  font-weight:bold;
-
-  transition:.2s;
-}
-
-.sidebar button:active{
-  transform:scale(.96);
-}
-
-.sidebar button:hover{
-  background:#fbcfe8;
-}
-
-.sair{
-  margin-top:auto;
-  background:#be123c !important;
-  color:#fff !important;
-}
-.tela{
-  display:none;
-}
-
-.tela.ativa{
-  display:block;
-}
-
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-
-  background:rgba(0,0,0,.45);
-
-  display:none;
-  justify-content:center;
-  align-items:center;
-
-  z-index:99999;
-}
-
-.modalContent{
-  width:90%;
-  max-width:400px;
-
-  background:#fff;
-
-  border-radius:18px;
-
-  padding:18px;
-
-  animation:abrirModal .2s ease;
-   max-height: 90vh;
-  overflow-y: auto;
-
-}
-
-@keyframes abrirModal{
-
-  from{
-    opacity:0;
-    transform:scale(.9);
-  }
-
-  to{
-    opacity:1;
-    transform:scale(1);
-  }
-}
-
-.modalTitulo{
-  font-size:20px;
-  font-weight:bold;
-
-  margin-bottom:15px;
-
-  color:#831843;
-}
-
-.modalInputs{
-  display:flex;
-  flex-direction:column;
-
-  gap:12px;
-}
-
-.modalInputs input,
-.modalInputs select,
-.modalInputs textarea{
-
-  width:100%;
-
-  padding:12px;
-
-  border-radius:10px;
-
-  border:1px solid #ddd;
-
-  outline:none;
-}
-
-.modalInputs textarea{
-  min-height:90px;
-  resize:none;
-}
-
-.modalAcoes{
-  display:flex;
-  gap:10px;
-
-  margin-top:18px;
-}
-
-.modalAcoes button{
-  flex:1;
-
-  border:none;
-
-  padding:12px;
-
-  border-radius:12px;
-
-  font-weight:bold;
-
-  color:#fff;
-}
-
-.btnSalvar{
-  background-color: #74e985;
-}
-
-.btnCancelar{
-  background:#9ca3af;
-}
-
-.pago{
-  background:#22c55e;
-  color:#fff;
-}
-
-.pendente{
-  background:#facc15;
-  color:#78350f;
-}
-
-.atrasado{
-  background:#ef4444;
-  color:#fff;
-}
-
-.financeiro{background-color:#db2777;
-  
-
-}
-
-.destacar{
-
-  border:2px solid #f59e0b;
-
-  animation:pulse 1s infinite alternate;
-}
-
-@keyframes pulse{
-
-  from{
-    transform:scale(1);
-  }
-
-  to{
-    transform:scale(1.02);
-  }
-}
-
-
-
-
-#calendarioBox{
-  background:#111827;
-  padding:15px;
-  border-radius:20px;
-  margin-top:15px;
-}
-
-.calTopo{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
-}
-
-.calTopo h2{
-  color:#fff;
-  font-size:20px;
-}
-
-.calTopo button{
-  background:#ec4899;
-  border:none;
-  color:#fff;
-  width:40px;
-  height:40px;
-  border-radius:10px;
-  font-size:18px;
-}
-
-.calDiasSemana{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px;
-  margin-bottom:10px;
-}
-
-.calDiasSemana div{
-  text-align:center;
-  color:#9ca3af;
-  font-size:13px;
-}
-
-#calendarioDias{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px;
-  
-}
-
-.dia{
-  min-height:60px;
-  background:#1f2937;
-  border-radius:8px;
-  padding:4px;
-  color:#fff;
-  font-size:13px;
-  position:relative;
-  overflow-y:auto;
-   width:100%;
-   
-}
-
-.diaNumero{
-  font-weight:bold;
-  margin-bottom:5px;
-}
-
-.eventoMini{
-  background:#ec4899;
-  border-radius:1px;
-  margin-top:3px;
-  font-size:11px;
-  
-}
-
-</style>
+<link rel="stylesheet" href="juridico.css"/>
 </head>
 <body>
   <div id="offlineBanner"
@@ -672,9 +164,9 @@ placeholder="Endereço completo">
     💰 Financeiro
   </button>
   
-    <button onclick="abrirTela('gerenciamento')">
-    Gerenciamento
-  </button>
+<button onclick="abrirTela('gerenciamento'); atualizarStats();">
+  Gerenciamento
+</button>
   <button onclick="abrirTela('advogados')">
 ⚖️ Advogados
 </button>
@@ -879,48 +371,396 @@ onclick="abrirModalProcesso()">
 </div>
 
   <!-- CONFIGURAÇÕES -->
-  <div class="processo">
+<div class="processo">
 
-    <div class="topo">
-      <h3>🌐 Configurações do Site</h3>
+  <div class="topo">
+    <h3>🌐 Configurações do Site</h3>
+  </div>
+
+  <div class="info">
+
+
+    <!-- ========================= -->
+    <!-- LOGO -->
+    <!-- ========================= -->
+
+    <div class="toolbar" style="margin-top:10px">
+
+      <div style="padding:8px">
+        Logo
+      </div>
+
+      <input
+        type="file"
+        id="logoInput"
+        accept="image/*">
+
     </div>
 
-    <div class="info">
 
+    <!-- ========================= -->
+    <!-- NOME -->
+    <!-- ========================= -->
 
-      <div class="toolbar" style="margin-top:10px">
-    <div style="padding:8px">Logo</div><input type="file" id="logoInput">
+    <div class="toolbar" style="margin-top:10px">
+
+      <div style="padding:8px">
+        Escritório
       </div>
 
-
-
-
-     
-      <div class="toolbar" style="margin-top:10px">
-    <div style="padding:8px">Escritório</div><input id="nomeEscritorio" type="text" placeholder="Nome do escritório" maxlength="30">
-      </div>
-
-     
-     
-<div class="toolbar">
-                  <div style="padding:8px">WhatsApp</div><input id="numeroWhatsapp" type="text" placeholder="WhatsApp" maxlength="11">
-      </div>
-
-
-      <div class="toolbar">
-      <input style="padding:0"id="corPrimaria" type="color">
-        <input style="padding:0" id="corSecundaria" type="color">
-        </div>
-
-      <div class="toolbar">
-        <button onclick="salvarConfiguracoes()" style="width:100%; height:40px">
-         💾 Salvar Configurações
-          </button>
-      </div>
+      <input
+        id="nomeEscritorio"
+        type="text"
+        placeholder="Nome do escritório"
+        maxlength="30">
 
     </div>
+
+
+    <!-- ========================= -->
+    <!-- WHATSAPP -->
+    <!-- ========================= -->
+
+    <div class="toolbar">
+
+      <div style="padding:8px">
+        WhatsApp
+      </div>
+
+      <input
+        id="numeroWhatsapp"
+        type="text"
+        placeholder="WhatsApp"
+        maxlength="11">
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- CORES -->
+    <!-- ========================= -->
+
+    <div class="toolbar">
+
+      <input
+        style="padding:0"
+        id="corPrimaria"
+        type="color">
+
+      <input
+        style="padding:0"
+        id="corSecundaria"
+        type="color">
+
+    </div>
+
+
+    <!-- =============================== -->
+<!-- ÁREAS DO PROBLEMA -->
+<!-- =============================== -->
+
+<div
+  style="
+    margin-top:25px;
+    padding:15px;
+    border-top:1px solid #ddd;
+  "
+>
+
+  <h3 style="margin-bottom:15px;">
+    📋 Áreas do Problema
+  </h3>
+
+
+  <div id="listaAreasProblemaAdmin">
+
+    <!-- Os campos serão criados pelo JavaScript -->
 
   </div>
+
+
+  <button
+    type="button"
+    onclick="adicionarAreaProblema()"
+    style="
+      width:100%;
+      height:40px;
+      margin-top:10px;
+    "
+  >
+
+    ➕ Adicionar Área
+
+  </button>
+
+</div>
+
+
+    <!-- ========================= -->
+    <!-- ÁREAS DE ATUAÇÃO -->
+    <!-- ========================= -->
+
+    <div
+      style="
+        margin-top:25px;
+        padding:15px;
+        border-top:1px solid #ddd;
+      ">
+
+      <h3 style="margin-bottom:15px;">
+        ⚖️ Áreas de Atuação
+      </h3>
+
+
+      <!-- ÁREA 1 -->
+
+      <div
+        style="
+          padding:15px;
+          margin-bottom:15px;
+          border:1px solid #ddd;
+          border-radius:10px;
+        ">
+
+        <strong>Área 1</strong>
+
+        <input
+          type="hidden"
+          id="areaId1">
+
+        <div class="toolbar" style="margin-top:10px">
+
+          <div style="padding:8px">
+            Nome
+          </div>
+
+          <input
+            id="areaNome1"
+            type="text"
+            placeholder="Nome da área">
+
+        </div>
+
+        <div class="toolbar">
+
+          <div style="padding:8px">
+            Ícone
+          </div>
+
+          <input
+            id="areaIcone1"
+            type="text"
+            placeholder="Ex: 👨‍⚖️"
+            maxlength="10">
+
+        </div>
+
+        <textarea
+          id="areaDescricao1"
+          placeholder="Descrição da área"
+          style="
+            width:100%;
+            min-height:80px;
+            padding:10px;
+            margin-top:10px;
+          "></textarea>
+
+      </div>
+
+
+      <!-- ÁREA 2 -->
+
+      <div
+        style="
+          padding:15px;
+          margin-bottom:15px;
+          border:1px solid #ddd;
+          border-radius:10px;
+        ">
+
+        <strong>Área 2</strong>
+
+        <input
+          type="hidden"
+          id="areaId2">
+
+        <div class="toolbar" style="margin-top:10px">
+
+          <div style="padding:8px">
+            Nome
+          </div>
+
+          <input
+            id="areaNome2"
+            type="text"
+            placeholder="Nome da área">
+
+        </div>
+
+        <div class="toolbar">
+
+          <div style="padding:8px">
+            Ícone
+          </div>
+
+          <input
+            id="areaIcone2"
+            type="text"
+            placeholder="Ex: 👨‍👩‍👧"
+            maxlength="10">
+
+        </div>
+
+        <textarea
+          id="areaDescricao2"
+          placeholder="Descrição da área"
+          style="
+            width:100%;
+            min-height:80px;
+            padding:10px;
+            margin-top:10px;
+          "></textarea>
+
+      </div>
+
+
+      <!-- ÁREA 3 -->
+
+      <div
+        style="
+          padding:15px;
+          margin-bottom:15px;
+          border:1px solid #ddd;
+          border-radius:10px;
+        ">
+
+        <strong>Área 3</strong>
+
+        <input
+          type="hidden"
+          id="areaId3">
+
+        <div class="toolbar" style="margin-top:10px">
+
+          <div style="padding:8px">
+            Nome
+          </div>
+
+          <input
+            id="areaNome3"
+            type="text"
+            placeholder="Nome da área">
+
+        </div>
+
+        <div class="toolbar">
+
+          <div style="padding:8px">
+            Ícone
+          </div>
+
+          <input
+            id="areaIcone3"
+            type="text"
+            placeholder="Ex: 💰"
+            maxlength="10">
+
+        </div>
+
+        <textarea
+          id="areaDescricao3"
+          placeholder="Descrição da área"
+          style="
+            width:100%;
+            min-height:80px;
+            padding:10px;
+            margin-top:10px;
+          "></textarea>
+
+      </div>
+
+
+      <!-- ÁREA 4 -->
+
+      <div
+        style="
+          padding:15px;
+          margin-bottom:15px;
+          border:1px solid #ddd;
+          border-radius:10px;
+        ">
+
+        <strong>Área 4</strong>
+
+        <input
+          type="hidden"
+          id="areaId4">
+
+        <div class="toolbar" style="margin-top:10px">
+
+          <div style="padding:8px">
+            Nome
+          </div>
+
+          <input
+            id="areaNome4"
+            type="text"
+            placeholder="Nome da área">
+
+        </div>
+
+        <div class="toolbar">
+
+          <div style="padding:8px">
+            Ícone
+          </div>
+
+          <input
+            id="areaIcone4"
+            type="text"
+            placeholder="Ex: 🏦"
+            maxlength="10">
+
+        </div>
+
+        <textarea
+          id="areaDescricao4"
+          placeholder="Descrição da área"
+          style="
+            width:100%;
+            min-height:80px;
+            padding:10px;
+            margin-top:10px;
+          "></textarea>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- BOTÃO SALVAR -->
+    <!-- ========================= -->
+
+    <div class="toolbar">
+
+      <button
+        onclick="salvarConfiguracoes()"
+        style="
+          width:100%;
+          height:40px;
+        ">
+
+        💾 Salvar Configurações
+
+      </button>
+
+    </div>
+
+
+  </div>
+
+</div>
 
   <!-- LEADS -->
 <div class="processo"
@@ -1817,7 +1657,7 @@ async function verificarSiteOnline(){
 
   const online = diff < 30000; // 30 segundos
 
- document.getElementById("statusSite").innerText = online ? "Online" : "Offline";
+ document.getElementById("statusSite").innerText = online ? "Acessando" : "S/acesso";
 }
 
 
@@ -2138,7 +1978,122 @@ ontouchend="cancelarPressCliente()"
 
 
 
+async function atualizarStats(){
 
+  // =====================================
+  // LEADS HOJE
+  // =====================================
+
+  const agora = new Date();
+
+  // Início do dia local
+  const inicioHoje = new Date(
+    agora.getFullYear(),
+    agora.getMonth(),
+    agora.getDate(),
+    0, 0, 0, 0
+  );
+
+  // Início de amanhã
+  const inicioAmanha = new Date(
+    agora.getFullYear(),
+    agora.getMonth(),
+    agora.getDate() + 1,
+    0, 0, 0, 0
+  );
+
+
+  const { count, error: erroLeads } =
+    await db
+    .from("leads")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .gte(
+      "criado_em",
+      inicioHoje.toISOString()
+    )
+    .lt(
+      "criado_em",
+      inicioAmanha.toISOString()
+    );
+
+
+  const elementoLeads =
+    document.getElementById("leadsHoje");
+
+
+  if(erroLeads){
+
+    console.log(
+      "Erro ao contar leads:",
+      erroLeads
+    );
+
+    if(elementoLeads){
+      elementoLeads.innerText = "—";
+    }
+
+  }
+  else{
+
+    if(elementoLeads){
+
+      elementoLeads.innerText =
+        count || 0;
+
+    }
+
+  }
+
+
+  // =====================================
+  // WHATSAPP
+  // =====================================
+
+  const { data: config, error: erroConfig } =
+    await db
+    .from("configuracoes_site")
+    .select("whatsapp")
+    .eq("id", 1)
+    .single();
+
+
+  const elementoWhatsapp =
+    document.getElementById(
+      "statusWhatsapp"
+    );
+
+
+  if(!elementoWhatsapp) return;
+
+
+  if(
+    !erroConfig &&
+    config &&
+    config.whatsapp &&
+    config.whatsapp.replace(/\D/g, "").length >= 10
+  ){
+
+    elementoWhatsapp.innerText =
+      "Ativo";
+
+    elementoWhatsapp.style.color =
+      "#16a34a";
+
+  }
+  else{
+
+    elementoWhatsapp.innerText =
+      "Inativo";
+
+    elementoWhatsapp.style.color =
+      "#dc2626";
+
+  }
+
+  }
 
 
 
@@ -2243,95 +2198,593 @@ function cancelarSegurarLead(){
 }
 
 
-
 async function salvarConfiguracoes(){
 
-  const nome = document
-  .getElementById("nomeEscritorio")
-  .value;
+  // =========================================
+  // CONFIGURAÇÕES GERAIS
+  // =========================================
 
-  const whatsapp = document
-  .getElementById("numeroWhatsapp")
-  .value;
+  const nome =
+    document
+    .getElementById("nomeEscritorio")
+    .value
+    .trim();
 
-  const cor1 = document
-  .getElementById("corPrimaria")
-  .value;
+  const whatsapp =
+    document
+    .getElementById("numeroWhatsapp")
+    .value
+    .trim();
 
-  const cor2 = document
-  .getElementById("corSecundaria")
-  .value;
+  const cor1 =
+    document
+    .getElementById("corPrimaria")
+    .value;
 
-  const arquivo = document
-  .getElementById("logoInput")
-  .files[0];
+  const cor2 =
+    document
+    .getElementById("corSecundaria")
+    .value;
+
+  const arquivo =
+    document
+    .getElementById("logoInput")
+    .files[0];
 
   let logoUrl = null;
 
-  // SE EXISTIR ARQUIVO
+
+  // =========================================
+  // UPLOAD DA LOGO
+  // =========================================
+
   if(arquivo){
 
     const nomeArquivo =
-    Date.now() + "_" + arquivo.name;
+      Date.now() + "_" + arquivo.name;
 
-    // UPLOAD
-    const { data, error } =
-    await db.storage
-    .from("logos")
-    .upload(nomeArquivo, arquivo);
+    const { error } =
+      await db.storage
+      .from("logos")
+      .upload(nomeArquivo, arquivo);
 
     if(error){
+
       console.log(error);
+
       alert(error.message);
+
       return;
     }
 
-    // URL PUBLICA
+
     const { data: urlData } =
-    db.storage
-    .from("logos")
-    .getPublicUrl(nomeArquivo);
+      db.storage
+      .from("logos")
+      .getPublicUrl(nomeArquivo);
 
-    logoUrl = urlData.publicUrl;
+    logoUrl =
+      urlData.publicUrl;
 
-    console.log("URL LOGO:", logoUrl);
   }
 
-  // DADOS
+
+  // =========================================
+  // CONFIGURAÇÕES GERAIS
+  // =========================================
+
   const dados = {
-    nome_empresa:nome,
-    whatsapp:whatsapp,
-    cor_primaria:cor1,
-    cor_secundaria:cor2
+
+    nome_empresa: nome,
+
+    whatsapp: whatsapp,
+
+    cor_primaria: cor1,
+
+    cor_secundaria: cor2
+
   };
 
-  // SÓ SALVA LOGO SE EXISTIR
+
+  // Só altera a logo se uma nova
+  // imagem foi enviada
+
   if(logoUrl){
-    dados.logo = logoUrl;
+
+    dados.logo =
+      logoUrl;
+
   }
 
-  // UPSERT
-const { error } =
-await db
-.from("configuracoes_site")
-.update(dados)
-.eq("id",1);
 
-  if(error){
-    console.log(error);
-    alert(error.message);
+  // =========================================
+  // SALVAR CONFIGURAÇÕES
+  // =========================================
+
+  const { error: erroConfig } =
+    await db
+    .from("configuracoes_site")
+    .update(dados)
+    .eq("id", 1);
+
+
+  if(erroConfig){
+
+    console.log(erroConfig);
+
+    alert(
+      "Erro ao salvar configurações: " +
+      erroConfig.message
+    );
+
     return;
   }
 
-  alert("Configurações salvas");
+
+  // =========================================
+  // ÁREAS DO PROBLEMA
+  // =========================================
+
+  const inputs =
+    document.querySelectorAll(
+      ".input-area-problema"
+    );
+
+
+  const areasProblema = [];
+
+
+  inputs.forEach(input => {
+
+    const nome =
+      input.value.trim();
+
+
+    // Ignora campo vazio
+
+    if(!nome){
+
+      return;
+
+    }
+
+
+    areasProblema.push({
+
+      nome: nome,
+
+      ordem:
+        areasProblema.length + 1,
+
+      ativo: true
+
+    });
+
+  });
+
+
+  // =========================================
+  // SALVAR ÁREAS DO PROBLEMA
+  // =========================================
+
+  const { error: erroAreasProblema } =
+    await db
+    .from("configuracoes_site")
+    .update({
+
+      areas_problema:
+        areasProblema
+
+    })
+    .eq("id", 1);
+
+
+  if(erroAreasProblema){
+
+    console.log(
+      erroAreasProblema
+    );
+
+    alert(
+      "Erro ao salvar áreas do problema: " +
+      erroAreasProblema.message
+    );
+
+    return;
+
+  }
+
+
+  // =========================================
+  // ÁREAS DE ATUAÇÃO
+  // =========================================
+
+  const areas = [
+
+    {
+      id:
+        document
+        .getElementById("areaId1")
+        .value,
+
+      nome:
+        document
+        .getElementById("areaNome1")
+        .value
+        .trim(),
+
+      descricao:
+        document
+        .getElementById("areaDescricao1")
+        .value
+        .trim(),
+
+      icone:
+        document
+        .getElementById("areaIcone1")
+        .value
+        .trim(),
+
+      ordem: 1
+    },
+
+
+    {
+      id:
+        document
+        .getElementById("areaId2")
+        .value,
+
+      nome:
+        document
+        .getElementById("areaNome2")
+        .value
+        .trim(),
+
+      descricao:
+        document
+        .getElementById("areaDescricao2")
+        .value
+        .trim(),
+
+      icone:
+        document
+        .getElementById("areaIcone2")
+        .value
+        .trim(),
+
+      ordem: 2
+    },
+
+
+    {
+      id:
+        document
+        .getElementById("areaId3")
+        .value,
+
+      nome:
+        document
+        .getElementById("areaNome3")
+        .value
+        .trim(),
+
+      descricao:
+        document
+        .getElementById("areaDescricao3")
+        .value
+        .trim(),
+
+      icone:
+        document
+        .getElementById("areaIcone3")
+        .value
+        .trim(),
+
+      ordem: 3
+    },
+
+
+    {
+      id:
+        document
+        .getElementById("areaId4")
+        .value,
+
+      nome:
+        document
+        .getElementById("areaNome4")
+        .value
+        .trim(),
+
+      descricao:
+        document
+        .getElementById("areaDescricao4")
+        .value
+        .trim(),
+
+      icone:
+        document
+        .getElementById("areaIcone4")
+        .value
+        .trim(),
+
+      ordem: 4
+    }
+
+  ];
+
+
+  // =========================================
+  // SALVAR / DESATIVAR ÁREAS DE ATUAÇÃO
+  // =========================================
+
+  for(const area of areas){
+
+
+    // -----------------------------------------
+    // CAMPO VAZIO
+    // -----------------------------------------
+
+    if(!area.nome){
+
+      // Se já existia no banco,
+      // apenas desativa
+
+      if(area.id){
+
+        const { error } =
+          await db
+          .from("areas_atuacao")
+          .update({
+
+            ativo: false
+
+          })
+          .eq("id", area.id);
+
+
+        if(error){
+
+          console.log(error);
+
+          alert(
+            "Erro ao desativar área de atuação: " +
+            error.message
+          );
+
+          return;
+
+        }
+
+      }
+
+      continue;
+
+    }
+
+
+    // -----------------------------------------
+    // DADOS DA ÁREA
+    // -----------------------------------------
+
+    const dadosArea = {
+
+      nome:
+        area.nome,
+
+      descricao:
+        area.descricao,
+
+      icone:
+        area.icone || "⚖️",
+
+      ordem:
+        area.ordem,
+
+      ativo:
+        true
+
+    };
+
+
+    // -----------------------------------------
+    // ATUALIZAR ÁREA EXISTENTE
+    // -----------------------------------------
+
+    if(area.id){
+
+      const { error } =
+        await db
+        .from("areas_atuacao")
+        .update(dadosArea)
+        .eq("id", area.id);
+
+
+      if(error){
+
+        console.log(error);
+
+        alert(
+          "Erro ao atualizar área de atuação: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    // -----------------------------------------
+    // CRIAR NOVA ÁREA
+    // -----------------------------------------
+
+    else{
+
+      const { error } =
+        await db
+        .from("areas_atuacao")
+        .insert([dadosArea]);
+
+
+      if(error){
+
+        console.log(error);
+
+        alert(
+          "Erro ao criar área de atuação: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+    }
+
+  }
+
+
+  // =========================================
+  // SUCESSO
+  // =========================================
+
+  alert(
+    "Configurações salvas com sucesso!"
+  );
+
+  atualizarStats();
+  carregarLeads();
+
+
+  // Atualiza as áreas de atuação no painel
+
+  if(
+    typeof carregarAreasNoPainel ===
+    "function"
+  ){
+
+    carregarAreasNoPainel();
+
+  }
+
 }
 
 
 
 
+function adicionarAreaProblema(nome = ""){
+
+  const lista =
+    document.getElementById(
+      "listaAreasProblemaAdmin"
+    );
+
+  if(!lista) return;
 
 
+  const div =
+    document.createElement("div");
 
+  div.className =
+    "area-problema-item";
+
+
+  div.style.display = "flex";
+  div.style.gap = "8px";
+  div.style.marginBottom = "10px";
+
+
+  div.innerHTML = `
+
+    <input
+      type="text"
+      class="input-area-problema"
+      placeholder="Nome da área"
+      value="${nome}"
+      style="
+        flex:1;
+        padding:10px;
+      "
+    >
+
+    <button
+      type="button"
+      onclick="this.parentElement.remove()"
+      style="
+        width:45px;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+      "
+      title="Remover"
+    >
+      🗑️
+    </button>
+
+  `;
+
+
+  lista.appendChild(div);
+
+  }
+
+  async function carregarAreasProblemaAdmin(){
+
+  const lista =
+    document.getElementById(
+      "listaAreasProblemaAdmin"
+    );
+
+  if(!lista) return;
+
+
+  const { data, error } =
+    await db
+    .from("configuracoes_site")
+    .select("areas_problema")
+    .eq("id", 1)
+    .single();
+
+
+  if(error){
+
+    console.log(
+      "Erro ao carregar áreas:",
+      error
+    );
+
+    return;
+  }
+
+
+  lista.innerHTML = "";
+
+
+  const areas =
+    data?.areas_problema || [];
+
+
+  areas
+    .sort((a,b) =>
+      (a.ordem || 0) -
+      (b.ordem || 0)
+    )
+    .forEach(area => {
+
+      if(area.ativo !== false){
+
+        adicionarAreaProblema(
+          area.nome || ""
+        );
+
+      }
+
+    });
+
+  }
 
 
 
@@ -2354,13 +2807,91 @@ async function carregarConfiguracoes(){
  .value = data.whatsapp || "";
 
  document.getElementById("corPrimaria")
- .value = data.cor_primaria || "#db2777";
+ .value = data.cor_primaria || "#92848b";
 
  document.getElementById("corSecundaria")
- .value = data.cor_secundaria || "#ec4899";
+ .value = data.cor_secundaria || "#bdd0f8";
+
+
+
+
+
+
+  
 }
   
+async function carregarAreasNoPainel(){
 
+  const { data, error } =
+    await db
+    .from("areas_atuacao")
+    .select("*")
+    .eq("ativo", true)
+    .order("ordem", { ascending:true });
+
+
+  if(error){
+
+    console.log(
+      "Erro ao carregar áreas:",
+      error
+    );
+
+    return;
+  }
+
+
+  if(!data) return;
+
+
+  data.forEach((area, index) => {
+
+    const numero = index + 1;
+
+    if(numero > 4) return;
+
+
+    const id =
+      document.getElementById(
+        `areaId${numero}`
+      );
+
+    const nome =
+      document.getElementById(
+        `areaNome${numero}`
+      );
+
+    const descricao =
+      document.getElementById(
+        `areaDescricao${numero}`
+      );
+
+    const icone =
+      document.getElementById(
+        `areaIcone${numero}`
+      );
+
+
+    if(id)
+      id.value = area.id || "";
+
+
+    if(nome)
+      nome.value = area.nome || "";
+
+
+    if(descricao)
+      descricao.value =
+        area.descricao || "";
+
+
+    if(icone)
+      icone.value =
+        area.icone || "⚖️";
+
+  });
+
+}
 
 
 
@@ -4900,13 +5431,6 @@ function abrirConfirmacao(
   ).style.display = "flex";
 }
 
-function fecharConfirmacao(){
-
-  document.getElementById(
-    "modalConfirmar"
-  ).style.display = "none";
-}
-
 
 
 function fecharConfirmacao(){
@@ -5375,7 +5899,11 @@ location.reload();
   }
 }
 
+  
+
 iniciarSistema();
+  carregarAreasNoPainel()
+  carregarAreasProblemaAdmin();
 </script>
 
 
