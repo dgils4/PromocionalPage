@@ -1,0 +1,6274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FisioControl — Gestão de Fisioterapia</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f4f7f9;
+    color:#17212b;
+}
+
+/* =========================================================
+   VARIÁVEIS
+========================================================= */
+
+:root{
+    --primary:#159a68;
+    --primary-dark:#08744c;
+    --primary-light:#e5f7ef;
+
+    --dark:#102a43;
+    --dark-2:#173b59;
+
+    --white:#ffffff;
+
+    --text:#17212b;
+    --muted:#71808c;
+
+    --border:#e1e8ed;
+
+    --warning:#f0ad00;
+    --warning-bg:#fff4d9;
+
+    --danger:#d64545;
+    --danger-bg:#fdecec;
+
+    --blue:#2878c8;
+    --blue-bg:#eaf3fc;
+
+    --shadow:0 3px 15px rgba(16,42,67,.08);
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app{
+    min-height:100vh;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:250px;
+
+    background:var(--dark);
+    color:white;
+
+    padding:22px 14px;
+
+    z-index:100;
+
+    overflow-y:auto;
+}
+
+.logo{
+    padding:8px 12px 30px;
+}
+
+.logo h1{
+    font-size:24px;
+}
+
+.logo h1 span{
+    color:#56c596;
+}
+
+.logo small{
+    display:block;
+    margin-top:5px;
+    color:#9fb4c5;
+}
+
+/* MENU */
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.menu button{
+    width:100%;
+    border:none;
+    background:transparent;
+
+    color:#d9e5ef;
+
+    text-align:left;
+
+    padding:13px 14px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+    transition:.2s;
+}
+
+.menu button:hover{
+    background:var(--dark-2);
+    color:white;
+}
+
+.menu button.active{
+    background:#1d4566;
+    color:white;
+}
+
+.menu-icon{
+    width:25px;
+    display:inline-block;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+    margin-left:250px;
+    min-height:100vh;
+    padding:25px;
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:25px;
+}
+
+.top-title small{
+    color:var(--muted);
+}
+
+.top-title h2{
+    margin-top:5px;
+    font-size:27px;
+}
+
+.top-actions{
+    display:flex;
+    gap:10px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn{
+    border:none;
+    border-radius:9px;
+
+    padding:11px 16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-secondary{
+    background:#e8eef2;
+    color:#20313f;
+}
+
+.btn-secondary:hover{
+    background:#dce5ea;
+}
+
+.btn-danger{
+    background:var(--danger);
+    color:white;
+}
+
+.btn-small{
+    padding:7px 10px;
+    font-size:12px;
+}
+
+/* =========================================================
+   VIEWS
+========================================================= */
+
+.view{
+    display:none;
+}
+
+.view.active{
+    display:block;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card{
+    background:white;
+
+    border-radius:14px;
+
+    padding:20px;
+
+    box-shadow:var(--shadow);
+}
+
+.section{
+    margin-top:20px;
+}
+
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:15px;
+}
+
+.section-title h3{
+    font-size:18px;
+}
+
+/* =========================================================
+   METRICS
+========================================================= */
+
+.metrics{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.metric{
+    background:white;
+
+    border-radius:14px;
+
+    padding:20px;
+
+    box-shadow:var(--shadow);
+}
+
+.metric-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.metric-icon{
+    width:40px;
+    height:40px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:var(--primary-light);
+
+    border-radius:10px;
+
+    font-size:20px;
+}
+
+.metric-number{
+    font-size:30px;
+    font-weight:800;
+
+    margin-top:12px;
+}
+
+.metric-label{
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,
+td{
+    padding:13px 10px;
+
+    border-bottom:1px solid #edf1f4;
+
+    text-align:left;
+
+    font-size:14px;
+}
+
+th{
+    color:#64727e;
+    font-size:12px;
+    text-transform:uppercase;
+}
+
+tbody tr:hover{
+    background:#fafcfd;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge{
+    display:inline-block;
+
+    padding:5px 9px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    background:var(--primary-light);
+    color:var(--primary-dark);
+}
+
+.badge-warning{
+    background:var(--warning-bg);
+    color:#8b6200;
+}
+
+.badge-danger{
+    background:var(--danger-bg);
+    color:#a82e2e;
+}
+
+.badge-blue{
+    background:var(--blue-bg);
+    color:#21629e;
+}
+
+.badge-gray{
+    background:#e9eef2;
+    color:#5c6974;
+}
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.progress-area{
+    min-width:150px;
+}
+
+.progress-info{
+    display:flex;
+    justify-content:space-between;
+
+    font-size:12px;
+
+    margin-bottom:6px;
+}
+
+.progress{
+    height:8px;
+
+    background:#e8eef1;
+
+    border-radius:20px;
+
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+
+    background:var(--primary);
+
+    border-radius:20px;
+
+    transition:.3s;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.search-box{
+    position:relative;
+}
+
+.search-box input{
+    width:100%;
+
+    padding:13px 14px;
+
+    border:1px solid var(--border);
+
+    border-radius:9px;
+
+    outline:none;
+}
+
+.search-box input:focus{
+    border-color:var(--primary);
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.two-columns{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+/* =========================================================
+   PATIENT PROFILE
+========================================================= */
+
+.patient-header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.avatar{
+    width:55px;
+    height:55px;
+
+    border-radius:50%;
+
+    background:var(--primary-light);
+
+    color:var(--primary-dark);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:20px;
+    font-weight:bold;
+}
+
+.patient-name{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.patient-info{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:5px;
+}
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.timeline{
+    border-left:3px solid #bde8d5;
+
+    padding-left:20px;
+
+    margin-top:15px;
+}
+
+.timeline-item{
+    position:relative;
+
+    margin-bottom:22px;
+}
+
+.timeline-item::before{
+    content:"";
+
+    position:absolute;
+
+    left:-28px;
+    top:2px;
+
+    width:10px;
+    height:10px;
+
+    background:var(--primary);
+
+    border-radius:50%;
+}
+
+.timeline-date{
+    color:var(--muted);
+
+    font-size:12px;
+
+    margin-bottom:5px;
+}
+
+.timeline-title{
+    font-weight:bold;
+
+    margin-bottom:5px;
+}
+
+.timeline-text{
+    color:#52616d;
+
+    font-size:13px;
+
+    line-height:1.5;
+}
+
+/* =========================================================
+   AGENDA
+========================================================= */
+
+.agenda-day{
+    margin-bottom:20px;
+}
+
+.agenda-date{
+    font-weight:bold;
+
+    margin-bottom:10px;
+}
+
+.agenda-item{
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:13px;
+
+    border:1px solid var(--border);
+
+    border-radius:10px;
+
+    margin-bottom:8px;
+}
+
+.agenda-time{
+    font-weight:bold;
+
+    width:60px;
+}
+
+.agenda-patient{
+    flex:1;
+}
+
+.agenda-patient strong{
+    display:block;
+}
+
+.agenda-patient small{
+    color:var(--muted);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty{
+    text-align:center;
+
+    padding:35px 20px;
+
+    color:var(--muted);
+}
+
+.empty-icon{
+    font-size:35px;
+
+    margin-bottom:10px;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(16,42,67,.65);
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    z-index:500;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    background:white;
+
+    width:min(850px,100%);
+
+    max-height:90vh;
+
+    overflow-y:auto;
+
+    border-radius:16px;
+
+    padding:24px;
+}
+
+.modal-header{
+    display:flex;
+
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:20px;
+}
+
+.modal-header h3{
+    font-size:20px;
+}
+
+.close{
+    border:none;
+
+    background:#edf2f5;
+
+    width:35px;
+    height:35px;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    font-size:18px;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-grid{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:14px;
+}
+
+.form-field{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+}
+
+.form-field.full{
+    grid-column:1/-1;
+}
+
+.form-field label{
+    font-size:13px;
+
+    font-weight:bold;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea{
+    width:100%;
+
+    padding:10px 11px;
+
+    border:1px solid #d5e0e6;
+
+    border-radius:8px;
+
+    outline:none;
+
+    background:white;
+}
+
+.form-field textarea{
+    min-height:100px;
+
+    resize:vertical;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus{
+    border-color:var(--primary);
+}
+
+.modal-footer{
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+
+    margin-top:20px;
+}
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+.alert-box{
+    padding:13px;
+
+    border-radius:10px;
+
+    margin-bottom:8px;
+
+    background:#f7fafb;
+
+    border-left:4px solid var(--primary);
+}
+
+.alert-box.warning{
+    border-color:var(--warning);
+}
+
+.alert-box.danger{
+    border-color:var(--danger);
+}
+
+.alert-box strong{
+    display:block;
+
+    margin-bottom:4px;
+}
+
+.alert-box small{
+    color:var(--muted);
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+.mobile-menu{
+    display:none;
+
+    background:var(--dark);
+
+    color:white;
+
+    border:none;
+
+    padding:10px 14px;
+
+    border-radius:8px;
+
+    margin-bottom:15px;
+}
+
+@media(max-width:1000px){
+
+    .metrics{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+@media(max-width:750px){
+
+    .sidebar{
+        width:220px;
+
+        transform:translateX(-100%);
+
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+
+        padding:15px;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .topbar{
+        align-items:flex-start;
+
+        gap:10px;
+    }
+
+    .top-actions .btn-secondary{
+        display:none;
+    }
+
+    .two-columns{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-field.full{
+        grid-column:auto;
+    }
+
+}
+
+@media(max-width:500px){
+
+    .metrics{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        flex-direction:column;
+    }
+
+    .top-actions{
+        width:100%;
+    }
+
+    .top-actions .btn-primary{
+        width:100%;
+    }
+
+}
+
+/* =====================================================
+   MODAL PAGAMENTO
+===================================================== */
+
+.modal-fisio {
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,.55);
+
+    z-index: 9999;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+}
+
+
+.modal-fisio.ativo {
+    display: flex;
+}
+
+
+.modal-fisio-conteudo {
+
+    width: 100%;
+
+    max-width: 520px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #fff;
+
+    border-radius: 18px;
+
+    padding: 24px;
+
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+
+}
+
+
+.modal-fisio-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    margin-bottom: 20px;
+
+}
+
+
+.modal-fisio-header h2 {
+
+    margin: 0 0 5px;
+
+}
+
+
+.modal-fisio-header p {
+
+    margin: 0;
+
+    color: #777;
+
+}
+
+
+.fechar-modal-fisio {
+
+    border: 0;
+
+    background: transparent;
+
+    font-size: 30px;
+
+    cursor: pointer;
+
+    line-height: 1;
+
+}
+
+
+.pagamento-resumo {
+
+    display: grid;
+
+    grid-template-columns: repeat(3,1fr);
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+
+}
+
+
+.pagamento-resumo > div {
+
+    background: #f5f6f8;
+
+    border-radius: 12px;
+
+    padding: 12px;
+
+}
+
+
+.pagamento-resumo span {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #777;
+
+    margin-bottom: 5px;
+
+}
+
+
+.pagamento-resumo strong {
+
+    font-size: 17px;
+
+}
+
+
+.campo-fisio {
+
+    margin-bottom: 16px;
+
+}
+
+
+.campo-fisio label {
+
+    display: block;
+
+    font-weight: 600;
+
+    margin-bottom: 7px;
+
+}
+
+
+.campo-fisio input,
+.campo-fisio select,
+.campo-fisio textarea {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+
+    outline: none;
+
+}
+
+
+.campo-fisio input:focus,
+.campo-fisio select:focus,
+.campo-fisio textarea:focus {
+
+    border-color: #555;
+
+}
+
+
+.btn-confirmar-pagamento {
+
+    width: 100%;
+
+    border: 0;
+
+    padding: 14px;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    background: #111;
+
+    color: white;
+
+}
+
+
+.historico-pagamentos {
+
+    margin-top: 28px;
+
+    border-top: 1px solid #eee;
+
+    padding-top: 20px;
+
+}
+
+
+.historico-pagamentos h3 {
+
+    margin-top: 0;
+
+}
+
+
+.pagamento-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid #eee;
+
+}
+
+
+.pagamento-item-info strong {
+
+    display: block;
+
+}
+
+
+.pagamento-item-info small {
+
+    color: #777;
+
+}
+
+
+.pagamento-item-valor {
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+.pagamentos-vazio {
+
+    color: #888;
+
+    font-size: 14px;
+
+}
+
+
+@media(max-width:600px) {
+
+    .pagamento-resumo {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .modal-fisio-conteudo {
+
+        padding: 18px;
+
+    }
+
+}
+
+  
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+
+        <h1>
+            Fisio<span>Control</span>
+        </h1>
+
+        <small>
+            Gestão de fisioterapia
+        </small>
+
+    </div>
+
+    <nav class="menu">
+
+        <button class="active" data-view="dashboard">
+            <span class="menu-icon">📊</span>
+            Dashboard
+        </button>
+
+        <button data-view="pacientes">
+            <span class="menu-icon">👥</span>
+            Pacientes
+        </button>
+
+        <button data-view="tratamentos">
+            <span class="menu-icon">🩺</span>
+            Tratamentos
+        </button>
+
+        <button data-view="agenda">
+            <span class="menu-icon">📅</span>
+            Agenda
+        </button>
+
+        <button data-view="financeiro">
+            <span class="menu-icon">💰</span>
+            Financeiro
+        </button>
+
+        <button data-view="relatorios">
+            <span class="menu-icon">📈</span>
+            Relatórios
+        </button>
+
+    </nav>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+<button
+    class="mobile-menu"
+    onclick="toggleSidebar()"
+>
+    ☰ Menu
+</button>
+
+
+<!-- =====================================================
+     TOPBAR
+===================================================== -->
+
+<div class="topbar">
+
+    <div class="top-title">
+
+        <small>
+            Gestão clínica
+        </small>
+
+        <h2 id="pageTitle">
+            Dashboard
+        </h2>
+
+    </div>
+
+    <div class="top-actions">
+
+        <button
+            class="btn btn-secondary"
+            onclick="openTreatmentModal()"
+        >
+            + Tratamento
+        </button>
+
+        <button
+            class="btn btn-primary"
+            onclick="openPatientModal()"
+        >
+            + Novo paciente
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<section
+    id="dashboard"
+    class="view active"
+>
+
+<div class="metrics">
+
+    <div class="metric">
+
+        <div class="metric-top">
+
+            <span class="metric-label">
+                Pacientes
+            </span>
+
+            <div class="metric-icon">
+                👥
+            </div>
+
+        </div>
+
+        <div
+            class="metric-number"
+            id="metricPatients"
+        >
+            0
+        </div>
+
+        <div class="metric-label">
+            cadastrados
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-top">
+
+            <span class="metric-label">
+                Tratamentos ativos
+            </span>
+
+            <div class="metric-icon">
+                🩺
+            </div>
+
+        </div>
+
+        <div
+            class="metric-number"
+            id="metricTreatments"
+        >
+            0
+        </div>
+
+        <div class="metric-label">
+            em andamento
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-top">
+
+            <span class="metric-label">
+                Sessões hoje
+            </span>
+
+            <div class="metric-icon">
+                📅
+            </div>
+
+        </div>
+
+        <div
+            class="metric-number"
+            id="metricToday"
+        >
+            0
+        </div>
+
+        <div class="metric-label">
+            atendimentos
+        </div>
+
+    </div>
+
+
+    <div class="metric">
+
+        <div class="metric-top">
+
+            <span class="metric-label">
+                A receber
+            </span>
+
+            <div class="metric-icon">
+                💰
+            </div>
+
+        </div>
+
+        <div
+            class="metric-number"
+            id="metricReceivable"
+        >
+            R$ 0,00
+        </div>
+
+        <div class="metric-label">
+            pagamentos pendentes
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PRÓXIMAS SESSÕES -->
+
+<div class="section card">
+
+    <div class="section-title">
+
+        <h3>
+            📅 Próximas sessões
+        </h3>
+
+        <button
+            class="btn btn-secondary btn-small"
+            onclick="showView('agenda')"
+        >
+            Ver agenda
+        </button>
+
+    </div>
+
+    <div id="dashboardAppointments"></div>
+
+</div>
+
+
+<!-- ALERTAS -->
+
+<div class="section card">
+
+    <div class="section-title">
+
+        <h3>
+            🔔 Atenção
+        </h3>
+
+    </div>
+
+    <div id="dashboardAlerts"></div>
+
+</div>
+
+
+<!-- PACOTES PERTO DO FIM -->
+
+<div class="section card">
+
+    <div class="section-title">
+
+        <h3>
+            📦 Pacotes próximos do fim
+        </h3>
+
+        <button
+            class="btn btn-secondary btn-small"
+            onclick="showView('tratamentos')"
+        >
+            Ver tratamentos
+        </button>
+
+    </div>
+
+    <div id="dashboardNearEnd"></div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PACIENTES
+===================================================== -->
+
+<section
+    id="pacientes"
+    class="view"
+>
+
+<div class="card">
+
+    <div class="section-title">
+
+        <h3>
+            👥 Pacientes
+        </h3>
+
+        <button
+            class="btn btn-primary btn-small"
+            onclick="openPatientModal()"
+        >
+            + Novo paciente
+        </button>
+
+    </div>
+
+    <div class="search-box">
+
+        <input
+            id="patientSearch"
+            placeholder="Buscar por nome, telefone ou CPF..."
+            oninput="renderPatients()"
+        >
+
+    </div>
+
+</div>
+
+
+<div class="section card">
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Paciente
+                    </th>
+
+                    <th>
+                        Telefone
+                    </th>
+
+                    <th>
+                        Tratamento
+                    </th>
+
+                    <th>
+                        Progresso
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Ações
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="patientTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     TRATAMENTOS
+===================================================== -->
+
+<section
+    id="tratamentos"
+    class="view"
+>
+
+<div class="card">
+
+    <div class="section-title">
+
+        <h3>
+            🩺 Tratamentos
+        </h3>
+
+      
+
+        <button
+            class="btn btn-primary btn-small"
+            onclick="openTreatmentModal()"
+        >
+            + Novo tratamento
+        </button>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Paciente
+                    </th>
+
+                    <th>
+                        Tratamento
+                    </th>
+
+                    <th>
+                        Pacote
+                    </th>
+
+                    <th>
+                        Progresso
+                    </th>
+
+                    <th>
+                        Próxima sessão
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Ações
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="treatmentTable">
+              
+            </tbody>
+
+        </table>
+
+    </div>
+  
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     AGENDA
+===================================================== -->
+
+<section
+    id="agenda"
+    class="view"
+>
+
+<div class="card">
+
+    <div class="section-title">
+
+        <h3>
+            📅 Agenda
+        </h3>
+
+        <button
+            class="btn btn-primary btn-small"
+            onclick="openAppointmentModal()"
+        >
+            + Agendamento
+        </button>
+
+    </div>
+
+    <div id="agendaContent"></div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     FINANCEIRO
+===================================================== -->
+
+<section
+    id="financeiro"
+    class="view"
+>
+
+<div class="metrics">
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Valor contratado
+        </span>
+
+        <div
+            class="metric-number"
+            id="financeTotal"
+        >
+            R$ 0,00
+        </div>
+
+    </div>
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Recebido
+        </span>
+
+        <div
+            class="metric-number"
+            id="financePaid"
+        >
+            R$ 0,00
+        </div>
+
+    </div>
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Pendente
+        </span>
+
+        <div
+            class="metric-number"
+            id="financePending"
+        >
+            R$ 0,00
+        </div>
+
+    </div>
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Tratamentos
+        </span>
+
+        <div
+            class="metric-number"
+            id="financeTreatments"
+        >
+            0
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="section card">
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Paciente
+                    </th>
+
+                    <th>
+                        Tratamento
+                    </th>
+
+                    <th>
+                        Valor
+                    </th>
+
+                    <th>
+                        Recebido
+                    </th>
+
+                    <th>
+                        Saldo
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="financeTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     RELATÓRIOS
+===================================================== -->
+
+<section
+    id="relatorios"
+    class="view"
+>
+
+<div class="metrics">
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Sessões realizadas
+        </span>
+
+        <div
+            class="metric-number"
+            id="reportSessions"
+        >
+            0
+        </div>
+
+    </div>
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Taxa de conclusão
+        </span>
+
+        <div
+            class="metric-number"
+            id="reportCompletion"
+        >
+            0%
+        </div>
+
+    </div>
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Pacotes concluídos
+        </span>
+
+        <div
+            class="metric-number"
+            id="reportCompleted"
+        >
+            0
+        </div>
+
+    </div>
+
+    <div class="metric">
+
+        <span class="metric-label">
+            Faturamento recebido
+        </span>
+
+        <div
+            class="metric-number"
+            id="reportRevenue"
+        >
+            R$ 0,00
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="section two-columns">
+
+    <div class="card">
+
+        <h3>
+            📊 Resumo clínico
+        </h3>
+
+        <div
+            id="clinicalSummary"
+            style="margin-top:15px"
+        ></div>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>
+            💰 Resumo financeiro
+        </h3>
+
+        <div
+            id="financialSummary"
+            style="margin-top:15px"
+        ></div>
+
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL PACIENTE
+===================================================== -->
+
+<div
+    class="modal"
+    id="patientModal"
+>
+
+<div class="modal-box">
+
+    <div class="modal-header">
+
+        <h3>
+            👤 Novo paciente
+        </h3>
+
+        <button
+            class="close"
+            onclick="closeModal('patientModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="patientForm">
+
+        <div class="form-grid">
+
+            <div class="form-field">
+
+                <label>
+                    Nome completo *
+                </label>
+
+                <input
+                    name="nome"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Telefone
+                </label>
+
+                <input
+                    name="telefone"
+                    placeholder="(00) 00000-0000"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    CPF
+                </label>
+
+                <input
+                    name="cpf"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Data de nascimento
+                </label>
+
+                <input
+                    type="date"
+                    name="data_nascimento"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Profissão
+                </label>
+
+                <input
+                    name="profissao"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    E-mail
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                >
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Queixa principal
+                </label>
+
+                <textarea
+                    name="queixa_principal"
+                    placeholder="Descreva a principal queixa do paciente..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Observações
+                </label>
+
+                <textarea
+                    name="observacoes"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeModal('patientModal')"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+            >
+                Salvar paciente
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL TRATAMENTO
+===================================================== -->
+
+<div
+    class="modal"
+    id="treatmentModal"
+>
+
+<div class="modal-box">
+
+    <div class="modal-header">
+
+        <h3>
+            🩺 Novo tratamento
+        </h3>
+
+        <button
+            class="close"
+            onclick="closeModal('treatmentModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="treatmentForm">
+
+        <div class="form-grid">
+
+            <div class="form-field">
+
+                <label>
+                    Paciente *
+                </label>
+
+                <select
+                    name="paciente_id"
+                    id="treatmentPatient"
+                    required
+                ></select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Tipo de tratamento *
+                </label>
+
+                <input
+                    name="tipo"
+                    placeholder="Ex.: Fisioterapia lombar"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Total de sessões *
+                </label>
+
+                <input
+                    type="number"
+                    min="1"
+                    name="total_sessoes"
+                    value="10"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Valor do pacote
+                </label>
+
+                <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    name="valor"
+                    value="0"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Data de início
+                </label>
+
+                <input
+                    type="date"
+                    name="data_inicio"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Previsão de término
+                </label>
+
+                <input
+                    type="date"
+                    name="data_fim"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Frequência
+                </label>
+
+                <select name="frequencia">
+
+                    <option value="1x_semana">
+                        1x por semana
+                    </option>
+
+                    <option value="2x_semana">
+                        2x por semana
+                    </option>
+
+                    <option value="3x_semana">
+                        3x por semana
+                    </option>
+
+                    <option value="diaria">
+                        Diária
+                    </option>
+
+                    <option value="personalizada">
+                        Personalizada
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Objetivo
+                </label>
+
+                <input
+                    name="objetivo"
+                    placeholder="Ex.: Reduzir dor e recuperar mobilidade"
+                >
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Observações
+                </label>
+
+                <textarea
+                    name="observacoes"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeModal('treatmentModal')"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+            >
+                Criar tratamento
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL SESSÃO
+===================================================== -->
+
+<div
+    class="modal"
+    id="sessionModal"
+>
+
+<div class="modal-box">
+
+    <div class="modal-header">
+
+        <h3>
+            🩺 Registrar sessão
+        </h3>
+
+        <button
+            class="close"
+            onclick="closeModal('sessionModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="sessionForm">
+
+        <input
+            type="hidden"
+            name="tratamento_id"
+        >
+
+
+        <div
+            id="sessionNumber"
+            class="alert-box"
+        >
+            Próxima sessão
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-field">
+
+                <label>
+                    Data e hora *
+                </label>
+
+                <input
+                    type="datetime-local"
+                    name="data_sessao"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Profissional
+                </label>
+
+                <input
+                    name="profissional"
+                >
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Procedimentos realizados
+                </label>
+
+                <textarea
+                    name="procedimentos"
+                    placeholder="Exercícios, técnicas, aparelhos, mobilizações..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Evolução do paciente
+                </label>
+
+                <textarea
+                    name="evolucao"
+                    placeholder="Como o paciente evoluiu nesta sessão?"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Queixa durante a sessão
+                </label>
+
+                <textarea
+                    name="queixa_sessao"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Conduta / próxima sessão
+                </label>
+
+                <textarea
+                    name="conduta"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeModal('sessionModal')"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+            >
+                ✓ Concluir sessão
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL AGENDAMENTO
+===================================================== -->
+
+<div
+    class="modal"
+    id="appointmentModal"
+>
+
+<div class="modal-box">
+
+    <div class="modal-header">
+
+        <h3>
+            📅 Novo agendamento
+        </h3>
+
+        <button
+            class="close"
+            onclick="closeModal('appointmentModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <form id="appointmentForm">
+
+        <div class="form-grid">
+
+            <div class="form-field">
+
+                <label>
+                    Paciente *
+                </label>
+
+                <select
+                    name="paciente_id"
+                    id="appointmentPatient"
+                    required
+                ></select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Tratamento
+                </label>
+
+                <select
+                    name="tratamento_id"
+                    id="appointmentTreatment"
+                ></select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Data e hora *
+                </label>
+
+                <input
+                    type="datetime-local"
+                    name="data_hora"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Duração
+                </label>
+
+                <select name="duracao">
+
+                    <option value="30">
+                        30 minutos
+                    </option>
+
+                    <option value="45">
+                        45 minutos
+                    </option>
+
+                    <option value="60" selected>
+                        60 minutos
+                    </option>
+
+                    <option value="90">
+                        90 minutos
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Tipo
+                </label>
+
+                <select name="tipo">
+
+                    <option value="sessao">
+                        Sessão
+                    </option>
+
+                    <option value="avaliacao">
+                        Avaliação
+                    </option>
+
+                    <option value="retorno">
+                        Retorno
+                    </option>
+
+                    <option value="outro">
+                        Outro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Status
+                </label>
+
+                <select name="status">
+
+                    <option value="agendada">
+                        Agendada
+                    </option>
+
+                    <option value="confirmada">
+                        Confirmada
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field full">
+
+                <label>
+                    Observações
+                </label>
+
+                <textarea
+                    name="observacoes"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeModal('appointmentModal')"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn btn-primary"
+            >
+                Salvar agendamento
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL PERFIL
+===================================================== -->
+
+<div
+    class="modal"
+    id="profileModal"
+>
+
+<div class="modal-box">
+
+    <div class="modal-header">
+
+        <h3>
+            👤 Perfil do paciente
+        </h3>
+
+        <button
+            class="close"
+            onclick="closeModal('profileModal')"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div id="profileContent"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const { createClient } = supabase;
+
+const db = createClient(
+    'https://kbdhjmyudlnaqjfhmzox.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiZGhqbXl1ZGxuYXFqZmhtem94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MjcsImV4cCI6MjEwMzcxMjUyN30.2FZnISm2sehrr_Z2RimG6qSkF_5Xzk_Igub-XJAMcd4'
+);
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+let patients = [];
+let treatments = [];
+let sessions = [];
+let appointments = [];
+let payments = [];
+
+
+/* =========================================================
+   UTILITÁRIOS
+========================================================= */
+
+function money(value){
+
+    return new Intl.NumberFormat(
+        'pt-BR',
+        {
+            style:'currency',
+            currency:'BRL'
+        }
+    ).format(Number(value) || 0);
+
+}
+
+
+function escapeHTML(value){
+
+    return String(value ?? '')
+        .replace(/[&<>"']/g, function(char){
+
+            return {
+                '&':'&amp;',
+                '<':'&lt;',
+                '>':'&gt;',
+                '"':'&quot;',
+                "'":'&#039;'
+            }[char];
+
+        });
+
+}
+
+
+function patientById(id){
+
+    return patients.find(
+        p => String(p.id) === String(id)
+    );
+
+}
+
+
+function treatmentById(id){
+
+    return treatments.find(
+        t => String(t.id) === String(id)
+    );
+
+}
+
+
+function formatDate(date){
+
+    if(!date) return '-';
+
+    return new Date(date).toLocaleDateString(
+        'pt-BR'
+    );
+
+}
+
+
+function formatDateTime(date){
+
+    if(!date) return '-';
+
+    return new Date(date).toLocaleString(
+        'pt-BR'
+    );
+
+}
+
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
+
+function showView(view){
+
+    document
+        .querySelectorAll('.view')
+        .forEach(
+            element => element.classList.remove('active')
+        );
+
+
+    const target =
+        document.getElementById(view);
+
+    if(target){
+
+        target.classList.add('active');
+
+    }
+
+
+    document
+        .querySelectorAll('.menu button')
+        .forEach(button => {
+
+            button.classList.toggle(
+                'active',
+                button.dataset.view === view
+            );
+
+        });
+
+
+    const titles = {
+
+        dashboard:'Dashboard',
+        pacientes:'Pacientes',
+        tratamentos:'Tratamentos',
+        agenda:'Agenda',
+        financeiro:'Financeiro',
+        relatorios:'Relatórios'
+
+    };
+
+
+    document.getElementById(
+        'pageTitle'
+    ).textContent =
+        titles[view] || 'Dashboard';
+
+
+    document
+        .getElementById('sidebar')
+        .classList.remove('open');
+
+
+    if(view === 'pacientes')
+        renderPatients();
+
+    if(view === 'tratamentos')
+        renderTreatments();
+
+    if(view === 'agenda')
+        renderAgenda();
+
+    if(view === 'financeiro')
+        renderFinance();
+
+    if(view === 'relatorios')
+        renderReports();
+
+}
+
+
+document
+    .querySelectorAll('.menu button')
+    .forEach(button => {
+
+        button.addEventListener(
+            'click',
+            () => showView(button.dataset.view)
+        );
+
+    });
+
+
+function toggleSidebar(){
+
+    document
+        .getElementById('sidebar')
+        .classList.toggle('open');
+
+}
+
+
+/* =========================================================
+   MODAIS
+========================================================= */
+
+function openModal(id){
+
+    document
+        .getElementById(id)
+        .classList.add('show');
+
+}
+
+
+function closeModal(id){
+
+    document
+        .getElementById(id)
+        .classList.remove('show');
+
+}
+
+
+function openPatientModal(){
+
+    document
+        .getElementById('patientForm')
+        .reset();
+
+    openModal('patientModal');
+
+}
+
+
+function openTreatmentModal(){
+
+    populatePatientSelects();
+
+    document
+        .getElementById('treatmentForm')
+        .reset();
+
+    populatePatientSelects();
+
+    openModal('treatmentModal');
+
+}
+
+
+function openAppointmentModal(){
+
+    populatePatientSelects();
+
+    populateTreatmentSelect();
+
+    document
+        .getElementById('appointmentForm')
+        .reset();
+
+    populatePatientSelects();
+
+    populateTreatmentSelect();
+
+    openModal('appointmentModal');
+
+}
+
+
+/* =========================================================
+   CARREGAMENTO
+========================================================= */
+
+async function loadData(){
+
+    try{
+
+        const results =
+            await Promise.all([
+
+                db
+                    .from('fisio_pacientes')
+                    .select('*')
+                    .order('nome'),
+
+                db
+                    .from('fisio_tratamentos')
+                    .select('*')
+                    .order(
+                        'created_at',
+                        {
+                            ascending:false
+                        }
+                    ),
+
+                db
+                    .from('fisio_sessoes')
+                    .select('*')
+                    .order(
+                        'data_sessao',
+                        {
+                            ascending:false
+                        }
+                    ),
+
+                db
+                    .from('fisio_agenda')
+                    .select('*')
+                    .order(
+                        'data_hora'
+                    ),
+
+                db
+                    .from('fisio_pagamentos')
+                    .select('*')
+                    .order(
+                        'data_pagamento',
+                        {
+                            ascending:false
+                        }
+                    )
+
+            ]);
+
+
+        patients =
+            results[0].data || [];
+
+        treatments =
+            results[1].data || [];
+
+        sessions =
+            results[2].data || [];
+
+        appointments =
+            results[3].data || [];
+
+        payments =
+            results[4].data || [];
+
+
+        results.forEach(result => {
+
+            if(result.error){
+
+                console.warn(
+                    'Supabase:',
+                    result.error.message
+                );
+
+            }
+
+        });
+
+
+        renderAll();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            'Não foi possível carregar os dados.'
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER GERAL
+========================================================= */
+
+function renderAll(){
+
+    renderDashboard();
+
+    renderPatients();
+
+    renderTreatments();
+
+    renderAgenda();
+
+    renderFinance();
+
+    renderReports();
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function renderDashboard(){
+
+    const activeTreatments =
+        treatments.filter(
+            t => t.status !== 'concluido'
+        );
+
+
+    document
+        .getElementById('metricPatients')
+        .textContent =
+        patients.length;
+
+
+    document
+        .getElementById('metricTreatments')
+        .textContent =
+        activeTreatments.length;
+
+
+    const today =
+        new Date()
+            .toISOString()
+            .slice(0,10);
+
+
+    const todayAppointments =
+        appointments.filter(
+            a =>
+                String(a.data_hora || '')
+                    .slice(0,10) === today
+        );
+
+
+    document
+        .getElementById('metricToday')
+        .textContent =
+        todayAppointments.length;
+
+
+    const totalContracted =
+        treatments.reduce(
+            (sum,t) =>
+                sum + Number(t.valor || 0),
+            0
+        );
+
+
+    const totalPaid =
+        payments.reduce(
+            (sum,p) =>
+                sum + Number(p.valor || 0),
+            0
+        );
+
+
+    document
+        .getElementById('metricReceivable')
+        .textContent =
+        money(
+            Math.max(
+                0,
+                totalContracted - totalPaid
+            )
+        );
+
+
+    renderDashboardAppointments();
+
+    renderDashboardAlerts();
+
+    renderDashboardNearEnd();
+
+}
+
+
+/* =========================================================
+   PRÓXIMAS SESSÕES
+========================================================= */
+
+function renderDashboardAppointments(){
+
+    const container =
+        document.getElementById(
+            'dashboardAppointments'
+        );
+
+
+    const upcoming =
+        appointments
+            .filter(
+                a =>
+                    a.data_hora &&
+                    new Date(a.data_hora) >= new Date()
+            )
+            .sort(
+                (a,b) =>
+                    new Date(a.data_hora) -
+                    new Date(b.data_hora)
+            )
+            .slice(0,6);
+
+
+    if(!upcoming.length){
+
+        container.innerHTML = `
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📅
+                </div>
+
+                Nenhum próximo atendimento.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        upcoming.map(a => {
+
+            const patient =
+                patientById(a.paciente_id);
+
+
+            return `
+
+                <div class="agenda-item">
+
+                    <div class="agenda-time">
+
+                        ${new Date(
+                            a.data_hora
+                        ).toLocaleTimeString(
+                            'pt-BR',
+                            {
+                                hour:'2-digit',
+                                minute:'2-digit'
+                            }
+                        )}
+
+                    </div>
+
+                    <div class="agenda-patient">
+
+                        <strong>
+                            ${escapeHTML(
+                                patient?.nome ||
+                                a.nome_paciente ||
+                                'Paciente'
+                            )}
+                        </strong>
+
+                        <small>
+                            ${formatDate(a.data_hora)}
+                            ·
+                            ${escapeHTML(
+                                a.tipo || 'Sessão'
+                            )}
+                        </small>
+
+                    </div>
+
+                    <span class="badge">
+
+                        ${escapeHTML(
+                            a.status ||
+                            'Agendada'
+                        )}
+
+                    </span>
+
+                </div>
+
+            `;
+
+        }).join('');
+
+}
+
+
+/* =========================================================
+   ALERTAS
+========================================================= */
+
+function renderDashboardAlerts(){
+
+    const container =
+        document.getElementById(
+            'dashboardAlerts'
+        );
+
+
+    const alerts = [];
+
+
+    treatments.forEach(t => {
+
+        const done =
+            Number(
+                t.sessoes_realizadas || 0
+            );
+
+        const total =
+            Number(
+                t.total_sessoes || 0
+            );
+
+
+        const patient =
+            patientById(t.paciente_id);
+
+
+        if(
+            t.status !== 'concluido' &&
+            total > 0 &&
+            done >= total - 2
+        ){
+
+            alerts.push({
+
+                type:'warning',
+
+                title:
+                    `${patient?.nome || 'Paciente'} está perto do fim do pacote.`,
+
+                text:
+                    `${done} de ${total} sessões realizadas.`
+
+            });
+
+        }
+
+
+        if(
+            t.status === 'concluido'
+        ){
+
+            alerts.push({
+
+                type:'',
+
+                title:
+                    `${patient?.nome || 'Paciente'} concluiu o tratamento.`,
+
+                text:
+                    `Pacote de ${total} sessões concluído.`
+
+            });
+
+        }
+
+    });
+
+
+    if(!alerts.length){
+
+        container.innerHTML = `
+            <div class="empty">
+
+                Nenhum alerta no momento.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        alerts
+            .slice(0,8)
+            .map(alert => `
+
+                <div class="alert-box ${alert.type}">
+
+                    <strong>
+                        ${escapeHTML(
+                            alert.title
+                        )}
+                    </strong>
+
+                    <small>
+                        ${escapeHTML(
+                            alert.text
+                        )}
+                    </small>
+
+                </div>
+
+            `)
+            .join('');
+
+}
+
+
+/* =========================================================
+   PACOTES PRÓXIMOS DO FIM
+========================================================= */
+
+function renderDashboardNearEnd(){
+
+    const container =
+        document.getElementById(
+            'dashboardNearEnd'
+        );
+
+
+    const list =
+        treatments
+            .filter(t => {
+
+                const done =
+                    Number(
+                        t.sessoes_realizadas || 0
+                    );
+
+                const total =
+                    Number(
+                        t.total_sessoes || 0
+                    );
+
+                return (
+                    t.status !== 'concluido' &&
+                    total > 0 &&
+                    done >= total - 2
+                );
+
+            })
+            .slice(0,8);
+
+
+    if(!list.length){
+
+        container.innerHTML = `
+            <div class="empty">
+
+                Nenhum pacote próximo do fim.
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        list.map(t => {
+
+            const patient =
+                patientById(t.paciente_id);
+
+
+            const done =
+                Number(
+                    t.sessoes_realizadas || 0
+                );
+
+            const total =
+                Number(
+                    t.total_sessoes || 0
+                );
+
+
+            const percentage =
+                total
+                    ? Math.min(
+                        100,
+                        Math.round(
+                            done / total * 100
+                        )
+                    )
+                    : 0;
+
+
+            return `
+
+                <div style="margin-bottom:15px">
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:5px;
+                    ">
+
+                        <strong>
+                            ${escapeHTML(
+                                patient?.nome ||
+                                'Paciente'
+                            )}
+                        </strong>
+
+                        <span>
+                            ${done}/${total}
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-bar"
+                            style="width:${percentage}%"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join('');
+
+}
+
+
+/* =========================================================
+   PACIENTES
+========================================================= */
+
+function renderPatients(){
+
+    const tbody =
+        document.getElementById(
+            'patientTable'
+        );
+
+
+    const search =
+        (
+            document.getElementById(
+                'patientSearch'
+            )?.value || ''
+        ).toLowerCase();
+
+
+    const filtered =
+        patients.filter(p => {
+
+            const text =
+                `${p.nome || ''}
+                 ${p.telefone || ''}
+                 ${p.cpf || ''}`
+                    .toLowerCase();
+
+            return text.includes(search);
+
+        });
+
+
+    if(!filtered.length){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            👤
+                        </div>
+
+                        Nenhum paciente encontrado.
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        filtered.map(p => {
+
+            const treatment =
+                treatments.find(
+                    t =>
+                        String(
+                            t.paciente_id
+                        ) === String(p.id) &&
+                        t.status !== 'concluido'
+                );
+
+
+            const done =
+                Number(
+                    treatment?.sessoes_realizadas || 0
+                );
+
+
+            const total =
+                Number(
+                    treatment?.total_sessoes || 0
+                );
+
+
+            const percentage =
+                total
+                    ? Math.min(
+                        100,
+                        Math.round(
+                            done / total * 100
+                        )
+                    )
+                    : 0;
+
+
+            return `
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            ${escapeHTML(p.nome)}
+                        </strong>
+
+                        <div class="patient-info">
+                            ${escapeHTML(
+                                p.email || ''
+                            )}
+                        </div>
+
+                    </td>
+
+
+                    <td>
+                        ${escapeHTML(
+                            p.telefone || '-'
+                        )}
+                    </td>
+
+
+                    <td>
+                        ${escapeHTML(
+                            treatment?.tipo || '-'
+                        )}
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            treatment
+                            ?
+
+                            `
+
+                            <div class="progress-area">
+
+                                <div class="progress-info">
+
+                                    <span>
+                                        ${done}/${total}
+                                    </span>
+
+                                    <span>
+                                        ${percentage}%
+                                    </span>
+
+                                </div>
+
+                                <div class="progress">
+
+                                    <div
+                                        class="progress-bar"
+                                        style="width:${percentage}%"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            '-'
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            treatment
+
+                            ?
+
+                            `<span class="badge">
+                                ${escapeHTML(
+                                    treatment.status ||
+                                    'ativo'
+                                )}
+                            </span>`
+
+                            :
+
+                            `<span class="badge badge-gray">
+                                Sem tratamento
+                            </span>`
+
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        <button
+                            class="btn btn-secondary btn-small"
+                            onclick="openPatientProfile('${p.id}')"
+                        >
+                            Ver
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join('');
+
+}
+
+
+/* =========================================================
+   TRATAMENTOS
+========================================================= */
+
+function renderTreatments(){
+
+    const tbody =
+        document.getElementById(
+            'treatmentTable'
+        );
+
+
+    if(!treatments.length){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            🩺
+                        </div>
+
+                        Nenhum tratamento cadastrado.
+
+                    </div>
+
+                </td>
+
+            </tr>
+            
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        treatments.map(t => {
+
+            const patient =
+                patientById(t.paciente_id);
+
+
+            const done =
+                Number(
+                    t.sessoes_realizadas || 0
+                );
+
+
+            const total =
+                Number(
+                    t.total_sessoes || 0
+                );
+
+
+            const remaining =
+                Math.max(
+                    0,
+                    total - done
+                );
+
+
+            const percentage =
+                total
+                    ? Math.min(
+                        100,
+                        Math.round(
+                            done / total * 100
+                        )
+                    )
+                    : 0;
+
+
+            let badgeClass = '';
+
+
+            if(
+                t.status === 'concluido'
+            ){
+
+                badgeClass =
+                    'badge-gray';
+
+            }else if(
+                remaining <= 2
+            ){
+
+                badgeClass =
+                    'badge-warning';
+
+            }
+
+
+            return `
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            ${escapeHTML(
+                                patient?.nome ||
+                                '-'
+                            )}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHTML(
+                            t.tipo || '-'
+                        )}
+
+                        ${
+                            t.objetivo
+                            ?
+
+                            `<div class="patient-info">
+                                ${escapeHTML(
+                                    t.objetivo
+                                )}
+                            </div>`
+
+                            :
+
+                            ''
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+                            ${total}
+                        </strong>
+
+                        sessões
+
+                        <div class="patient-info">
+                            ${money(t.valor)}
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        <div class="progress-area">
+
+                            <div class="progress-info">
+
+                                <span>
+                                    ${done}/${total}
+                                </span>
+
+                                <span>
+                                    ${percentage}%
+                                </span>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div
+                                    class="progress-bar"
+                                    style="width:${percentage}%"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            t.proxima_sessao
+                            ?
+                            formatDateTime(
+                                t.proxima_sessao
+                            )
+                            :
+                            '-'
+                        }
+
+                    </td>
+
+
+                    <td>
+
+                        <span
+                            class="badge ${badgeClass}"
+                        >
+
+                            ${escapeHTML(
+                                t.status ||
+                                'ativo'
+                            )}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <td>
+
+    <div style="
+        display:flex;
+        
+    ">
+
+        <button
+            class="btn btn-primary btn-small"
+            onclick="openSessionModal('${t.id}')"
+        >
+            + Sessão
+        </button>
+
+        <button
+            class="btn btn-small" style="height:45px; margin-left:15px"
+            onclick="abrirModalPagamento('${t.id}')"
+        >
+            💰 Pagamento
+        </button>
+
+    </div>
+
+</td>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join('');
+
+}
+
+
+/* =========================================================
+   AGENDA
+========================================================= */
+
+function renderAgenda(){
+
+    const container =
+        document.getElementById(
+            'agendaContent'
+        );
+
+
+    const list =
+        [...appointments]
+            .sort(
+                (a,b) =>
+                    new Date(a.data_hora) -
+                    new Date(b.data_hora)
+            );
+
+
+    if(!list.length){
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📅
+                </div>
+
+                Nenhum agendamento.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    const groups = {};
+
+
+    list.forEach(a => {
+
+        const date =
+            String(
+                a.data_hora
+            ).slice(0,10);
+
+
+        if(!groups[date])
+            groups[date] = [];
+
+
+        groups[date].push(a);
+
+    });
+
+
+    container.innerHTML =
+        Object.entries(groups)
+            .map(
+                ([date,items]) => `
+
+                    <div class="agenda-day">
+
+                        <div class="agenda-date">
+
+                            ${formatDate(date)}
+
+                        </div>
+
+                        ${
+                            items.map(a => {
+
+                                const patient =
+                                    patientById(
+                                        a.paciente_id
+                                    );
+
+
+                                return `
+
+                                    <div class="agenda-item">
+
+                                        <div class="agenda-time">
+
+                                            ${new Date(
+                                                a.data_hora
+                                            ).toLocaleTimeString(
+                                                'pt-BR',
+                                                {
+                                                    hour:'2-digit',
+                                                    minute:'2-digit'
+                                                }
+                                            )}
+
+                                        </div>
+
+
+                                        <div class="agenda-patient">
+
+                                            <strong>
+                                                ${escapeHTML(
+                                                    patient?.nome ||
+                                                    a.nome_paciente ||
+                                                    'Paciente'
+                                                )}
+                                            </strong>
+
+                                            <small>
+
+                                                ${escapeHTML(
+                                                    a.tipo ||
+                                                    'Sessão'
+                                                )}
+
+                                                ${
+                                                    a.duracao
+                                                    ?
+                                                    ` · ${a.duracao} min`
+                                                    :
+                                                    ''
+                                                }
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <span class="badge">
+
+                                            ${escapeHTML(
+                                                a.status ||
+                                                'Agendada'
+                                            )}
+
+                                        </span>
+
+                                    </div>
+
+                                `;
+
+                            }).join('')
+                        }
+
+                    </div>
+
+                `
+            ).join('');
+
+}
+
+
+/* =========================================================
+   FINANCEIRO
+========================================================= */
+
+function renderFinance(){
+
+    const total =
+        treatments.reduce(
+            (sum,t) =>
+                sum + Number(t.valor || 0),
+            0
+        );
+
+
+    const paid =
+        payments.reduce(
+            (sum,p) =>
+                sum + Number(p.valor || 0),
+            0
+        );
+
+
+    const pending =
+        Math.max(
+            0,
+            total - paid
+        );
+
+
+    document
+        .getElementById('financeTotal')
+        .textContent =
+        money(total);
+
+
+    document
+        .getElementById('financePaid')
+        .textContent =
+        money(paid);
+
+
+    document
+        .getElementById('financePending')
+        .textContent =
+        money(pending);
+
+
+    document
+        .getElementById('financeTreatments')
+        .textContent =
+        treatments.length;
+
+
+    const tbody =
+        document.getElementById(
+            'financeTable'
+        );
+
+
+    tbody.innerHTML =
+        treatments.map(t => {
+
+            const patient =
+                patientById(t.paciente_id);
+
+
+            const treatmentPaid =
+                payments
+                    .filter(
+                        p =>
+                            String(
+                                p.tratamento_id
+                            ) === String(t.id)
+                    )
+                    .reduce(
+                        (sum,p) =>
+                            sum +
+                            Number(
+                                p.valor || 0
+                            ),
+                        0
+                    );
+
+
+            const balance =
+                Math.max(
+                    0,
+                    Number(t.valor || 0) -
+                    treatmentPaid
+                );
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHTML(
+                            patient?.nome ||
+                            '-'
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            t.tipo ||
+                            '-'
+                        )}
+                    </td>
+
+                    <td>
+                        ${money(t.valor)}
+                    </td>
+
+                    <td>
+                        ${money(treatmentPaid)}
+                    </td>
+
+                    <td>
+                        ${money(balance)}
+                    </td>
+
+                    <td>
+
+                        ${
+                            balance <= 0
+
+                            ?
+
+                            `<span class="badge">
+                                Pago
+                            </span>`
+
+                            :
+
+                            `<span class="badge badge-warning">
+                                Pendente
+                            </span>`
+
+                        }
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join('');
+
+}
+
+
+/* =========================================================
+   RELATÓRIOS
+========================================================= */
+
+function renderReports(){
+
+    const totalSessions =
+        sessions.length;
+
+
+    const targetSessions =
+        treatments.reduce(
+            (sum,t) =>
+                sum +
+                Number(
+                    t.total_sessoes || 0
+                ),
+            0
+        );
+
+
+    const completedTreatments =
+        treatments.filter(
+            t =>
+                t.status === 'concluido'
+        ).length;
+
+
+    const completion =
+        targetSessions
+            ?
+            Math.round(
+                totalSessions /
+                targetSessions *
+                100
+            )
+            :
+            0;
+
+
+    const revenue =
+        payments.reduce(
+            (sum,p) =>
+                sum +
+                Number(
+                    p.valor || 0
+                ),
+            0
+        );
+
+
+    document
+        .getElementById('reportSessions')
+        .textContent =
+        totalSessions;
+
+
+    document
+        .getElementById('reportCompletion')
+        .textContent =
+        completion + '%';
+
+
+    document
+        .getElementById('reportCompleted')
+        .textContent =
+        completedTreatments;
+
+
+    document
+        .getElementById('reportRevenue')
+        .textContent =
+        money(revenue);
+
+
+    document
+        .getElementById('clinicalSummary')
+        .innerHTML = `
+
+            <div class="alert-box">
+
+                <strong>
+                    ${patients.length}
+                </strong>
+
+                pacientes cadastrados.
+
+            </div>
+
+            <div class="alert-box">
+
+                <strong>
+                    ${treatments.length}
+                </strong>
+
+                tratamentos registrados.
+
+            </div>
+
+            <div class="alert-box">
+
+                <strong>
+                    ${totalSessions}
+                </strong>
+
+                sessões realizadas.
+
+            </div>
+
+        `;
+
+
+    document
+        .getElementById('financialSummary')
+        .innerHTML = `
+
+            <div class="alert-box">
+
+                <strong>
+                    ${money(revenue)}
+                </strong>
+
+                recebidos.
+
+            </div>
+
+            <div class="alert-box warning">
+
+                <strong>
+                    ${money(
+                        Math.max(
+                            0,
+                            treatments.reduce(
+                                (sum,t) =>
+                                    sum +
+                                    Number(
+                                        t.valor || 0
+                                    ),
+                                0
+                            ) -
+                            revenue
+                        )
+                    )}
+                </strong>
+
+                ainda pendentes.
+
+            </div>
+
+        `;
+
+}
+
+
+/* =========================================================
+   SELECTS
+========================================================= */
+
+function populatePatientSelects(){
+
+    const selects = [
+
+        document.getElementById(
+            'treatmentPatient'
+        ),
+
+        document.getElementById(
+            'appointmentPatient'
+        )
+
+    ];
+
+
+    selects.forEach(select => {
+
+        if(!select) return;
+
+
+        select.innerHTML =
+            '<option value="">Selecione o paciente</option>';
+
+
+        patients.forEach(p => {
+
+            select.innerHTML += `
+
+                <option value="${p.id}">
+
+                    ${escapeHTML(p.nome)}
+
+                </option>
+
+            `;
+
+        });
+
+    });
+
+}
+
+
+function populateTreatmentSelect(){
+
+    const select =
+        document.getElementById(
+            'appointmentTreatment'
+        );
+
+
+    if(!select) return;
+
+
+    select.innerHTML =
+        '<option value="">Sem tratamento</option>';
+
+
+    treatments
+        .filter(
+            t =>
+                t.status !== 'concluido'
+        )
+        .forEach(t => {
+
+            const patient =
+                patientById(
+                    t.paciente_id
+                );
+
+
+            select.innerHTML += `
+
+                <option value="${t.id}">
+
+                    ${escapeHTML(
+                        patient?.nome ||
+                        'Paciente'
+                    )}
+
+                    —
+                    ${escapeHTML(
+                        t.tipo ||
+                        'Tratamento'
+                    )}
+
+                </option>
+
+            `;
+
+        });
+
+}
+
+
+/* =========================================================
+   NOVO PACIENTE
+========================================================= */
+
+document
+    .getElementById('patientForm')
+    .addEventListener(
+        'submit',
+        async function(event){
+
+            event.preventDefault();
+
+
+            const form =
+                new FormData(this);
+
+
+            const data = {
+
+                nome:
+                    form.get('nome'),
+
+                telefone:
+                    form.get('telefone'),
+
+                cpf:
+                    form.get('cpf'),
+
+                data_nascimento:
+                    form.get(
+                        'data_nascimento'
+                    ) || null,
+
+                profissao:
+                    form.get('profissao'),
+
+                email:
+                    form.get('email'),
+
+                queixa_principal:
+                    form.get(
+                        'queixa_principal'
+                    ),
+
+                observacoes:
+                    form.get(
+                        'observacoes'
+                    )
+
+            };
+
+
+            const {error} =
+                await db
+                    .from(
+                        'fisio_pacientes'
+                    )
+                    .insert(data);
+
+
+            if(error){
+
+                console.error(error);
+
+                alert(
+                    'Erro ao cadastrar paciente: ' +
+                    error.message
+                );
+
+                return;
+
+            }
+
+
+            closeModal(
+                'patientModal'
+            );
+
+
+            await loadData();
+
+
+            showView(
+                'pacientes'
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   NOVO TRATAMENTO
+========================================================= */
+
+document
+    .getElementById('treatmentForm')
+    .addEventListener(
+        'submit',
+        async function(event){
+
+            event.preventDefault();
+
+
+            const form =
+                new FormData(this);
+
+
+            const total =
+                Number(
+                    form.get(
+                        'total_sessoes'
+                    )
+                );
+
+
+            const data = {
+
+                paciente_id:
+                    form.get(
+                        'paciente_id'
+                    ),
+
+                tipo:
+                    form.get('tipo'),
+
+                total_sessoes:
+                    total,
+
+                sessoes_realizadas:
+                    0,
+
+                valor:
+                    Number(
+                        form.get('valor') ||
+                        0
+                    ),
+
+                data_inicio:
+                    form.get(
+                        'data_inicio'
+                    ) || null,
+
+                data_fim:
+                    form.get(
+                        'data_fim'
+                    ) || null,
+
+                frequencia:
+                    form.get(
+                        'frequencia'
+                    ),
+
+                objetivo:
+                    form.get(
+                        'objetivo'
+                    ),
+
+                observacoes:
+                    form.get(
+                        'observacoes'
+                    ),
+
+                status:
+                    'ativo'
+
+            };
+
+
+            const {error} =
+                await db
+                    .from(
+                        'fisio_tratamentos'
+                    )
+                    .insert(data);
+
+
+            if(error){
+
+                console.error(error);
+
+                alert(
+                    'Erro ao criar tratamento: ' +
+                    error.message
+                );
+
+                return;
+
+            }
+
+
+            closeModal(
+                'treatmentModal'
+            );
+
+
+            await loadData();
+
+
+            showView(
+                'tratamentos'
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   ABRIR SESSÃO
+========================================================= */
+
+async function openSessionModal(
+    treatmentId
+){
+
+    const treatment =
+        treatmentById(
+            treatmentId
+        );
+
+
+    if(!treatment){
+
+        alert(
+            'Tratamento não encontrado.'
+        );
+
+        return;
+
+    }
+
+
+    const done =
+        Number(
+            treatment.sessoes_realizadas ||
+            0
+        );
+
+
+    const total =
+        Number(
+            treatment.total_sessoes ||
+            0
+        );
+
+
+    if(done >= total){
+
+        alert(
+            'Este pacote já foi concluído.'
+        );
+
+        return;
+
+    }
+
+
+    document
+        .querySelector(
+            '#sessionForm [name="tratamento_id"]'
+        )
+        .value =
+        treatmentId;
+
+
+    document
+        .getElementById(
+            'sessionNumber'
+        )
+        .innerHTML = `
+
+            <strong>
+                Registrando sessão ${done + 1} de ${total}
+            </strong>
+
+            <small>
+                ${escapeHTML(
+                    treatment.tipo ||
+                    'Tratamento'
+                )}
+            </small>
+
+        `;
+
+
+    document
+        .querySelector(
+            '#sessionForm [name="data_sessao"]'
+        )
+        .value =
+        new Date()
+            .toISOString()
+            .slice(0,16);
+
+
+    openModal(
+        'sessionModal'
+    );
+
+}
+
+
+/* =========================================================
+   REGISTRAR SESSÃO
+========================================================= */
+
+document
+    .getElementById('sessionForm')
+    .addEventListener(
+        'submit',
+        async function(event){
+
+            event.preventDefault();
+
+
+            const form =
+                new FormData(this);
+
+
+            const treatmentId =
+                form.get(
+                    'tratamento_id'
+                );
+
+
+            const treatment =
+                treatmentById(
+                    treatmentId
+                );
+
+
+            if(!treatment){
+
+                alert(
+                    'Tratamento não encontrado.'
+                );
+
+                return;
+
+            }
+
+
+            const current =
+                Number(
+                    treatment.sessoes_realizadas ||
+                    0
+                );
+
+
+            const total =
+                Number(
+                    treatment.total_sessoes ||
+                    0
+                );
+
+
+            const next =
+                current + 1;
+
+
+            const {error:
+                sessionError} =
+                await db
+                    .from(
+                        'fisio_sessoes'
+                    )
+                    .insert({
+
+                        tratamento_id:
+                            treatmentId,
+
+                        numero_sessao:
+                            next,
+
+                        data_sessao:
+                            form.get(
+                                'data_sessao'
+                            ),
+
+                        profissional:
+                            form.get(
+                                'profissional'
+                            ),
+
+                        procedimentos:
+                            form.get(
+                                'procedimentos'
+                            ),
+
+                        evolucao:
+                            form.get(
+                                'evolucao'
+                            ),
+
+                        queixa_sessao:
+                            form.get(
+                                'queixa_sessao'
+                            ),
+
+                        conduta:
+                            form.get(
+                                'conduta'
+                            )
+
+                    });
+
+
+            if(sessionError){
+
+                console.error(
+                    sessionError
+                );
+
+                alert(
+                    'Erro ao registrar sessão: ' +
+                    sessionError.message
+                );
+
+                return;
+
+            }
+
+
+            const finished =
+                next >= total;
+
+
+            const {
+                error:
+                treatmentError
+            } =
+                await db
+                    .from(
+                        'fisio_tratamentos'
+                    )
+                    .update({
+
+                        sessoes_realizadas:
+                            next,
+
+                        status:
+                            finished
+                                ?
+                                'concluido'
+                                :
+                                'ativo',
+
+                        proxima_sessao:
+                            null
+
+                    })
+                    .eq(
+                        'id',
+                        treatmentId
+                    );
+
+
+            if(treatmentError){
+
+                console.error(
+                    treatmentError
+                );
+
+                alert(
+                    'A sessão foi salva, mas houve erro ao atualizar o tratamento.'
+                );
+
+                return;
+
+            }
+
+
+            closeModal(
+                'sessionModal'
+            );
+
+
+            await loadData();
+
+
+            showView(
+                'tratamentos'
+            );
+
+
+            if(finished){
+
+                alert(
+                    '🎉 Pacote concluído! Todas as sessões foram realizadas.'
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   AGENDAMENTO
+========================================================= */
+
+document
+    .getElementById('appointmentForm')
+    .addEventListener(
+        'submit',
+        async function(event){
+
+            event.preventDefault();
+
+
+            const form =
+                new FormData(this);
+
+
+            const data = {
+
+                paciente_id:
+                    form.get(
+                        'paciente_id'
+                    ),
+
+                tratamento_id:
+                    form.get(
+                        'tratamento_id'
+                    ) || null,
+
+                data_hora:
+                    form.get(
+                        'data_hora'
+                    ),
+
+                duracao:
+                    Number(
+                        form.get(
+                            'duracao'
+                        )
+                    ),
+
+                tipo:
+                    form.get(
+                        'tipo'
+                    ),
+
+                status:
+                    form.get(
+                        'status'
+                    ),
+
+                observacoes:
+                    form.get(
+                        'observacoes'
+                    )
+
+            };
+
+
+            const {error} =
+                await db
+                    .from(
+                        'fisio_agenda'
+                    )
+                    .insert(data);
+
+
+            if(error){
+
+                console.error(error);
+
+                alert(
+                    'Erro ao criar agendamento: ' +
+                    error.message
+                );
+
+                return;
+
+            }
+
+
+            closeModal(
+                'appointmentModal'
+            );
+
+
+            await loadData();
+
+
+            showView(
+                'agenda'
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   PERFIL DO PACIENTE
+========================================================= */
+
+function openPatientProfile(
+    patientId
+){
+
+    const patient =
+        patientById(
+            patientId
+        );
+
+
+    if(!patient) return;
+
+
+    const patientTreatments =
+        treatments.filter(
+            t =>
+                String(
+                    t.paciente_id
+                ) === String(
+                    patientId
+                )
+        );
+
+
+    const patientSessions =
+        sessions.filter(session => {
+
+            return patientTreatments.some(
+                treatment =>
+                    String(
+                        treatment.id
+                    ) === String(
+                        session.tratamento_id
+                    )
+            );
+
+        });
+
+
+    document
+        .getElementById(
+            'profileContent'
+        )
+        .innerHTML = `
+
+            <div class="patient-header">
+
+                <div class="avatar">
+
+                    ${escapeHTML(
+                        (patient.nome || '?')
+                            .charAt(0)
+                            .toUpperCase()
+                    )}
+
+                </div>
+
+                <div>
+
+                    <div class="patient-name">
+
+                        ${escapeHTML(
+                            patient.nome
+                        )}
+
+                    </div>
+
+                    <div class="patient-info">
+
+                        ${escapeHTML(
+                            patient.telefone ||
+                            'Sem telefone'
+                        )}
+
+                        ·
+
+                        ${escapeHTML(
+                            patient.email ||
+                            'Sem e-mail'
+                        )}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section two-columns">
+
+                <div>
+
+                    <h3>
+                        Informações
+                    </h3>
+
+                    <div style="margin-top:12px">
+
+                        <p>
+                            <strong>CPF:</strong>
+                            ${escapeHTML(
+                                patient.cpf || '-'
+                            )}
+                        </p>
+
+                        <p style="margin-top:7px">
+                            <strong>Nascimento:</strong>
+                            ${formatDate(
+                                patient.data_nascimento
+                            )}
+                        </p>
+
+                        <p style="margin-top:7px">
+                            <strong>Profissão:</strong>
+                            ${escapeHTML(
+                                patient.profissao || '-'
+                            )}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        Queixa principal
+                    </h3>
+
+                    <p style="
+                        margin-top:10px;
+                        color:#52616d;
+                        line-height:1.5;
+                    ">
+
+                        ${escapeHTML(
+                            patient.queixa_principal ||
+                            'Não informada.'
+                        )}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="section">
+
+                <h3>
+                    🩺 Tratamentos
+                </h3>
+
+                <div style="margin-top:12px">
+
+                    ${
+                        patientTreatments.length
+
+                        ?
+
+                        patientTreatments.map(t => {
+
+                            const done =
+                                Number(
+                                    t.sessoes_realizadas ||
+                                    0
+                                );
+
+                            const total =
+                                Number(
+                                    t.total_sessoes ||
+                                    0
+                                );
+
+                            const percentage =
+                                total
+                                    ?
+                                    Math.round(
+                                        done /
+                                        total *
+                                        100
+                                    )
+                                    :
+                                    0;
+
+                            return `
+
+                                <div
+                                    class="card"
+                                    style="
+                                        margin-bottom:10px;
+                                        box-shadow:none;
+                                        border:1px solid #e5ecef;
+                                    "
+                                >
+
+                                    <strong>
+
+                                        ${escapeHTML(
+                                            t.tipo ||
+                                            'Tratamento'
+                                        )}
+
+                                    </strong>
+
+                                    <div class="patient-info">
+
+                                        ${done}/${total}
+                                        sessões
+
+                                        ·
+
+                                        ${money(
+                                            t.valor
+                                        )}
+
+                                    </div>
+
+                                    <div
+                                        class="progress"
+                                        style="margin-top:10px"
+                                    >
+
+                                        <div
+                                            class="progress-bar"
+                                            style="
+                                                width:${percentage}%
+                                            "
+                                        ></div>
+
+                                    </div>
+
+                                </div>
+
+                            `;
+
+                        }).join('')
+
+                        :
+
+                        '<div class="empty">Nenhum tratamento.</div>'
+
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="section">
+
+                <h3>
+                    📋 Histórico de sessões
+                </h3>
+
+                <div class="timeline">
+
+                    ${
+                        patientSessions.length
+
+                        ?
+
+                        patientSessions.map(s => `
+
+                            <div class="timeline-item">
+
+                                <div class="timeline-date">
+
+                                    Sessão
+                                    ${escapeHTML(
+                                        s.numero_sessao ||
+                                        ''
+                                    )}
+
+                                    ·
+
+                                    ${formatDateTime(
+                                        s.data_sessao
+                                    )}
+
+                                </div>
+
+                                <div class="timeline-title">
+
+                                    ${escapeHTML(
+                                        s.procedimentos ||
+                                        'Sessão registrada'
+                                    )}
+
+                                </div>
+
+                                <div class="timeline-text">
+
+                                    ${
+                                        s.evolucao
+                                        ?
+                                        `<strong>Evolução:</strong>
+                                        ${escapeHTML(
+                                            s.evolucao
+                                        )}`
+                                        :
+                                        ''
+                                    }
+
+                                    ${
+                                        s.conduta
+                                        ?
+                                        `<br><br>
+                                        <strong>Conduta:</strong>
+                                        ${escapeHTML(
+                                            s.conduta
+                                        )}`
+                                        :
+                                        ''
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        `).join('')
+
+                        :
+
+                        '<div class="empty">Nenhuma sessão registrada.</div>'
+
+                    }
+
+                </div>
+
+            </div>
+
+        `;
+
+
+    openModal(
+        'profileModal'
+    );
+
+}
+
+
+/* =========================================================
+   FECHAR MODAL CLICANDO FORA
+========================================================= */
+
+document
+    .querySelectorAll('.modal')
+    .forEach(modal => {
+
+        modal.addEventListener(
+            'click',
+            function(event){
+
+                if(
+                    event.target === modal
+                ){
+
+                    modal.classList.remove(
+                        'show'
+                    );
+
+                }
+
+            }
+        );
+
+    });
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+loadData();
+
+
+/* =====================================================
+   PAGAMENTOS
+===================================================== */
+
+let tratamentoPagamentoAtual = null;
+
+
+/* -----------------------------------------------------
+   FORMATAÇÃO DE MOEDA
+----------------------------------------------------- */
+
+function formatarMoeda(valor) {
+
+    return Number(valor || 0).toLocaleString(
+        'pt-BR',
+        {
+            style: 'currency',
+            currency: 'BRL'
+        }
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   DATA ATUAL
+----------------------------------------------------- */
+
+function dataHoje() {
+
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+
+    const mes = String(
+        hoje.getMonth() + 1
+    ).padStart(2, '0');
+
+    const dia = String(
+        hoje.getDate()
+    ).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}`;
+
+}
+
+
+/* -----------------------------------------------------
+   ABRIR MODAL
+----------------------------------------------------- */
+
+async function abrirModalPagamento(
+    tratamentoId
+) {
+
+    tratamentoPagamentoAtual =
+        tratamentoId;
+
+
+    document
+        .getElementById('pagamentoTratamentoId')
+        .value = tratamentoId;
+
+
+    document
+        .getElementById('dataPagamento')
+        .value = dataHoje();
+
+
+    document
+        .getElementById('valorPagamento')
+        .value = '';
+
+
+    document
+        .getElementById('formaPagamento')
+        .value = '';
+
+
+    document
+        .getElementById('observacaoPagamento')
+        .value = '';
+
+
+    document
+        .getElementById('modalPagamento')
+        .classList
+        .add('ativo');
+
+
+    await carregarResumoPagamento(
+        tratamentoId
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   FECHAR MODAL
+----------------------------------------------------- */
+
+function fecharModalPagamento() {
+
+    document
+        .getElementById('modalPagamento')
+        .classList
+        .remove('ativo');
+
+    tratamentoPagamentoAtual = null;
+
+}
+
+
+/* -----------------------------------------------------
+   CARREGAR RESUMO
+----------------------------------------------------- */
+
+async function carregarResumoPagamento(
+    tratamentoId
+) {
+
+    try {
+
+        const { data: tratamento, error } =
+            await db
+                .from('fisio_tratamentos')
+                .select(`
+                    id,
+                    paciente_id,
+                    valor,
+                    fisio_pacientes (
+                        nome
+                    )
+                `)
+                .eq('id', tratamentoId)
+                .single();
+
+
+        if (error) throw error;
+
+
+        const { data: pagamentos, error: erroPagamentos } =
+            await db
+                .from('fisio_pagamentos')
+                .select('*')
+                .eq(
+                    'tratamento_id',
+                    tratamentoId
+                )
+                .order(
+                    'data_pagamento',
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (erroPagamentos)
+            throw erroPagamentos;
+
+
+        const valorPacote =
+            Number(tratamento.valor || 0);
+
+
+        const totalRecebido =
+            (pagamentos || []).reduce(
+                (total, pagamento) =>
+                    total +
+                    Number(
+                        pagamento.valor || 0
+                    ),
+                0
+            );
+
+
+        const saldo =
+            valorPacote -
+            totalRecebido;
+
+
+        document
+            .getElementById(
+                'pagamentoPacienteNome'
+            )
+            .textContent =
+            tratamento.fisio_pacientes?.nome ||
+            'Paciente';
+
+
+        document
+            .getElementById(
+                'pagamentoValorPacote'
+            )
+            .textContent =
+            formatarMoeda(valorPacote);
+
+
+        document
+            .getElementById(
+                'pagamentoTotalRecebido'
+            )
+            .textContent =
+            formatarMoeda(totalRecebido);
+
+
+        document
+            .getElementById(
+                'pagamentoSaldo'
+            )
+            .textContent =
+            formatarMoeda(saldo);
+
+
+        renderizarHistoricoPagamentos(
+            pagamentos
+        );
+
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao carregar pagamentos:',
+            erro
+        );
+
+        alert(
+            'Não foi possível carregar os pagamentos.'
+        );
+
+    }
+
+}
+
+
+/* -----------------------------------------------------
+   HISTÓRICO
+----------------------------------------------------- */
+
+function renderizarHistoricoPagamentos(
+    pagamentos
+) {
+
+    const container =
+        document.getElementById(
+            'listaPagamentos'
+        );
+
+
+    if (
+        !pagamentos ||
+        pagamentos.length === 0
+    ) {
+
+        container.innerHTML = `
+            <p class="pagamentos-vazio">
+                Nenhum pagamento registrado.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        pagamentos.map(
+            pagamento => {
+
+                const data =
+                    pagamento.data_pagamento
+                        ? new Date(
+                            pagamento.data_pagamento
+                          ).toLocaleDateString(
+                            'pt-BR'
+                          )
+                        : '';
+
+
+                return `
+
+                    <div class="pagamento-item">
+
+                        <div class="pagamento-item-info">
+
+                            <strong>
+                                ${pagamento.forma_pagamento || 'Pagamento'}
+                            </strong>
+
+                            <small>
+                                ${data}
+                                ${
+                                    pagamento.observacoes
+                                    ? ' • ' +
+                                      pagamento.observacoes
+                                    : ''
+                                }
+                            </small>
+
+                        </div>
+
+
+                        <div class="pagamento-item-valor">
+
+                            ${formatarMoeda(
+                                pagamento.valor
+                            )}
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join('');
+
+}
+
+
+/* -----------------------------------------------------
+   REGISTRAR PAGAMENTO
+----------------------------------------------------- */
+
+async function salvarPagamento(event) {
+
+    event.preventDefault();
+
+    console.log('Iniciando salvamento do pagamento...');
+
+
+    const tratamentoId =
+        document.getElementById(
+            'pagamentoTratamentoId'
+        )?.value;
+
+
+    const valor =
+        Number(
+            document.getElementById(
+                'valorPagamento'
+            )?.value
+        );
+
+
+    const forma =
+        document.getElementById(
+            'formaPagamento'
+        )?.value;
+
+
+    const data =
+        document.getElementById(
+            'dataPagamento'
+        )?.value;
+
+
+    const observacoes =
+        document.getElementById(
+            'observacaoPagamento'
+        )?.value?.trim() || null;
+
+
+    console.log({
+        tratamentoId,
+        valor,
+        forma,
+        data,
+        observacoes
+    });
+
+
+    if (!tratamentoId) {
+
+        alert(
+            'Erro: tratamento não identificado.'
+        );
+
+        return;
+    }
+
+
+    if (!valor || valor <= 0) {
+
+        alert(
+            'Digite o valor recebido.'
+        );
+
+        return;
+    }
+
+
+    if (!forma) {
+
+        alert(
+            'Selecione a forma de pagamento.'
+        );
+
+        return;
+    }
+
+
+    try {
+
+        /*
+         * Busca o paciente pertencente
+         * ao tratamento.
+         */
+
+        const {
+            data: tratamento,
+            error: erroTratamento
+        } = await db
+
+            .from('fisio_tratamentos')
+
+            .select(
+                'id, paciente_id, valor'
+            )
+
+            .eq(
+                'id',
+                tratamentoId
+            )
+
+            .single();
+
+
+        if (erroTratamento) {
+
+            console.error(
+                'Erro ao buscar tratamento:',
+                erroTratamento
+            );
+
+            throw erroTratamento;
+
+        }
+
+
+        if (!tratamento) {
+
+            throw new Error(
+                'Tratamento não encontrado.'
+            );
+
+        }
+
+
+        /*
+         * GRAVA O PAGAMENTO
+         */
+
+        const {
+            data: pagamento,
+            error
+        } = await db
+
+            .from('fisio_pagamentos')
+
+            .insert({
+
+                paciente_id:
+                    tratamento.paciente_id,
+
+                tratamento_id:
+                    tratamento.id,
+
+                valor:
+                    valor,
+
+                forma_pagamento:
+                    forma,
+
+                data_pagamento:
+                    data
+                    ? `${data}T12:00:00`
+                    : new Date().toISOString(),
+
+                observacoes:
+                    observacoes
+
+            })
+
+            .select()
+            .single();
+
+
+        if (error) {
+
+            console.error(
+                'Erro do Supabase:',
+                error
+            );
+
+            throw error;
+
+        }
+
+
+        console.log(
+            'Pagamento salvo:',
+            pagamento
+        );
+
+
+        alert(
+            'Pagamento registrado com sucesso!'
+        );
+
+
+        /*
+         * LIMPA O FORMULÁRIO
+         */
+
+        document
+            .getElementById(
+                'formPagamento'
+            )
+            .reset();
+
+
+        /*
+         * RECARREGA OS DADOS
+         */
+
+        if (
+            typeof carregarResumoPagamento ===
+            'function'
+        ) {
+
+            await carregarResumoPagamento(
+                tratamentoId
+            );
+
+        }
+
+
+        /*
+         * ATUALIZA A LISTA DE TRATAMENTOS
+         */
+
+        if (
+            typeof renderTreatments ===
+            'function'
+        ) {
+
+            renderTreatments();
+
+        }
+
+      fecharModalPagamento();
+
+
+    } catch (erro) {
+
+        console.error(
+            'ERRO COMPLETO:',
+            erro
+        );
+
+
+        alert(
+            'Não foi possível registrar o pagamento.\n\n' +
+            (erro.message || erro)
+        );
+
+    }
+
+}
+  
+
+</script>
+
+
+
+  <!-- =====================================================
+     MODAL — REGISTRAR PAGAMENTO
+===================================================== -->
+
+<div id="modalPagamento" class="modal-fisio">
+
+    <div class="modal-fisio-conteudo">
+
+        <div class="modal-fisio-header">
+
+            <div>
+                <h2>Registrar pagamento</h2>
+                <p id="pagamentoPacienteNome">
+                    Paciente
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="fechar-modal-fisio"
+                onclick="fecharModalPagamento()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="pagamento-resumo">
+
+            <div>
+                <span>Valor do pacote</span>
+                <strong id="pagamentoValorPacote">
+                    R$ 0,00
+                </strong>
+            </div>
+
+            <div>
+                <span>Total recebido</span>
+                <strong id="pagamentoTotalRecebido">
+                    R$ 0,00
+                </strong>
+            </div>
+
+            <div>
+                <span>Saldo</span>
+                <strong id="pagamentoSaldo">
+                    R$ 0,00
+                </strong>
+            </div>
+
+        </div>
+
+
+        <form id="formPagamento" onsubmit="salvarPagamento(event)">
+
+            <input
+                type="hidden"
+                id="pagamentoTratamentoId">
+
+            <div class="campo-fisio">
+
+                <label for="valorPagamento">
+                    Valor recebido
+                </label>
+
+                <input
+                    type="number"
+                    id="valorPagamento"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Ex.: 250,00"
+                    required>
+
+            </div>
+
+
+            <div class="campo-fisio">
+
+                <label for="formaPagamento">
+                    Forma de pagamento
+                </label>
+
+                <select
+                    id="formaPagamento"
+                    required>
+
+                    <option value="">
+                        Selecione
+                    </option>
+
+                    <option value="Pix">
+                        Pix
+                    </option>
+
+                    <option value="Dinheiro">
+                        Dinheiro
+                    </option>
+
+                    <option value="Cartão de crédito">
+                        Cartão de crédito
+                    </option>
+
+                    <option value="Cartão de débito">
+                        Cartão de débito
+                    </option>
+
+                    <option value="Transferência">
+                        Transferência
+                    </option>
+
+                    <option value="Outro">
+                        Outro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo-fisio">
+
+                <label for="dataPagamento">
+                    Data do recebimento
+                </label>
+
+                <input
+                    type="date"
+                    id="dataPagamento"
+                    required>
+
+            </div>
+
+
+            <div class="campo-fisio">
+
+                <label for="observacaoPagamento">
+                    Observação
+                </label>
+
+                <textarea
+                    id="observacaoPagamento"
+                    rows="3"
+                    placeholder="Ex.: Entrada do pacote, segunda parcela..."></textarea>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn-confirmar-pagamento">
+
+                Confirmar recebimento
+
+            </button>
+
+        </form>
+
+
+        <div class="historico-pagamentos">
+
+            <h3>
+                Histórico de pagamentos
+            </h3>
+
+            <div id="listaPagamentos">
+
+                <p class="pagamentos-vazio">
+                    Nenhum pagamento registrado.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
