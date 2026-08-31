@@ -1,4 +1,4 @@
-<style>
+
 *{
   margin:0;
   padding:0;
@@ -227,7 +227,7 @@ body{
   top:0;
   left:-270px;
   width:250px;
-  height:100%;
+  
   background:#ffffff;
   padding:15px;
   transition:.3s;
@@ -238,6 +238,11 @@ body{
   gap:10px;
 
   box-shadow:0 0 20px rgba(0,0,0,.15);
+height:100vh;
+  
+  overflow-y:auto;
+  overflow-x:hidden;
+  
 }
 
 .sidebar.ativo{
@@ -506,4 +511,3 @@ body{
   
 }
 
-</style>
