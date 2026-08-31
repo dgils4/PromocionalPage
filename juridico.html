@@ -2946,11 +2946,45 @@ function filtrarClientes(){
 
 
 function toggleMenu(){
-    
-    document.getElementById("sidebar").classList
-  .toggle("ativo");
+
+  document
+    .getElementById("sidebar")
+    .classList
+    .toggle("ativo");
+
 }
 
+
+// Fecha o menu ao tocar fora
+document.addEventListener("click", function(event){
+
+  const sidebar =
+    document.getElementById("sidebar");
+
+  if(!sidebar) return;
+
+
+  // Se o toque foi dentro do menu,
+  // não fecha
+  if(sidebar.contains(event.target)){
+    return;
+  }
+
+
+  // Se o toque foi no botão invisível
+  // que abre o menu, não fecha
+  if(
+    event.target.closest(".btnLateral")
+  ){
+    return;
+  }
+
+
+  // Qualquer outro toque fora
+  // fecha o menu
+  sidebar.classList.remove("ativo");
+
+});
 
 function abrirTela(nome){
   vibrar();
