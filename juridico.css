@@ -1,0 +1,509 @@
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+
+body{
+  background:#fdf2f8;
+  font-family:Arial,sans-serif;
+  color:#000000;
+  padding:15px;
+}
+.loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:99999;
+}
+
+.loading-box{
+  background:#fff;
+  padding:25px;
+  border-radius:16px;
+  text-align:center;
+  min-width:220px;
+  color:black;
+}
+
+.spinner{
+  width:45px;
+  height:45px;
+  border:5px solid #eee;
+  border-top:5px solid #f97316;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:auto;
+  margin-bottom:15px;
+}
+
+@keyframes girar{
+  100%{
+    transform:rotate(360deg);
+  }
+}
+
+
+
+.header{
+  background:#ffffff;
+  padding:15px;
+  border-radius:16px;
+  margin-bottom:15px;
+  border:1px solid #f9a8d4;
+}
+
+.header h1{
+  font-size:22px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  
+  
+  margin-top:15px;
+
+  
+}
+
+.card{
+  background:#fce7f3;
+  padding:12px;
+  border-radius:12px;
+  text-align:center;
+  margin: 2px;
+}
+
+.card strong{
+  display:block;
+  margin-top:5px;
+  font-size:18px;
+  color:#db2777;
+}
+
+.toolbar{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.toolbar input{
+  flex:1;
+  
+  min-width:0;
+  padding:12px;
+  border:solid 1px black;
+  border-radius:10px;
+}
+
+.toolbar select{
+  width:120px;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+}
+
+.toolbar button{
+  padding:0 16px;
+  border:none;
+  border-radius:10px;
+  background:#db2777;
+  color:#fff;
+  font-weight:bold;
+}
+
+.lista{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.processo{
+  background:#ffffff;
+  border:1px solid #f9a8d4;
+  border-radius:14px;
+  padding:14px;
+  
+}
+.processo:hover{
+   background:#eaeaea;
+}
+
+.topo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.status{
+  margin-left: auto;
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.andamento{
+  background:#facc15;
+  color:#78350f;
+}
+
+.atrasado{
+  background:#ef4444;
+  color:#fff;
+}
+
+.finalizado{
+  background:#22c55e;
+  color:#fff;
+}
+
+.info{
+  margin-top:10px;
+  line-height:1.6;
+  color:#000;
+}
+
+.acoes{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.acoes button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  color:#ffffff;
+  font-weight:bold;
+}
+
+.editar{
+  background:#db2777;
+}
+
+.fab{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  width:60px;
+  height:60px;
+  border:none;
+  border-radius:50%;
+  background:#db2777;
+  color:#ffffff;
+  font-size:30px;
+}
+
+
+.sidebar.ativo{
+  left:0px
+}
+.btnLateral{
+  position: fixed;
+  left:0px;
+  bottom: 0px;
+  padding:15px 0px;
+  width: 100%;
+  opacity: 0;
+  text-align: center;
+  background-color: pink;
+}
+
+
+
+
+
+
+.sidebar{
+  position:fixed;
+  top:0;
+  left:-270px;
+  width:250px;
+  height:100%;
+  background:#ffffff;
+  padding:15px;
+  transition:.3s;
+  z-index:9999;
+
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+
+  box-shadow:0 0 20px rgba(0,0,0,.15);
+}
+
+.sidebar.ativo{
+  left:0;
+}
+
+.sidebar button{
+  border:none;
+  padding:14px;
+  border-radius:12px;
+  text-align:left;
+
+  background:#fce7f3;
+  color:#831843;
+
+  font-size:15px;
+  font-weight:bold;
+
+  transition:.2s;
+}
+
+.sidebar button:active{
+  transform:scale(.96);
+}
+
+.sidebar button:hover{
+  background:#fbcfe8;
+}
+
+.sair{
+  margin-top:auto;
+  background:#be123c !important;
+  color:#fff !important;
+}
+.tela{
+  display:none;
+}
+
+.tela.ativa{
+  display:block;
+}
+
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+
+  background:rgba(0,0,0,.45);
+
+  display:none;
+  justify-content:center;
+  align-items:center;
+
+  z-index:99999;
+}
+
+.modalContent{
+  width:90%;
+  max-width:400px;
+
+  background:#fff;
+
+  border-radius:18px;
+
+  padding:18px;
+
+  animation:abrirModal .2s ease;
+   max-height: 90vh;
+  overflow-y: auto;
+
+}
+
+@keyframes abrirModal{
+
+  from{
+    opacity:0;
+    transform:scale(.9);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+.modalTitulo{
+  font-size:20px;
+  font-weight:bold;
+
+  margin-bottom:15px;
+
+  color:#831843;
+}
+
+.modalInputs{
+  display:flex;
+  flex-direction:column;
+
+  gap:12px;
+}
+
+.modalInputs input,
+.modalInputs select,
+.modalInputs textarea{
+
+  width:100%;
+
+  padding:12px;
+
+  border-radius:10px;
+
+  border:1px solid #ddd;
+
+  outline:none;
+}
+
+.modalInputs textarea{
+  min-height:90px;
+  resize:none;
+}
+
+.modalAcoes{
+  display:flex;
+  gap:10px;
+
+  margin-top:18px;
+}
+
+.modalAcoes button{
+  flex:1;
+
+  border:none;
+
+  padding:12px;
+
+  border-radius:12px;
+
+  font-weight:bold;
+
+  color:#fff;
+}
+
+.btnSalvar{
+  background-color: #74e985;
+}
+
+.btnCancelar{
+  background:#9ca3af;
+}
+
+.pago{
+  background:#22c55e;
+  color:#fff;
+}
+
+.pendente{
+  background:#facc15;
+  color:#78350f;
+}
+
+.atrasado{
+  background:#ef4444;
+  color:#fff;
+}
+
+.financeiro{background-color:#db2777;
+  
+
+}
+
+.destacar{
+
+  border:2px solid #f59e0b;
+
+  animation:pulse 1s infinite alternate;
+}
+
+@keyframes pulse{
+
+  from{
+    transform:scale(1);
+  }
+
+  to{
+    transform:scale(1.02);
+  }
+}
+
+
+
+
+#calendarioBox{
+  background:#111827;
+  padding:15px;
+  border-radius:20px;
+  margin-top:15px;
+}
+
+.calTopo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.calTopo h2{
+  color:#fff;
+  font-size:20px;
+}
+
+.calTopo button{
+  background:#ec4899;
+  border:none;
+  color:#fff;
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  font-size:18px;
+}
+
+.calDiasSemana{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+  margin-bottom:10px;
+}
+
+.calDiasSemana div{
+  text-align:center;
+  color:#9ca3af;
+  font-size:13px;
+}
+
+#calendarioDias{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+  
+}
+
+.dia{
+  min-height:60px;
+  background:#1f2937;
+  border-radius:8px;
+  padding:4px;
+  color:#fff;
+  font-size:13px;
+  position:relative;
+  overflow-y:auto;
+   width:100%;
+   
+}
+
+.diaNumero{
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.eventoMini{
+  background:#ec4899;
+  border-radius:1px;
+  margin-top:3px;
+  font-size:11px;
+  
+}
+
+</style>
