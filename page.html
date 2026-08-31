@@ -397,10 +397,7 @@ maxlength="15">
     <div class="form-group">
       <select id="areaProblema">
         <option>Área do problema</option>
-        <option>Trabalhista</option>
-        <option>Família</option>
-        <option>Previdenciário</option>
-        <option>Indenização</option>
+        
       </select>
     </div>
 
@@ -423,36 +420,11 @@ maxlength="15">
     <p>Atendimento especializado em diversas áreas jurídicas.</p>
   </div>
 
-  <div class="cards">
-
-    <div class="card">
-      <div class="icon">👨‍⚖️</div>
-      <h3>Direito Trabalhista</h3>
-      <p>Resolução de conflitos trabalhistas e garantia de direitos.</p>
-    </div>
-
-    <div class="card">
-      <div class="icon">👨‍👩‍👧</div>
-      <h3>Direito de Família</h3>
-      <p>Atendimento humanizado para questões familiares.</p>
-    </div>
-
-    <div class="card">
-      <div class="icon">💰</div>
-      <h3>Indenizações</h3>
-      <p>Busca de reparação por danos materiais e morais.</p>
-    </div>
-
-    <div class="card">
-      <div class="icon">🏦</div>
-      <h3>Previdenciário</h3>
-      <p>Acompanhamento completo para aposentadorias e benefícios.</p>
-    </div>
-
+  <div id="listaAreasAtuacao" class="cards">
+    <!-- Áreas carregadas do banco -->
   </div>
 
 </section>
-
 <section class="section">
 
   <div class="section-title">
@@ -604,6 +576,11 @@ async function enviarLead(){
    return;
  }
 
+  if(!area_problema){
+  alert("Selecione a área do problema");
+  return;
+}
+
  // VALIDA DESCRIÇÃO
  if(descricao.length < 5){
    alert("Descreva melhor o caso");
@@ -668,56 +645,127 @@ let numeroWhatsapp = "";
 
 async function carregarSite(){
 
- const { data, error } = await db
- .from("configuracoes_site")
- .select("*")
- .limit(1);
+  const { data, error } = await db
+    .from("configuracoes_site")
+    .select("*")
+    .limit(1);
 
- if(error){
-   console.log(error);
-   return;
- }
+  if(error){
+    console.log(error);
+    return;
+  }
 
- if(!data || data.length === 0){
-   return;
- }
+  if(!data || data.length === 0){
+    return;
+  }
 
- const config = data[0];
+  const config = data[0];
 
- numeroWhatsapp =
- config.whatsapp || "";
+  numeroWhatsapp =
+    config.whatsapp || "";
 
- // NOME
- const nome =
- document.getElementById("nomeEmpresa");
+  const nome =
+    document.getElementById("nomeEmpresa");
 
- if(nome){
-   nome.innerText =
-   config.nome_empresa || "";
- }
+  if(nome){
+    nome.innerText =
+      config.nome_empresa || "";
+  }
 
- // LOGO
- const logo =
- document.getElementById("logoEmpresa");
+  const logo =
+    document.getElementById("logoEmpresa");
 
- if(logo && config.logo){
-   logo.src = config.logo;
- }
+  if(logo && config.logo){
+    logo.src = config.logo;
+  }
 
- // CORES
- document.documentElement.style
- .setProperty(
-   "--cor1",
-   config.cor_primaria || "#db2777"
- );
+  document.documentElement.style
+    .setProperty(
+      "--cor1",
+      config.cor_primaria || "#db2777"
+    );
 
- document.documentElement.style
- .setProperty(
-   "--cor2",
-   config.cor_secundaria || "#ec4899"
- );
+  document.documentElement.style
+    .setProperty(
+      "--cor2",
+      config.cor_secundaria || "#ec4899"
+    );
 }
 
+
+// =================================
+// CARREGAR ÁREAS DO PROBLEMA
+// =================================
+
+async function carregarAreasProblema(){
+
+  const select =
+    document.getElementById("areaProblema");
+
+  if(!select) return;
+
+
+  const { data, error } =
+    await db
+    .from("configuracoes_site")
+    .select("areas_problema")
+    .eq("id", 1)
+    .single();
+
+
+  if(error){
+
+    console.log(
+      "Erro ao carregar áreas do problema:",
+      error
+    );
+
+    return;
+  }
+
+
+  select.innerHTML = `
+    <option value="">
+      Área do problema
+    </option>
+  `;
+
+
+  const areas =
+    data?.areas_problema || [];
+
+
+  areas
+    .filter(area => area.ativo !== false)
+    .sort((a,b) =>
+      (a.ordem || 0) -
+      (b.ordem || 0)
+    )
+    .forEach(area => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        area.nome;
+
+      option.textContent =
+        area.nome;
+
+      select.appendChild(option);
+
+    });
+
+}
+
+
+// =================================
+// INICIAR
+// =================================
+
+
+
+carregarAreasProblema();
 
  
  
@@ -782,7 +830,80 @@ document
     .eq("id", 1);
 }
 setInterval(pingSite, 10000); // a cada 10 segundos
-  
+
+
+
+async function carregarAreasAtuacao(){
+
+  const container =
+    document.getElementById("listaAreasAtuacao");
+
+  if(!container) return;
+
+  container.innerHTML = `
+    <div class="card">
+      <p>Carregando áreas de atuação...</p>
+    </div>
+  `;
+
+  const { data, error } = await db
+    .from("areas_atuacao")
+    .select("*")
+    .eq("ativo", true)
+    .order("ordem", { ascending:true });
+
+  if(error){
+
+    console.error("Erro ao carregar áreas:", error);
+
+    container.innerHTML = `
+      <div class="card">
+        <p>Não foi possível carregar as áreas de atuação.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  if(!data || data.length === 0){
+
+    container.innerHTML = `
+      <div class="card">
+        <p>Nenhuma área de atuação cadastrada.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  data.forEach(area => {
+
+    const card = document.createElement("div");
+
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="icon">
+        ${area.icone || "⚖️"}
+      </div>
+
+      <h3>
+        ${area.nome || ""}
+      </h3>
+
+      <p>
+        ${area.descricao || ""}
+      </p>
+    `;
+
+    container.appendChild(card);
+
+  });
+
+}
+  carregarAreasAtuacao();
   
 </script>
 
