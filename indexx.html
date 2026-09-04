@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>Dinheiro do Mês</title>
+  <link rel="stylesheet" href="stylee.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">D</span><div><strong>Dinheiro do Mês</strong><small>Controle financeiro</small></div></div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard">▦ <span>Dashboard</span></button>
+        <button class="nav-item" data-view="receitas">↗ <span>Receitas</span></button>
+        <button class="nav-item" data-view="despesas">↘ <span>Despesas</span></button>
+        <button class="nav-item" data-view="categorias">☷ <span>Categorias</span></button>
+        <button class="nav-item" data-view="metas">◎ <span>Metas</span></button>
+        <button class="nav-item" data-view="historico">◷ <span>Histórico</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" data-action="backup">⇩ <span>Backup</span></button>
+        <button class="nav-item" data-action="restore">⇧ <span>Restaurar</span></button>
+        <input type="file" id="restoreInput" accept=".json" hidden>
+      </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Veja para onde seu dinheiro está indo.</p>
+        </div>
+        <div class="month-control">
+          <button id="prevMonth">‹</button>
+          <span id="currentMonthLabel"></span>
+          <button id="nextMonth">›</button>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view active"></section>
+      <section id="view-receitas" class="view"></section>
+      <section id="view-despesas" class="view"></section>
+      <section id="view-categorias" class="view"></section>
+      <section id="view-metas" class="view"></section>
+      <section id="view-historico" class="view"></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal"></div>
+  </div>
+  <div id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
