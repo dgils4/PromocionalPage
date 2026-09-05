@@ -117,3 +117,581 @@ body.saude-atencao{
 body.saude-critica{
   background-color: rgba(239, 68, 68, 0.055);
 }
+
+
+
+/* ==========================================
+   MODO ESCURO
+   ========================================== */
+
+body.modo-escuro {
+  background-color: #000;
+  color: #f5f5f5;
+}
+
+/* Painéis */
+body.modo-escuro .panel {
+  background-color: #111;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+/* Cards */
+body.modo-escuro .card {
+  background-color: #111;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+/* Blocos de informação */
+body.modo-escuro .insight {
+  background-color: #202124;
+  color: #e8eaed;
+}
+
+/* Textos secundários */
+body.modo-escuro .label,
+body.modo-escuro .muted {
+  color: #9aa0a6;
+}
+
+/* Títulos */
+body.modo-escuro h1,
+body.modo-escuro h2,
+body.modo-escuro h3 {
+  color: #f5f5f5;
+}
+
+/* Valores positivos */
+body.modo-escuro .positive {
+  color: #35b86b;
+}
+
+/* Valores negativos */
+body.modo-escuro .negative {
+  color: #ff6565;
+}
+
+/* Botões */
+body.modo-escuro .btn {
+  background-color: #202124;
+  color: #f5f5f5;
+  border-color: #444;
+}
+
+/* Campos */
+body.modo-escuro input,
+body.modo-escuro select,
+body.modo-escuro textarea {
+  background-color: #111;
+  color: #f5f5f5;
+  border-color: #444;
+}
+
+/* Placeholder */
+body.modo-escuro input::placeholder,
+body.modo-escuro textarea::placeholder {
+  color: #777;
+}
+
+/* Separadores */
+body.modo-escuro hr {
+  border-color: #333;
+}
+
+
+/* Navegação do mês — modo escuro */
+body.modo-escuro .month-control {
+  background-color: #111;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+body.modo-escuro .month-control button {
+  background-color: #111;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+body.modo-escuro .month-control button:hover {
+  background-color: #202124;
+}
+
+body.modo-escuro #currentMonthLabel {
+  color: #f5f5f5;
+}
+
+/* Modais — modo escuro */
+
+body.modo-escuro .modal {
+  background-color: #111;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+body.modo-escuro .modal h2 {
+  color: #f5f5f5;
+}
+
+body.modo-escuro .modal-close {
+  background-color: #202124;
+  color: #f5f5f5;
+}
+
+body.modo-escuro .modal-close:hover {
+  background-color: #333;
+}
+
+/* ==========================================
+   TABELAS — MODO ESCURO
+   ========================================== */
+
+body.modo-escuro .table-wrap {
+  background-color: #111;
+  border-color: #333;
+}
+
+body.modo-escuro .table {
+  background-color: #111;
+  color: #f5f5f5;
+}
+
+body.modo-escuro .table th {
+  color: #9aa0a6;
+  border-color: #333;
+}
+
+body.modo-escuro .table td {
+  color: #e8eaed;
+  border-color: #333;
+}
+
+body.modo-escuro .table tr:hover {
+  background-color: #202124;
+}
+
+body.modo-escuro .money {
+  color: #f5f5f5;
+}
+
+/* Categorias — modo escuro */
+
+body.modo-escuro .chip {
+  background-color: #202124;
+  color: #f5f5f5;
+}
+
+body.modo-escuro .chip button {
+  color: #f5f5f5;
+}
+
+
+/* ==========================================
+   SELETOR DE EMOJIS
+   ========================================== */
+
+#emojiPicker {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0,0,0,.55);
+  display: grid;
+  place-items: center;
+  padding: 15px;
+}
+
+/* Caixa principal */
+.emoji-picker-box {
+  width: min(560px, 100%);
+  max-height: 85vh;
+  background: #fff;
+  color: #172033;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabeçalho */
+.emoji-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e6eaf0;
+  flex-shrink: 0;
+}
+
+.emoji-picker-header strong {
+  font-size: 17px;
+}
+
+.emoji-picker-header button {
+  border: 0;
+  background: #f0f2f5;
+  color: #172033;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.emoji-picker-header button:hover {
+  background: #e2e5e9;
+}
+
+/* Área que terá rolagem */
+.emoji-picker-content {
+  overflow-y: auto;
+  padding: 18px;
+}
+
+/* Categoria */
+.emoji-category {
+  margin-bottom: 22px;
+}
+
+.emoji-category:last-child {
+  margin-bottom: 0;
+}
+
+.emoji-category-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #667085;
+  margin-bottom: 10px;
+}
+
+/* Grade dos emojis */
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 7px;
+}
+
+/* Cada emoji */
+.emoji-option {
+  border: 0;
+  background: #f4f6f8;
+  border-radius: 10px;
+  height: 48px;
+  font-size: 26px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform .12s ease, background .12s ease;
+}
+
+.emoji-option:hover {
+  background: #e8edf2;
+  transform: scale(1.08);
+}
+
+.emoji-option:active {
+  transform: scale(.95);
+}
+
+
+/* ==========================================
+   SELETOR DE EMOJIS — MODO ESCURO
+   ========================================== */
+
+body.modo-escuro #emojiPicker {
+  background: rgba(0,0,0,.75);
+}
+
+body.modo-escuro .emoji-picker-box {
+  background: #111;
+  color: #f5f5f5;
+}
+
+body.modo-escuro .emoji-picker-header {
+  border-color: #333;
+}
+
+body.modo-escuro .emoji-picker-header button {
+  background: #202124;
+  color: #f5f5f5;
+}
+
+body.modo-escuro .emoji-picker-header button:hover {
+  background: #333;
+}
+
+body.modo-escuro .emoji-category-title {
+  color: #9aa0a6;
+}
+
+body.modo-escuro .emoji-option {
+  background: #202124;
+}
+
+body.modo-escuro .emoji-option:hover {
+  background: #333;
+}
+
+
+/* ==========================================
+   CELULAR
+   ========================================== */
+
+@media (max-width: 560px) {
+
+  #emojiPicker {
+    padding: 10px;
+  }
+
+  .emoji-picker-box {
+    max-height: 90vh;
+    border-radius: 14px;
+  }
+
+  .emoji-picker-content {
+    padding: 14px;
+  }
+
+  .emoji-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  .emoji-option {
+    height: 46px;
+    font-size: 25px;
+  }
+
+}
+
+
+/* ==========================================
+   TUTORIAL DE PRIMEIRO USO
+   ========================================== */
+
+.tutorial-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:rgba(0,0,0,.60);
+  place-items:center;
+  padding:18px;
+}
+
+.tutorial-overlay.aberto{
+  display:grid;
+}
+
+.tutorial-box{
+  width:min(500px,100%);
+  background:#fff;
+  color:#172033;
+  border-radius:18px;
+  padding:25px;
+  position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.tutorial-fechar{
+  position:absolute;
+  top:15px;
+  right:15px;
+  border:0;
+  background:#f0f2f5;
+  color:#172033;
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.tutorial-passo{
+  padding:10px 5px 20px;
+}
+
+.tutorial-indicador{
+  font-size:11px;
+  color:#7b8494;
+  margin-bottom:12px;
+}
+
+.tutorial-passo h2{
+  font-size:22px;
+  margin:0 45px 12px 0;
+}
+
+.tutorial-passo p{
+  color:#667085;
+  line-height:1.6;
+  font-size:14px;
+  margin:0;
+}
+
+.tutorial-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-top:1px solid #e6eaf0;
+  padding-top:18px;
+}
+
+.tutorial-pular{
+  border:0;
+  background:transparent;
+  color:#667085;
+  cursor:pointer;
+  padding:10px;
+}
+
+.tutorial-pular:hover{
+  color:#172033;
+}
+
+
+/* ==========================================
+   TUTORIAL — MODO ESCURO
+   ========================================== */
+
+body.modo-escuro .tutorial-box{
+  background:#111;
+  color:#f5f5f5;
+}
+
+body.modo-escuro .tutorial-fechar{
+  background:#202124;
+  color:#f5f5f5;
+}
+
+body.modo-escuro .tutorial-indicador{
+  color:#9aa0a6;
+}
+
+body.modo-escuro .tutorial-passo h2{
+  color:#f5f5f5;
+}
+
+body.modo-escuro .tutorial-passo p{
+  color:#9aa0a6;
+}
+
+body.modo-escuro .tutorial-footer{
+  border-color:#333;
+}
+
+body.modo-escuro .tutorial-pular{
+  color:#9aa0a6;
+}
+
+
+/* Celular */
+
+@media(max-width:560px){
+
+  .tutorial-box{
+    padding:22px;
+    border-radius:16px;
+  }
+
+  .tutorial-passo h2{
+    font-size:20px;
+  }
+
+  .tutorial-footer{
+    margin-top:5px;
+  }
+
+}
+
+/* ================================
+   TELA DE CARREGAMENTO
+================================ */
+
+#telaLoading {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s ease;
+}
+
+#telaLoading.oculta {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.loading-logo {
+  font-size: 42px;
+  animation: loadingPulso 1.5s ease-in-out infinite;
+}
+
+.loading-nome {
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.loading-subtitulo {
+  font-size: 14px;
+  opacity: 0.6;
+  margin-top: -10px;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+
+  border: 3px solid #e5e5e5;
+  border-top-color: currentColor;
+  border-radius: 50%;
+
+  animation: loadingGirar 0.8s linear infinite;
+}
+
+@keyframes loadingGirar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loadingPulso {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+/* Modo escuro */
+
+body.modo-escuro #telaLoading {
+  background: #121212;
+  color: #ffffff;
+}
+
+body.modo-escuro .loading-spinner {
+  border-color: #333333;
+}
