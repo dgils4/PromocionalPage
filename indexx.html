@@ -9,6 +9,26 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<div id="telaLoading">
+  <div class="loading-conteudo">
+
+    <div class="loading-logo">💰</div>
+
+    <div class="loading-nome">
+      Dinheiro do Mês
+    </div>
+
+    <div class="loading-subtitulo">
+      Organizando sua vida financeira...
+    </div>
+
+    <div class="loading-spinner"></div>
+
+  </div>
+</div>
+
+  
   <div id="app">
     <aside class="sidebar" id="sidebar">
       <div class="brand"><span class="brand-mark">D</span><div><strong>Dinheiro do Mês</strong><small>Controle financeiro</small></div></div>
@@ -21,6 +41,11 @@
         <button class="nav-item" data-view="historico">◷ <span>Histórico</span></button>
       </nav>
       <div class="sidebar-bottom">
+
+
+        <button class="nav-item" id="themeToggle" type="button">
+    🌙 <span>Modo escuro</span>
+        </button>
         <button class="nav-item" data-action="backup">⇩ <span>Backup</span></button>
         <button class="nav-item" data-action="restore">⇧ <span>Restaurar</span></button>
         <input type="file" id="restoreInput" accept=".json" hidden>
@@ -57,5 +82,45 @@
   </div>
   <div id="toast"></div>
   <script src="app.js"></script>
+
+  <div id="tutorialPrimeiroUso" class="tutorial-overlay">
+
+  <div class="tutorial-box">
+
+    <button
+      class="tutorial-fechar"
+      onclick="pularTutorial()"
+      aria-label="Fechar"
+      disabled
+    >×</button>
+
+    <div id="tutorialConteudo"></div>
+
+    <div class="tutorial-footer">
+
+      <button 
+        type="button"
+        class="tutorial-pular"
+        onclick="pularTutorial()"
+        disabled
+      >
+        Pular
+      </button>
+
+      <button
+        type="button"
+        class="btn"
+        id="tutorialProximo"
+        onclick="proximoTutorial()"
+        
+      >
+        Começar
+      </button>
+
+    </div>
+
+  </div>
+
+  </div>
 </body>
 </html>
