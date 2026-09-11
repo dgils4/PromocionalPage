@@ -80,20 +80,43 @@ let currentDate=new Date(); currentDate.setDate(1);
 
 function loadState(){
  const saved=localStorage.getItem(KEY);
- if(saved) return JSON.parse(saved);
+
+ if(saved){
+  const stateSalvo=JSON.parse(saved);
+
+  if(!Array.isArray(stateSalvo.categorias)){
+   stateSalvo.categorias=[];
+  }
+
+  const idsExistentes=new Set(
+   stateSalvo.categorias.map(c=>c.id)
+  );
+
+  const novasCategorias=defaultCategories.filter(
+   c=>!idsExistentes.has(c.id)
+  );
+
+  stateSalvo.categorias=[
+   ...stateSalvo.categorias,
+   ...novasCategorias
+  ];
+
+  return stateSalvo;
+ }
+
  return {
   income:3000,
   rendas:[
-    {
-mes:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`,
-      valor:3000
-    }
+   {
+    mes:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`,
+    valor:3000
+   }
   ],
   receitas:[],
   despesas:[],
-  categorias:defaultCategories,
+  categorias:[...defaultCategories],
   metas:[]
-};
+ };
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(state)); render(); }
 function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random();}
