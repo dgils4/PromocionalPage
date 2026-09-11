@@ -66,7 +66,14 @@ const defaultCategories=[
  {id:'cat-3',name:'Transporte',icon:'🚗'},{id:'cat-4',name:'Contas',icon:'💡'},
  {id:'cat-5',name:'Saúde',icon:'💊'},{id:'cat-6',name:'Lazer',icon:'🎮'},
  {id:'cat-7',name:'Compras',icon:'🛒'},{id:'cat-8',name:'Educação',icon:'📚'},
- {id:'cat-9',name:'Dívidas',icon:'💳'},{id:'cat-10',name:'Outros',icon:'📦'}
+ {id:'cat-9',name:'Dívidas',icon:'💳'},{id:'cat-10',name:'Lavanderia',icon:'🫧'},
+   {id:'cat-11',name:'Passeios',icon:'🍻'},{id:'cat-12',name:'Gasolina',icon:'⛽'},
+ {id:'cat-13',name:'Lava-Jato',icon:'🧽'},
+  {id:'cat-14',name:'Pedintes',icon:'💬'},
+   {id:'cat-15',name:'Aluguel',icon:'📅'},{id:'cat-16',name:'veiculos',icon:'🛵'},
+ {id:'cat-17',name:'Namorada',icon:'👠'},
+   {id:'cat-18',name:'Namorado',icon:'🎒'},
+{id:'cat-19',name:'Outros',icon:'📦'}
 ];
 let state=loadState();
 let currentDate=new Date(); currentDate.setDate(1);
