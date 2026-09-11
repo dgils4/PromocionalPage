@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>JurisFlow</title>
+  <meta name="description" content="Gestão jurídica para escritórios">
+  <link rel="stylesheet" href="style1.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="toast"></div>
+  <section id="authView" class="auth-view">
+    <div class="auth-card">
+      <div class="brand-mark">JF</div>
+      <h1>JurisFlow</h1>
+      <p class="muted">Gestão jurídica simples e profissional.</p>
+
+      <div id="loginBox">
+        <h2>Entrar</h2>
+        <label>E-mail<input id="loginEmail" type="email" autocomplete="email"></label>
+        <label>Senha<input id="loginPassword" type="password" autocomplete="current-password"></label>
+        <button class="primary full" id="loginBtn">Entrar</button>
+        <button class="link-btn" id="showSignup">Criar conta</button>
+        <button class="link-btn" id="forgotBtn">Esqueci minha senha</button>
+      </div>
+
+      <div id="signupBox" class="hidden">
+        <h2>Criar escritório</h2>
+        <label>Seu nome<input id="signupName" type="text"></label>
+        <label>Nome do escritório<input id="signupOffice" type="text"></label>
+        <label>E-mail<input id="signupEmail" type="email"></label>
+        <label>Senha<input id="signupPassword" type="password" minlength="6"></label>
+        <button class="primary full" id="signupBtn">Criar conta</button>
+        <button class="link-btn" id="showLogin">Já tenho uma conta</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="appView" class="app hidden">
+    <aside id="sidebar">
+      <div class="side-brand"><span>JF</span><div><b>JurisFlow</b><small>Gestão jurídica</small></div></div>
+      <nav id="nav">
+        <button data-page="dashboard">🏠 <span>Dashboard</span></button>
+        <button data-page="clientes">👥 <span>Clientes</span></button>
+        <button data-page="processos">⚖️ <span>Processos</span></button>
+        <button data-page="agenda">📅 <span>Agenda</span></button>
+        <button data-page="prazos">⏰ <span>Prazos</span></button>
+        <button data-page="tarefas">📋 <span>Tarefas</span></button>
+        <button data-page="audiencias">🎓 <span>Audiências</span></button>
+        <button data-page="documentos">📄 <span>Documentos</span></button>
+        <button data-page="financeiro">💰 <span>Financeiro</span></button>
+        <button data-page="contratos">📝 <span>Contratos</span></button>
+        <button data-page="atendimentos">💬 <span>Atendimentos</span></button>
+        <button data-page="relatorios">📊 <span>Relatórios</span></button>
+        <button data-page="configuracoes">⚙️ <span>Configurações</span></button>
+      </nav>
+      <div class="side-bottom"><div id="userMini"></div><button id="logoutBtn">Sair</button></div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <button id="menuBtn" class="icon-btn">☰</button>
+        <div><strong id="pageTitle">Dashboard</strong><small id="pageSubtitle">Visão geral do escritório</small></div>
+        <button id="globalSearchBtn" class="search-btn">🔎 Buscar</button>
+      </header>
+      <div id="page" class="page"></div>
+    </main>
+  </section>
+
+  <div id="modal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle"></h3><button id="modalClose" class="icon-btn">×</button></div><form id="modalForm"></form></div></div>
+
+<script>
+const SUPABASE_URL = "https://azpguqswqaccimrdhsho.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6cGd1cXN3cWFjY2ltcmRoc2hvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3ODYxNjEsImV4cCI6MjA5MzM2MjE2MX0.SWnvj0vc7kb6cl48OjgzjkshYlypvFqvtlH8ZJDPjpM"; // substitua pela anon key do seu projeto
+</script>
+<script src="app1.js"></script>
+</body>
+</html>
