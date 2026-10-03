@@ -1,0 +1,228 @@
+/* =========================================================
+   CÁLCULO PLANO MENSAL
+========================================================= */
+
+.calculoPlano{
+  width:100%;
+  max-width:700px;
+  margin:auto;
+  padding:15px;
+  box-sizing:border-box;
+  color:#111827;
+}
+
+
+/* ==========================
+   DATAS
+========================== */
+
+.filtroDatasCalculo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.filtroDatasCalculo label,
+.campoPote label{
+  display:block;
+  color:#111827;
+  font-size:13px;
+  margin-bottom:6px;
+  font-weight:600;
+}
+
+.filtroDatasCalculo input,
+.inputPote input{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:#fff;
+  color:#111827;
+  font-size:15px;
+}
+
+
+/* ==========================
+   POTES
+========================== */
+
+.potesCalculo{
+  background:#f5f5f5;
+  color:#111827;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:15px;
+}
+
+.potesCalculo h3{
+  color:#111827;
+  margin-top:0;
+  margin-bottom:15px;
+}
+
+.campoPote{
+  margin-bottom:12px;
+}
+
+.campoPote:last-child{
+  margin-bottom:0;
+}
+
+.inputPote{
+  display:flex;
+  align-items:center;
+  background:#fff;
+  border:1px solid #ccc;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.inputPote span{
+  color:#111827;
+  padding-left:12px;
+  font-weight:bold;
+}
+
+.inputPote input{
+  border:0;
+  outline:none;
+}
+
+
+/* ==========================
+   BOTÃO
+========================== */
+
+.btnCalcularPlano{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:#2457d6;
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+
+/* ==========================
+   RESULTADO
+========================== */
+
+#resultadoCalculoPlano{
+  margin-top:20px;
+  color:#111827;
+}
+
+
+/* ==========================
+   CARDS DE SERVIÇO
+========================== */
+
+.blocoServicoCalculo{
+  background:#fff;
+  color:#111827;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.blocoServicoCalculo h3{
+  color:#111827;
+  margin:0 0 10px;
+}
+
+.infoServicoCalculo{
+  color:#374151;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:12px;
+}
+
+.infoServicoCalculo strong{
+  color:#111827;
+}
+
+
+/* ==========================
+   PROFISSIONAIS
+========================== */
+
+.linhaProfissionalCalculo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-top:1px solid #e5e7eb;
+  color:#111827;
+}
+
+.linhaProfissionalCalculo span{
+  color:#111827;
+}
+
+.linhaProfissionalCalculo small{
+  color:#6b7280;
+}
+
+.linhaProfissionalCalculo strong{
+  color:#111827;
+}
+
+
+/* ==========================
+   TOTAL
+========================== */
+
+.totalProfissionaisCalculo{
+  background:#fff;
+  color:#111827;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.totalProfissionaisCalculo h3{
+  color:#111827;
+  margin-top:0;
+}
+
+.totalProfissional{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid #e5e7eb;
+  color:#111827;
+}
+
+.totalProfissional:last-child{
+  border-bottom:0;
+  font-weight:bold;
+}
+
+.totalProfissional span{
+  color:#111827;
+}
+
+.totalProfissional strong{
+  color:#111827;
+}
+
+
+/* ==========================
+   SEM RESULTADO
+========================== */
+
+.semResultadoCalculo{
+  text-align:center;
+  padding:25px;
+  background:#fff;
+  color:#374151;
+  border-radius:14px;
+}
