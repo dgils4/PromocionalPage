@@ -226,3 +226,103 @@
   color:#374151;
   border-radius:14px;
 }
+
+.modalDecisao{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:99999;
+
+  background:rgba(0,0,0,.65);
+
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+}
+
+.caixaDecisao{
+  width:100%;
+  max-width:420px;
+
+  background:#fff;
+
+  border-radius:18px;
+
+  padding:22px;
+
+  box-shadow:0 15px 50px rgba(0,0,0,.35);
+}
+
+.tituloDecisao{
+  font-size:20px;
+  font-weight:bold;
+
+  margin-bottom:12px;
+
+  color:#222;
+}
+
+.mensagemDecisao{
+  font-size:15px;
+  line-height:1.5;
+
+  margin-bottom:18px;
+
+  color:#555;
+}
+
+.opcoesDecisao{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.opcaoDecisao{
+  width:100%;
+
+  padding:14px;
+
+  border:0;
+  border-radius:12px;
+
+  background:#f2f2f2;
+
+  font-size:16px;
+  font-weight:bold;
+
+  text-align:left;
+
+  cursor:pointer;
+}
+
+.opcaoDecisao:active{
+  transform:scale(.98);
+}
+
+.btnCancelarDecisao{
+  width:100%;
+
+  margin-top:14px;
+
+  padding:13px;
+
+  border:0;
+  border-radius:12px;
+
+  background:#ddd;
+
+  font-size:15px;
+  font-weight:bold;
+
+  cursor:pointer;
+}
+
+
+input,
+textarea,
+select{
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
