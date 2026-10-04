@@ -216,10 +216,62 @@
       <h2>👥 Clientes</h2>
     </div>
     <div class="conteudoTela">
-      <input type="text" id="buscarCliente" placeholder="Buscar cliente">
-      <div id="resultadoClientes"></div>
+      <div class="conteudoTela">
+
+  <div class="filtrosClientes">
+
+    <select id="filtroTipoCliente">
+      <option value="todos">👥 Todos</option>
+      <option value="plano">🟢 Plano ativo</option>
+      <option value="avulso">🔵 Avulsos</option>
+    </select>
+
+    <input
+      type="text"
+      id="buscarCliente"
+      placeholder="🔎 Digite nome ou telefone..."
+      autocomplete="off"
+    >
+
+  </div>
+
+  <div
+    id="resultadoClientes"
+    class="resultadoClientes"
+  >
+
+    <div class="msgClientes">
+      🔎 Digite o nome ou telefone para consultar um cliente.
+    </div>
+
+  </div>
+
+      </div>
     </div>
   </div>
+
+
+  <!-- 👤 TELA DETALHE DO CLIENTE -->
+<div id="telaDetalheCliente" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="voltarDaDetalheCliente()">
+  ← Voltar
+</button>
+
+    <h2>👤 Cliente</h2>
+
+  </div>
+
+  <div
+    class="conteudoTela"
+    id="conteudoDetalheCliente"
+  >
+
+  </div>
+
+</div>
 
   <!-- 💰 TELA FINANCEIRO -->
   <div id="telaFinanceiro" class="telaSistema">
@@ -522,6 +574,34 @@
     </div>
   </div>
 
+  <!-- 🔥 MODAL DE DECISÃO -->
+<div id="modalDecisao" class="modalDecisao">
+
+  <div class="caixaDecisao">
+
+    <div id="tituloDecisao" class="tituloDecisao">
+      Escolha uma opção
+    </div>
+
+    <div id="mensagemDecisao" class="mensagemDecisao">
+    </div>
+
+    <div id="opcoesDecisao" class="opcoesDecisao">
+    </div>
+
+    <button
+      id="cancelarDecisao"
+      class="btnCancelarDecisao"
+      type="button"
+    >
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
+
+  
   <!-- ========================================== -->
   <!-- 📌 SIDEBAR / MENU LATERAL                  -->
   <!-- ========================================== -->
