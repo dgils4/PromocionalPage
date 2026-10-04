@@ -1261,4 +1261,717 @@ function salvarBarbeiroDespesa(){
 
 }
 
+
+/* =========================================================
+   CÁLCULO DO PLANO MENSAL
+========================================================= */
+
+async function calcularFechamentoPlano(){
+
+  const dataInicial =
+    document.getElementById("calculoDataInicial").value;
+
+  const dataFinal =
+    document.getElementById("calculoDataFinal").value;
+
+  const poteCabelo =
+    Number(
+      document.getElementById("poteCabelo").value || 0
+    );
+
+  const poteBarba =
+    Number(
+      document.getElementById("poteBarba").value || 0
+    );
+
+  const resultado =
+    document.getElementById("resultadoCalculoPlano");
+
+
+  /* ==========================
+     VALIDAÇÕES
+  ========================== */
+
+  if(!dataInicial || !dataFinal){
+
+    resultado.innerHTML = `
+      <div class="semResultadoCalculo">
+        ⚠️ Informe a data inicial e a data final.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  if(dataInicial > dataFinal){
+
+    resultado.innerHTML = `
+      <div class="semResultadoCalculo">
+        ⚠️ A data inicial não pode ser maior que a data final.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  if(poteCabelo < 0 || poteBarba < 0){
+
+    resultado.innerHTML = `
+      <div class="semResultadoCalculo">
+        ⚠️ O valor dos potes não pode ser negativo.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  resultado.innerHTML = `
+    <div class="semResultadoCalculo">
+      Calculando...
+    </div>
+  `;
+
+
+  /* ==========================
+     BUSCAR ATENDIMENTOS
+  ========================== */
+
+  const { data, error } = await db
+    .from("atendimentos")
+.select(`
+  id,
+  data,
+  hora,
+  barbeiro,
+  servico,
+  tipo_cliente,
+  forma_pagamento,
+  cliente_id,
+  nome_cliente
+`)
+    
+    .eq("empresa_id", empresaId)
+    .eq("tipo_cliente", "plano")
+    .gte("data", dataInicial)
+    .lte("data", dataFinal)
+    .order("data")
+    .order("hora");
+
+
+  if(error){
+
+    console.error(error);
+
+    resultado.innerHTML = `
+      <div class="semResultadoCalculo">
+        ❌ Erro ao buscar os atendimentos.<br><br>
+        ${error.message}
+      </div>
+    `;
+
+    return;
+  }
+
+
+  /* ==========================
+     CONTADORES
+  ========================== */
+
+  const servicos = {
+
+  Cabelo: {
+    total: 0,
+    profissionais: {}
+  },
+
+  Barba: {
+    total: 0,
+    profissionais: {}
+  },
+
+  PlanoMensal: {
+    Cabelo: 0,
+    Barba: 0
+  },
+
+  PlanoCombo: {
+    Cabelo: 0,
+    Barba: 0
+  }
+
+};
+
+
+  /* ==========================
+     PROCESSAR ATENDIMENTOS
+  ========================== */
+
+  data.forEach(atendimento => {
+
+    if(!atendimento.servico){
+      return;
+    }
+
+
+    const barbeiro =
+      atendimento.barbeiro || "Sem profissional";
+
+
+    /*
+      O campo servico pode conter:
+
+      Cabelo
+
+      ou
+
+      Cabelo, Barba
+
+      ou
+
+      Cabelo, Barba, Sobrancelha
+    */
+
+    const listaServicos =
+      atendimento.servico
+        .split(",")
+        .map(s => s.trim());
+
+    const modalidade =
+  atendimento.forma_pagamento === "Plano Mensal Combo"
+    ? "PlanoCombo"
+    : "PlanoMensal";
+
+
+    listaServicos.forEach(servico => {
+
+      /*
+        SOMENTE CABELO E BARBA
+      */
+
+      let nomeServico = null;
+
+
+if(
+  servico.toLowerCase() === "máquina e tesoura"
+){
+
+  nomeServico = "Cabelo";
+
+}
+else if(
+  servico.toLowerCase() === "barba"
+){
+
+  nomeServico = "Barba";
+
+}
+
+
+      /*
+        Ignora qualquer outro serviço
+      */
+
+      if(!nomeServico){
+        return;
+      }
+
+if(nomeServico === "Cabelo"){
+  servicos[modalidade].Cabelo++;
+}
+
+if(nomeServico === "Barba"){
+  servicos[modalidade].Barba++;
+}
+
+
+
+
+      /*
+        Soma serviço
+      */
+
+      servicos[nomeServico].total++;
+
+
+      /*
+        Soma profissional
+      */
+
+      if(
+        !servicos[nomeServico]
+          .profissionais[barbeiro]
+      ){
+
+        servicos[nomeServico]
+          .profissionais[barbeiro] = 0;
+
+      }
+
+
+      servicos[nomeServico]
+        .profissionais[barbeiro]++;
+
+    });
+
+  });
+
+
+  /* ==========================
+     CALCULAR VALOR POR SERVIÇO
+  ========================== */
+
+  let valorPorCabelo = 0;
+  let valorPorBarba = 0;
+
+
+  if(servicos.Cabelo.total > 0){
+
+    valorPorCabelo =
+      poteCabelo /
+      servicos.Cabelo.total;
+
+  }
+
+
+  if(servicos.Barba.total > 0){
+
+    valorPorBarba =
+      poteBarba /
+      servicos.Barba.total;
+
+  }
+
+
+  /* ==========================
+     TOTAIS DOS PROFISSIONAIS
+  ========================== */
+
+  const totais = {};
+
+
+  function adicionarTotal(
+    profissional,
+    valor
+  ){
+
+    if(!totais[profissional]){
+      totais[profissional] = 0;
+    }
+
+    totais[profissional] += valor;
+
+  }
+
+
+  Object.entries(
+    servicos.Cabelo.profissionais
+  ).forEach(
+    ([profissional, quantidade]) => {
+
+      adicionarTotal(
+        profissional,
+        quantidade * valorPorCabelo
+      );
+
+    }
+  );
+
+
+  Object.entries(
+    servicos.Barba.profissionais
+  ).forEach(
+    ([profissional, quantidade]) => {
+
+      adicionarTotal(
+        profissional,
+        quantidade * valorPorBarba
+      );
+
+    }
+  );
+
+
+  /* ==========================
+     MONTAR RESULTADO
+  ========================== */
+
+  let html = "";
+
+
+  /* ---------- CABELO ---------- */
+
+  html += `
+    <div class="blocoServicoCalculo">
+
+      <h3>✂️ Cabelo</h3>
+
+      <div class="infoServicoCalculo">
+
+        Total de serviços:
+        <strong>
+          ${servicos.Cabelo.total}
+        </strong>
+
+        <br>
+
+        Valor do pote:
+        <strong>
+          R$ ${formatarDinheiro(poteCabelo)}
+        </strong>
+
+        <br>
+
+        Valor por cabelo:
+        <strong>
+          R$ ${formatarDinheiro(valorPorCabelo)}
+        </strong>
+
+      </div>
+  `;
+
+
+  if(
+    Object.keys(
+      servicos.Cabelo.profissionais
+    ).length === 0
+  ){
+
+    html += `
+      <div>
+        Nenhum cabelo realizado no período.
+      </div>
+    `;
+
+  }
+  else{
+
+    Object.entries(
+      servicos.Cabelo.profissionais
+    ).forEach(
+      ([profissional, quantidade]) => {
+
+        const valor =
+          quantidade * valorPorCabelo;
+
+
+        html += `
+          <div class="linhaProfissionalCalculo">
+
+            <span>
+              ${profissional}
+              <small>
+                (${quantidade})
+              </small>
+            </span>
+
+            <strong>
+              R$ ${formatarDinheiro(valor)}
+            </strong>
+
+          </div>
+        `;
+
+      }
+    );
+
+  }
+
+
+  html += `
+    </div>
+  `;
+
+
+  /* ---------- BARBA ---------- */
+
+  html += `
+    <div class="blocoServicoCalculo">
+
+      <h3>🧔 Barba</h3>
+
+      <div class="infoServicoCalculo">
+
+        Total de serviços:
+        <strong>
+          ${servicos.Barba.total}
+        </strong>
+
+        <br>
+
+        Valor do pote:
+        <strong>
+          R$ ${formatarDinheiro(poteBarba)}
+        </strong>
+
+        <br>
+
+        Valor por barba:
+        <strong>
+          R$ ${formatarDinheiro(valorPorBarba)}
+        </strong>
+
+      </div>
+  `;
+
+
+  if(
+    Object.keys(
+      servicos.Barba.profissionais
+    ).length === 0
+  ){
+
+    html += `
+      <div>
+        Nenhuma barba realizada no período.
+      </div>
+    `;
+
+  }
+  else{
+
+    Object.entries(
+      servicos.Barba.profissionais
+    ).forEach(
+      ([profissional, quantidade]) => {
+
+        const valor =
+          quantidade * valorPorBarba;
+
+
+        html += `
+          <div class="linhaProfissionalCalculo">
+
+            <span>
+              ${profissional}
+              <small>
+                (${quantidade})
+              </small>
+            </span>
+
+            <strong>
+              R$ ${formatarDinheiro(valor)}
+            </strong>
+
+          </div>
+        `;
+
+      }
+    );
+
+  }
+
+
+  html += `
+    </div>
+  `;
+
+
+  /* ==========================
+     TOTAL DOS PROFISSIONAIS
+  ========================== */
+
+  html += `
+    <div class="totalProfissionaisCalculo">
+
+      <h3>💰 Total a receber</h3>
+  `;
+
+
+  const profissionais =
+    Object.keys(totais)
+      .sort();
+
+
+  if(profissionais.length === 0){
+
+    html += `
+      <div class="semResultadoCalculo">
+        Nenhum serviço encontrado.
+      </div>
+    `;
+
+  }
+  else{
+
+    profissionais.forEach(
+      profissional => {
+
+        html += `
+          <div class="totalProfissional">
+
+            <span>
+              ${profissional}
+            </span>
+
+            <strong>
+              R$ ${formatarDinheiro(
+                totais[profissional]
+              )}
+            </strong>
+
+          </div>
+        `;
+
+      }
+    );
+
+  }
+
+
+  html += `
+    </div>
+  `;
+
+
+  resultado.innerHTML = html;
+
+}
+
+
+/* =========================================================
+   FORMATA DINHEIRO
+========================================================= */
+
+function formatarDinheiro(valor){
+
+  return Number(valor || 0)
+    .toFixed(2)
+    .replace(".", ",");
+
+}
+
+
+async function desativarPlanoVencimento(id, nome){
+
+  const confirmar =
+    confirm(
+      `Deseja desativar o plano de "${nome}"?`
+    );
+
+  if(!confirmar) return;
+
+  const { error } =
+    await db
+      .from("clientes")
+      .update({
+        status_plano: "inativo"
+      })
+      .eq("empresa_id", empresaId)
+      .eq("id", id);
+
+  if(error){
+
+    console.log(error);
+
+    mostrarToast(
+      "Erro ao desativar o plano."
+    );
+
+    return;
+  }
+
+  mostrarToast(
+    "Plano desativado."
+  );
+
+  abrirVencimentos();
+
+}
+
+
+function abrirDecisaoVisual({
+  titulo = "Escolha uma opção",
+  mensagem = "",
+  opcoes = [],
+  permitirCancelar = true
+}){
+
+  return new Promise(resolve => {
+
+    const modal =
+      document.getElementById("modalDecisao");
+
+    const tituloEl =
+      document.getElementById("tituloDecisao");
+
+    const mensagemEl =
+      document.getElementById("mensagemDecisao");
+
+    const opcoesEl =
+      document.getElementById("opcoesDecisao");
+
+    const cancelar =
+      document.getElementById("cancelarDecisao");
+
+    tituloEl.textContent = titulo;
+
+    mensagemEl.innerHTML = mensagem;
+
+    opcoesEl.innerHTML = "";
+
+    modal.style.display = "flex";
+
+    function finalizar(valor){
+
+      modal.style.display = "none";
+
+      opcoesEl.innerHTML = "";
+
+      cancelar.onclick = null;
+
+      resolve(valor);
+    }
+
+    opcoes.forEach(opcao => {
+
+      const botao =
+        document.createElement("button");
+
+      botao.type = "button";
+
+      botao.className =
+        "opcaoDecisao";
+
+      botao.innerHTML =
+        opcao.texto;
+
+      botao.onclick = () => {
+
+        finalizar(opcao.valor);
+
+      };
+
+      opcoesEl.appendChild(botao);
+
+    });
+
+    if(permitirCancelar){
+
+      cancelar.style.display = "block";
+
+      cancelar.onclick = () => {
+
+        finalizar(null);
+
+      };
+
+    }else{
+
+      cancelar.style.display = "none";
+
+    }
+
+  });
+
+}
+
+modal.addEventListener("selectstart", function(e){
+  e.preventDefault();
+});
+
+
+
 carregarProfissionaisFiltroDespesa()
