@@ -990,35 +990,58 @@ if(valorInformado > 0){
       });
 
 
-      const escolha = prompt(
-        `Existem vários planos com este valor.\n\n` +
-        `Escolha o plano:\n\n` +
-        opcoes
-      );
+      const opcoesVisuais =
+  planosCompativeis.map((plano, index) => {
+
+    return {
+      valor: index,
+      texto: `
+        📋 ${plano.nome}
+        <br>
+        <small>${plano.preco}</small>
+      `
+    };
+
+  });
 
 
-      const indice =
-        Number(escolha) - 1;
+const escolha =
+  await abrirDecisaoVisual({
+
+    titulo: "Escolha o plano",
+
+    mensagem:
+      "Existem vários planos com este valor.<br><br>" +
+      "Selecione qual plano deve ser utilizado neste atendimento.",
+
+    opcoes: opcoesVisuais,
+
+    permitirCancelar: true
+
+  });
 
 
-      if(
-        escolha === null ||
-        !Number.isInteger(indice) ||
-        !planosCompativeis[indice]
-      ){
+if(escolha === null){
 
-        mostrarToast(
-          "Selecione um plano válido para continuar."
-        );
+  fecharLoading();
 
-        fecharLoading();
-        return;
+  return;
 
-      }
+}
 
 
-      planoDetectado =
-        planosCompativeis[indice];
+planoDetectado =
+  planosCompativeis[escolha];
+
+tipoCliente = "plano";
+
+atendimentoDoPlano = true;
+
+
+console.log(
+  "Novo plano selecionado:",
+  planoDetectado.nome
+);
 
       tipoCliente = "plano";
       atendimentoDoPlano = true;
@@ -1059,12 +1082,41 @@ if(valorInformado > 0){
     clientePlano?.status_plano === "ativo"
   ){
 
-    const usarPlano = confirm(
-      `Cliente possui o plano "${clientePlano.tipo_plano}".\n\n` +
-      `Este atendimento é do plano?`
-    );
+const usarPlano =
+  await abrirDecisaoVisual({
 
-  if(usarPlano){
+    titulo: "Atendimento do plano?",
+
+    mensagem:
+      `Cliente possui o plano <b>"${clientePlano.tipo_plano}"</b>.<br><br>` +
+      `Este atendimento será descontado do plano?`,
+
+    opcoes: [
+      {
+        valor: true,
+        texto: "🟢 Sim, usar o plano"
+      },
+      {
+        valor: false,
+        texto: "🔵 Não, atendimento avulso"
+      }
+    ],
+
+    permitirCancelar: true
+
+  });
+
+
+if(usarPlano === null){
+
+  fecharLoading();
+
+  return;
+
+}
+
+
+if(usarPlano){
 
   const { data: planoCliente } = await db
     .from("planos_site")
@@ -1095,22 +1147,45 @@ if(valorInformado > 0){
 
   if(ultimoCorte >= limiteCortes){
 
-    const continuarMesmoAssim = confirm(
-      `⚠️ PLANO CONSUMIDO\n\n` +
-      `Cliente: ${nomeFinal}\n` +
-      `Plano: ${clientePlano.tipo_plano}\n` +
-      `Cortes utilizados: ${ultimoCorte}/${limiteCortes}\n\n` +
-      `O próximo atendimento será o corte 1/${limiteCortes}.\n\n` +
-      `Valor para renovação: ${planoCliente?.preco || "valor não informado"}\n\n` +
-      `Deseja continuar sem registrar a renovação?`
-    );
+const continuarMesmoAssim =
+  await abrirDecisaoVisual({
 
-    if(!continuarMesmoAssim){
+    titulo: "⚠️ Plano consumido",
 
-      fecharLoading();
-      return;
+    mensagem:
+      `<b>Cliente:</b> ${nomeFinal}<br>` +
+      `<b>Plano:</b> ${clientePlano.tipo_plano}<br><br>` +
 
-    }
+      `✂️ Cortes utilizados: ` +
+      `<b>${ultimoCorte}/${limiteCortes}</b><br><br>` +
+
+      `O próximo atendimento será o corte ` +
+      `<b>1/${limiteCortes}</b>.<br><br>` +
+
+      `💰 Valor para renovação: ` +
+      `<b>${planoCliente?.preco || "valor não informado"}</b><br><br>` +
+
+      `Deseja continuar sem registrar a renovação?`,
+
+    opcoes: [
+      {
+        valor: true,
+        texto: "🟢 Continuar sem renovar"
+      }
+    ],
+
+    permitirCancelar: true
+
+  });
+
+
+if(continuarMesmoAssim !== true){
+
+  fecharLoading();
+
+  return;
+
+}
 
   }
 
@@ -1188,19 +1263,56 @@ if(
     clienteAtual.tipo_plano !== planoDetectado.nome
   ){
 
-    const trocarPlano = confirm(
-      `Cliente está no plano "${clienteAtual.tipo_plano}".\n\n` +
-      `O valor informado corresponde ao "${planoDetectado.nome}".\n\n` +
-      `Deseja transferir o cliente para este novo plano?`
-    );
+const trocarPlano =
+  await abrirDecisaoVisual({
 
-    if(!trocarPlano){
+    titulo: "🔄 Alterar plano do cliente",
 
-      planoDetectado = null;
-      tipoCliente = "avulso";
-      atendimentoDoPlano = false;
+    mensagem:
+      `O cliente está atualmente no plano ` +
+      `<b>"${clienteAtual.tipo_plano}"</b>.<br><br>` +
 
-    }
+      `O valor informado corresponde ao plano ` +
+      `<b>"${planoDetectado.nome}"</b>.<br><br>` +
+
+      `Deseja transferir o cliente para este novo plano?`,
+
+    opcoes: [
+      {
+        valor: true,
+        texto: "🟢 Sim, transferir para o novo plano"
+      },
+      {
+        valor: false,
+        texto: "🔵 Não, manter o plano atual"
+      }
+    ],
+
+    permitirCancelar: true
+
+  });
+
+
+if(trocarPlano === null){
+
+  // Cancelou a operação
+  fecharLoading();
+  return;
+
+}
+
+if(trocarPlano === false){
+
+  // Não quer transferir.
+  // Mantém o plano atual do cliente.
+
+  planoDetectado = null;
+
+  tipoCliente = "plano";
+
+  atendimentoDoPlano = true;
+
+}
   }
 }
 
@@ -2884,121 +2996,569 @@ if(
 
 }
 
+let clientesCache = [];
 
 async function carregarClientes(){
 
-  const busca =
-  document.getElementById("buscarCliente").value.trim();
-
-  let query = db
+  const { data: clientes, error } = await db
     .from("clientes")
     .select("*")
     .eq("empresa_id", empresaId)
     .order("nome");
-
-  if(busca){
-    query = query.ilike("nome", `%${busca}%`);
-  }
-
-  const { data: clientes, error } = await query;
 
   if(error){
     console.log(error);
     return;
   }
 
-  const { data: atendimentosRaw } = await db
-    .from("atendimentos")
-    .select("cliente_id,data,numero_corte,tipo_cliente")
-    .eq("empresa_id", empresaId)
-    .order("data", { ascending: false });
+  clientesCache = clientes || [];
 
-  const atendimentos = atendimentosRaw || [];
+  renderizarClientes();
+}
 
-  // 🔥 MAPA ÚLTIMO ATENDIMENTO
-  const ultimoMap = {};
 
-  atendimentos.forEach(a => {
-    if(!a.cliente_id) return;
-    if(!ultimoMap[a.cliente_id]){
-      ultimoMap[a.cliente_id] = a;
-    }
-  });
+function renderizarClientes(){
 
-  const lista = document.getElementById("resultadoClientes");
+  const lista =
+    document.getElementById("resultadoClientes");
+
+  const busca =
+    document
+      .getElementById("buscarCliente")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const filtro =
+    document.getElementById("filtroTipoCliente")
+      .value;
+
+  let clientesFiltrados =
+    clientesCache.filter(cli => {
+
+      // ==========================
+      // FILTRO PLANO / AVULSO
+      // ==========================
+
+      if(filtro === "plano"){
+
+        if(
+          cli.status_plano !== "ativo"
+        ){
+          return false;
+        }
+
+      }
+
+      if(filtro === "avulso"){
+
+        if(
+          cli.status_plano === "ativo"
+        ){
+          return false;
+        }
+
+      }
+
+      // ==========================
+      // PESQUISA
+      // ==========================
+
+      if(!busca){
+        return true;
+      }
+
+      const nome =
+        String(cli.nome || "")
+          .toLowerCase();
+
+      const telefone =
+        String(cli.telefone || "")
+          .toLowerCase();
+
+      return (
+        nome.includes(busca) ||
+        telefone.includes(busca)
+      );
+
+    });
+
+
   lista.innerHTML = "";
 
-  if(!clientes.length){
-    lista.innerHTML = "<div class='msg'>Nenhum cliente encontrado</div>";
+
+  if(!clientesFiltrados.length){
+
+    lista.innerHTML = `
+      <div class="msgClientes">
+        🔎 Nenhum cliente encontrado.
+      </div>
+    `;
+
     return;
   }
 
-  clientes.forEach(cli => {
 
-    const ultimo = ultimoMap[cli.id];
+  // ==========================
+  // CARDS
+  // ==========================
 
-    // 🔥 ÚLTIMA VISITA
-    const ultimaVisita = ultimo?.data
-      ? new Date(ultimo.data).toLocaleDateString("pt-BR")
-      : "Sem visitas";
+  clientesFiltrados.forEach(cli => {
 
-    // 🔥 ÚLTIMO CORTE (derivado)
-    const numeroCorte =
-      ultimo?.numero_corte
-      ? `${ultimo.numero_corte}/4`
-      : "Sem corte";
-
-    // 🔥 STATUS PLANO
-    const statusPlano =
-      cli.status_plano || "não informado";
-
-    // 🔥 DATA ADESÃO
-    const adesao = cli.data_adesao_plano || "-";
-
-    // 🔥 RENOVAÇÃO
-    const renovacao = cli.ultima_renovacao || "-";
-
-    // 🔥 VENCIMENTO
-    const vencimento = cli.vencimento_plano || "-";
-
-    // 🔥 FIDELIDADE
-    const fidelidadeInicio = cli.fidelidade_inicio || "-";
-    const fidelidadeUsados = cli.fidelidade_usados || 0;
+    const planoAtivo =
+      cli.status_plano === "ativo";
 
     lista.innerHTML += `
-      <div class="cardCliente">
+
+      <div
+  class="cardCliente"
+  onclick="abrirDetalheCliente('${cli.id}')"
+  style="cursor:pointer;"
+>
 
         <div class="nomeCliente">
           👤 ${cli.nome}
         </div>
 
-        <div>📞 ${cli.telefone || "-"}</div>
+        <div class="infoCliente">
+          📞 ${cli.telefone || "Telefone não informado"}
+        </div>
 
         <hr>
 
-        <div>📌 Plano: <b>${statusPlano}</b></div>
-        <div>📅 Adesão: ${adesao}</div>
-        <div>🔁 Renovação: ${renovacao}</div>
-        <div>⏳ Vencimento: ${vencimento}</div>
-
-        <hr>
-
-        <div>✂️ Último corte: <b>${numeroCorte}</b></div>
-        <div>📅 Última visita: <b>${ultimaVisita}</b></div>
-
-        <hr>
-
-        <div>🎁 Fidelidade início: ${fidelidadeInicio}</div>
-        <div>🎁 Fidelidade usados: ${fidelidadeUsados}</div>
+        <div>
+          ${
+            planoAtivo
+            ? "🟢 Cliente com plano ativo"
+            : "🔵 Cliente avulso"
+          }
+        </div>
 
       </div>
+
     `;
+
   });
+
 }
 
+
+
+
+
 document
-.getElementById("buscarCliente")
-.addEventListener("input", carregarClientes);
+  .getElementById("buscarCliente")
+  .addEventListener(
+    "input",
+    renderizarClientes
+  );
+
+
+document
+  .getElementById("filtroTipoCliente")
+  .addEventListener(
+    "change",
+    renderizarClientes
+  );
+
+async function abrirDetalheCliente(clienteId){
+
+  const tela =
+    document.getElementById("telaDetalheCliente");
+
+  const conteudo =
+    document.getElementById("conteudoDetalheCliente");
+
+  if(!tela || !conteudo) return;
+
+  conteudo.innerHTML = `
+    <div class="msgClientes">
+      ⏳ Carregando informações do cliente...
+    </div>
+  `;
+
+  tela.style.display = "flex";
+
+  // ==========================
+  // BUSCA CLIENTE
+  // ==========================
+
+  const { data: cliente, error: erroCliente } =
+    await db
+      .from("clientes")
+      .select("*")
+      .eq("empresa_id", empresaId)
+      .eq("id", clienteId)
+      .single();
+
+  if(erroCliente || !cliente){
+
+    conteudo.innerHTML = `
+      <div class="msgClientes">
+        ❌ Não foi possível carregar o cliente.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  // ==========================
+  // BUSCA ATENDIMENTOS
+  // ==========================
+
+  const { data: atendimentos, error: erroAtendimentos } =
+    await db
+      .from("atendimentos")
+      .select("*")
+      .eq("empresa_id", empresaId)
+      .eq("cliente_id", clienteId)
+      .order("data", { ascending:false })
+      .order("hora", { ascending:false })
+      .limit(10);
+
+
+  if(erroAtendimentos){
+
+    console.log(erroAtendimentos);
+
+  }
+
+
+  const listaAtendimentos =
+    atendimentos || [];
+
+
+  // ==========================
+  // PLANO
+  // ==========================
+
+  let plano = null;
+
+  if(
+    cliente.status_plano === "ativo" &&
+    cliente.tipo_plano
+  ){
+
+    const { data: planoEncontrado } =
+      await db
+        .from("planos_site")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .eq("nome", cliente.tipo_plano)
+        .eq("ativo", true)
+        .single();
+
+    plano = planoEncontrado || null;
+  }
+
+
+  // ==========================
+  // CORTES DO PLANO
+  // ==========================
+
+  const cortesPlano =
+    listaAtendimentos.filter(a =>
+      a.tipo_cliente === "plano"
+    );
+
+  const limiteCortes =
+    Number(plano?.quantidade_cortes) || 4;
+
+  const ultimoCorte =
+    cortesPlano.length
+      ? Number(cortesPlano[0].numero_corte) || 0
+      : 0;
+
+
+  // ==========================
+  // VENCIMENTO
+  // ==========================
+
+  let vencimento = null;
+
+  if(cliente.data_adesao_plano){
+
+    vencimento =
+      calcularVencimento(
+        cliente.data_adesao_plano
+      );
+
+  }
+
+
+  const vencimentoTexto =
+    vencimento
+      ? vencimento.toLocaleDateString("pt-BR")
+      : "-";
+
+
+  // ==========================
+  // TOTAL GASTO
+  // ==========================
+
+  const totalGasto =
+    listaAtendimentos.reduce(
+      (total, atendimento) =>
+        total +
+        (Number(atendimento.valor) || 0),
+      0
+    );
+
+
+  // ==========================
+  // HTML
+  // ==========================
+
+  conteudo.innerHTML = `
+
+    <!-- ===================== -->
+    <!-- DADOS DO CLIENTE -->
+    <!-- ===================== -->
+
+    <div class="cardCliente">
+
+      <div class="nomeCliente">
+        👤 ${cliente.nome}
+      </div>
+
+      <div class="infoCliente">
+        📞 ${cliente.telefone || "Telefone não informado"}
+      </div>
+
+      <hr>
+
+      ${
+        cliente.status_plano === "ativo"
+
+        ? `
+          <div>
+            🟢 <b>Plano ativo</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            📋 Plano:
+            <b>${cliente.tipo_plano || "-"}</b>
+          </div>
+        `
+
+        : `
+          <div>
+            🔵 <b>Cliente avulso</b>
+          </div>
+        `
+      }
+
+    </div>
+
+
+    <!-- ===================== -->
+    <!-- INFORMAÇÕES DO PLANO -->
+    <!-- ===================== -->
+
+    ${
+      cliente.status_plano === "ativo"
+
+      ? `
+
+        <div class="cardCliente">
+
+          <h3>📋 Informações do plano</h3>
+
+          <div style="margin-top:10px;">
+            💰 Valor:
+            <b>${plano?.preco || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            ✂️ Cortes:
+            <b>${ultimoCorte}/${limiteCortes}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            📅 Adesão:
+            <b>${cliente.data_adesao_plano || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            🔄 Última renovação:
+            <b>${cliente.ultima_renovacao || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            ⏳ Vencimento:
+            <b>${vencimentoTexto}</b>
+          </div>
+
+        </div>
+
+      `
+
+      : `
+
+        <div class="cardCliente">
+
+          <h3>🎁 Fidelidade</h3>
+
+          <div style="margin-top:10px;">
+            📅 Início:
+            <b>${cliente.fidelidade_inicio || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            ✂️ Cortes acumulados:
+            <b>${cliente.cortes_fidelidade || 0}/10</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            🎁 Cortes gratuitos usados:
+            <b>${cliente.fidelidade_usados || 0}</b>
+          </div>
+
+        </div>
+
+      `
+    }
+
+
+    <!-- ===================== -->
+    <!-- RESUMO FINANCEIRO -->
+    <!-- ===================== -->
+
+    <div class="cardCliente">
+
+      <h3>💰 Resumo</h3>
+
+      <div style="margin-top:10px;">
+        👣 Atendimentos registrados:
+        <b>${listaAtendimentos.length}</b>
+      </div>
+
+      <div style="margin-top:8px;">
+        💵 Total dos últimos atendimentos:
+        <b>
+          R$ ${totalGasto.toFixed(2).replace(".", ",")}
+        </b>
+      </div>
+
+    </div>
+
+
+    <!-- ===================== -->
+    <!-- HISTÓRICO -->
+    <!-- ===================== -->
+
+    <div class="cardCliente">
+
+      <h3>📋 Últimos atendimentos</h3>
+
+      ${
+        listaAtendimentos.length
+
+        ? listaAtendimentos.map(a => `
+
+          <div
+            style="
+              padding:12px 0;
+              border-bottom:1px solid #ddd;
+            "
+          >
+
+            <div>
+              📅
+              <b>
+                ${
+                  a.data
+                    ? String(a.data).split("-").reverse().join("/")
+                    : "-"
+                }
+              </b>
+
+              ${
+                a.hora
+                  ? ` • ${a.hora}`
+                  : ""
+              }
+            </div>
+
+            <div style="margin-top:5px;">
+  ✂️
+  ${a.servico || "Serviço não informado"}
+
+  ${
+    a.tipo_cliente === "plano"
+      ? ` • Corte: ${a.numero_corte || 0}/${limiteCortes}`
+      : ""
+  }
+</div>
+
+            <div style="margin-top:5px;">
+              👨‍💼
+              ${a.barbeiro || "Profissional não informado"}
+            </div>
+
+            <div style="margin-top:5px;">
+              ${
+                a.tipo_cliente === "plano"
+                  ? "🟢 Plano"
+                  : "🔵 Avulso"
+              }
+
+              ${
+                a.valor != null
+                  ? ` • R$ ${Number(a.valor)
+                      .toFixed(2)
+                      .replace(".", ",")}`
+                  : ""
+              }
+            </div>
+
+            ${
+              a.forma_pagamento
+                ? `
+                  <div style="margin-top:5px;">
+                    💳 ${a.forma_pagamento}
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+
+        `).join("")
+
+        : `
+
+          <div
+            style="
+              padding:15px 0;
+              text-align:center;
+            "
+          >
+            Nenhum atendimento encontrado.
+          </div>
+
+        `
+      }
+
+    </div>
+
+  `;
+
+}
+
+function voltarDaDetalheCliente(){
+
+  const tela =
+    document.getElementById("telaDetalheCliente");
+
+  if(tela){
+    tela.style.display = "none";
+  }
+
+}
+
+
 
 
 function abrirLembrete(){
@@ -3055,40 +3615,36 @@ async function carregarFidelidade(){
 
   }
   
-const { data: atendimentos } =
-await db
-.from("atendimentos")
-.select(
-  "cliente_id,tipo_cliente,data"
-)
-.eq("empresa_id", empresaId)
-.eq("tipo_cliente","avulso");
-
 const mapaCortes = {};
 
-data.forEach(cli=>{
+for(const cli of data){
 
-  const inicio =
-  cli.fidelidade_inicio;
+  if(!cli.tem_fidelidade){
+    mapaCortes[cli.id] = 0;
+    continue;
+  }
 
-const total =
+  const { data: atendimentosCliente, error: erroAtendimentos } =
+    await db
+      .from("atendimentos")
+      .select("cliente_id,tipo_cliente,data")
+      .eq("empresa_id", empresaId)
+      .eq("cliente_id", cli.id)
+      .eq("tipo_cliente", "avulso");
 
-!cli.tem_fidelidade
+  if(erroAtendimentos){
+    console.log(erroAtendimentos);
+    mapaCortes[cli.id] = 0;
+    continue;
+  }
 
-? 0
+  const total =
+    (atendimentosCliente || []).filter(a =>
+      a.data >= cli.fidelidade_inicio
+    ).length;
 
-: atendimentos.filter(a =>
-
-    a.cliente_id == cli.id &&
-
-    a.data >= cli.fidelidade_inicio
-
-  ).length;
-
-  mapaCortes[cli.id] =
-  total;
-
-});
+  mapaCortes[cli.id] = total;
+}
 
   const lista =
   document.getElementById(
@@ -5886,6 +6442,7 @@ else if(item.tipo_repeticao === "intervalo"){
   
 
 }
+carregarClientes();
 
 carregarPlanos();
 carregarProfissionaisFiltro();
@@ -5909,19 +6466,16 @@ iniciarFiltro()
  setTimeout(async () => {
 
   await verificarLembretesHoje();
+   document
+  .getElementById("bootLoading")
+  .classList.add("hide");
 
 }, 1000);
 
 },2000);
 
 
-setTimeout(()=>{
 
-  document
-  .getElementById("bootLoading")
-  .classList.add("hide");
-
-},300);
 
 document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
 document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
