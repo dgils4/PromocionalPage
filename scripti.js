@@ -838,6 +838,101 @@ console.log(nomeFinal);
    clienteId = novoCliente.id;
  }
 
+function abrirDecisaoVisual({
+  titulo = "Escolha uma opção",
+  mensagem = "",
+  opcoes = [],
+  permitirCancelar = true
+}){
+
+  return new Promise(resolve => {
+
+    const modal =
+      document.getElementById("modalDecisao");
+
+    const tituloEl =
+      document.getElementById("tituloDecisao");
+
+    const mensagemEl =
+      document.getElementById("mensagemDecisao");
+
+    const opcoesEl =
+      document.getElementById("opcoesDecisao");
+
+    const cancelar =
+      document.getElementById("cancelarDecisao");
+
+    tituloEl.textContent = titulo;
+
+    mensagemEl.innerHTML = mensagem;
+
+    opcoesEl.innerHTML = "";
+
+    modal.style.display = "flex";
+
+    function finalizar(valor){
+
+      modal.style.display = "none";
+
+      opcoesEl.innerHTML = "";
+
+      cancelar.onclick = null;
+
+      resolve(valor);
+    }
+
+    opcoes.forEach(opcao => {
+
+      const botao =
+        document.createElement("button");
+
+      botao.type = "button";
+
+      botao.className =
+        "opcaoDecisao";
+
+      botao.innerHTML =
+        opcao.texto;
+
+      botao.onclick = () => {
+
+        finalizar(opcao.valor);
+
+      };
+
+      opcoesEl.appendChild(botao);
+
+    });
+
+    if(permitirCancelar){
+
+      cancelar.style.display = "block";
+
+      cancelar.onclick = () => {
+
+        finalizar(null);
+
+      };
+
+    }else{
+
+      cancelar.style.display = "none";
+
+    }
+
+  });
+
+}
+
+modal.addEventListener("selectstart", function(e){
+  e.preventDefault();
+});
+
+
+
+
+
+  
 
   // ==========================
 // 🔥 IDENTIFICA PLANO PELO VALOR
@@ -1203,6 +1298,8 @@ if(continuarMesmoAssim !== true){
 }
 
 
+
+  
   
 
  // ==========================
@@ -6479,4 +6576,5 @@ iniciarFiltro()
 
 document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
 document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
+
 
