@@ -6480,4 +6480,3 @@ iniciarFiltro()
 document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
 document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
 
-
