@@ -1299,6 +1299,123 @@ if(continuarMesmoAssim !== true){
 
 
 
+  // ==========================
+// 🔥 RECOMENDAÇÃO AO RENOVAR
+// ==========================
+
+if(
+  planoDetectado &&
+  clienteId &&
+  !editandoId
+){
+
+  const { data: ultimoAtendimento } = await db
+    .from("atendimentos")
+    .select("numero_corte")
+    .eq("empresa_id", empresaId)
+    .eq("cliente_id", clienteId)
+    .eq("tipo_cliente", "plano")
+    .order("data", { ascending:false })
+    .order("hora", { ascending:false })
+    .order("id", { ascending:false })
+    .limit(1);
+
+  const ultimoCorte =
+    Number(
+      ultimoAtendimento?.[0]?.numero_corte
+    ) || 0;
+
+  const limiteCortes =
+    Number(planoDetectado.quantidade_cortes) === 0
+      ? 0
+      : Number(planoDetectado.quantidade_cortes) || 4;
+
+
+  // ==========================
+  // VERIFICA SE JÁ É O ÚLTIMO
+  // ==========================
+
+  const ultimoDoCiclo =
+    limiteCortes > 0 &&
+    ultimoCorte >= limiteCortes;
+
+
+  // ==========================
+  // MOSTRA RECOMENDAÇÃO
+  // SOMENTE SE:
+  // - já existe corte
+  // - não é o corte 1
+  // - não é o último corte
+  // ==========================
+
+  if(
+    ultimoCorte > 1 &&
+    !ultimoDoCiclo
+  ){
+
+    const textoCorte =
+      limiteCortes === 0
+        ? "1/0"
+        : `1/${limiteCortes}`;
+
+
+    const continuar =
+      await abrirDecisaoVisual({
+
+        titulo: "🔄 Renovação do plano",
+
+        mensagem:
+          `<b>Cliente:</b> ${nomeFinal}<br>` +
+          `<b>Plano:</b> ${planoDetectado.nome}<br><br>` +
+
+          `O último atendimento foi o corte ` +
+          `<b>${ultimoCorte}/${limiteCortes}</b>.<br><br>` +
+
+          `Ao renovar, é recomendado iniciar um novo ciclo pelo ` +
+          `<b>corte ${textoCorte}</b>.<br><br>` +
+
+          `Deseja alterar o corte para o início do novo ciclo?`,
+
+        opcoes: [
+
+          {
+            valor: true,
+            texto: `🔄 Alterar para ${textoCorte}`
+          },
+
+          {
+            valor: false,
+            texto: "➡️ Continuar sem alterar"
+          }
+
+        ],
+
+        permitirCancelar: true
+
+      });
+
+
+    // Cancelou
+    if(continuar === null){
+
+      fecharLoading();
+      return;
+
+    }
+
+
+    // Usuário aceitou iniciar novo ciclo
+    if(continuar === true){
+
+      corte.value = "1";
+
+    }
+
+  }
+
+}
+
+
   
   
 
@@ -1322,15 +1439,69 @@ if(atendimentoDoPlano && clienteId){
      .order("id", { ascending:false })
      .limit(1);
 
-     if(historico && historico.length > 0){
 
-       let ultimo = parseInt(historico[0].numero_corte,10) || 0;
+if(historico && historico.length > 0){
 
-       numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
+  let ultimo =
+    parseInt(historico[0].numero_corte, 10) || 0;
 
-     } else {
-       numeroCorteFinal = 1;
-     }
+  // Busca a quantidade de cortes do plano atual
+  let limiteCortes = 4;
+
+  let nomePlanoLimite = planoDetectado?.nome || null;
+
+  // Se não veio planoDetectado, pega o plano atual do cliente
+  if(!nomePlanoLimite){
+
+    const { data: clientePlanoAtual } = await db
+      .from("clientes")
+      .select("tipo_plano")
+      .eq("empresa_id", empresaId)
+      .eq("id", clienteId)
+      .single();
+
+    nomePlanoLimite =
+      clientePlanoAtual?.tipo_plano || null;
+  }
+
+  if(nomePlanoLimite){
+
+    const { data: planoAtual } = await db
+      .from("planos_site")
+      .select("quantidade_cortes")
+      .eq("empresa_id", empresaId)
+      .eq("nome", nomePlanoLimite)
+      .eq("ativo", true)
+      .single();
+
+    limiteCortes =
+  Number(planoAtual?.quantidade_cortes) === 0
+    ? 0
+    : Number(planoAtual?.quantidade_cortes) || 4;
+  }
+
+  if(limiteCortes === 0){
+
+  // 0 = ilimitado
+  numeroCorteFinal = ultimo + 1;
+
+}else{
+
+  numeroCorteFinal =
+    ultimo >= limiteCortes
+      ? 1
+      : ultimo + 1;
+
+}
+
+} else {
+
+  numeroCorteFinal = 1;
+
+}
+
+
+     
    }
 
  } else {
@@ -1685,6 +1856,7 @@ if(valorr.value.trim() === ""){
  }
 
  editandoId = id;
+  
 
  // ==========================
  // ABRE MODAL
@@ -1730,8 +1902,10 @@ inputNome.dataset.id = data.cliente_id || "";
      adesaoPlano.value =
        cli.data_adesao_plano || "";
 
-     statusPlano.value =
-       cli.status_plano || "ativo";
+     statusPlano.innerText =
+  cli.status_plano === "ativo"
+    ? "🟢 Plano Ativo"
+    : "🔴 Plano Inativo";
 
    }else{
 
@@ -2053,14 +2227,50 @@ inputNome.addEventListener("input", async () => {
      <small>${cliente.telefone || ''}</small>
    `;
 
-   div.onclick = () => {
-     inputNome.value = cliente.nome;
-     fone.value = cliente.telefone || "";
-     inputNome.dataset.id = cliente.id;
-     sugestoes.innerHTML = "";
-     inputNome.blur();
-   };
+   div.onclick = async () => {
 
+  inputNome.value = cliente.nome;
+  fone.value = cliente.telefone || "";
+  inputNome.dataset.id = cliente.id;
+
+  sugestoes.innerHTML = "";
+  inputNome.blur();
+
+
+  // ==========================
+  // 🔥 BUSCA ÚLTIMO ATENDIMENTO
+  // ==========================
+
+  const { data: ultimoAtendimento } = await db
+    .from("atendimentos")
+    .select("servico,valor")
+    .eq("empresa_id", empresaId)
+    .eq("cliente_id", cliente.id)
+    .order("data", { ascending:false })
+    .order("hora", { ascending:false })
+    .order("id", { ascending:false })
+    .limit(1);
+
+
+  if(ultimoAtendimento?.length > 0){
+
+    const ultimo =
+      ultimoAtendimento[0];
+
+    // Preenche o último serviço
+    valor.value =
+      ultimo.servico || "";
+
+
+    
+
+    // Mantém sempre o valor real do último atendimento
+valorr.value =
+  ultimo.valor ?? "";
+
+  }
+
+};
    sugestoes.appendChild(div);
  });
 
@@ -5882,10 +6092,10 @@ async function salvarPlano(){
     return;
   }
 
-  if(quantidadeCortes <= 0){
+if(quantidadeCortes < 0){
   alert("Informe uma quantidade de cortes válida.");
   return;
-  }
+}
 
   if(linkPagamento === ""){
     alert("Informe o link de pagamento.");
@@ -6019,7 +6229,10 @@ onmouseleave="cancelarExcluirPlano()">
         </div>
 
         <div class="subPlano">
-  ✂️ ${plano.quantidade_cortes || 4} cortes por mês
+  ✂️${plano.quantidade_cortes === 0
+  ? "Ilimitado"
+  : (plano.quantidade_cortes || 4) + " cortes por mês"
+}
 </div>
 
         <div class="statusPlano">
@@ -6056,7 +6269,7 @@ async function editarPlano(id){
     document.getElementById("planoPreco").value = data.preco;
 
   document.getElementById("planoQuantidadeCortes").value =
-    data.quantidade_cortes || 4;
+  data.quantidade_cortes ?? 4;
 
   
     document.getElementById("planoLinkPagamento").value = data.link_pagamento;
@@ -6566,6 +6779,8 @@ iniciarFiltro()
    document
   .getElementById("bootLoading")
   .classList.add("hide");
+
+   
 
 }, 1000);
 
