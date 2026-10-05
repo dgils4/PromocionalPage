@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Los Visionários Agenda</title>
-  <link rel="stylesheet" href="stylo.css" />
-  <link rel="stylesheet" href="stylo1.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style2.css" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
   <script>
   window.onload = ()=>{
@@ -752,19 +752,29 @@ visibility
 
       <div id="boxPlanoAdmin" style="display:none;">
         <input type="date" id="adesaoPlano" style="margin-right:4px">
-        <select id="statusPlano" style="margin-left:4px">
-          <option value="ativo">Plano Ativo</option>
-          <option value="inativo">Plano Inativo</option>
-        </select>
+        
+        <div
+  id="statusPlano"
+  style="
+    margin-left:4px;
+    padding:10px;
+    font-weight:bold;
+          width:100%;
+  "
+>
+</div>
+        
       </div>
 
       <div class="row">
         <select id="corte">
           <option value="">Não alterar</option>
-          <option value="1">Corte 1/4</option>
-          <option value="2">Corte 2/4</option>
-          <option value="3">Corte 3/4</option>
-          <option value="4">Corte 4/4</option>
+          <option value="1">Corte 1/0</option>
+          <option value="2">Corte 2/0</option>
+          <option value="3">Corte 3/0</option>
+          <option value="4">Corte 4/0</option>
+          <option value="5">Corte 5/0</option>
+          <option value="6">Corte 6/0</option>
         </select>
         <select id="pag">
   <option>Pix</option>
@@ -820,7 +830,7 @@ visibility
   <!-- ========================================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js"></script>
-  <script src="scripti.js"></script>
+  <script src="script.js"></script>
   <script src="script2.js"></script>
 
 </body>
