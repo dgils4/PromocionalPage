@@ -1156,145 +1156,299 @@ console.log(
 
 
 
-  if(
+  // ==========================
+// 🔥 ATENDIMENTO COM R$ 0
+// ==========================
+
+if(
   valorInformado === 0 &&
   clienteId
 ){
 
-  const { data: clientePlano, error: erroClientePlano } = await db
-    .from("clientes")
-    .select("tipo_plano,status_plano")
-    .eq("empresa_id", empresaId)
-    .eq("id", clienteId)
-    .single();
+  const { data: clientePlano, error: erroClientePlano } =
+    await db
+      .from("clientes")
+      .select("tipo_plano,status_plano")
+      .eq("empresa_id", empresaId)
+      .eq("id", clienteId)
+      .single();
 
   if(erroClientePlano){
-    console.log("Erro ao consultar plano do cliente:", erroClientePlano);
+
+    console.log(
+      "Erro ao consultar plano do cliente:",
+      erroClientePlano
+    );
+
   }
+
+  // ==========================================
+  // CLIENTE TEM PLANO ATIVO E JÁ TEM O PLANO DEFINIDO
+  // ==========================================
 
   if(
     clientePlano?.tipo_plano &&
     clientePlano?.status_plano === "ativo"
   ){
 
-const usarPlano =
-  await abrirDecisaoVisual({
+    const usarPlano =
+      await abrirDecisaoVisual({
 
-    titulo: "Atendimento do plano?",
+        titulo: "Atendimento do plano?",
 
-    mensagem:
-      `Cliente possui o plano <b>"${clientePlano.tipo_plano}"</b>.<br><br>` +
-      `Este atendimento será descontado do plano?`,
+        mensagem:
+          `Cliente possui o plano <b>"${clientePlano.tipo_plano}"</b>.<br><br>` +
+          `Este atendimento será descontado do plano?`,
 
-    opcoes: [
-      {
-        valor: true,
-        texto: "🟢 Sim, usar o plano"
-      },
-      {
-        valor: false,
-        texto: "🔵 Não, atendimento avulso"
+        opcoes: [
+
+          {
+            valor: true,
+            texto: "🟢 Sim, usar o plano"
+          },
+
+          {
+            valor: false,
+            texto: "🔵 Não, atendimento avulso"
+          }
+
+        ],
+
+        permitirCancelar: true
+
+      });
+
+
+    if(usarPlano === null){
+
+      fecharLoading();
+
+      return;
+
+    }
+
+
+    if(usarPlano){
+
+      const { data: planoCliente } =
+        await db
+          .from("planos_site")
+          .select("nome,preco,quantidade_cortes")
+          .eq("empresa_id", empresaId)
+          .eq("nome", clientePlano.tipo_plano)
+          .eq("ativo", true)
+          .single();
+
+
+      const limiteCortes =
+        Number(planoCliente?.quantidade_cortes) === 0
+          ? 0
+          : Number(planoCliente?.quantidade_cortes) || 4;
+
+
+      const { data: ultimoAtendimento } =
+        await db
+          .from("atendimentos")
+          .select("numero_corte,data,hora,id")
+          .eq("empresa_id", empresaId)
+          .eq("cliente_id", clienteId)
+          .eq("tipo_cliente", "plano")
+          .order("data", { ascending:false })
+          .order("hora", { ascending:false })
+          .order("id", { ascending:false })
+          .limit(1);
+
+
+      const ultimoCorte =
+        Number(
+          ultimoAtendimento?.[0]?.numero_corte
+        ) || 0;
+
+
+      // 0 = ilimitado
+      if(
+        limiteCortes > 0 &&
+        ultimoCorte >= limiteCortes
+      ){
+
+        const continuarMesmoAssim =
+          await abrirDecisaoVisual({
+
+            titulo: "⚠️ Plano consumido",
+
+            mensagem:
+              `<b>Cliente:</b> ${nomeFinal}<br>` +
+              `<b>Plano:</b> ${clientePlano.tipo_plano}<br><br>` +
+
+              `✂️ Cortes utilizados: ` +
+              `<b>${ultimoCorte}/${limiteCortes}</b><br><br>` +
+
+              `O próximo atendimento será o corte ` +
+              `<b>1/${limiteCortes}</b>.<br><br>` +
+
+              `💰 Valor para renovação: ` +
+              `<b>${planoCliente?.preco || "valor não informado"}</b><br><br>` +
+
+              `Deseja continuar sem registrar a renovação?`,
+
+            opcoes: [
+
+              {
+                valor: true,
+                texto: "🟢 Continuar sem renovar"
+              }
+
+            ],
+
+            permitirCancelar: true
+
+          });
+
+
+        if(continuarMesmoAssim !== true){
+
+          fecharLoading();
+
+          return;
+
+        }
+
       }
-    ],
-
-    permitirCancelar: true
-
-  });
 
 
-if(usarPlano === null){
+      tipoCliente = "plano";
 
-  fecharLoading();
+      atendimentoDoPlano = true;
 
-  return;
+    }
 
-}
-
-
-if(usarPlano){
-
-  const { data: planoCliente } = await db
-    .from("planos_site")
-    .select("nome,preco,quantidade_cortes")
-    .eq("empresa_id", empresaId)
-    .eq("nome", clientePlano.tipo_plano)
-    .eq("ativo", true)
-    .single();
-
-  const limiteCortes =
-    Number(planoCliente?.quantidade_cortes) || 4;
-
-  const { data: ultimoAtendimento } = await db
-    .from("atendimentos")
-    .select("numero_corte,data,hora,id")
-    .eq("empresa_id", empresaId)
-    .eq("cliente_id", clienteId)
-    .eq("tipo_cliente", "plano")
-    .order("data", { ascending:false })
-    .order("hora", { ascending:false })
-    .order("id", { ascending:false })
-    .limit(1);
-
-  const ultimoCorte =
-    Number(
-      ultimoAtendimento?.[0]?.numero_corte
-    ) || 0;
-
-  if(ultimoCorte >= limiteCortes){
-
-const continuarMesmoAssim =
-  await abrirDecisaoVisual({
-
-    titulo: "⚠️ Plano consumido",
-
-    mensagem:
-      `<b>Cliente:</b> ${nomeFinal}<br>` +
-      `<b>Plano:</b> ${clientePlano.tipo_plano}<br><br>` +
-
-      `✂️ Cortes utilizados: ` +
-      `<b>${ultimoCorte}/${limiteCortes}</b><br><br>` +
-
-      `O próximo atendimento será o corte ` +
-      `<b>1/${limiteCortes}</b>.<br><br>` +
-
-      `💰 Valor para renovação: ` +
-      `<b>${planoCliente?.preco || "valor não informado"}</b><br><br>` +
-
-      `Deseja continuar sem registrar a renovação?`,
-
-    opcoes: [
-      {
-        valor: true,
-        texto: "🟢 Continuar sem renovar"
-      }
-    ],
-
-    permitirCancelar: true
-
-  });
-
-
-if(continuarMesmoAssim !== true){
-
-  fecharLoading();
-
-  return;
-
-}
-
-  }
-
-  tipoCliente = "plano";
-  atendimentoDoPlano = true;
-
-}else{
+    else{
 
       tipoCliente = "avulso";
+
       atendimentoDoPlano = false;
 
     }
 
   }
+
+
+  // ==========================================
+  // CLIENTE ANTIGO:
+  // PLANO ATIVO, MAS SEM TIPO DE PLANO
+  // ==========================================
+
+  else if(
+    clientePlano?.status_plano === "ativo" &&
+    !clientePlano?.tipo_plano
+  ){
+
+    const { data: planosAntigos, error: erroPlanosAntigos } =
+      await db
+        .from("planos_site")
+        .select("id,nome,preco,quantidade_cortes")
+        .eq("empresa_id", empresaId)
+        .eq("ativo", true)
+        .order("ordem", { ascending:true });
+
+
+    if(
+      erroPlanosAntigos ||
+      !planosAntigos ||
+      planosAntigos.length === 0
+    ){
+
+      mostrarToast(
+        "⚠️ Cliente possui plano ativo, mas nenhum plano está cadastrado."
+      );
+
+      fecharLoading();
+
+      return;
+
+    }
+
+
+    const opcoesPlanosAntigos =
+      planosAntigos.map((plano, index) => {
+
+        return {
+
+          valor: index,
+
+          texto:
+            `📋 ${plano.nome}` +
+            `<br>` +
+            `<small>${plano.preco}</small>`
+
+        };
+
+      });
+
+
+    const escolhaPlanoAntigo =
+      await abrirDecisaoVisual({
+
+        titulo: "📋 Definir plano do cliente",
+
+        mensagem:
+          `<b>${nomeFinal}</b> possui um plano ativo, ` +
+          `mas o tipo de plano ainda não foi definido.<br><br>` +
+
+          `Selecione qual plano o cliente possui:`,
+
+        opcoes: opcoesPlanosAntigos,
+
+        permitirCancelar: true
+
+      });
+
+
+    if(escolhaPlanoAntigo === null){
+
+      fecharLoading();
+
+      return;
+
+    }
+
+
+    const planoEscolhido =
+      planosAntigos[escolhaPlanoAntigo];
+
+
+    // Guarda o plano escolhido
+    planoDetectado =
+      planoEscolhido;
+
+
+    tipoCliente = "plano";
+
+    atendimentoDoPlano = true;
+
+
+    // Salva o tipo de plano no cliente
+    const { error: erroSalvarTipoPlano } =
+      await db
+        .from("clientes")
+        .update({
+          tipo_plano: planoEscolhido.nome
+        })
+        .eq("empresa_id", empresaId)
+        .eq("id", clienteId);
+
+
+    if(erroSalvarTipoPlano){
+
+      console.log(
+        "Erro ao salvar tipo do plano:",
+        erroSalvarTipoPlano
+      );
+
+    }
+
+  }
+
 }
 
 
