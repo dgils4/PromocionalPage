@@ -757,6 +757,23 @@ function pausarPlayer(){
 
   clearTimeout(tempoPlayer);
 
+  // Verifica se existe player
+  if(!player) return;
+
+  // Verifica se existe vídeo carregado
+  const videoId =
+    player.getVideoData()?.video_id;
+
+  if(!videoId) return;
+
+  // Verifica se estava realmente tocando
+  const estavaTocando =
+    player.getPlayerState() === YT.PlayerState.PLAYING;
+
+  // Se não estava tocando, não faz nada
+  if(!estavaTocando) return;
+
+  // Pausa
   player.pauseVideo();
 
   tempoPlayer = setTimeout(() => {
@@ -1756,79 +1773,7 @@ if(trocarPlano === false){
 }
 
 
-  // ==========================
-// 🔄 PROTEÇÃO DO PAGAMENTO RECORRENTE
-// ==========================
-
-if(
-  !editandoId &&
-  tipoCliente === "plano" &&
-  clienteId &&
-  ["Pix", "Crédito", "Débito", "Dinheiro"].includes(pag.value)
-){
-
-const { data: ultimoPagamento } = await db
-  .from("atendimentos")
-  .select("data,forma_pagamento,valor")
-  .eq("empresa_id", empresaId)
-  .eq("cliente_id", clienteId)
-  .eq("tipo_cliente", "plano")
-  .order("data", { ascending:false })
-  .order("hora", { ascending:false })
-  .order("id", { ascending:false })
-  .limit(1);
-
-const clienteRecorrente =
-  ultimoPagamento?.[0]?.forma_pagamento === "Recorrente";
   
-  if(clienteRecorrente){
-
-    const continuarMesmoAssim =
-      await abrirDecisaoVisual({
-
-        titulo: "⚠️ Forma de pagamento diferente",
-
-        mensagem:
-          `<b>Este cliente possui uma renovação Recorrente.</b><br><br>` +
-
-          `A forma de pagamento selecionada agora é ` +
-          `<b>${pag.value}</b>.<br><br>` +
-
-          `Se continuar, a <b>data de adesão do plano será alterada</b> ` +
-          `e o ciclo recorrente poderá ser perdido.<br><br>` +
-
-          `Deseja realmente continuar?`,
-
-        opcoes: [
-
-          {
-            valor: false,
-            texto: "🔴 Corrigir pagamento"
-          },
-
-          {
-            valor: true,
-            texto: "🟢 Continuar mesmo assim"
-          }
-
-        ],
-
-        permitirCancelar: true
-
-      });
-
-
-    if(continuarMesmoAssim !== true){
-
-      fecharLoading();
-
-      return;
-
-    }
-
-  }
-
-}
 
 
 
@@ -1841,22 +1786,110 @@ const clienteRecorrente =
   valor.value.trim() === ""
     ? "sem serviço"
     : valor.value.trim();
+
+
+// ==========================
+// 🔄 VERIFICA ÚLTIMA FORMA DE PAGAMENTO
+// ==========================
+
+if(
+  !editandoId &&
+  tipoCliente === "plano" &&
+  clienteId &&
+  ["Pix", "Crédito", "Débito", "Dinheiro"].includes(pag.value)
+){
+
+  const { data: ultimoPagamento, error: erroUltimoPagamento } =
+    await db
+      .from("atendimentos")
+      .select("forma_pagamento")
+      .eq("empresa_id", empresaId)
+      .eq("cliente_id", clienteId)
+      .eq("tipo_cliente", "plano")
+      .order("data", { ascending:false })
+      .order("hora", { ascending:false })
+      .order("id", { ascending:false })
+      .limit(1);
+
+  if(erroUltimoPagamento){
+
+    console.log(
+      "Erro ao verificar último pagamento:",
+      erroUltimoPagamento
+    );
+
+  }
+
+  const ultimaFormaPagamento =
+    ultimoPagamento?.[0]?.forma_pagamento || null;
+
+  console.log(
+    "Última forma de pagamento:",
+    ultimaFormaPagamento
+  );
+
+  if(ultimaFormaPagamento === "Recorrente"){
+
+    const continuarMesmoAssim =
+      await abrirDecisaoVisual({
+
+        titulo: "⚠️ Forma de pagamento diferente",
+
+        mensagem:
+          `<b>Este cliente possui uma renovação Recorrente.</b><br><br>` +
+          `A última forma de pagamento foi <b>Recorrente</b>.<br><br>` +
+          `Agora foi selecionado <b>${pag.value}</b>.<br><br>` +
+          `Se continuar, a <b>data de adesão do plano será alterada</b> ` +
+          `e o ciclo recorrente poderá ser perdido.<br><br>` +
+          `Deseja realmente continuar?`,
+
+        opcoes: [
+          {
+            valor: false,
+            texto: "🔴 Corrigir pagamento"
+          },
+          {
+            valor: true,
+            texto: "🟢 Continuar mesmo assim"
+          }
+        ],
+
+        permitirCancelar: true
+
+      });
+
+    if(continuarMesmoAssim !== true){
+
+      fecharLoading();
+      return;
+
+    }
+
+  }
+
+}
+
+
+
+
+  
  
- const dados = {
-   empresa_id: empresaId,
-   cliente_id: clienteId,
-   data: dataInput.value,
-   hora: hora.value,
-   nome_cliente: nomeFinal,
-   telefone: telefoneLimpo,
-   barbeiro: barbeiro.value,
-   tipo_cliente: tipoCliente,
-   numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
-   forma_pagamento: pag.value,
-   valor: valorr.value,
-   observacao: obs.value,
-   servico: servicoFinal,
- };
+const dados = {
+  empresa_id: empresaId,
+  cliente_id: clienteId,
+  data: dataInput.value,
+  hora: hora.value,
+  nome_cliente: nomeFinal,
+  telefone: telefoneLimpo,
+  barbeiro: barbeiro.value,
+  tipo_cliente: tipoCliente,
+  tipo_plano: planoDetectado?.nome || null,
+  numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
+  forma_pagamento: pag.value,
+  valor: valorr.value,
+  observacao: obs.value,
+  servico: servicoFinal,
+};
 
  let resposta;
 
@@ -1897,16 +1930,23 @@ atendimentoSalvoId;
  
  
  
- if(clienteId){
+if(clienteId){
 
- await db
- .from("clientes")
- .update({
-   nome: nomeFinal,
-   telefone: fone.value.trim() || null
- })
-  .eq("empresa_id", empresaId)
- .eq("id", clienteId);
+  const { error: erroAtualizarCliente } = await db
+    .from("clientes")
+    .update({
+      nome: nomeFinal,
+      telefone: telefoneLimpo || null
+    })
+    .eq("empresa_id", empresaId)
+    .eq("id", clienteId);
+
+  if(erroAtualizarCliente){
+    console.log(
+      "ERRO AO ATUALIZAR TELEFONE DO CLIENTE:",
+      erroAtualizarCliente
+    );
+  }
 
 }
 
@@ -3539,6 +3579,15 @@ async function abrirFinanceiro(){
   abrirTela("telaFinanceiro");
 
   await carregarFinanceiro();
+
+}
+
+
+async function abrirFinanceiros(){
+
+  abrirTela("telaFinanceiros");
+
+  
 
 }
 
@@ -5208,6 +5257,164 @@ async function abrirFinanceiro(){
   });
 
 }
+
+
+async function carregarEntradasPlanos(){
+
+  const dataInicial =
+    document.getElementById("dataInicialPlanos").value;
+
+  const dataFinal =
+    document.getElementById("dataFinalPlanos").value;
+
+  if(!dataInicial || !dataFinal){
+
+    mostrarToast("⚠️ Informe a data inicial e a data final.");
+
+    return;
+  }
+
+  if(dataInicial > dataFinal){
+
+    mostrarToast("⚠️ A data inicial não pode ser maior que a data final.");
+
+    return;
+  }
+
+  abrirLoading("Consultando planos...");
+
+  const { data, error } = await db
+    .from("atendimentos")
+    .select(`
+      id,
+      data,
+      valor,
+      tipo_cliente,
+      tipo_plano,
+      forma_pagamento
+    `)
+    .eq("empresa_id", empresaId)
+    .eq("tipo_cliente", "plano")
+    .gte("data", dataInicial)
+    .lte("data", dataFinal)
+    .order("data", { ascending: true });
+
+  fecharLoading();
+
+  if(error){
+
+    console.log(
+      "Erro ao buscar entradas de planos:",
+      error
+    );
+
+    mostrarToast("❌ Erro ao consultar entradas de planos.");
+
+    return;
+  }
+
+  console.log(
+    "ENTRADAS DE PLANOS:",
+    data
+  );
+
+    // ==========================
+  // 📋 BUSCA PLANOS ATIVOS
+  // ==========================
+
+  const { data: planos, error: erroPlanos } = await db
+    .from("planos_site")
+    .select("id,nome,preco")
+    .eq("empresa_id", empresaId)
+    .eq("ativo", true)
+    .order("ordem", { ascending: true });
+
+  if(erroPlanos){
+
+    console.log(
+      "Erro ao buscar planos:",
+      erroPlanos
+    );
+
+    mostrarToast("❌ Erro ao carregar planos.");
+
+    return;
+  }
+
+  console.log(
+    "PLANOS ATIVOS:",
+    planos
+  );
+
+    // ==========================
+  // 💰 MONTA RESULTADO DINÂMICO
+  // ==========================
+
+  let totalGeral = 0;
+
+  let html = "";
+
+  planos.forEach(plano => {
+
+    let totalPlano = 0;
+
+    data.forEach(atendimento => {
+
+      if(atendimento.tipo_plano === plano.nome){
+
+        const valor = Number(atendimento.valor) || 0;
+
+        totalPlano += valor;
+
+      }
+
+    });
+
+    totalGeral += totalPlano;
+
+    html += `
+      <div class="linhaPlano">
+
+        <span>${plano.nome}</span>
+
+        <strong>
+          ${totalPlano.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+          })}
+        </strong>
+
+      </div>
+    `;
+
+  });
+
+
+  html += `
+    <hr>
+
+    <div class="totalPlanos">
+
+      <span>Total de planos</span>
+
+      <strong>
+        ${totalGeral.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        })}
+      </strong>
+
+    </div>
+  `;
+
+
+  document.getElementById(
+    "resultadoEntradasPlanos"
+  ).innerHTML = html;
+
+}
+
+
 
 async function carregarFinanceiro(){
 
