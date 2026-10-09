@@ -95,20 +95,22 @@ let servicosSelecionados = [];
 });
 
 function liberarAudio(){
+
   somSucesso.play()
-  .then(()=>{
-    somSucesso.pause();
-    somSucesso.currentTime = 0;
-  });
+    .then(()=>{
+      somSucesso.pause();
+      somSucesso.currentTime = 0;
+    })
+    .catch(()=>{});
 
   exCluir.play()
-  .then(()=>{
-    exCluir.pause();
-    exCluir.currentTime = 0;
-  });
+    .then(()=>{
+      exCluir.pause();
+      exCluir.currentTime = 0;
+    })
+    .catch(()=>{});
 
 }
-     
      
      
      
@@ -2134,8 +2136,13 @@ else if(!cli?.data_adesao_plano){
 
 pausarPlayer(); 
   
- somSucesso.currentTime = 0;
-somSucesso.play().catch(()=>{});
+ somSucesso.pause();
+somSucesso.currentTime = 0;
+
+somSucesso.play().catch(erro => {
+  console.log("Erro ao tocar som de sucesso:", erro);
+});
+  
 fecharLoading();
 mostrarToast("✅ Salvo ")
  editandoId = null;
