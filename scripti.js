@@ -526,15 +526,27 @@ clientesPlanos[cliente.id] = {
 
 }
 
- let soma = 0;
+ // ==========================
+// 💰 FATURAMENTO AVULSO DO DIA
+// ==========================
 
- data.forEach(item => {
-   soma += Number(item.valor || 0);
- });
+let soma = 0;
 
- document.getElementById('totalDia').textContent =
- 'R$' + soma.toFixed(2).replace('.', ',');
+data.forEach(item => {
 
+  if(item.tipo_cliente !== "plano"){
+
+    soma += Number(item.valor || 0);
+
+  }
+
+});
+
+document.getElementById('totalDia').textContent =
+  'R$' + soma.toFixed(2).replace('.', ',');
+
+
+  
  qtd.textContent = data.length;
 
  planos.textContent =
@@ -788,7 +800,7 @@ function pausarPlayer(){
 
 
 async function salvarAtendimento(){
- pausarPlayer(); 
+ 
   
   abrirLoading("Processando...")
   
@@ -1496,16 +1508,31 @@ if(
     .order("id", { ascending:false })
     .limit(1);
 
-  const { data: clientePlanoData } = await db
+const { data: clientePlanoData } = await db
   .from("clientes")
-  .select("data_adesao_plano")
+  .select("data_adesao_plano,ultima_renovacao")
   .eq("empresa_id", empresaId)
   .eq("id", clienteId)
   .single();
 
-const planoEstaVencido =
+const vencimentoPlano =
   clientePlanoData?.data_adesao_plano
-    ? planoVencido(clientePlanoData.data_adesao_plano)
+    ? calcularVencimentoComRenovacao(
+        clientePlanoData.data_adesao_plano,
+        clientePlanoData.ultima_renovacao
+      )
+    : null;
+
+const hoje = new Date();
+hoje.setHours(0, 0, 0, 0);
+
+const planoEstaVencido =
+  vencimentoPlano
+    ? hoje > new Date(
+        vencimentoPlano.getFullYear(),
+        vencimentoPlano.getMonth(),
+        vencimentoPlano.getDate()
+      )
     : false;
 
   const ultimoCorte =
@@ -2105,7 +2132,8 @@ else if(!cli?.data_adesao_plano){
    .eq("id", clienteId);
 }
 
-
+pausarPlayer(); 
+  
  somSucesso.currentTime = 0;
 somSucesso.play().catch(()=>{});
 fecharLoading();
@@ -3995,12 +4023,13 @@ async function abrirDetalheCliente(clienteId){
 
   if(cliente.data_adesao_plano){
 
-    vencimento =
-      calcularVencimento(
-        cliente.data_adesao_plano
-      );
+  vencimento =
+    calcularVencimentoComRenovacao(
+      cliente.data_adesao_plano,
+      cliente.ultima_renovacao
+    );
 
-  }
+}
 
 
   const vencimentoTexto =
