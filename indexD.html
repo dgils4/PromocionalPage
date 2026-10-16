@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Barbearia premium a domicílio. Agende seu atendimento em Recife e região.">
+  <title>Barbearia Domiciliar | Agende seu atendimento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--ink:#151515;--muted:#696969;--paper:#f6f5f1;--white:#fff;--line:#e6e3dc;--gold:#c7a66a;--gold-dark:#967744;--success:#1f7548;--danger:#a12e2e;--radius:20px}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",Arial,sans-serif;line-height:1.5}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit}
+    .topbar{background:#111;color:#fff;padding:13px 20px;text-align:center;font-size:.82rem;letter-spacing:.04em}
+    .topbar strong{color:#e3c78f}
+    .nav{max-width:1180px;margin:auto;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .brand-mark{height:44px;width:44px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:1.25rem}
+    .brand-name{font-weight:700;letter-spacing:.12em;font-size:.85rem}
+    .brand-sub{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
+    .nav-note{font-size:.85rem;color:var(--muted)}
+    .hero{background:#151515;color:#fff;position:relative;overflow:hidden}
+    .hero-inner{max-width:1180px;margin:auto;padding:64px 24px 70px;display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center}
+    .eyebrow{color:#e3c78f;text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;font-weight:700}
+    h1,h2,h3,p{margin-top:0}
+    h1{font:700 clamp(2.5rem,5vw,4.7rem)/1.08 "Playfair Display",Georgia,serif;max-width:650px;margin:18px 0}
+    h1 span{color:#e3c78f}
+    .hero-copy{color:#d0d0d0;max-width:510px;font-size:1.05rem}
+    .hero-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:28px}
+    .btn{border:0;border-radius:999px;padding:14px 22px;font-weight:700;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+    .btn-primary{background:var(--gold);color:#171717}
+    .btn-primary:hover{background:#ddc18b;transform:translateY(-1px)}
+    .btn-dark{background:#171717;color:#fff}
+    .btn-outline{border:1px solid var(--line);background:transparent;color:var(--ink)}
+    .hero-small{font-size:.82rem;color:#bdbdbd}
+    .hero-card{border:1px solid #3d3a33;border-radius:24px;padding:28px;background:linear-gradient(145deg,#262626,#181818);min-height:300px;display:flex;flex-direction:column;justify-content:space-between}
+    .hero-symbol{font-size:4rem;color:var(--gold);line-height:1}
+    .hero-card h2{font:600 1.8rem "Playfair Display",Georgia,serif;margin:22px 0 8px}
+    .hero-card p{color:#c9c9c9;margin-bottom:0}
+    .hero-card-bottom{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-top:28px}
+    .hero-price{font-size:1.65rem;font-weight:700;color:#e3c78f}
+    .hero-price small{font-size:.7rem;color:#c7c7c7;font-weight:400;display:block}
+    .section{max-width:1180px;margin:auto;padding:58px 24px}
+    .section-heading{text-align:center;max-width:650px;margin:0 auto 30px}
+    .section-heading h2{font:700 clamp(1.8rem,3vw,2.6rem) "Playfair Display",Georgia,serif;margin:10px 0}
+    .section-heading p{color:var(--muted);margin-bottom:0}
+    .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .benefit{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px}
+    .benefit-icon{height:42px;width:42px;border-radius:12px;background:#f5eddd;display:grid;place-items:center;font-size:1.2rem;margin-bottom:18px}
+    .benefit h3{font-size:1rem;margin-bottom:7px}
+    .benefit p{color:var(--muted);font-size:.9rem;margin:0}
+    .booking-wrap{background:#eae7df;padding:58px 20px}
+    .booking{max-width:900px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 18px 50px #0000000a}
+    .booking-head{background:#171717;color:#fff;padding:28px 32px}
+    .booking-head h2{font:700 2rem "Playfair Display",Georgia,serif;margin:8px 0}
+    .booking-head p{color:#d0d0d0;margin:0}
+    .stepbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:22px}
+    .step{height:4px;border-radius:99px;background:#494949}
+    .step.active{background:var(--gold)}
+    form{padding:30px 32px}
+    .form-step{display:none}
+    .form-step.active{display:block;animation:fade .2s ease}
+    @keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .step-title{font-size:1.15rem;font-weight:700;margin-bottom:5px}
+    .step-help{color:var(--muted);font-size:.9rem;margin-bottom:22px}
+    .services{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .service-option{position:relative}
+    .service-option input{position:absolute;opacity:0;pointer-events:none}
+    .service-card{border:1px solid var(--line);border-radius:16px;padding:17px;display:flex;gap:12px;align-items:flex-start;min-height:112px;cursor:pointer;transition:.15s}
+    .service-card:hover{border-color:#b5a078}
+    .service-option input:checked+.service-card{border:2px solid var(--gold-dark);background:#fcf8ef;padding:16px}
+    .service-emoji{font-size:1.35rem}
+    .service-info{flex:1}
+    .service-info strong{display:block;margin-bottom:4px}
+    .service-info small{display:block;color:var(--muted);font-size:.8rem}
+    .service-price{font-weight:700;white-space:nowrap}
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;min-width:0}
+    .field.full{grid-column:1/-1}
+    label{font-size:.88rem;font-weight:600}
+    input,select,textarea{width:100%;border:1px solid #d9d7d0;border-radius:11px;padding:13px 14px;background:#fff;color:var(--ink);outline:none;min-width:0}
+    input:focus,select:focus,textarea:focus{border-color:var(--gold-dark);box-shadow:0 0 0 3px #c7a66a26}
+    input::placeholder,textarea::placeholder{color:#a1a1a1}
+    textarea{resize:vertical;min-height:88px}
+    .hint{font-size:.78rem;color:var(--muted);font-weight:400}
+    .choice-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .choice{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;cursor:pointer;font-size:.88rem}
+    .choice input{width:auto;margin:0 6px 0 0;accent-color:var(--gold-dark)}
+    .summary{background:#f8f6f1;border:1px solid var(--line);border-radius:15px;padding:18px;margin:18px 0}
+    .summary-row{display:flex;justify-content:space-between;gap:15px;padding:6px 0;font-size:.9rem}
+    .summary-row span:first-child{color:var(--muted)}
+    .summary-total{border-top:1px solid var(--line);margin-top:8px;padding-top:13px;font-size:1.05rem;font-weight:700}
+    .notice{font-size:.82rem;color:#6d5a35;background:#fbf5e8;border:1px solid #eee0bd;padding:12px 14px;border-radius:12px;margin:14px 0}
+    .consent{display:flex;align-items:flex-start;gap:10px;font-size:.83rem;color:var(--muted);margin:18px 0}
+    .consent input{width:auto;margin-top:4px;flex:0 0 auto}
+    .form-actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+    .form-actions .btn{min-width:135px}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .status{display:none;padding:14px 16px;border-radius:12px;margin:16px 0;font-size:.9rem}
+    .status.show{display:block}
+    .status.error{background:#fff0f0;color:var(--danger);border:1px solid #f1cccc}
+    .status.ok{background:#edf8f1;color:var(--success);border:1px solid #c7e7d3}
+    .success-panel{display:none;text-align:center;padding:35px 15px}
+    .success-panel.show{display:block}
+    .success-icon{height:64px;width:64px;border-radius:50%;background:#e7f5ec;color:var(--success);display:grid;place-items:center;font-size:2rem;margin:0 auto 18px}
+    .success-panel h3{font:700 1.8rem "Playfair Display",Georgia,serif}
+    .success-panel p{color:var(--muted);max-width:520px;margin:0 auto 16px}
+    .success-code{font-weight:700;background:#f5f3ed;display:inline-block;padding:10px 16px;border-radius:10px;margin:8px 0 20px}
+    .footer{background:#151515;color:#fff;padding:35px 24px;text-align:center}
+    .footer p{color:#bdbdbd;font-size:.83rem;margin:8px 0 0}
+    .footer strong{letter-spacing:.12em}
+    .privacy{font-size:.78rem;color:var(--muted);margin-top:15px}
+    .hidden{display:none!important}
+    @media(max-width:760px){
+      .nav{padding:16px 18px}.nav-note{display:none}
+      .hero-inner{grid-template-columns:1fr;padding:46px 20px;gap:28px}
+      .hero-card{min-height:230px}
+      .section{padding:42px 18px}
+      .benefits{grid-template-columns:1fr}
+      .benefit{padding:20px}
+      .booking-wrap{padding:35px 12px}
+      .booking-head{padding:24px 20px}
+      .booking-head h2{font-size:1.7rem}
+      form{padding:23px 18px}
+      .services{grid-template-columns:1fr}
+      .service-card{min-height:88px}
+      .field-grid{grid-template-columns:1fr;gap:0}
+      .field.full{grid-column:auto}
+      .choice-row{grid-template-columns:1fr}
+      .form-actions .btn{flex:1;min-width:0;padding:13px 14px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">ATENDIMENTO COM HORA MARCADA <strong> • RECIFE E REGIÃO</strong></div>
+  <header class="nav">
+    <a class="brand" href="#" aria-label="Início">
+      <div class="brand-mark">✂</div>
+      <div><div class="brand-name" id="brandName">BARBEARIA DOMICILIAR</div><div class="brand-sub">Experiência premium</div></div>
+    </a>
+    <div class="nav-note">Seu tempo merece um atendimento exclusivo.</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow">Barbearia particular • Em sua casa</div>
+          <h1>Seu melhor corte.<br><span>Sem sair de casa.</span></h1>
+          <p class="hero-copy">Um atendimento reservado, no conforto da sua casa. Você escolhe o serviço, informa o endereço e solicita o melhor horário para você.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#agendamento">Agendar atendimento <span>→</span></a>
+            <span class="hero-small">Prático • Particular • Com hora marcada</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div>
+            <div class="hero-symbol">✂</div>
+            <h2>O cuidado de uma barbearia. A comodidade da sua casa.</h2>
+            <p>Atendimento pensado para quem valoriza qualidade, conforto e tempo.</p>
+          </div>
+          <div class="hero-card-bottom">
+            <div class="hero-price">A partir de R$ 100<small>valor do serviço; deslocamento pode variar</small></div>
+            <span aria-hidden="true">✦</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div class="eyebrow" style="color:var(--gold-dark)">Uma experiência diferente</div>
+        <h2>Você cuida da sua rotina. Nós vamos até você.</h2>
+        <p>Mais comodidade do primeiro contato à finalização do corte.</p>
+      </div>
+      <div class="benefits">
+        <article class="benefit"><div class="benefit-icon">◷</div><h3>Seu tempo é prioridade</h3><p>Solicite um horário sem precisar se deslocar ou esperar em uma barbearia.</p></article>
+        <article class="benefit"><div class="benefit-icon">⌂</div><h3>Na sua casa</h3><p>Atendimento no endereço combinado, com deslocamento informado antes da confirmação.</p></article>
+        <article class="benefit"><div class="benefit-icon">✦</div><h3>Atendimento reservado</h3><p>Um serviço personalizado, com atenção ao acabamento e aos detalhes.</p></article>
+      </div>
+    </section>
+
+    <section class="booking-wrap" id="agendamento">
+      <div class="booking">
+        <div class="booking-head">
+          <div class="eyebrow">Vamos começar</div>
+          <h2>Solicite seu atendimento</h2>
+          <p>Preencha os dados abaixo. Sua solicitação será analisada e o horário confirmado depois da verificação da agenda.</p>
+          <div class="stepbar" aria-label="Progresso do formulário"><div class="step active" id="bar1"></div><div class="step" id="bar2"></div><div class="step" id="bar3"></div></div>
+        </div>
+        <form id="bookingForm" novalidate>
+          <div class="form-step active" data-step="1">
+            <div class="step-title">1. Escolha seu serviço</div>
+            <div class="step-help">Selecione o atendimento que deseja contratar.</div>
+            <div class="services">
+              <label class="service-option"><input type="radio" name="servico" value="Corte de cabelo" data-price="100" checked><span class="service-card"><span class="service-emoji">✂</span><span class="service-info"><strong>Corte de cabelo</strong><small>Corte e acabamento</small></span><span class="service-price">R$ 100</span></span></label>
+              <label class="service-option"><input type="radio" name="servico" value="Barba" data-price="60"><span class="service-card"><span class="service-emoji">◉</span><span class="service-info"><strong>Barba</strong><small>Modelagem e acabamento</small></span><span class="service-price">R$ 60</span></span></label>
+              <label class="service-option"><input type="radio" name="servico" value="Cabelo + barba" data-price="140"><span class="service-card"><span class="service-emoji">✦</span><span class="service-info"><strong>Cabelo + barba</strong><small>Combo completo</small></span><span class="service-price">R$ 140</span></span></label>
+              <label class="service-option"><input type="radio" name="servico" value="Atendimento familiar" data-price="180"><span class="service-card"><span class="service-emoji">♧</span><span class="service-info"><strong>Atendimento familiar</strong><small>Valor inicial para 2 pessoas; confirmar detalhes</small></span><span class="service-price">A partir de R$ 180</span></span></label>
+            </div>
+            <div class="notice">Os preços acima são valores iniciais demonstrativos. A taxa de deslocamento, quando houver, será informada antes da confirmação do atendimento.</div>
+            <div class="form-actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Continuar →</button></div>
+          </div>
+
+          <div class="form-step" data-step="2">
+            <div class="step-title">2. Onde e quando?</div>
+            <div class="step-help">Informe o endereço e sua preferência de data e horário.</div>
+            <div class="field-grid">
+              <div class="field"><label for="cep">CEP</label><input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"></div>
+              <div class="field"><label for="bairro">Bairro *</label><select id="bairro" name="bairro" required><option value="">Selecione seu bairro</option><option>Boa Viagem</option><option>Piedade</option><option>Candeias</option><option>Barra de Jangada</option><option>Prazeres</option><option>Imbiribeira</option><option>Setúbal</option><option>Outro bairro</option></select></div>
+              <div class="field full"><label for="endereco">Rua / avenida e número *</label><input id="endereco" name="endereco" required autocomplete="street-address" placeholder="Ex.: Rua das Flores, 123"></div>
+              <div class="field"><label for="complemento">Complemento</label><input id="complemento" name="complemento" placeholder="Apartamento, bloco, casa..."></div>
+              <div class="field"><label for="referencia">Ponto de referência</label><input id="referencia" name="referencia" placeholder="Opcional"></div>
+              <div class="field"><label for="data">Data desejada *</label><input id="data" name="data" type="date" required></div>
+              <div class="field"><label for="horario">Horário preferido *</label><select id="horario" name="horario" required><option value="">Escolha um horário</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option><option>19:00</option></select></div>
+            </div>
+            <div class="notice">A data e o horário escolhidos são uma preferência, não uma confirmação automática. A empresa verificará a agenda e o deslocamento.</div>
+            <div class="form-actions"><button class="btn btn-outline" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Continuar →</button></div>
+          </div>
+
+          <div class="form-step" data-step="3">
+            <div class="step-title">3. Seus dados e confirmação</div>
+            <div class="step-help">Como podemos entrar em contato para confirmar seu atendimento?</div>
+            <div class="field-grid">
+              <div class="field"><label for="nome">Nome completo *</label><input id="nome" name="nome" required autocomplete="name" maxlength="120" placeholder="Seu nome"></div>
+              <div class="field"><label for="telefone">WhatsApp *</label><input id="telefone" name="telefone" required autocomplete="tel" inputmode="tel" maxlength="20" placeholder="(81) 99999-9999"></div>
+              <div class="field full"><label for="observacao">Observações</label><textarea id="observacao" name="observacao" maxlength="1000" placeholder="Ex.: são dois cortes na mesma residência, preferência de estilo ou informações úteis."></textarea></div>
+            </div>
+            <div class="summary">
+              <div class="summary-row"><span>Serviço</span><strong id="sumService">Corte de cabelo</strong></div>
+              <div class="summary-row"><span>Endereço</span><strong id="sumAddress">A preencher</strong></div>
+              <div class="summary-row"><span>Data e horário desejados</span><strong id="sumDate">A preencher</strong></div>
+              <div class="summary-row"><span>Deslocamento</span><strong>A confirmar</strong></div>
+              <div class="summary-row summary-total"><span>Valor inicial do serviço</span><strong id="sumPrice">R$ 100,00</strong></div>
+            </div>
+            <label class="consent"><input type="checkbox" id="consent" required><span>Concordo que meus dados sejam utilizados para responder a esta solicitação e organizar o atendimento, conforme a política de privacidade da empresa.</span></label>
+            <div class="privacy">Não envie dados de cartão ou senhas neste formulário.</div>
+            <div id="formStatus" class="status" role="status" aria-live="polite"></div>
+            <div class="form-actions"><button class="btn btn-outline" type="button" data-back="2">← Voltar</button><button class="btn btn-primary" type="submit" id="submitBtn">Solicitar atendimento</button></div>
+          </div>
+        </form>
+        <div class="success-panel" id="successPanel">
+          <div class="success-icon">✓</div>
+          <h3>Solicitação recebida!</h3>
+          <p>Seus dados foram enviados. O horário ainda depende da confirmação da equipe. Guarde o número abaixo para referência.</p>
+          <div class="success-code" id="successCode"></div>
+          <p>Se necessário, a equipe entrará em contato pelo WhatsApp informado.</p>
+          <a class="btn btn-primary" href="#agendamento" id="newRequest">Fazer nova solicitação</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <strong id="footerBrand">BARBEARIA DOMICILIAR</strong>
+    <p>Atendimento particular em Recife e regiões próximas.</p>
+    <p>© <span id="year"></span> • Todos os direitos reservados.</p>
+  </footer>
+
+<script>
+/*
+  CONFIGURAÇÃO DO SUPABASE
+  1) Cole a URL do projeto em SUPABASE_URL.
+  2) Cole a chave publishable/anon em SUPABASE_ANON_KEY.
+  3) Execute o arquivo schema.sql no SQL Editor do Supabase.
+  A chave publishable/anon pode ser usada no navegador SOMENTE com RLS e políticas corretas.
+  Nunca coloque service_role/secret key neste arquivo.
+*/
+const SUPABASE_URL = "https://cdechrtprerblmhllqav.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+const TABLE_NAME = "agendamentos_domicilio";
+let supabaseClient = null;
+
+if (window.supabase && SUPABASE_URL.startsWith("https://") &&
+    !SUPABASE_URL.includes("COLE_AQUI") && SUPABASE_ANON_KEY &&
+    !SUPABASE_ANON_KEY.includes("COLE_AQUI")) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+const $ = (id) => document.getElementById(id);
+const form = $("bookingForm");
+const steps = [...document.querySelectorAll(".form-step")];
+let currentStep = 1;
+
+$("year").textContent = new Date().getFullYear();
+const today = new Date();
+const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0,10);
+$("data").min = localToday;
+
+function selectedService(){
+  const el = form.querySelector('input[name="servico"]:checked');
+  return {name: el.value, price: Number(el.dataset.price || 0)};
+}
+function money(v){ return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+function showStatus(message,type){
+  const el=$("formStatus"); el.textContent=message; el.className="status show "+type;
+}
+function clearStatus(){ $("formStatus").className="status"; $("formStatus").textContent=""; }
+function showStep(n){
+  currentStep=n;
+  steps.forEach(s=>s.classList.toggle("active",Number(s.dataset.step)===n));
+  [1,2,3].forEach(i=>$("bar"+i).classList.toggle("active",i<=n));
+  clearStatus();
+  if(n===3) updateSummary();
+  const card=document.querySelector(".booking");
+  card.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function validateStep(n){
+  let ids=[];
+  if(n===1) return true;
+  if(n===2) ids=["bairro","endereco","data","horario"];
+  if(n===3) ids=["nome","telefone"];
+  for(const id of ids){
+    const el=$(id);
+    if(!el.value.trim()){el.focus();el.reportValidity?.();showStatus("Preencha os campos obrigatórios para continuar.","error");return false;}
+    if(!el.checkValidity()){el.reportValidity();return false;}
+  }
+  if(n===2 && $("data").value < localToday){showStatus("Escolha uma data de hoje em diante.","error");return false;}
+  if(n===3){
+    const digits=$("telefone").value.replace(/\D/g,"");
+    if(digits.length<10 || digits.length>13){$("telefone").focus();showStatus("Confira o número de WhatsApp informado.","error");return false;}
+    if(!$("consent").checked){$("consent").focus();showStatus("Confirme o uso dos dados para enviar a solicitação.","error");return false;}
+  }
+  return true;
+}
+function updateSummary(){
+  const s=selectedService();
+  $("sumService").textContent=s.name;
+  $("sumPrice").textContent=s.name==="Atendimento familiar" ? "A partir de "+money(s.price) : money(s.price);
+  const parts=[$("endereco").value,$("complemento").value,$("bairro").value].filter(Boolean);
+  $("sumAddress").textContent=parts.join(", ")||"A preencher";
+  const date=$("data").value;
+  $("sumDate").textContent=(date ? date.split("-").reverse().join("/") : "A preencher")+" • "+($("horario").value||"A preencher");
+}
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>{
+  const target=Number(b.dataset.next);
+  if(validateStep(currentStep)) showStep(target);
+}));
+document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",()=>showStep(Number(b.dataset.back))));
+form.querySelectorAll('input[name="servico"]').forEach(el=>el.addEventListener("change",updateSummary));
+["endereco","complemento","bairro","data","horario"].forEach(id=>$(id).addEventListener("change",updateSummary));
+$("cep").addEventListener("input",e=>{
+  let v=e.target.value.replace(/\D/g,"").slice(0,8);
+  if(v.length>5)v=v.slice(0,5)+"-"+v.slice(5);
+  e.target.value=v;
+});
+$("telefone").addEventListener("input",e=>{
+  let v=e.target.value.replace(/\D/g,"").slice(0,11);
+  if(v.length>=11)v=v.replace(/^(\d{2})(\d{5})(\d{4}).*/,"($1) $2-$3");
+  else if(v.length>=7)v=v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/,"($1) $2-$3");
+  else if(v.length>=3)v=v.replace(/^(\d{2})(\d{0,5}).*/,"($1) $2");
+  e.target.value=v;
+});
+
+function makeRequestCode(){
+  const d=new Date();
+  const date=d.getFullYear().toString().slice(-2)+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+  const random=Math.random().toString(36).slice(2,7).toUpperCase();
+  return "DOM-"+date+"-"+random;
+}
+function normalizePhone(v){return v.replace(/\D/g,"");}
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!validateStep(3))return;
+  const btn=$("submitBtn");
+  const s=selectedService();
+  const requestCode=makeRequestCode();
+  const payload={
+    codigo_solicitacao: requestCode,
+    nome: $("nome").value.trim(),
+    telefone: normalizePhone($("telefone").value),
+    servico: s.name,
+    valor_servico: s.price,
+    cep: $("cep").value.trim() || null,
+    bairro: $("bairro").value,
+    endereco: $("endereco").value.trim(),
+    complemento: $("complemento").value.trim() || null,
+    ponto_referencia: $("referencia").value.trim() || null,
+    data_preferida: $("data").value,
+    horario_preferido: $("horario").value,
+    observacao: $("observacao").value.trim() || null,
+    status: "pendente",
+    origem: "site",
+    consentimento_dados: true
+  };
+  btn.disabled=true; btn.textContent="Enviando...";
+  clearStatus();
+  try{
+    if(!supabaseClient){
+      throw new Error("O site ainda não está conectado ao Supabase. Insira a URL e a chave publishable/anon no final do arquivo HTML.");
+    }
+    const {error}=await supabaseClient.from(TABLE_NAME).insert(payload);
+    if(error) throw error;
+    $("successCode").textContent=requestCode;
+    form.classList.add("hidden");
+    $("successPanel").classList.add("show");
+    $("successPanel").scrollIntoView({behavior:"smooth",block:"center"});
+  }catch(err){
+    console.error("Erro ao enviar solicitação:",err);
+    showStatus("Não foi possível enviar sua solicitação. "+(err.message||"Tente novamente mais tarde."),"error");
+  }finally{
+    btn.disabled=false; btn.textContent="Solicitar atendimento";
+  }
+});
+$("newRequest").addEventListener("click",()=>{
+  setTimeout(()=>{
+    form.reset(); form.classList.remove("hidden"); $("successPanel").classList.remove("show");
+    $("data").min=localToday; showStep(1); updateSummary();
+  },100);
+});
+</script>
+</body>
+</html>
