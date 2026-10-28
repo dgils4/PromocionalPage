@@ -10,6 +10,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  
   <style>
     :root{--ink:#151515;--muted:#696969;--paper:#f6f5f1;--white:#fff;--line:#e6e3dc;--gold:#c7a66a;--gold-dark:#967744;--success:#1f7548;--danger:#a12e2e;--radius:20px}
     *{box-sizing:border-box}
@@ -392,12 +398,46 @@
           </div>
 
           <div class="form-step" data-step="2">
-            <div class="step-title">2. Onde e quando?</div>
-            <div class="step-help">Informe o endereço e sua preferência de data e horário.</div>
-            <div class="field-grid">
+    
+<div class="step-title">2. Escolha o profissional, onde e quando?</div>
+<div class="step-help">Selecione seu barbeiro e informe o endereço, a data e o horário desejados.</div>
+
+<div class="field" style="margin-top:20px">
+  <label for="barbeiro_id">Profissional *</label>
+  <select id="barbeiro_id" name="barbeiro_id" required>
+    <option value="">Carregando profissionais...</option>
+  </select>
+  <small id="professionalStatus" class="hint">
+    Selecione o profissional que deseja para seu atendimento.
+  </small>
+</div>
+
+<div class="field-grid">
+
               <div class="field"><label for="cep">CEP</label><input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"></div>
               <div class="field"><label for="bairro">Bairro *</label><select id="bairro" name="bairro" required><option value="">Selecione seu bairro</option><option>Boa Viagem</option><option>Piedade</option><option>Candeias</option><option>Barra de Jangada</option><option>Prazeres</option><option>Imbiribeira</option><option>Setúbal</option><option>Outro bairro</option></select></div>
-              <div class="field full"><label for="endereco">Rua / avenida e número *</label><input id="endereco" name="endereco" required autocomplete="street-address" placeholder="Ex.: Rua das Flores, 123"></div>
+              <div class="field full"><label for="endereco">Rua / avenida e número *</label><input id="endereco" name="endereco" required autocomplete="street-address" placeholder="Ex.: Rua das Flores, 123">
+              
+              
+<div class="field full">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <label>Localização aproximada no mapa</label>
+    <button type="button" class="btn btn-outline" id="buscarMapa" style="padding:9px 14px">
+      Buscar endereço
+    </button>
+  </div>
+  <p id="mapStatus" class="hint">
+    Preencha rua, número e bairro e toque em “Buscar endereço”.
+  </p>
+  <div id="mapaEndereco" style="height:300px;border-radius:14px;overflow:hidden;background:#e5e5e5"></div>
+  <a id="abrirMapa" href="#" target="_blank" rel="noopener noreferrer" class="hidden">
+    Abrir localização no Google Maps
+  </a>
+</div>
+
+              
+              
+              </div>
               <div class="field"><label for="complemento">Complemento</label><input id="complemento" name="complemento" placeholder="Apartamento, bloco, casa..."></div>
               <div class="field"><label for="referencia">Ponto de referência</label><input id="referencia" name="referencia" placeholder="Opcional"></div>
               <div class="field"><label for="data">Data desejada *</label><input id="data" name="data" type="date" required></div>
@@ -472,6 +512,8 @@ const steps = [...document.querySelectorAll(".form-step")];
 let currentStep = 1;
 
 $("year").textContent = new Date().getFullYear();
+
+  loadProfessionals();
 const today = new Date();
 const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0,10);
 $("data").min = localToday;
@@ -481,6 +523,49 @@ function selectedService(){
   return {name: el.value, price: Number(el.dataset.price || 0)};
 }
 function money(v){ return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+
+
+async function loadProfessionals() {
+  const select = $("barbeiro_id");
+  const status = $("professionalStatus");
+
+  select.disabled = true;
+  select.innerHTML = '<option value="">Carregando profissionais...</option>';
+
+  if (!supabaseClient) {
+    select.innerHTML = '<option value="">Serviço indisponível</option>';
+    status.textContent = "Não foi possível conectar ao sistema.";
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("profissionais_domicilio")
+    .select("id,nome")
+    .eq("ativo", true)
+    .order("nome");
+
+  if (error || !data || data.length === 0) {
+    select.innerHTML = '<option value="">Nenhum profissional disponível</option>';
+    status.textContent = "Não foi possível carregar os profissionais. Atualize a página ou tente novamente mais tarde.";
+    return;
+  }
+
+  select.innerHTML = '<option value="">Escolha um profissional</option>';
+
+  data.forEach(profissional => {
+    const option = document.createElement("option");
+    option.value = profissional.id;
+    option.textContent = profissional.nome;
+    select.appendChild(option);
+  });
+
+  select.disabled = false;
+  status.textContent = "Selecione o profissional antes de continuar.";
+}
+
+
+
+  
 function showStatus(message,type){
   const el=$("formStatus"); el.textContent=message; el.className="status show "+type;
 }
@@ -497,7 +582,7 @@ function showStep(n){
 function validateStep(n){
   let ids=[];
   if(n===1) return true;
-  if(n===2) ids=["bairro","endereco","data","horario"];
+if(n===2) ids=["barbeiro_id","bairro","endereco","data","horario"];
   if(n===3) ids=["nome","telefone"];
   for(const id of ids){
     const el=$(id);
@@ -548,6 +633,112 @@ function makeRequestCode(){
   return "DOM-"+date+"-"+random;
 }
 function normalizePhone(v){return v.replace(/\D/g,"");}
+
+
+
+let mapaEndereco = null;
+let marcadorEndereco = null;
+let coordenadasEndereco = null;
+
+function iniciarMapa() {
+  if (mapaEndereco || !window.L) return;
+
+  mapaEndereco = L.map("mapaEndereco").setView([-8.05, -34.9], 11);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(mapaEndereco);
+}
+
+async function buscarEnderecoNoMapa() {
+  const rua = $("endereco").value.trim();
+  const bairro = $("bairro").value;
+  const cep = $("cep").value.trim();
+
+  if (!rua || !bairro) {
+    $("mapStatus").textContent = "Informe a rua, o número e o bairro antes de pesquisar.";
+    return;
+  }
+
+  const consulta = [rua, bairro, cep, "Recife", "Pernambuco", "Brasil"]
+    .filter(Boolean)
+    .join(", ");
+
+  $("buscarMapa").disabled = true;
+  $("mapStatus").textContent = "Pesquisando endereço...";
+
+  try {
+    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&q=" +
+      encodeURIComponent(consulta);
+
+    const resposta = await fetch(url);
+    if (!resposta.ok) throw new Error("Não foi possível consultar o mapa.");
+
+    const resultados = await resposta.json();
+
+    if (!resultados.length) {
+      coordenadasEndereco = null;
+      $("mapStatus").textContent =
+        "Endereço não encontrado. Confira os dados ou acrescente um ponto de referência.";
+      $("abrirMapa").classList.add("hidden");
+      return;
+    }
+
+    const local = resultados[0];
+    const latitude = Number(local.lat);
+    const longitude = Number(local.lon);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      throw new Error("O serviço retornou coordenadas inválidas.");
+    }
+
+    iniciarMapa();
+
+    coordenadasEndereco = { latitude, longitude };
+
+    if (marcadorEndereco) {
+      marcadorEndereco.setLatLng([latitude, longitude]);
+    } else {
+      marcadorEndereco = L.marker([latitude, longitude]).addTo(mapaEndereco);
+    }
+
+    mapaEndereco.setView([latitude, longitude], 17);
+
+    $("mapStatus").textContent =
+      "Local encontrado. Confira se o ponto corresponde ao endereço informado.";
+
+    $("abrirMapa").href =
+      "https://www.google.com/maps?q=" + latitude + "," + longitude;
+
+    $("abrirMapa").classList.remove("hidden");
+
+    setTimeout(() => mapaEndereco.invalidateSize(), 100);
+
+  } catch (erro) {
+    coordenadasEndereco = null;
+    $("mapStatus").textContent =
+      "Não foi possível pesquisar agora. Confira sua conexão e tente novamente.";
+  } finally {
+    $("buscarMapa").disabled = false;
+  }
+}
+
+$("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
+
+["endereco", "bairro", "cep"].forEach(id => {
+  $(id).addEventListener("input", () => {
+    coordenadasEndereco = null;
+    $("abrirMapa").classList.add("hidden");
+    $("mapStatus").textContent =
+      "Endereço alterado. Pesquise novamente para atualizar a localização.";
+  });
+});
+
+
+
+
+  
 form.addEventListener("submit",async e=>{
   e.preventDefault();
   if(!validateStep(3))return;
@@ -558,6 +749,7 @@ form.addEventListener("submit",async e=>{
     codigo_solicitacao: requestCode,
     nome: $("nome").value.trim(),
     telefone: normalizePhone($("telefone").value),
+    barbeiro_id: $("barbeiro_id").value,
     servico: s.name,
     valor_servico: s.price,
     cep: $("cep").value.trim() || null,
@@ -565,12 +757,16 @@ form.addEventListener("submit",async e=>{
     endereco: $("endereco").value.trim(),
     complemento: $("complemento").value.trim() || null,
     ponto_referencia: $("referencia").value.trim() || null,
+    
     data_preferida: $("data").value,
     horario_preferido: $("horario").value,
     observacao: $("observacao").value.trim() || null,
     status: "pendente",
     origem: "site",
-    consentimento_dados: true
+    consentimento_dados: true,
+    latitude: coordenadasEndereco?.latitude ?? null,
+longitude: coordenadasEndereco?.longitude ?? null
+    
   };
   btn.disabled=true; btn.textContent="Enviando...";
   clearStatus();
