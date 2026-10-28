@@ -26,7 +26,38 @@
     .brand-name{font-weight:700;letter-spacing:.12em;font-size:.85rem}
     .brand-sub{font-size:.68rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
     .nav-note{font-size:.85rem;color:var(--muted)}
-    .hero{background:#151515;color:#fff;position:relative;overflow:hidden}
+    
+.hero{
+  background:#151515;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+.hero-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-2;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    90deg,
+    rgba(10,10,10,.94) 0%,
+    rgba(10,10,10,.76) 48%,
+    rgba(10,10,10,.48) 100%
+  );
+  z-index:-1;
+  pointer-events:none;
+}
+
     .hero-inner{max-width:1180px;margin:auto;padding:64px 24px 70px;display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center}
     .eyebrow{color:#e3c78f;text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;font-weight:700}
     h1,h2,h3,p{margin-top:0}
@@ -136,6 +167,95 @@
       .choice-row{grid-template-columns:1fr}
       .form-actions .btn{flex:1;min-width:0;padding:13px 14px}
     }
+
+
+    
+.about-section{
+  background:#fff;
+  padding:76px 24px;
+}
+
+.about-inner{
+  max-width:1180px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:54px;
+  align-items:center;
+}
+
+.about-image{
+  min-height:420px;
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  background:#222;
+}
+
+.about-image img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.about-image-caption{
+  position:absolute;
+  inset:auto 0 0;
+  padding:65px 24px 24px;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  background:linear-gradient(transparent,rgba(0,0,0,.85));
+}
+
+.about-image-caption span{
+  color:#e3c78f;
+  font-size:.72rem;
+  letter-spacing:.12em;
+}
+
+.about-image-caption strong{
+  font:600 1.5rem "Playfair Display",Georgia,serif;
+}
+
+.about-content h2{
+  font:700 clamp(2rem,3.5vw,3rem)/1.15 "Playfair Display",Georgia,serif;
+  margin:12px 0 20px;
+}
+
+.about-content p{
+  color:var(--muted);
+  margin-bottom:16px;
+}
+
+.about-content .btn{
+  margin-top:8px;
+}
+
+@media(max-width:760px){
+  .about-section{
+    padding:46px 18px;
+  }
+
+  .about-inner{
+    grid-template-columns:1fr;
+    gap:28px;
+  }
+
+  .about-image{
+    min-height:330px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-video{
+    display:none;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -150,7 +270,20 @@
 
   <main>
     <section class="hero">
-      <div class="hero-inner">
+  <video
+    class="hero-video"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    poster="video-poster.jpg"
+    aria-hidden="true"
+  >
+    <source src="video-apresentacao.mp4" type="video/mp4">
+  </video>
+
+  <div class="hero-inner">
         <div>
           <div class="eyebrow">Barbearia particular • Em sua casa</div>
           <h1>Seu melhor corte.<br><span>Sem sair de casa.</span></h1>
@@ -186,6 +319,55 @@
         <article class="benefit"><div class="benefit-icon">✦</div><h3>Atendimento reservado</h3><p>Um serviço personalizado, com atenção ao acabamento e aos detalhes.</p></article>
       </div>
     </section>
+
+
+<section class="about-section" id="quem-somos">
+  <div class="about-inner">
+    <div class="about-image">
+      <img
+        src="quem-somos.jpg"
+        alt="Atendimento profissional de barbearia a domicílio"
+        loading="lazy"
+      >
+      <div class="about-image-caption">
+        <span>BARBEARIA DOMICILIAR PREMIUM</span>
+        <strong>Seu estilo. Seu espaço. Seu tempo.</strong>
+      </div>
+    </div>
+
+    <div class="about-content">
+      <div class="eyebrow" style="color:var(--gold-dark)">
+        Quem somos
+      </div>
+
+      <h2>Uma experiência premium, onde você estiver.</h2>
+
+      <p>
+        A Barbearia Domiciliar Premium nasceu para levar o cuidado
+        e a qualidade de uma barbearia até o conforto da sua casa.
+      </p>
+
+      <p>
+        Acreditamos que cuidar do visual também deve ser uma experiência
+        de conforto, praticidade e atenção aos detalhes. Por isso,
+        nosso atendimento é pensado para respeitar seu tempo e seu estilo.
+      </p>
+
+      <p>
+        Atendemos com hora marcada em Recife e região, combinando
+        previamente os detalhes de cada atendimento.
+      </p>
+
+      <a class="btn btn-primary" href="#agendamento">
+        Conheça nosso atendimento →
+      </a>
+    </div>
+  </div>
+</section>
+
+
+
+    
 
     <section class="booking-wrap" id="agendamento">
       <div class="booking">
