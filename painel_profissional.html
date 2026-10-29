@@ -40,7 +40,53 @@ function modal(s){$("modalRoot").innerHTML=`<div class="modalbg" id="modalbg"><d
 async function openRequest(id){let r=requests.find(x=>String(x.id)===String(id));if(!r)return;modal(`<h2>Solicitação</h2><p class="muted">Confira as informações antes de confirmar.</p><div class="panel"><strong>${esc(val(r,"nome_cliente","cliente_nome","nome")||"Cliente")}</strong><p>Telefone: ${esc(val(r,"telefone","telefone_cliente")||"—")}</p><p>Endereço: ${esc([val(r,"endereco","rua"),val(r,"numero"),val(r,"bairro")].filter(Boolean).join(", ")||"—")}</p><p>Data: ${esc(dt(val(r,"data","data_agendamento","data_solicitada")))} ${esc(String(val(r,"hora","horario")).slice(0,5))}</p><p>Serviço: ${esc(val(r,"servico","servico_nome")||"—")}</p><p>Valor informado: ${money(val(r,"valor_servico","valor")||0)}</p><p>Status: ${esc(st(r))}</p></div><div id="reqStatus" class="status hide"></div><div class="modalactions"><button class="btn alt" id="closeModal">Fechar</button><button class="btn danger" id="reject">Recusar</button><button class="btn" id="accept">Confirmar</button></div>`);$("closeModal").onclick=()=>$("modalRoot").innerHTML="";$("accept").onclick=()=>setReqStatus(r,"confirmado");$("reject").onclick=()=>setReqStatus(r,"recusado")}
 async function setReqStatus(r,v){let col="status" in r?"status":"situacao" in r?"situacao":null;if(!col){status($("reqStatus"),"A tabela não tem coluna status/situacao reconhecida. Confirme o nome da coluna antes de ativar esta ação.","err");return}let {data,error}=await sb.from(TREQ).update({[col]:v}).eq("id",r.id).eq("barbeiro_id",pro.id).select().maybeSingle();if(error||!data){status($("reqStatus"),"Não foi possível atualizar. Verifique o campo de status e as políticas RLS. "+(error?.message||""),"err");return}Object.assign(r,data);$("modalRoot").innerHTML="";await refresh();render()}
 function serviceModal(s={}){modal(`<h2>${s.id?"Editar serviço":"Novo serviço"}</h2><form id="serviceForm"><div class="field"><label>Nome *</label><input id="sname" required value="${esc(s.nome||"")}"></div><div class="field"><label>Descrição</label><textarea id="sdesc">${esc(s.descricao||"")}</textarea></div><div class="field"><label>Preço *</label><input id="sprice" type="number" min="0" step=".01" required value="${esc(s.preco??"")}"></div><label><input id="sactive" type="checkbox" ${s.ativo===false?"":"checked"}> Serviço ativo</label><div id="serviceStatus" class="status hide"></div><div class="modalactions"><button type="button" class="btn alt" id="cancelService">Cancelar</button><button class="btn">Salvar</button></div></form>`);$("cancelService").onclick=()=>$("modalRoot").innerHTML="";$("serviceForm").onsubmit=async e=>{e.preventDefault();let p={profissional_id:pro.id,nome:$("sname").value.trim(),descricao:$("sdesc").value.trim()||null,preco:Number($("sprice").value),ativo:$("sactive").checked};let res=s.id?await sb.from(TSRV).update(p).eq("id",s.id).eq("profissional_id",pro.id).select().maybeSingle():await sb.from(TSRV).insert(p).select().maybeSingle();if(res.error||!res.data){status($("serviceStatus"),"Erro ao salvar: "+(res.error?.message||"verifique RLS"),"err");return}$("modalRoot").innerHTML="";await refresh();render()}}
-async function toggleService(id){let s=services.find(x=>String(x.id)===String(id));if(!s)return;let {error}=await sb.from(TSRV).update({ativo:s.ativo===false}).eq("id",s.id).eq("profissional_id",pro.id);if(error){alert("Erro: "+error.message);return}await refresh();render()}
+
+
+  
+
+async function toggleService(id) {
+  const s = services.find(x => String(x.id) === String(id));
+
+  if (!s) {
+    alert("Serviço não encontrado.");
+    return;
+  }
+
+  const novoStatus = s.ativo === false;
+
+  const { data, error } = await sb
+    .from(TSRV)
+    .update({ ativo: novoStatus })
+    .eq("id", s.id)
+    .eq("profissional_id", pro.id)
+    .select("id, ativo");
+
+  if (error) {
+    alert("Erro ao atualizar serviço: " + error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    alert(
+      "Nenhuma alteração foi realizada. " +
+      "Verifique o vínculo do profissional e as políticas RLS."
+    );
+    return;
+  }
+
+  await refresh();
+  render();
+
+  alert(
+    data[0].ativo
+      ? "Serviço ativado com sucesso!"
+      : "Serviço desativado com sucesso!"
+  );
+}
+
+
+
+  
 function bind(){ $("refresh")?.addEventListener("click",async()=>{await refresh();render()});$("agendaDate")?.addEventListener("change",render);$("newService")?.addEventListener("click",()=>serviceModal());document.querySelectorAll("[data-openreq]").forEach(b=>b.onclick=()=>openRequest(b.dataset.openreq));document.querySelectorAll("[data-editservice]").forEach(b=>b.onclick=()=>serviceModal(services.find(s=>String(s.id)===b.dataset.editservice)||{}));document.querySelectorAll("[data-toggleservice]").forEach(b=>b.onclick=()=>toggleService(b.dataset.toggleservice));$("profileForm")?.addEventListener("submit",saveProfile);$("captureGps")?.addEventListener("click",captureGPS)}
 async function saveProfile(e){e.preventDefault();let p={foto_url:$("photo").value.trim()||null,apresentacao:$("intro").value.trim()||null,experiencia_anos:Number($("years").value||0),especialidades:$("special").value.split(",").map(x=>x.trim()).filter(Boolean),qualificacoes:$("qual").value.split(",").map(x=>x.trim()).filter(Boolean)};let {data,error}=await sb.from(TPRO).update(p).eq("id",pro.id).eq("auth_user_id",user.id).select().maybeSingle();if(error||!data){status($("profileStatus"),"Não foi possível salvar. Verifique colunas e RLS. "+(error?.message||""),"err");return}pro={...pro,...data};$("avatar").innerHTML=pro.foto_url?`<img src="${esc(pro.foto_url)}">`:esc(pro.nome.slice(0,2));status($("profileStatus"),"Perfil atualizado.","ok")}
 function captureGPS(){if(!navigator.geolocation){alert("Este navegador não oferece geolocalização.");return}let btns=[$("gpsQuick"),$("captureGps")].filter(Boolean);btns.forEach(b=>{b.disabled=true;b.textContent="Obtendo GPS..."});navigator.geolocation.getCurrentPosition(async pos=>{let p={latitude_gps:Number(pos.coords.latitude.toFixed(7)),longitude_gps:Number(pos.coords.longitude.toFixed(7)),gps_atualizado_em:new Date().toISOString()};let {data,error}=await sb.from(TPRO).update(p).eq("id",pro.id).eq("auth_user_id",user.id).select().maybeSingle();btns.forEach(b=>{b.disabled=false;b.textContent="⌖ Atualizar GPS"});if(error||!data){let msg="GPS capturado, mas não foi possível salvar. Verifique colunas e RLS. "+(error?.message||"");if($("gpsStatus"))status($("gpsStatus"),msg,"err");else alert(msg);return}pro={...pro,...data};gpsUI();if($("gpsStatus"))status($("gpsStatus"),`Latitude: ${p.latitude_gps}\nLongitude: ${p.longitude_gps}\nPrecisão indicada pelo dispositivo: ${Math.round(pos.coords.accuracy)} m\nAtualizado: ${new Date().toLocaleString("pt-BR")}`,"ok");if(page==="gps")render()},err=>{btns.forEach(b=>{b.disabled=false;b.textContent="⌖ Atualizar GPS"});let m=err.code===1?"Permissão negada. Ative a localização nas configurações do navegador.":err.code===3?"Tempo esgotado; tente novamente.":"Não foi possível obter a posição GPS.";if($("gpsStatus"))status($("gpsStatus"),m,"err");else alert(m)},{enableHighAccuracy:true,timeout:20000,maximumAge:0})}
