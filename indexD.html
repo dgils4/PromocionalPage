@@ -262,6 +262,51 @@
   }
 }
 
+
+    
+/* Destaque quando falta pesquisar o endereço */
+@keyframes alertaMapa {
+  0%, 100% {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+
+  25%, 75% {
+    background: #dc2626;
+    color: #fff;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 5px rgba(220, 38, 38, 0.16);
+  }
+
+  50% {
+    background: transparent;
+    color: var(--ink);
+    border-color: #dc2626;
+  }
+}
+
+#buscarMapa.alerta-mapa {
+  animation: alertaMapa 0.7s ease-in-out 3;
+  border-color: #dc2626;
+}
+
+#mapStatus.alerta-texto {
+  color: #b91c1c;
+  font-weight: 700;
+  animation: alertaMapa 0.7s ease-in-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #buscarMapa.alerta-mapa,
+  #mapStatus.alerta-texto {
+    animation: none;
+    outline: 2px solid #dc2626;
+  }
+}
+
+
   </style>
 </head>
 <body>
@@ -415,21 +460,61 @@
 <div class="field-grid">
 
               <div class="field"><label for="cep">CEP</label><input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"></div>
-              <div class="field"><label for="bairro">Bairro *</label><select id="bairro" name="bairro" required><option value="">Selecione seu bairro</option><option>Boa Viagem</option><option>Piedade</option><option>Candeias</option><option>Barra de Jangada</option><option>Prazeres</option><option>Imbiribeira</option><option>Setúbal</option><option>Outro bairro</option></select></div>
-              <div class="field full"><label for="endereco">Rua / avenida e número *</label><input id="endereco" name="endereco" required autocomplete="street-address" placeholder="Ex.: Rua das Flores, 123">
+
+
+<div class="field">
+  <label for="numero">Número do imóvel *</label>
+  <input
+    id="numero"
+    name="numero"
+    type="text"
+    required
+    inputmode="numeric"
+    placeholder="Ex.: 1081"
+  >
+</div>
+
+
+  
               
-              
+<div class="field">
+  <label for="bairro">Bairro *</label>
+  <input
+    id="bairro"
+    name="bairro"
+    type="text"
+    required
+    autocomplete="address-level3"
+    placeholder="Preenchido pelo CEP"
+  >
+</div>
+
+
+  <div class="field full">
+  <label for="endereco">Rua / avenida *</label>
+  <input
+    id="endereco"
+    name="endereco"
+    required
+    autocomplete="street-address"
+    placeholder="Ex.: Rua das Flores"
+  />
+
+
 <div class="field full">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-    <label>Localização aproximada no mapa</label>
+    <label for="buscarMapa">Localização aproximada no mapa</label>
     <button type="button" class="btn btn-outline" id="buscarMapa" style="padding:9px 14px">
       Buscar endereço
     </button>
   </div>
+
   <p id="mapStatus" class="hint">
-    Preencha rua, número e bairro e toque em “Buscar endereço”.
+    Informe o CEP e o número do imóvel e toque em “Buscar endereço”.
   </p>
+
   <div id="mapaEndereco" style="height:300px;border-radius:14px;overflow:hidden;background:#e5e5e5"></div>
+
   <a id="abrirMapa" href="#" target="_blank" rel="noopener noreferrer" class="hidden">
     Abrir localização no Google Maps
   </a>
@@ -582,7 +667,15 @@ function showStep(n){
 function validateStep(n){
   let ids=[];
   if(n===1) return true;
-if(n===2) ids=["barbeiro_id","bairro","endereco","data","horario"];
+if(n===2) ids=[
+  "barbeiro_id",
+  "cep",
+  "numero",
+  "endereco",
+  "bairro",
+  "data",
+  "horario"
+];
   if(n===3) ids=["nome","telefone"];
   for(const id of ids){
     const el=$(id);
@@ -590,6 +683,42 @@ if(n===2) ids=["barbeiro_id","bairro","endereco","data","horario"];
     if(!el.checkValidity()){el.reportValidity();return false;}
   }
   if(n===2 && $("data").value < localToday){showStatus("Escolha uma data de hoje em diante.","error");return false;}
+
+
+if (n === 2 && !coordenadasEndereco) {
+  const botaoMapa = $("buscarMapa");
+  const statusMapa = $("mapStatus");
+
+  statusMapa.textContent =
+    "⚠ Falta pesquisar o endereço no mapa antes de continuar.";
+
+  statusMapa.classList.remove("alerta-texto");
+  botaoMapa.classList.remove("alerta-mapa");
+
+  // Reinicia a animação para funcionar em novas tentativas
+  void botaoMapa.offsetWidth;
+
+  statusMapa.classList.add("alerta-texto");
+  botaoMapa.classList.add("alerta-mapa");
+
+  // Rola a tela até o botão de pesquisa
+  botaoMapa.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+  // Remove o destaque após a animação
+  setTimeout(() => {
+    botaoMapa.classList.remove("alerta-mapa");
+    statusMapa.classList.remove("alerta-texto");
+  }, 2400);
+
+  return false;
+}
+
+
+
+  
   if(n===3){
     const digits=$("telefone").value.replace(/\D/g,"");
     if(digits.length<10 || digits.length>13){$("telefone").focus();showStatus("Confira o número de WhatsApp informado.","error");return false;}
@@ -651,37 +780,80 @@ function iniciarMapa() {
   }).addTo(mapaEndereco);
 }
 
-async function buscarEnderecoNoMapa() {
-  const rua = $("endereco").value.trim();
-  const bairro = $("bairro").value;
-  const cep = $("cep").value.trim();
 
-  if (!rua || !bairro) {
-    $("mapStatus").textContent = "Informe a rua, o número e o bairro antes de pesquisar.";
+
+async function buscarEnderecoNoMapa() {
+  const numero = $("numero").value.trim();
+  
+  const cep = $("cep").value.replace(/\D/g, "");
+
+  if (cep.length !== 8) {
+    $("mapStatus").textContent =
+      "Informe um CEP válido com 8 números.";
+    $("cep").focus();
     return;
   }
 
-  const consulta = [rua, bairro, cep, "Recife", "Pernambuco", "Brasil"]
-    .filter(Boolean)
-    .join(", ");
+  if (!numero) {
+  $("mapStatus").textContent = "Informe o número do imóvel.";
+  $("numero").focus();
+  return;
 
-  $("buscarMapa").disabled = true;
-  $("mapStatus").textContent = "Pesquisando endereço...";
+  }
+
+  const botao = $("buscarMapa");
+  botao.disabled = true;
+  coordenadasEndereco = null;
+  $("abrirMapa").classList.add("hidden");
+  $("mapStatus").textContent =
+    "Consultando CEP e pesquisando endereço...";
 
   try {
-    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&q=" +
+    const respostaCEP = await fetch(
+      `https://viacep.com.br/ws/${cep}/json/`
+    );
+
+    if (!respostaCEP.ok) {
+      throw new Error("Não foi possível consultar o CEP.");
+    }
+
+    const dadosCEP = await respostaCEP.json();
+
+    if (dadosCEP.erro) {
+  throw new Error("CEP não encontrado.");
+}
+
+// Preenche o bairro sem depender de uma lista fixa
+if (dadosCEP.bairro) {
+  $("bairro").value = dadosCEP.bairro;
+}
+
+
+
+    const consulta = [
+  dadosCEP.logradouro,
+  numero,
+  $("bairro").value,
+  dadosCEP.localidade,
+  dadosCEP.uf,
+  "Brasil"
+].filter(Boolean).join(", ");
+    const url =
+      "https://nominatim.openstreetmap.org/search" +
+      "?format=jsonv2&limit=1&countrycodes=br&q=" +
       encodeURIComponent(consulta);
 
     const resposta = await fetch(url);
-    if (!resposta.ok) throw new Error("Não foi possível consultar o mapa.");
+
+    if (!resposta.ok) {
+      throw new Error("Não foi possível consultar o mapa.");
+    }
 
     const resultados = await resposta.json();
 
     if (!resultados.length) {
-      coordenadasEndereco = null;
       $("mapStatus").textContent =
-        "Endereço não encontrado. Confira os dados ou acrescente um ponto de referência.";
-      $("abrirMapa").classList.add("hidden");
+        "Endereço não encontrado. Confira o CEP e tente novamente.";
       return;
     }
 
@@ -689,44 +861,67 @@ async function buscarEnderecoNoMapa() {
     const latitude = Number(local.lat);
     const longitude = Number(local.lon);
 
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      throw new Error("O serviço retornou coordenadas inválidas.");
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude)
+    ) {
+      throw new Error("Coordenadas inválidas.");
     }
 
     iniciarMapa();
 
-    coordenadasEndereco = { latitude, longitude };
+    if (!mapaEndereco) {
+      throw new Error("Não foi possível inicializar o mapa.");
+    }
+
+    coordenadasEndereco = {
+      latitude,
+      longitude
+    };
 
     if (marcadorEndereco) {
       marcadorEndereco.setLatLng([latitude, longitude]);
     } else {
-      marcadorEndereco = L.marker([latitude, longitude]).addTo(mapaEndereco);
+      marcadorEndereco = L.marker([
+        latitude,
+        longitude
+      ]).addTo(mapaEndereco);
     }
 
     mapaEndereco.setView([latitude, longitude], 17);
 
+    marcadorEndereco.bindPopup(
+      "Confira se este ponto corresponde ao imóvel."
+    ).openPopup();
+
     $("mapStatus").textContent =
-      "Local encontrado. Confira se o ponto corresponde ao endereço informado.";
+      `Localização encontrada: ${dadosCEP.localidade} - ${dadosCEP.uf}. Confira o marcador.`;
 
     $("abrirMapa").href =
-      "https://www.google.com/maps?q=" + latitude + "," + longitude;
+      `https://www.google.com/maps?q=${latitude},${longitude}`;
 
     $("abrirMapa").classList.remove("hidden");
 
-    setTimeout(() => mapaEndereco.invalidateSize(), 100);
+    setTimeout(() => {
+      mapaEndereco.invalidateSize();
+    }, 200);
 
   } catch (erro) {
+    console.error("Erro na pesquisa do mapa:", erro);
     coordenadasEndereco = null;
+
     $("mapStatus").textContent =
-      "Não foi possível pesquisar agora. Confira sua conexão e tente novamente.";
+      erro.message || "Erro ao pesquisar o endereço.";
+
   } finally {
-    $("buscarMapa").disabled = false;
+    botao.disabled = false;
   }
 }
 
+
 $("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
 
-["endereco", "bairro", "cep"].forEach(id => {
+["endereco", "numero", "bairro", "cep"].forEach(id => {
   $(id).addEventListener("input", () => {
     coordenadasEndereco = null;
     $("abrirMapa").classList.add("hidden");
@@ -752,9 +947,10 @@ form.addEventListener("submit",async e=>{
     barbeiro_id: $("barbeiro_id").value,
     servico: s.name,
     valor_servico: s.price,
-    cep: $("cep").value.trim() || null,
-    bairro: $("bairro").value,
     endereco: $("endereco").value.trim(),
+numero: $("numero").value.trim(),
+bairro: $("bairro").value,
+cep: $("cep").value.trim() || null,
     complemento: $("complemento").value.trim() || null,
     ponto_referencia: $("referencia").value.trim() || null,
     
@@ -764,6 +960,7 @@ form.addEventListener("submit",async e=>{
     status: "pendente",
     origem: "site",
     consentimento_dados: true,
+    
     latitude: coordenadasEndereco?.latitude ?? null,
 longitude: coordenadasEndereco?.longitude ?? null
     
@@ -787,11 +984,33 @@ longitude: coordenadasEndereco?.longitude ?? null
     btn.disabled=false; btn.textContent="Solicitar atendimento";
   }
 });
-$("newRequest").addEventListener("click",()=>{
-  setTimeout(()=>{
-    form.reset(); form.classList.remove("hidden"); $("successPanel").classList.remove("show");
-    $("data").min=localToday; showStep(1); updateSummary();
-  },100);
+
+
+
+  
+$("newRequest").addEventListener("click", () => {
+  setTimeout(() => {
+    form.reset();
+
+    coordenadasEndereco = null;
+
+    if (marcadorEndereco && mapaEndereco) {
+      mapaEndereco.removeLayer(marcadorEndereco);
+      marcadorEndereco = null;
+    }
+
+    $("abrirMapa").classList.add("hidden");
+    $("mapStatus").textContent =
+      "Informe o CEP e o número do imóvel e toque em “Buscar endereço”.";
+
+    form.classList.remove("hidden");
+    $("successPanel").classList.remove("show");
+
+    $("data").min = localToday;
+
+    showStep(1);
+    updateSummary();
+  }, 100);
 });
 </script>
 </body>
