@@ -133,7 +133,7 @@
     .summary{background:#f8f6f1;border:1px solid var(--line);border-radius:15px;padding:18px;margin:18px 0}
     .summary-row{display:flex;justify-content:space-between;gap:15px;padding:6px 0;font-size:.9rem}
     .summary-row span:first-child{color:var(--muted)}
-    .summary-total{border-top:1px solid var(--line);margin-top:8px;padding-top:13px;font-size:1.05rem;font-weight:700}
+    .summary-total{border-top:1px solid var(--line);margin-top:8px;padding-top:13px;font-size:1.05rem;font-weight:700}.travel-box{background:#f8f6f1;border:1px solid var(--line);border-radius:15px;padding:16px;margin:16px 0}.travel-status{font-size:.85rem;color:var(--muted);margin:6px 0 0}
     .notice{font-size:.82rem;color:#6d5a35;background:#fbf5e8;border:1px solid #eee0bd;padding:12px 14px;border-radius:12px;margin:14px 0}
     .consent{display:flex;align-items:flex-start;gap:10px;font-size:.83rem;color:var(--muted);margin:18px 0}
     .consent input{width:auto;margin-top:4px;flex:0 0 auto}
@@ -154,6 +154,34 @@
     .footer p{color:#bdbdbd;font-size:.83rem;margin:8px 0 0}
     .footer strong{letter-spacing:.12em}
     .privacy{font-size:.78rem;color:var(--muted);margin-top:15px}
+
+    .professional-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 10px}
+    .professional-card{border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;background:#fff;min-width:0}
+    .professional-card.selected{border:2px solid var(--gold-dark);background:#fcf8ef;padding:13px}
+    .professional-avatar{width:76px;height:88px;object-fit:cover;border-radius:12px;background:#eee;flex:0 0 auto}
+    .professional-card-content{min-width:0;flex:1}
+    .professional-card-content strong{display:block}
+    .professional-card-content small{display:block;color:var(--muted);font-size:.8rem;margin:3px 0 8px}
+    .professional-card-actions{display:flex;gap:7px;flex-wrap:wrap}
+    .professional-card-actions button{font-size:.78rem;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:#fff}
+    .professional-card-actions .choose-professional{background:#171717;color:#fff;border-color:#171717}
+    .services-heading{margin-top:28px}
+    .service-option input{opacity:0;pointer-events:none;position:absolute}
+    .service-option{position:relative;display:block;min-width:0}
+    .service-option input:checked+.service-card{border:2px solid var(--gold-dark);background:#fcf8ef;padding:16px}
+    .service-card{height:100%}
+    .profile-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}
+    .profile-modal.hidden{display:none!important}
+    .profile-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+    .profile-modal-panel{position:relative;z-index:1;background:#fff;border-radius:20px;padding:25px;width:min(100%,480px);max-height:90vh;overflow:auto;box-shadow:0 20px 70px #0004}
+    .profile-close{position:absolute;right:12px;top:10px;border:0;background:#f3f1ec;border-radius:50%;width:36px;height:36px;font-size:1.5rem}
+    .profile-photo{width:100px;height:110px;object-fit:cover;border-radius:14px;margin-bottom:14px;background:#eee}
+    .profile-modal-panel h3{font:700 1.7rem "Playfair Display",Georgia,serif;margin:6px 0 10px}
+    .profile-modal-panel p,.profile-modal-panel li{color:var(--muted);font-size:.92rem}
+    .profile-modal-panel ul{padding-left:20px;margin-top:6px}
+    .profile-modal-panel .btn{margin-top:15px;width:100%}
+    @media(max-width:600px){.professional-cards{grid-template-columns:1fr}.professional-avatar{width:68px;height:78px}.profile-modal-panel{padding:21px}}
+
     .hidden{display:none!important}
     @media(max-width:760px){
       .nav{padding:16px 18px}.nav-note{display:none}
@@ -463,32 +491,47 @@
         </div>
         <form id="bookingForm" novalidate>
           <div class="form-step active" data-step="1">
-            <div class="step-title">1. Escolha seu serviço</div>
-            <div class="step-help">Selecione o atendimento que deseja contratar.</div>
-            <div class="services">
-              <label class="service-option"><input type="radio" name="servico" value="Corte de cabelo" data-price="100" checked><span class="service-card"><span class="service-emoji">✂</span><span class="service-info"><strong>Corte de cabelo</strong><small>Corte e acabamento</small></span><span class="service-price">R$ 100</span></span></label>
-              <label class="service-option"><input type="radio" name="servico" value="Barba" data-price="60"><span class="service-card"><span class="service-emoji">◉</span><span class="service-info"><strong>Barba</strong><small>Modelagem e acabamento</small></span><span class="service-price">R$ 60</span></span></label>
-              <label class="service-option"><input type="radio" name="servico" value="Cabelo + barba" data-price="140"><span class="service-card"><span class="service-emoji">✦</span><span class="service-info"><strong>Cabelo + barba</strong><small>Combo completo</small></span><span class="service-price">R$ 140</span></span></label>
-              <label class="service-option"><input type="radio" name="servico" value="Atendimento familiar" data-price="180"><span class="service-card"><span class="service-emoji">♧</span><span class="service-info"><strong>Atendimento familiar</strong><small>Valor inicial para 2 pessoas; confirmar detalhes</small></span><span class="service-price">A partir de R$ 180</span></span></label>
+            <div class="step-title">1. Escolha seu profissional</div>
+            <div class="step-help">Conheça os profissionais e selecione quem fará seu atendimento.</div>
+            <div id="professionalCards" class="professional-cards" aria-live="polite">
+              <p class="hint">Carregando profissionais...</p>
             </div>
-            <div class="notice">Os preços acima são valores iniciais demonstrativos. A taxa de deslocamento, quando houver, será informada antes da confirmação do atendimento.</div>
+            <div id="professionalStatus" class="hint" role="status">Selecione um profissional para ver os serviços disponíveis.</div>
+            <input type="hidden" id="barbeiro_id" name="barbeiro_id" required>
+
+            <div class="step-title services-heading">2. Escolha seus serviços</div>
+            <div class="step-help">Você pode selecionar mais de um serviço. O total será atualizado automaticamente.</div>
+            <div id="servicesList" class="services">
+              <p class="hint">Escolha um profissional para carregar os serviços.</p>
+            </div>
+            <div id="servicesStatus" class="hint" role="status"></div>
+            <div class="summary selection-summary">
+              <div class="summary-row"><span>Serviços selecionados</span><strong id="selectedServicesCount">0</strong></div>
+              <div class="summary-row summary-total"><span>Total estimado</span><strong id="selectionTotal">R$ 0,00</strong></div>
+            </div>
+            <div class="notice">Os valores são demonstrativos e poderão ser confirmados pela equipe. A taxa de deslocamento, quando houver, será informada antes da confirmação do atendimento.</div>
             <div class="form-actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Continuar →</button></div>
+
+            <div id="professionalModal" class="profile-modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileName">
+              <div class="profile-modal-backdrop" data-close-profile></div>
+              <div class="profile-modal-panel">
+                <button type="button" class="profile-close" aria-label="Fechar perfil" data-close-profile>×</button>
+                <img id="profilePhoto" class="profile-photo" src="" alt="Foto do profissional">
+                <div class="eyebrow" style="color:var(--gold-dark)">Perfil profissional</div>
+                <h3 id="profileName"></h3>
+                <p id="profileBio"></p>
+                <p><strong>Experiência:</strong> <span id="profileExperience"></span></p>
+                <div><strong>Especialidades</strong><ul id="profileSpecialties"></ul></div>
+                <div><strong>Qualificações</strong><ul id="profileQualifications"></ul></div>
+                <button type="button" class="btn btn-primary" id="chooseProfileProfessional">Escolher este profissional</button>
+              </div>
+            </div>
           </div>
 
           <div class="form-step" data-step="2">
     
-<div class="step-title">2. Escolha o profissional, onde e quando?</div>
-<div class="step-help">Selecione seu barbeiro e informe o endereço, a data e o horário desejados.</div>
-
-<div class="field" style="margin-top:20px">
-  <label for="barbeiro_id">Profissional *</label>
-  <select id="barbeiro_id" name="barbeiro_id" required>
-    <option value="">Carregando profissionais...</option>
-  </select>
-  <small id="professionalStatus" class="hint">
-    Selecione o profissional que deseja para seu atendimento.
-  </small>
-</div>
+<div class="step-title">3. Onde e quando?</div>
+<div class="step-help">Informe o endereço, a data e o horário desejados para o profissional escolhido.</div>
 
 <div class="field-grid">
 
@@ -561,7 +604,14 @@
               <div class="field"><label for="data">Data desejada *</label><input id="data" name="data" type="date" required></div>
               <div class="field"><label for="horario">Horário preferido *</label><select id="horario" name="horario" required><option value="">Escolha um horário</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option><option>19:00</option></select></div>
             </div>
-            <div class="notice">A data e o horário escolhidos são uma preferência, não uma confirmação automática. A empresa verificará a agenda e o deslocamento.</div>
+            <div class="travel-box" aria-live="polite">
+<strong>Taxa de deslocamento</strong>
+<div class="summary-row"><span>Distância estimada pela rota</span><strong id="travelDistance">Aguardando endereço e GPS</strong></div>
+<div class="summary-row"><span>Taxa de deslocamento</span><strong id="travelFee">A calcular</strong></div>
+<p class="travel-status" id="travelStatus">Selecione um profissional com GPS atualizado e pesquise o endereço do cliente no mapa.</p>
+</div>
+<div class="notice">Até 6 km, o deslocamento é grátis. Acima de 6 km, cobra-se R$ 1 por quilômetro iniciado. A distância é estimada pela rota de carro e será confirmada pela equipe.</div>
+<div class="notice">A data e o horário escolhidos são uma preferência, não uma confirmação automática. A empresa verificará a agenda e o deslocamento.</div>
             <div class="form-actions"><button class="btn btn-outline" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Continuar →</button></div>
           </div>
 
@@ -574,11 +624,13 @@
               <div class="field full"><label for="observacao">Observações</label><textarea id="observacao" name="observacao" maxlength="1000" placeholder="Ex.: são dois cortes na mesma residência, preferência de estilo ou informações úteis."></textarea></div>
             </div>
             <div class="summary">
-              <div class="summary-row"><span>Serviço</span><strong id="sumService">Corte de cabelo</strong></div>
+              <div class="summary-row"><span>Profissional</span><strong id="sumProfessional">A selecionar</strong></div>
+              <div class="summary-row"><span>Serviços</span><strong id="sumService">Nenhum serviço selecionado</strong></div>
               <div class="summary-row"><span>Endereço</span><strong id="sumAddress">A preencher</strong></div>
               <div class="summary-row"><span>Data e horário desejados</span><strong id="sumDate">A preencher</strong></div>
-              <div class="summary-row"><span>Deslocamento</span><strong>A confirmar</strong></div>
-              <div class="summary-row summary-total"><span>Valor inicial do serviço</span><strong id="sumPrice">R$ 100,00</strong></div>
+              <div class="summary-row"><span>Distância estimada</span><strong id="sumDistance">A calcular</strong></div>
+              <div class="summary-row"><span>Taxa de deslocamento</span><strong id="sumTravelFee">A calcular</strong></div>
+              <div class="summary-row summary-total"><span>Total estimado (serviços + deslocamento)</span><strong id="sumPrice">R$ 0,00</strong></div>
             </div>
             <label class="consent"><input type="checkbox" id="consent" required><span>Concordo que meus dados sejam utilizados para responder a esta solicitação e organizar o atendimento, conforme a política de privacidade da empresa.</span></label>
             <div class="privacy">Não envie dados de cartão ou senhas neste formulário.</div>
@@ -636,51 +688,184 @@ const today = new Date();
 const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0,10);
 $("data").min = localToday;
 
+let professionals = [];
+let selectedProfessional = null;
+let availableServices = [];
+
 function selectedService(){
-  const el = form.querySelector('input[name="servico"]:checked');
-  return {name: el.value, price: Number(el.dataset.price || 0)};
+  const selected = [...form.querySelectorAll('input[name="servico"]:checked')];
+  return {
+    items: selected.map(el => ({name: el.value, price: Number(el.dataset.price || 0)})),
+    name: selected.map(el => el.value).join(" + "),
+    price: selected.reduce((total, el) => total + Number(el.dataset.price || 0), 0)
+  };
 }
 function money(v){ return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
 
-
 async function loadProfessionals() {
-  const select = $("barbeiro_id");
+  const cards = $("professionalCards");
   const status = $("professionalStatus");
-
-  select.disabled = true;
-  select.innerHTML = '<option value="">Carregando profissionais...</option>';
-
+  const hiddenSelect = $("barbeiro_id");
+  cards.innerHTML = '<p class="hint">Carregando profissionais...</p>';
   if (!supabaseClient) {
-    select.innerHTML = '<option value="">Serviço indisponível</option>';
+    cards.innerHTML = '<p class="hint">Serviço indisponível no momento.</p>';
     status.textContent = "Não foi possível conectar ao sistema.";
     return;
   }
-
   const { data, error } = await supabaseClient
     .from("profissionais_domicilio")
-    .select("id,nome")
+    .select("id,nome,foto_url,apresentacao,experiencia_anos,especialidades,qualificacoes,latitude_gps,longitude_gps,gps_atualizado_em")
     .eq("ativo", true)
     .order("nome");
-
   if (error || !data || data.length === 0) {
-    select.innerHTML = '<option value="">Nenhum profissional disponível</option>';
+    cards.innerHTML = '<p class="hint">Nenhum profissional disponível.</p>';
     status.textContent = "Não foi possível carregar os profissionais. Atualize a página ou tente novamente mais tarde.";
+    console.error("Erro ao carregar profissionais:", error);
     return;
   }
-
-  select.innerHTML = '<option value="">Escolha um profissional</option>';
-
+  professionals = data;
+  hiddenSelect.innerHTML = '<option value="">Escolha um profissional</option>';
+  cards.innerHTML = "";
   data.forEach(profissional => {
     const option = document.createElement("option");
     option.value = profissional.id;
     option.textContent = profissional.nome;
-    select.appendChild(option);
-  });
+    hiddenSelect.appendChild(option);
 
-  select.disabled = false;
-  status.textContent = "Selecione o profissional antes de continuar.";
+    const card = document.createElement("article");
+    card.className = "professional-card";
+    card.dataset.professionalId = profissional.id;
+    const img = document.createElement("img");
+    img.className = "professional-avatar";
+    img.src = profissional.foto_url || "https://placehold.co/160x180?text=Profissional";
+    img.alt = "Foto de " + profissional.nome;
+    img.loading = "lazy";
+    img.onerror = () => { img.onerror = null; img.src = "https://placehold.co/160x180?text=Profissional"; };
+    const content = document.createElement("div");
+    content.className = "professional-card-content";
+    const name = document.createElement("strong");
+    name.textContent = profissional.nome;
+    const desc = document.createElement("small");
+    desc.textContent = (profissional.especialidades || []).slice(0, 2).join(" • ") || "Atendimento domiciliar";
+    const actions = document.createElement("div");
+    actions.className = "professional-card-actions";
+    const choose = document.createElement("button");
+    choose.type = "button";
+    choose.className = "choose-professional";
+    choose.textContent = "Escolher";
+    choose.addEventListener("click", () => chooseProfessional(profissional.id));
+    const profile = document.createElement("button");
+    profile.type = "button";
+    profile.textContent = "Ver perfil";
+    profile.addEventListener("click", () => openProfessionalProfile(profissional.id));
+    actions.append(choose, profile);
+    content.append(name, desc, actions);
+    card.append(img, content);
+    card.addEventListener("click", event => {
+      if (!event.target.closest("button")) chooseProfessional(profissional.id);
+    });
+    cards.appendChild(card);
+  });
+  status.textContent = "Escolha um profissional para carregar os serviços disponíveis.";
 }
 
+async function chooseProfessional(id) {
+  const profissional = professionals.find(p => p.id === id);
+  if (!profissional) return;
+  selectedProfessional = profissional;
+  $("barbeiro_id").value = profissional.id;
+  document.querySelectorAll(".professional-card").forEach(card => {
+    card.classList.toggle("selected", card.dataset.professionalId === id);
+  });
+  $("professionalStatus").textContent = "Profissional selecionado: " + profissional.nome + ".";
+  calculoDeslocamento = null;
+  await loadServicesForProfessional(id);
+  updateSummary();
+  if (coordenadasEndereco) await calcularRotaDeslocamento();
+}
+
+async function loadServicesForProfessional(professionalId) {
+  const list = $("servicesList");
+  const status = $("servicesStatus");
+  list.innerHTML = '<p class="hint">Carregando serviços...</p>';
+  availableServices = [];
+  if (!supabaseClient) {
+    list.innerHTML = '<p class="hint">Não foi possível conectar ao sistema.</p>';
+    return;
+  }
+  const { data, error } = await supabaseClient
+    .from("servicos_profissionais_domicilio")
+    .select("id,nome,descricao,preco,ativo")
+    .eq("profissional_id", professionalId)
+    .eq("ativo", true)
+    .order("nome");
+  if (error || !data || data.length === 0) {
+    list.innerHTML = '<p class="hint">Este profissional ainda não possui serviços cadastrados.</p>';
+    status.textContent = error ? "Não foi possível carregar os serviços. Verifique as permissões da tabela no Supabase." : "Cadastre os serviços deste profissional para que apareçam aqui.";
+    console.error("Erro ao carregar serviços:", error);
+    updateSummary();
+    return;
+  }
+  availableServices = data;
+  list.innerHTML = "";
+  data.forEach((servico, index) => {
+    const label = document.createElement("label");
+    label.className = "service-option";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = "servico";
+    input.value = servico.nome;
+    input.dataset.serviceId = servico.id;
+    input.dataset.price = String(Number(servico.preco || 0));
+    input.addEventListener("change", updateSummary);
+    const card = document.createElement("span");
+    card.className = "service-card";
+    const emoji = document.createElement("span");
+    emoji.className = "service-emoji";
+    emoji.textContent = "✂";
+    const info = document.createElement("span");
+    info.className = "service-info";
+    const title = document.createElement("strong");
+    title.textContent = servico.nome;
+    const description = document.createElement("small");
+    description.textContent = servico.descricao || "Atendimento personalizado";
+    const price = document.createElement("span");
+    price.className = "service-price";
+    price.textContent = money(servico.preco);
+    info.append(title, description);
+    card.append(emoji, info, price);
+    label.append(input, card);
+    list.appendChild(label);
+  });
+  status.textContent = "Selecione um ou mais serviços.";
+  updateSummary();
+}
+
+function openProfessionalProfile(id) {
+  const p = professionals.find(item => item.id === id);
+  if (!p) return;
+  $("profileName").textContent = p.nome;
+  $("profileBio").textContent = p.apresentacao || "Profissional dedicado a oferecer um atendimento personalizado no conforto da sua casa.";
+  $("profileExperience").textContent = p.experiencia_anos == null ? "Informação a confirmar" : p.experiencia_anos + (p.experiencia_anos === 1 ? " ano" : " anos");
+  const photo = $("profilePhoto");
+  photo.src = p.foto_url || "https://placehold.co/240x260?text=Profissional";
+  photo.onerror = () => { photo.onerror = null; photo.src = "https://placehold.co/240x260?text=Profissional"; };
+  const fillList = (id, items) => {
+    const ul = $(id); ul.innerHTML = "";
+    (items || []).forEach(item => { const li = document.createElement("li"); li.textContent = item; ul.appendChild(li); });
+    if (!ul.children.length) { const li = document.createElement("li"); li.textContent = "Informações a cadastrar"; ul.appendChild(li); }
+  };
+  fillList("profileSpecialties", p.especialidades);
+  fillList("profileQualifications", p.qualificacoes);
+  $("chooseProfileProfessional").onclick = async () => {
+    await chooseProfessional(p.id);
+    $("professionalModal").classList.add("hidden");
+  };
+  $("professionalModal").classList.remove("hidden");
+}
+
+document.querySelectorAll("[data-close-profile]").forEach(el => el.addEventListener("click", () => $("professionalModal").classList.add("hidden")));
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("professionalModal").classList.add("hidden"); });
 
 
   
@@ -699,9 +884,12 @@ function showStep(n){
 }
 function validateStep(n){
   let ids=[];
-  if(n===1) return true;
+  if(n===1) {
+    if (!$("barbeiro_id").value) { showStatus("Escolha um profissional para continuar.","error"); $("professionalCards").scrollIntoView({behavior:"smooth",block:"center"}); return false; }
+    if (!form.querySelector('input[name="servico"]:checked')) { showStatus("Selecione pelo menos um serviço.","error"); $("servicesList").scrollIntoView({behavior:"smooth",block:"center"}); return false; }
+    return true;
+  }
 if(n===2) ids=[
-  "barbeiro_id",
   "cep",
   "numero",
   "endereco",
@@ -749,9 +937,16 @@ if (n === 2 && !coordenadasEndereco) {
   return false;
 }
 
+  if (n === 2 && (!calculoDeslocamento || !selectedProfessional ||
+      calculoDeslocamento.professionalId !== selectedProfessional.id ||
+      !coordenadasEndereco ||
+      calculoDeslocamento.addressLatitude !== coordenadasEndereco.latitude ||
+      calculoDeslocamento.addressLongitude !== coordenadasEndereco.longitude)) {
+    showStatus("Calcule o deslocamento antes de continuar. Confira o GPS do profissional e pesquise novamente o endereço.", "error");
+    $("travelStatus").scrollIntoView({behavior:"smooth",block:"center"});
+    return false;
+  }
 
-
-  
   if(n===3){
     const digits=$("telefone").value.replace(/\D/g,"");
     if(digits.length<10 || digits.length>13){$("telefone").focus();showStatus("Confira o número de WhatsApp informado.","error");return false;}
@@ -761,8 +956,19 @@ if (n === 2 && !coordenadasEndereco) {
 }
 function updateSummary(){
   const s=selectedService();
-  $("sumService").textContent=s.name;
-  $("sumPrice").textContent=s.name==="Atendimento familiar" ? "A partir de "+money(s.price) : money(s.price);
+  if ($("sumService")) $("sumService").textContent=s.name || "Nenhum serviço selecionado";
+  if ($("sumProfessional")) $("sumProfessional").textContent=selectedProfessional ? selectedProfessional.nome : "A selecionar";
+  const travelValid = calculoDeslocamento && selectedProfessional &&
+    calculoDeslocamento.professionalId === selectedProfessional.id &&
+    coordenadasEndereco &&
+    calculoDeslocamento.addressLatitude === coordenadasEndereco.latitude &&
+    calculoDeslocamento.addressLongitude === coordenadasEndereco.longitude;
+  const travelFee = travelValid ? calculoDeslocamento.fee : null;
+  if ($("sumDistance")) $("sumDistance").textContent = travelValid ? formatDistance(calculoDeslocamento.distanceKm) : "A calcular";
+  if ($("sumTravelFee")) $("sumTravelFee").textContent = travelValid ? money(travelFee) : "A confirmar";
+  if ($("sumPrice")) $("sumPrice").textContent = money(s.price + (travelValid ? travelFee : 0));
+  if ($("selectedServicesCount")) $("selectedServicesCount").textContent=String(s.items.length);
+  if ($("selectionTotal")) $("selectionTotal").textContent=money(s.price);
   const parts=[$("endereco").value,$("complemento").value,$("bairro").value].filter(Boolean);
   $("sumAddress").textContent=parts.join(", ")||"A preencher";
   const date=$("data").value;
@@ -773,7 +979,6 @@ document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",(
   if(validateStep(currentStep)) showStep(target);
 }));
 document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",()=>showStep(Number(b.dataset.back))));
-form.querySelectorAll('input[name="servico"]').forEach(el=>el.addEventListener("change",updateSummary));
 ["endereco","complemento","bairro","data","horario"].forEach(id=>$(id).addEventListener("change",updateSummary));
 $("cep").addEventListener("input",e=>{
   let v=e.target.value.replace(/\D/g,"").slice(0,8);
@@ -801,6 +1006,64 @@ function normalizePhone(v){return v.replace(/\D/g,"");}
 let mapaEndereco = null;
 let marcadorEndereco = null;
 let coordenadasEndereco = null;
+let calculoDeslocamento = null;
+const KM_GRATIS = 6;
+const PRECO_POR_KM_INICIADO = 1;
+function formatDistance(km) {
+  return Number(km).toLocaleString("pt-BR", {minimumFractionDigits:1, maximumFractionDigits:1}) + " km";
+}
+function calcularTaxaDeslocamento(km) {
+  return Math.ceil(Math.max(0, km - KM_GRATIS)) * PRECO_POR_KM_INICIADO;
+}
+async function calcularRotaDeslocamento() {
+  calculoDeslocamento = null;
+  $("travelDistance").textContent = "Calculando...";
+  $("travelFee").textContent = "A calcular";
+  $("travelStatus").textContent = "Consultando rota de carro entre o profissional e o endereço informado.";
+  const p = selectedProfessional;
+  if (!p || p.latitude_gps == null || p.longitude_gps == null ||
+      !Number.isFinite(Number(p.latitude_gps)) || !Number.isFinite(Number(p.longitude_gps))) {
+    $("travelDistance").textContent = "Indisponível";
+    $("travelFee").textContent = "A confirmar";
+    $("travelStatus").textContent = "Este profissional ainda não registrou o GPS. Atualize a localização no painel profissional.";
+    updateSummary(); return false;
+  }
+  if (!coordenadasEndereco) {
+    $("travelDistance").textContent = "Aguardando endereço";
+    $("travelFee").textContent = "A calcular";
+    $("travelStatus").textContent = "Pesquise o endereço no mapa para calcular o deslocamento.";
+    updateSummary(); return false;
+  }
+  try {
+    const origem = `${Number(p.longitude_gps)},${Number(p.latitude_gps)}`;
+    const destino = `${coordenadasEndereco.longitude},${coordenadasEndereco.latitude}`;
+    const url = `https://router.project-osrm.org/route/v1/driving/${origem};${destino}?overview=false&alternatives=false&steps=false`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("O serviço de rotas não respondeu.");
+    const data = await response.json();
+    if (data.code !== "Ok" || !data.routes || !data.routes.length || !Number.isFinite(data.routes[0].distance))
+      throw new Error("Não foi encontrada uma rota de carro para esse endereço.");
+    const distanceKm = data.routes[0].distance / 1000;
+    const fee = calcularTaxaDeslocamento(distanceKm);
+    calculoDeslocamento = {
+      distanceKm, fee, professionalId:p.id,
+      addressLatitude:coordenadasEndereco.latitude,
+      addressLongitude:coordenadasEndereco.longitude,
+      calculatedAt:new Date().toISOString()
+    };
+    $("travelDistance").textContent = formatDistance(distanceKm);
+    $("travelFee").textContent = money(fee);
+    $("travelStatus").textContent = fee === 0 ? "Dentro dos 6 km gratuitos." :
+      `Taxa calculada: ${Math.ceil(Math.max(0,distanceKm-KM_GRATIS))} km iniciado(s) acima da franquia de 6 km.`;
+    updateSummary(); return true;
+  } catch (error) {
+    console.error("Erro ao calcular rota:", error);
+    $("travelDistance").textContent = "Indisponível";
+    $("travelFee").textContent = "A confirmar";
+    $("travelStatus").textContent = "Não foi possível calcular a rota. Pesquise novamente; se persistir, a equipe confirmará o deslocamento.";
+    updateSummary(); return false;
+  }
+}
 
 function iniciarMapa() {
   if (mapaEndereco || !window.L) return;
@@ -930,6 +1193,8 @@ if (dadosCEP.bairro) {
     $("mapStatus").textContent =
       `Localização encontrada: ${dadosCEP.localidade} - ${dadosCEP.uf}. Confira o marcador.`;
 
+    await calcularRotaDeslocamento();
+
     $("abrirMapa").href =
       `https://www.google.com/maps?q=${latitude},${longitude}`;
 
@@ -957,6 +1222,11 @@ $("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
 ["endereco", "numero", "bairro", "cep"].forEach(id => {
   $(id).addEventListener("input", () => {
     coordenadasEndereco = null;
+    calculoDeslocamento = null;
+    $("travelDistance").textContent = "Aguardando endereço";
+    $("travelFee").textContent = "A calcular";
+    $("travelStatus").textContent = "O endereço mudou. Pesquise novamente para recalcular o deslocamento.";
+    updateSummary();
     $("abrirMapa").classList.add("hidden");
     $("mapStatus").textContent =
       "Endereço alterado. Pesquise novamente para atualizar a localização.";
@@ -970,6 +1240,13 @@ $("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
 form.addEventListener("submit",async e=>{
   e.preventDefault();
   if(!validateStep(3))return;
+  if (!calculoDeslocamento || !selectedProfessional || !coordenadasEndereco ||
+      calculoDeslocamento.professionalId !== selectedProfessional.id ||
+      calculoDeslocamento.addressLatitude !== coordenadasEndereco.latitude ||
+      calculoDeslocamento.addressLongitude !== coordenadasEndereco.longitude) {
+    showStatus("O deslocamento precisa ser calculado novamente antes de enviar. Volte ao endereço e pesquise no mapa.", "error");
+    showStep(2); return;
+  }
   const btn=$("submitBtn");
   const s=selectedService();
   const requestCode=makeRequestCode();
@@ -980,6 +1257,8 @@ form.addEventListener("submit",async e=>{
     barbeiro_id: $("barbeiro_id").value,
     servico: s.name,
     valor_servico: s.price,
+    distancia_km: Number(calculoDeslocamento.distanceKm.toFixed(3)),
+    taxa_deslocamento: Number(calculoDeslocamento.fee.toFixed(2)),
     endereco: $("endereco").value.trim(),
 numero: $("numero").value.trim(),
 bairro: $("bairro").value,
@@ -989,7 +1268,7 @@ cep: $("cep").value.trim() || null,
     
     data_preferida: $("data").value,
     horario_preferido: $("horario").value,
-    observacao: $("observacao").value.trim() || null,
+    observacao: [$("observacao").value.trim(), s.items.length ? "Serviços selecionados: " + s.items.map(item => item.name + " (" + money(item.price) + ")").join(", ") : ""].filter(Boolean).join("\n") || null,
     status: "pendente",
     origem: "site",
     consentimento_dados: true,
@@ -1024,8 +1303,19 @@ longitude: coordenadasEndereco?.longitude ?? null
 $("newRequest").addEventListener("click", () => {
   setTimeout(() => {
     form.reset();
+    selectedProfessional = null;
+    $("barbeiro_id").value = "";
+    document.querySelectorAll(".professional-card").forEach(card => card.classList.remove("selected"));
+    $("servicesList").innerHTML = '<p class="hint">Escolha um profissional para carregar os serviços.</p>';
+    $("servicesStatus").textContent = "";
+    availableServices = [];
+    updateSummary();
 
     coordenadasEndereco = null;
+    calculoDeslocamento = null;
+    $("travelDistance").textContent = "Aguardando endereço e GPS";
+    $("travelFee").textContent = "A calcular";
+    $("travelStatus").textContent = "Selecione um profissional com GPS atualizado e pesquise o endereço no mapa.";
 
     if (marcadorEndereco && mapaEndereco) {
       mapaEndereco.removeLayer(marcadorEndereco);
