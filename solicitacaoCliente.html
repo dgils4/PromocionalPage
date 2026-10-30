@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14243a">
+<title>Solicitação de atendimento | Escritório Jurídico</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#14243a;--blue:#24466c;--gold:#c6a66a;--bg:#f3f5f8;--text:#263445;--muted:#718096;--line:#dce3eb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:28px 18px 38px;text-align:center}
+.brand{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#e6d4b2}
+header h1{font-family:Georgia,serif;font-weight:normal;font-size:27px;margin:12px 0 8px}
+header p{margin:0;color:#e1e8f0;font-size:14px}
+main{width:min(760px,calc(100% - 28px));margin:-20px auto 40px;position:relative}
+.card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 8px 30px #172b4412}
+.intro{font-size:14px;line-height:1.6;color:var(--muted);margin:0 0 22px}
+h2{font-size:16px;color:var(--navy);margin:25px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:700;color:#35465a}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:12px;font:inherit;font-size:14px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #24466c18}
+textarea{min-height:125px;resize:vertical}
+small,.hint{font-size:12px;color:var(--muted);line-height:1.5}
+.upload{border:1px dashed #aebdcd;border-radius:9px;padding:14px;background:#fafbfd}
+.upload input{border:0;padding:7px 0}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:20px 0;font-size:12px;line-height:1.5;color:var(--muted)}
+.consent input{width:auto;margin-top:2px}
+button{width:100%;border:0;border-radius:9px;background:var(--navy);color:#fff;padding:15px;font-weight:700;font-size:15px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+#feedback{display:none;margin-top:18px;padding:16px;border-radius:9px;background:#edf7f0;color:#205b35;line-height:1.6;font-size:14px;overflow-wrap:anywhere}
+#error{display:none;margin-top:14px;padding:12px;border-radius:8px;background:#fff0f0;color:#9b2525;font-size:13px;line-height:1.5}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:0 20px 28px}
+@media(max-width:560px){.card{padding:19px 16px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}header h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Atendimento jurídico</div>
+  <h1>Solicite seu atendimento</h1>
+  <p>Preencha seus dados para que nossa equipe possa analisar sua solicitação.</p>
+</header>
+
+<main>
+<section class="card">
+  <p class="intro">Informe seus dados corretamente e descreva sua situação com o máximo de detalhes possível. O envio desta solicitação não representa, por si só, a contratação de serviços jurídicos.</p>
+
+  <form id="formSolicitacao">
+    <h2>1. Dados pessoais</h2>
+    <div class="grid">
+      <div class="field full"><label for="nome">Nome completo *</label><input id="nome" name="nome" autocomplete="name" required maxlength="160"></div>
+      <div class="field"><label for="telefone">Telefone / WhatsApp *</label><input id="telefone" name="telefone" inputmode="tel" autocomplete="tel" required maxlength="20"></div>
+      <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" maxlength="160"></div>
+      <div class="field"><label for="cpf">CPF *</label><input id="cpf" name="cpf" inputmode="numeric" required maxlength="14" placeholder="000.000.000-00"></div>
+      <div class="field"><label for="rg">RG</label><input id="rg" name="rg" maxlength="30"></div>
+      <div class="field"><label for="estadoCivil">Estado civil</label>
+        <select id="estadoCivil" name="estado_civil"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União estável</option><option>Outro</option></select>
+      </div>
+      <div class="field"><label for="profissao">Profissão</label><input id="profissao" name="profissao" maxlength="100"></div>
+      <div class="field full"><label for="endereco">Endereço completo</label><input id="endereco" name="endereco" autocomplete="street-address" maxlength="300"></div>
+    </div>
+
+    <h2>2. Sobre o atendimento</h2>
+    <div class="grid">
+      <div class="field full"><label for="area">Área jurídica *</label>
+        <select id="area" name="area" required>
+          <option value="">Selecione a área</option>
+          <option>Direito Civil</option><option>Direito de Família</option><option>Direito do Consumidor</option><option>Direito Trabalhista</option><option>Direito Previdenciário</option><option>Direito Criminal</option><option>Direito Empresarial</option><option>Outra / Não sei identificar</option>
+        </select>
+      </div>
+      <div class="field full"><label for="descricao">Conte o que aconteceu e como podemos ajudar *</label><textarea id="descricao" name="descricao" required minlength="20" maxlength="5000" placeholder="Descreva os fatos, datas importantes e o que você precisa..."></textarea><small>Mínimo de 20 caracteres. Não envie senhas ou dados bancários.</small></div>
+    </div>
+
+    <h2>3. Documentos</h2>
+    <div class="grid">
+      <div class="field full">
+        <label for="arquivoRG">Documento de identidade (RG)</label>
+        <div class="upload">
+          <input id="arquivoRG" type="file" accept="image/jpeg,image/png,image/webp,application/pdf">
+          <small>Selecione uma imagem ou PDF do RG. Até 10 MB.</small>
+        </div>
+      </div>
+
+      <div class="field full">
+        <label for="arquivoCPF">Documento do CPF</label>
+        <div class="upload">
+          <input id="arquivoCPF" type="file" accept="image/jpeg,image/png,image/webp,application/pdf">
+          <small>Selecione uma imagem ou PDF do CPF. Até 10 MB.</small>
+        </div>
+      </div>
+
+      <div class="field full">
+        <label for="arquivoEndereco">Comprovante de endereço</label>
+        <div class="upload">
+          <input id="arquivoEndereco" type="file" accept="image/jpeg,image/png,image/webp,application/pdf">
+          <small>Selecione uma imagem ou PDF do comprovante. Até 10 MB.</small>
+        </div>
+      </div>
+    </div>
+    <small>Para os testes, utilize somente documentos fictícios.</small>
+
+    <label class="consent"><input id="consentimento" type="checkbox" required><span>Autorizo o uso dos dados informados para análise desta solicitação de atendimento. Estou ciente de que o envio não confirma a contratação de serviços.</span></label>
+    <button id="btnEnviar" type="submit">Enviar solicitação</button>
+    <div id="error" role="alert"></div>
+    <div id="feedback" role="status"></div>
+  </form>
+</section>
+</main>
+<footer>Atendimento sujeito à análise e confirmação pelo escritório.</footer>
+
+<script>
+/*
+  CONFIGURAÇÃO:
+  Esta página usa a chave anon pública do projeto Supabase.
+  Nunca coloque aqui a chave service_role.
+  Integração direta temporária apenas para testes com dados fictícios.
+*/
+const SUPABASE_URL = "https://niqgdptlfojsoefezhne.supabase.co";
+const SUPABASE_ANON_KEY =   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pcWdkcHRsZm9qc29lZmV6aG5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NjM4NDQsImV4cCI6MjA5NDAzOTg0NH0.Dd95TeWjibfStyoadlnXtOU502_qJSkgd1Jh9ABQQaQ";
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const form = document.getElementById("formSolicitacao");
+const btn = document.getElementById("btnEnviar");
+const errorBox = document.getElementById("error");
+const feedback = document.getElementById("feedback");
+const campoCpf = document.getElementById("cpf");
+
+campoCpf.addEventListener("input", () => {
+  let v = campoCpf.value.replace(/\D/g,"").slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+  campoCpf.value = v;
+});
+
+function mostrarErro(msg){
+  errorBox.textContent = msg;
+  errorBox.style.display = "block";
+  feedback.style.display = "none";
+}
+function gerarToken(){
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes,b => b.toString(16).padStart(2,"0")).join("");
+}
+async function sha256(texto){
+  const dados = new TextEncoder().encode(texto);
+  const hash = await crypto.subtle.digest("SHA-256",dados);
+  return Array.from(new Uint8Array(hash),b => b.toString(16).padStart(2,"0")).join("");
+}
+function nomeSeguro(nome){
+  return nome.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9._-]/g,"_");
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  errorBox.style.display = "none";
+  feedback.style.display = "none";
+
+  if(SUPABASE_ANON_KEY.includes("COLE_AQUI")){
+    mostrarErro("Falta configurar a chave anon pública do Supabase no código.");
+    return;
+  }
+  if(!crypto.subtle){
+    mostrarErro("A página precisa estar publicada em HTTPS para gerar a chave segura de acompanhamento.");
+    return;
+  }
+
+  const cpf = campoCpf.value.replace(/\D/g,"");
+  if(cpf.length !== 11){
+    mostrarErro("Confira o CPF informado.");
+    campoCpf.focus();
+    return;
+  }
+
+  const arquivos = Array.from(document.getElementById("documentos").files || []);
+  const permitidos = ["image/jpeg","image/png","image/webp","application/pdf"];
+  for(const arquivo of arquivos){
+    if(!permitidos.includes(arquivo.type)){
+      mostrarErro("Arquivo não permitido: " + arquivo.name);
+      return;
+    }
+    if(arquivo.size > 10 * 1024 * 1024){
+      mostrarErro("O arquivo " + arquivo.name + " ultrapassa 10 MB.");
+      return;
+    }
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Enviando solicitação...";
+
+  try{
+    const token = gerarToken();
+    const tokenHash = await sha256(token);
+
+    const payload = {
+      token_hash: tokenHash,
+      nome: document.getElementById("nome").value.trim(),
+      telefone: document.getElementById("telefone").value.trim(),
+      email: document.getElementById("email").value.trim() || null,
+      cpf,
+      rg: document.getElementById("rg").value.trim() || null,
+      estado_civil: document.getElementById("estadoCivil").value || null,
+      profissao: document.getElementById("profissao").value.trim() || null,
+      endereco: document.getElementById("endereco").value.trim() || null,
+      area: document.getElementById("area").value,
+      descricao_caso: document.getElementById("descricao").value.trim()
+    };
+
+    // Cria a solicitação por uma função controlada.
+    // Assim não precisamos liberar SELECT público na tabela inteira.
+    const { data: retorno, error: erroSolicitacao } = await db
+      .rpc("criar_solicitacao_publica", { p_payload: payload });
+
+    if(erroSolicitacao) throw erroSolicitacao;
+
+    const solicitacao = Array.isArray(retorno) ? retorno[0] : retorno;
+    if(!solicitacao || !solicitacao.id || !solicitacao.protocolo){
+      throw new Error("A solicitação foi recebida, mas o banco não retornou o protocolo.");
+    }
+
+    const arquivosIndividuais = [
+      { campo: "arquivoRG", tipo: "RG" },
+      { campo: "arquivoCPF", tipo: "CPF" },
+      { campo: "arquivoEndereco", tipo: "Comprovante de endereço" }
+    ];
+
+    const falhas = [];
+
+    for(const item of arquivosIndividuais){
+      const campo = document.getElementById(item.campo);
+      const arquivo = campo.files && campo.files[0];
+      if(!arquivo) continue;
+
+      const caminho = `${solicitacao.id}/${item.campo}_${Date.now()}_${Math.random().toString(36).slice(2)}_${nomeSeguro(arquivo.name)}`;
+
+      const { error: erroUpload } = await db.storage
+        .from("documentos-solicitacoes")
+        .upload(caminho, arquivo, {
+          contentType: arquivo.type,
+          upsert: false
+        });
+
+      if(erroUpload){
+        falhas.push(item.tipo + ": " + erroUpload.message);
+        continue;
+      }
+
+      const { error: erroRegistro } = await db
+        .from("documentos_solicitacoes")
+        .insert({
+          solicitacao_id: solicitacao.id,
+          nome_arquivo: item.tipo + " - " + arquivo.name,
+          caminho_arquivo: caminho,
+          tipo_mime: arquivo.type,
+          tamanho_bytes: arquivo.size
+        });
+
+      if(erroRegistro){
+        await db.storage.from("documentos-solicitacoes").remove([caminho]);
+        falhas.push(item.tipo + ": " + erroRegistro.message);
+      }
+    }
+
+    form.reset();
+    feedback.style.display = "block";
+    feedback.innerHTML = `
+      <strong>Solicitação enviada para análise!</strong><br>
+      Seu protocolo: <strong>${solicitacao.protocolo}</strong><br><br>
+      Guarde também esta chave privada de acompanhamento:<br>
+      <strong>${token}</strong><br><br>
+      O protocolo e a chave serão necessários para consultar o andamento.
+      ${falhas.length ? "<br><br>Solicitação registrada, mas alguns anexos falharam: " + falhas.map(x => x.replace(/[&<>"]/g,"")).join("; ") : ""}
+    `;
+    if(navigator.clipboard && window.isSecureContext){
+      // Não copia automaticamente; a chave permanece visível para o cliente guardar.
+    }
+  }catch(err){
+    mostrarErro("Não foi possível enviar a solicitação. " + (err.message || "Verifique a conexão e as permissões do Supabase."));
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Enviar solicitação";
+  }
+});
+</script>
+</body>
+</html>
