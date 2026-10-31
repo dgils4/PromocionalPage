@@ -133,7 +133,7 @@
     .summary{background:#f8f6f1;border:1px solid var(--line);border-radius:15px;padding:18px;margin:18px 0}
     .summary-row{display:flex;justify-content:space-between;gap:15px;padding:6px 0;font-size:.9rem}
     .summary-row span:first-child{color:var(--muted)}
-    .summary-total{border-top:1px solid var(--line);margin-top:8px;padding-top:13px;font-size:1.05rem;font-weight:700}.travel-box{background:#f8f6f1;border:1px solid var(--line);border-radius:15px;padding:16px;margin:16px 0}.travel-status{font-size:.85rem;color:var(--muted);margin:6px 0 0}
+    .summary-total{border-top:1px solid var(--line);margin-top:8px;padding-top:13px;font-size:1.05rem;font-weight:700}
     .notice{font-size:.82rem;color:#6d5a35;background:#fbf5e8;border:1px solid #eee0bd;padding:12px 14px;border-radius:12px;margin:14px 0}
     .consent{display:flex;align-items:flex-start;gap:10px;font-size:.83rem;color:var(--muted);margin:18px 0}
     .consent input{width:auto;margin-top:4px;flex:0 0 auto}
@@ -604,14 +604,7 @@
               <div class="field"><label for="data">Data desejada *</label><input id="data" name="data" type="date" required></div>
               <div class="field"><label for="horario">Horário preferido *</label><select id="horario" name="horario" required><option value="">Escolha um horário</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option><option>19:00</option></select></div>
             </div>
-            <div class="travel-box" aria-live="polite">
-<strong>Taxa de deslocamento</strong>
-<div class="summary-row"><span>Distância estimada pela rota</span><strong id="travelDistance">Aguardando endereço e GPS</strong></div>
-<div class="summary-row"><span>Taxa de deslocamento</span><strong id="travelFee">A calcular</strong></div>
-<p class="travel-status" id="travelStatus">Selecione um profissional com GPS atualizado e pesquise o endereço do cliente no mapa.</p>
-</div>
-<div class="notice">Até 6 km, o deslocamento é grátis. Acima de 6 km, cobra-se R$ 1 por quilômetro iniciado. A distância é estimada pela rota de carro e será confirmada pela equipe.</div>
-<div class="notice">A data e o horário escolhidos são uma preferência, não uma confirmação automática. A empresa verificará a agenda e o deslocamento.</div>
+            <div class="notice">A data e o horário escolhidos são uma preferência, não uma confirmação automática. A empresa verificará a agenda e o deslocamento.</div>
             <div class="form-actions"><button class="btn btn-outline" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Continuar →</button></div>
           </div>
 
@@ -628,9 +621,8 @@
               <div class="summary-row"><span>Serviços</span><strong id="sumService">Nenhum serviço selecionado</strong></div>
               <div class="summary-row"><span>Endereço</span><strong id="sumAddress">A preencher</strong></div>
               <div class="summary-row"><span>Data e horário desejados</span><strong id="sumDate">A preencher</strong></div>
-              <div class="summary-row"><span>Distância estimada</span><strong id="sumDistance">A calcular</strong></div>
-              <div class="summary-row"><span>Taxa de deslocamento</span><strong id="sumTravelFee">A calcular</strong></div>
-              <div class="summary-row summary-total"><span>Total estimado (serviços + deslocamento)</span><strong id="sumPrice">R$ 0,00</strong></div>
+              <div class="summary-row"><span>Deslocamento</span><strong>A confirmar</strong></div>
+              <div class="summary-row summary-total"><span>Total estimado dos serviços</span><strong id="sumPrice">R$ 0,00</strong></div>
             </div>
             <label class="consent"><input type="checkbox" id="consent" required><span>Concordo que meus dados sejam utilizados para responder a esta solicitação e organizar o atendimento, conforme a política de privacidade da empresa.</span></label>
             <div class="privacy">Não envie dados de cartão ou senhas neste formulário.</div>
@@ -714,7 +706,7 @@ async function loadProfessionals() {
   }
   const { data, error } = await supabaseClient
     .from("profissionais_domicilio")
-    .select("id,nome,foto_url,apresentacao,experiencia_anos,especialidades,qualificacoes,latitude_gps,longitude_gps,gps_atualizado_em")
+    .select("id,nome,foto_url,apresentacao,experiencia_anos,especialidades,qualificacoes")
     .eq("ativo", true)
     .order("nome");
   if (error || !data || data.length === 0) {
@@ -778,10 +770,8 @@ async function chooseProfessional(id) {
     card.classList.toggle("selected", card.dataset.professionalId === id);
   });
   $("professionalStatus").textContent = "Profissional selecionado: " + profissional.nome + ".";
-  calculoDeslocamento = null;
   await loadServicesForProfessional(id);
   updateSummary();
-  if (coordenadasEndereco) await calcularRotaDeslocamento();
 }
 
 async function loadServicesForProfessional(professionalId) {
@@ -937,16 +927,9 @@ if (n === 2 && !coordenadasEndereco) {
   return false;
 }
 
-  if (n === 2 && (!calculoDeslocamento || !selectedProfessional ||
-      calculoDeslocamento.professionalId !== selectedProfessional.id ||
-      !coordenadasEndereco ||
-      calculoDeslocamento.addressLatitude !== coordenadasEndereco.latitude ||
-      calculoDeslocamento.addressLongitude !== coordenadasEndereco.longitude)) {
-    showStatus("Calcule o deslocamento antes de continuar. Confira o GPS do profissional e pesquise novamente o endereço.", "error");
-    $("travelStatus").scrollIntoView({behavior:"smooth",block:"center"});
-    return false;
-  }
 
+
+  
   if(n===3){
     const digits=$("telefone").value.replace(/\D/g,"");
     if(digits.length<10 || digits.length>13){$("telefone").focus();showStatus("Confira o número de WhatsApp informado.","error");return false;}
@@ -958,15 +941,7 @@ function updateSummary(){
   const s=selectedService();
   if ($("sumService")) $("sumService").textContent=s.name || "Nenhum serviço selecionado";
   if ($("sumProfessional")) $("sumProfessional").textContent=selectedProfessional ? selectedProfessional.nome : "A selecionar";
-  const travelValid = calculoDeslocamento && selectedProfessional &&
-    calculoDeslocamento.professionalId === selectedProfessional.id &&
-    coordenadasEndereco &&
-    calculoDeslocamento.addressLatitude === coordenadasEndereco.latitude &&
-    calculoDeslocamento.addressLongitude === coordenadasEndereco.longitude;
-  const travelFee = travelValid ? calculoDeslocamento.fee : null;
-  if ($("sumDistance")) $("sumDistance").textContent = travelValid ? formatDistance(calculoDeslocamento.distanceKm) : "A calcular";
-  if ($("sumTravelFee")) $("sumTravelFee").textContent = travelValid ? money(travelFee) : "A confirmar";
-  if ($("sumPrice")) $("sumPrice").textContent = money(s.price + (travelValid ? travelFee : 0));
+  if ($("sumPrice")) $("sumPrice").textContent=money(s.price);
   if ($("selectedServicesCount")) $("selectedServicesCount").textContent=String(s.items.length);
   if ($("selectionTotal")) $("selectionTotal").textContent=money(s.price);
   const parts=[$("endereco").value,$("complemento").value,$("bairro").value].filter(Boolean);
@@ -1006,64 +981,6 @@ function normalizePhone(v){return v.replace(/\D/g,"");}
 let mapaEndereco = null;
 let marcadorEndereco = null;
 let coordenadasEndereco = null;
-let calculoDeslocamento = null;
-const KM_GRATIS = 6;
-const PRECO_POR_KM_INICIADO = 1;
-function formatDistance(km) {
-  return Number(km).toLocaleString("pt-BR", {minimumFractionDigits:1, maximumFractionDigits:1}) + " km";
-}
-function calcularTaxaDeslocamento(km) {
-  return Math.ceil(Math.max(0, km - KM_GRATIS)) * PRECO_POR_KM_INICIADO;
-}
-async function calcularRotaDeslocamento() {
-  calculoDeslocamento = null;
-  $("travelDistance").textContent = "Calculando...";
-  $("travelFee").textContent = "A calcular";
-  $("travelStatus").textContent = "Consultando rota de carro entre o profissional e o endereço informado.";
-  const p = selectedProfessional;
-  if (!p || p.latitude_gps == null || p.longitude_gps == null ||
-      !Number.isFinite(Number(p.latitude_gps)) || !Number.isFinite(Number(p.longitude_gps))) {
-    $("travelDistance").textContent = "Indisponível";
-    $("travelFee").textContent = "A confirmar";
-    $("travelStatus").textContent = "Este profissional ainda não registrou o GPS. Atualize a localização no painel profissional.";
-    updateSummary(); return false;
-  }
-  if (!coordenadasEndereco) {
-    $("travelDistance").textContent = "Aguardando endereço";
-    $("travelFee").textContent = "A calcular";
-    $("travelStatus").textContent = "Pesquise o endereço no mapa para calcular o deslocamento.";
-    updateSummary(); return false;
-  }
-  try {
-    const origem = `${Number(p.longitude_gps)},${Number(p.latitude_gps)}`;
-    const destino = `${coordenadasEndereco.longitude},${coordenadasEndereco.latitude}`;
-    const url = `https://router.project-osrm.org/route/v1/driving/${origem};${destino}?overview=false&alternatives=false&steps=false`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("O serviço de rotas não respondeu.");
-    const data = await response.json();
-    if (data.code !== "Ok" || !data.routes || !data.routes.length || !Number.isFinite(data.routes[0].distance))
-      throw new Error("Não foi encontrada uma rota de carro para esse endereço.");
-    const distanceKm = data.routes[0].distance / 1000;
-    const fee = calcularTaxaDeslocamento(distanceKm);
-    calculoDeslocamento = {
-      distanceKm, fee, professionalId:p.id,
-      addressLatitude:coordenadasEndereco.latitude,
-      addressLongitude:coordenadasEndereco.longitude,
-      calculatedAt:new Date().toISOString()
-    };
-    $("travelDistance").textContent = formatDistance(distanceKm);
-    $("travelFee").textContent = money(fee);
-    $("travelStatus").textContent = fee === 0 ? "Dentro dos 6 km gratuitos." :
-      `Taxa calculada: ${Math.ceil(Math.max(0,distanceKm-KM_GRATIS))} km iniciado(s) acima da franquia de 6 km.`;
-    updateSummary(); return true;
-  } catch (error) {
-    console.error("Erro ao calcular rota:", error);
-    $("travelDistance").textContent = "Indisponível";
-    $("travelFee").textContent = "A confirmar";
-    $("travelStatus").textContent = "Não foi possível calcular a rota. Pesquise novamente; se persistir, a equipe confirmará o deslocamento.";
-    updateSummary(); return false;
-  }
-}
 
 function iniciarMapa() {
   if (mapaEndereco || !window.L) return;
@@ -1193,8 +1110,6 @@ if (dadosCEP.bairro) {
     $("mapStatus").textContent =
       `Localização encontrada: ${dadosCEP.localidade} - ${dadosCEP.uf}. Confira o marcador.`;
 
-    await calcularRotaDeslocamento();
-
     $("abrirMapa").href =
       `https://www.google.com/maps?q=${latitude},${longitude}`;
 
@@ -1222,11 +1137,6 @@ $("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
 ["endereco", "numero", "bairro", "cep"].forEach(id => {
   $(id).addEventListener("input", () => {
     coordenadasEndereco = null;
-    calculoDeslocamento = null;
-    $("travelDistance").textContent = "Aguardando endereço";
-    $("travelFee").textContent = "A calcular";
-    $("travelStatus").textContent = "O endereço mudou. Pesquise novamente para recalcular o deslocamento.";
-    updateSummary();
     $("abrirMapa").classList.add("hidden");
     $("mapStatus").textContent =
       "Endereço alterado. Pesquise novamente para atualizar a localização.";
@@ -1240,13 +1150,6 @@ $("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
 form.addEventListener("submit",async e=>{
   e.preventDefault();
   if(!validateStep(3))return;
-  if (!calculoDeslocamento || !selectedProfessional || !coordenadasEndereco ||
-      calculoDeslocamento.professionalId !== selectedProfessional.id ||
-      calculoDeslocamento.addressLatitude !== coordenadasEndereco.latitude ||
-      calculoDeslocamento.addressLongitude !== coordenadasEndereco.longitude) {
-    showStatus("O deslocamento precisa ser calculado novamente antes de enviar. Volte ao endereço e pesquise no mapa.", "error");
-    showStep(2); return;
-  }
   const btn=$("submitBtn");
   const s=selectedService();
   const requestCode=makeRequestCode();
@@ -1257,8 +1160,6 @@ form.addEventListener("submit",async e=>{
     barbeiro_id: $("barbeiro_id").value,
     servico: s.name,
     valor_servico: s.price,
-    distancia_km: Number(calculoDeslocamento.distanceKm.toFixed(3)),
-    taxa_deslocamento: Number(calculoDeslocamento.fee.toFixed(2)),
     endereco: $("endereco").value.trim(),
 numero: $("numero").value.trim(),
 bairro: $("bairro").value,
@@ -1312,10 +1213,6 @@ $("newRequest").addEventListener("click", () => {
     updateSummary();
 
     coordenadasEndereco = null;
-    calculoDeslocamento = null;
-    $("travelDistance").textContent = "Aguardando endereço e GPS";
-    $("travelFee").textContent = "A calcular";
-    $("travelStatus").textContent = "Selecione um profissional com GPS atualizado e pesquise o endereço no mapa.";
 
     if (marcadorEndereco && mapaEndereco) {
       mapaEndereco.removeLayer(marcadorEndereco);
