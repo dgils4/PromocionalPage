@@ -45,6 +45,17 @@ function serviceModal(s={}){modal(`<h2>${s.id?"Editar serviço":"Novo serviço"}
   
 
 async function toggleService(id) {
+
+  const { data: perfil, error: erroPerfil } = await sb
+  .from("profissionais_domicilio")
+  .select("id, auth_user_id, ativo")
+  .eq("id", pro.id)
+  .maybeSingle();
+
+alert(
+  "Consulta do perfil: " +
+  JSON.stringify({ perfil, erro: erroPerfil?.message || null })
+);
   const s = services.find(x => String(x.id) === String(id));
 
   if (!s) {
