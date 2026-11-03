@@ -227,14 +227,88 @@ async function loadApplications(){
 }
 async function handleApplicationClick(e){
   const doc=e.target.closest("[data-doc]");
-  if(doc){const a=applications.find(x=>String(x.id)===doc.dataset.doc);if(!a?.documento_path){show("applicationsMsg","Esta solicitação não possui documento anexado.","err");return;}const {data,error}=await db.storage.from("documentos-profissionais").createSignedUrl(a.documento_path,300);if(error||!data?.signedUrl){show("applicationsMsg","Não foi possível abrir o documento: "+esc(error?.message||"link indisponível"),"err");return;}window.open(data.signedUrl,"_blank");return;}
-  const btn=e.target.closest("[data-application-act]");if(!btn)return;
-  const a=applications.find(x=>String(x.id)===btn.dataset.id);if(!a)return;
-  const status=btn.dataset.applicationAct;const observacao=prompt(status==="recusado"?"Motivo/observação da recusa (opcional):":"Observação administrativa (opcional):",a.observacao_admin||"");if(observacao===null)return;
+  if(doc){
+    const a=applications.find(x=>String(x.id)===doc.dataset.doc);
+    if(!a?.documento_path){show("applicationsMsg","Esta solicitação não possui documento anexado.","err");return;}
+    const {data,error}=await db.storage.from("documentos-profissionais").createSignedUrl(a.documento_path,300);
+    if(error||!data?.signedUrl){show("applicationsMsg","Não foi possível abrir o documento: "+esc(error?.message||"link indisponível"),"err");return;}
+    window.open(data.signedUrl,"_blank");
+    return;
+  }
+
+  const btn=e.target.closest("[data-application-act]");
+  if(!btn)return;
+  const a=applications.find(x=>String(x.id)===btn.dataset.id);
+  if(!a)return;
+
+  const status=btn.dataset.applicationAct;
+  const observacao=prompt(
+    status==="recusado"?"Motivo/observação da recusa (opcional):":"Observação administrativa (opcional):",
+    a.observacao_admin||""
+  );
+  if(observacao===null)return;
   if(!confirm((status==="aprovado"?"Aprovar":"Recusar")+" a solicitação de "+a.nome+"?"))return;
-  const {error}=await db.from("solicitacoes_profissionais").update({status,analisado_por:currentUserId,analisado_em:new Date().toISOString(),observacao_admin:observacao.trim()||null}).eq("id",a.id);
-  if(error){show("applicationsMsg","Erro ao atualizar: "+esc(error.message),"err");return;}
-  show("applicationsMsg","Solicitação atualizada. Lembre-se: esta ação altera o status, mas não cria automaticamente o acesso nem envia WhatsApp.","ok");await loadApplications();
+
+  // Na aprovação, procura o vínculo pelo Auth ID antes de criar qualquer registro.
+  if(status==="aprovado"){
+    if(!a.auth_user_id){
+      show("applicationsMsg","Não é possível aprovar: esta solicitação não possui auth_user_id.","err");
+      return;
+    }
+
+    const {data:profissionalExistente,error:erroBuscaProfissional}=await db
+      .from("profissionais_domicilio")
+      .select("id,auth_user_id")
+      .eq("auth_user_id",a.auth_user_id)
+      .maybeSingle();
+
+    if(erroBuscaProfissional){
+      show("applicationsMsg","Não foi possível verificar o cadastro do profissional: "+esc(erroBuscaProfissional.message),"err");
+      return;
+    }
+
+    if(profissionalExistente){
+      const {error:erroAtivacao}=await db
+        .from("profissionais_domicilio")
+        .update({ativo:true})
+        .eq("id",profissionalExistente.id)
+        .eq("auth_user_id",a.auth_user_id);
+      if(erroAtivacao){
+        show("applicationsMsg","O profissional já existe, mas não foi possível ativar o cadastro: "+esc(erroAtivacao.message),"err");
+        return;
+      }
+    }else{
+      const novoProfissional = {
+  auth_user_id: a.auth_user_id,
+  nome: a.nome,
+  ativo: true
+};
+      const {error:erroCriacao}=await db.from("profissionais_domicilio").insert(novoProfissional);
+      if(erroCriacao){
+        show("applicationsMsg","Não foi possível criar o cadastro em profissionais_domicilio. A solicitação continua sem aprovação. Verifique as permissões RLS e os campos obrigatórios da tabela: "+esc(erroCriacao.message),"err");
+        return;
+      }
+    }
+  }
+
+  const {error}=await db.from("solicitacoes_profissionais").update({
+    status,
+    analisado_por:currentUserId,
+    analisado_em:new Date().toISOString(),
+    observacao_admin:observacao.trim()||null
+  }).eq("id",a.id);
+
+  if(error){
+    show("applicationsMsg",status==="aprovado"
+      ?"O cadastro do profissional foi garantido, mas não foi possível atualizar a solicitação: "+esc(error.message)
+      :"Erro ao atualizar a solicitação: "+esc(error.message),"err");
+    return;
+  }
+
+  show("applicationsMsg",status==="aprovado"
+    ?"Solicitação aprovada e cadastro profissional vinculado à conta. O envio de WhatsApp ainda não está automatizado."
+    :"Solicitação recusada.","ok");
+  await loadApplications();
 }
 $("applicationsList").addEventListener("click",handleApplicationClick);
 $("refreshApplications").onclick=loadApplications;$("applicationFilter").onchange=loadApplications;
