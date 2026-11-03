@@ -150,6 +150,11 @@
     .success-panel h3{font:700 1.8rem "Playfair Display",Georgia,serif}
     .success-panel p{color:var(--muted);max-width:520px;margin:0 auto 16px}
     .success-code{font-weight:700;background:#f5f3ed;display:inline-block;padding:10px 16px;border-radius:10px;margin:8px 0 20px}
+    .travel-result{max-width:460px;margin:18px auto 22px;padding:16px;background:#f8f6f1;border:1px solid var(--line);border-radius:14px;text-align:left}
+    .travel-result h4{margin:0 0 10px;font-size:1rem}
+    .travel-result .summary-row{font-size:.92rem}
+    .travel-result .summary-total{font-size:1.05rem}
+    .travel-pending{color:#805b16;background:#fff8e8;border:1px solid #ead9ad;border-radius:10px;padding:12px;font-size:.88rem}
     .footer{background:#151515;color:#fff;padding:35px 24px;text-align:center}
     .footer p{color:#bdbdbd;font-size:.83rem;margin:8px 0 0}
     .footer strong{letter-spacing:.12em}
@@ -507,9 +512,11 @@
             <div id="servicesStatus" class="hint" role="status"></div>
             <div class="summary selection-summary">
               <div class="summary-row"><span>Serviços selecionados</span><strong id="selectedServicesCount">0</strong></div>
-              <div class="summary-row summary-total"><span>Total estimado</span><strong id="selectionTotal">R$ 0,00</strong></div>
+              <div class="summary-row"><span>Valor mínimo domiciliar</span><strong>R$ 100,00</strong></div>
+              <div class="summary-row summary-total"><span>Total estimado dos serviços</span><strong id="selectionTotal">R$ 0,00</strong></div>
+              <p id="minimumNotice" class="hint" aria-live="polite" style="margin:10px 0 0"></p>
             </div>
-            <div class="notice">Os valores são demonstrativos e poderão ser confirmados pela equipe. A taxa de deslocamento, quando houver, será informada antes da confirmação do atendimento.</div>
+            <div class="notice">O atendimento domiciliar possui valor mínimo de R$ 100,00 em serviços. Se os serviços escolhidos somarem menos, será aplicado o mínimo. Você também pode adicionar outros serviços. A taxa de deslocamento, quando houver, é calculada separadamente.</div>
             <div class="form-actions"><span></span><button class="btn btn-primary" type="button" data-next="2">Continuar →</button></div>
 
             <div id="professionalModal" class="profile-modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileName">
@@ -635,6 +642,15 @@
           <h3>Solicitação recebida!</h3>
           <p>Seus dados foram enviados. O horário ainda depende da confirmação da equipe. Guarde o número abaixo para referência.</p>
           <div class="success-code" id="successCode"></div>
+          <div class="travel-result" id="travelResult" aria-live="polite">
+            <h4>Resumo do atendimento</h4>
+            <div class="summary-row"><span>Serviços</span><strong id="successServicePrice">—</strong></div>
+            <div class="summary-row"><span>Distância do profissional</span><strong id="successDistance">—</strong></div>
+            <div class="summary-row"><span>Taxa de deslocamento</span><strong id="successTravelFee">—</strong></div>
+            <div class="summary-row summary-total"><span>Total estimado</span><strong id="successTotal">—</strong></div>
+            <div class="travel-pending hidden" id="travelPending">O deslocamento ainda não pôde ser calculado. A equipe confirmará esse valor antes do atendimento.</div>
+            <p style="font-size:.78rem;margin:12px 0 0">Até 6 km não há cobrança de deslocamento. Acima disso, R$ 1,00 por quilômetro iniciado.</p>
+          </div>
           <p>Se necessário, a equipe entrará em contato pelo WhatsApp informado.</p>
           <a class="btn btn-primary" href="#agendamento" id="newRequest">Fazer nova solicitação</a>
         </div>
@@ -691,6 +707,11 @@ function selectedService(){
     name: selected.map(el => el.value).join(" + "),
     price: selected.reduce((total, el) => total + Number(el.dataset.price || 0), 0)
   };
+}
+const VALOR_MINIMO_DOMICILIAR = 100;
+function valorServicoFinal(servico){
+  if (!servico.items.length) return 0;
+  return Math.max(servico.price, VALOR_MINIMO_DOMICILIAR);
 }
 function money(v){ return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
 
@@ -772,6 +793,10 @@ async function chooseProfessional(id) {
   $("professionalStatus").textContent = "Profissional selecionado: " + profissional.nome + ".";
   await loadServicesForProfessional(id);
   updateSummary();
+  document.querySelector(".services-heading")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 async function loadServicesForProfessional(professionalId) {
@@ -941,9 +966,19 @@ function updateSummary(){
   const s=selectedService();
   if ($("sumService")) $("sumService").textContent=s.name || "Nenhum serviço selecionado";
   if ($("sumProfessional")) $("sumProfessional").textContent=selectedProfessional ? selectedProfessional.nome : "A selecionar";
-  if ($("sumPrice")) $("sumPrice").textContent=money(s.price);
+  const totalFinal = valorServicoFinal(s);
+  if ($("sumPrice")) $("sumPrice").textContent=money(totalFinal);
   if ($("selectedServicesCount")) $("selectedServicesCount").textContent=String(s.items.length);
-  if ($("selectionTotal")) $("selectionTotal").textContent=money(s.price);
+  if ($("selectionTotal")) $("selectionTotal").textContent=money(totalFinal);
+  if ($("minimumNotice")) {
+    if (!s.items.length) {
+      $("minimumNotice").textContent = "Selecione pelo menos um serviço para calcular o valor do atendimento.";
+    } else if (s.price < VALOR_MINIMO_DOMICILIAR) {
+      $("minimumNotice").textContent = `Seus serviços somam ${money(s.price)}. Para o atendimento domiciliar, será aplicado o valor mínimo de ${money(VALOR_MINIMO_DOMICILIAR)}. Você pode adicionar outros serviços se preferir.`;
+    } else {
+      $("minimumNotice").textContent = "Valor mínimo atingido. O preço dos serviços selecionados será mantido.";
+    }
+  }
   const parts=[$("endereco").value,$("complemento").value,$("bairro").value].filter(Boolean);
   $("sumAddress").textContent=parts.join(", ")||"A preencher";
   const date=$("data").value;
@@ -1186,14 +1221,17 @@ form.addEventListener("submit",async e=>{
   
   const btn=$("submitBtn");
   const s=selectedService();
+  const valorFinalServicos=valorServicoFinal(s);
   const requestCode=makeRequestCode();
+  const trackingToken=crypto.randomUUID();
   const payload={
     codigo_solicitacao: requestCode,
+    tracking_token: trackingToken,
     nome: $("nome").value.trim(),
     telefone: normalizePhone($("telefone").value),
     barbeiro_id: $("barbeiro_id").value,
     servico: s.name,
-    valor_servico: s.price,
+    valor_servico: valorFinalServicos,
     endereco: $("endereco").value.trim(),
 numero: $("numero").value.trim(),
 bairro: $("bairro").value,
@@ -1203,7 +1241,7 @@ cep: $("cep").value.trim() || null,
     
     data_preferida: $("data").value,
     horario_preferido: $("horario").value,
-    observacao: [$("observacao").value.trim(), s.items.length ? "Serviços selecionados: " + s.items.map(item => item.name + " (" + money(item.price) + ")").join(", ") : ""].filter(Boolean).join("\n") || null,
+    observacao: [$("observacao").value.trim(), s.items.length ? "Serviços selecionados: " + s.items.map(item => item.name + " (" + money(item.price) + ")").join(", ") : "", s.items.length && s.price < VALOR_MINIMO_DOMICILIAR ? "Valor mínimo domiciliar aplicado: " + money(VALOR_MINIMO_DOMICILIAR) : ""].filter(Boolean).join("\n") || null,
     status: "pendente",
     origem: "site",
     consentimento_dados: true,
@@ -1218,47 +1256,32 @@ longitude: Number(coordenadasEndereco.longitude)
     if(!supabaseClient){
       throw new Error("O site ainda não está conectado ao Supabase. Insira a URL e a chave publishable/anon no final do arquivo HTML.");
     }
-    // Token individual para autorizar o cálculo deste agendamento.
-    const trackingToken = crypto.randomUUID();
+    // Mantém o INSERT original: sem SELECT, para não exigir leitura pública via RLS.
+    const {error}=await supabaseClient.from(TABLE_NAME).insert(payload);
+    if(error) throw error;
 
-    // Salva o agendamento e recupera o ID criado pelo banco.
-    const { data: agendamento, error } = await supabaseClient
-      .from(TABLE_NAME)
-      .insert({
-        ...payload,
-        tracking_token: trackingToken
-      })
-      .select("id, tracking_token")
-      .single();
-
-    if (error) throw error;
-    if (!agendamento?.id || !agendamento?.tracking_token) {
-      throw new Error("Agendamento salvo, mas não foi possível recuperar os dados para calcular o deslocamento.");
-    }
-
-    // Solicita o cálculo usando a autorização individual do agendamento.
-    const { data: calculo, error: erroCalculo } =
+    // O cálculo acontece no servidor, usando o código e o token privado desta solicitação.
+    // Se o cálculo falhar, a solicitação continua registrada normalmente.
+    const {data: calculo, error: erroCalculo} =
       await supabaseClient.functions.invoke("calcular-deslocamento", {
         body: {
-          id: agendamento.id,
-          tracking_token: agendamento.tracking_token
+          id: requestCode,
+          tracking_token: trackingToken
         }
       });
 
-    if (erroCalculo) {
-      console.error("Agendamento salvo, mas o cálculo de deslocamento falhou:", erroCalculo);
-      showStatus(
-        "Sua solicitação foi recebida, mas o deslocamento ainda precisa ser calculado pela equipe.",
-        "error"
-      );
-    } else if (calculo?.sucesso) {
-      console.log("Deslocamento calculado:", calculo);
+    $("successServicePrice").textContent = money(valorFinalServicos);
+    if (erroCalculo || !calculo?.sucesso || !Number.isFinite(Number(calculo?.distancia_km)) || !Number.isFinite(Number(calculo?.valor_deslocamento)) || !Number.isFinite(Number(calculo?.valor_total))) {
+      console.warn("Solicitação registrada, mas o cálculo do deslocamento ficou pendente:", erroCalculo || calculo);
+      $("successDistance").textContent = "A confirmar";
+      $("successTravelFee").textContent = "A confirmar";
+      $("successTotal").textContent = "A confirmar";
+      $("travelPending").classList.remove("hidden");
     } else {
-      console.error("Resposta inesperada do cálculo:", calculo);
-      showStatus(
-        "Sua solicitação foi recebida, mas o deslocamento ainda precisa ser confirmado pela equipe.",
-        "error"
-      );
+      $("successDistance").textContent = Number(calculo.distancia_km).toLocaleString("pt-BR", {minimumFractionDigits: 1, maximumFractionDigits: 2}) + " km";
+      $("successTravelFee").textContent = money(calculo.valor_deslocamento);
+      $("successTotal").textContent = money(calculo.valor_total);
+      $("travelPending").classList.add("hidden");
     }
 
     $("successCode").textContent=requestCode;
