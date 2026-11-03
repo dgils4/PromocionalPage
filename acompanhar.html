@@ -1,34 +1,78 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Acompanhar atendimento | Barbearia Domiciliar Premium</title>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Acompanhar atendimento | Los Visionários</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f4f0;color:#171717;font:16px Arial,sans-serif}header{background:#171717;color:#fff;padding:22px 18px;text-align:center}main{max-width:620px;margin:24px auto;padding:0 14px}.card{background:#fff;border:1px solid #e5e0d6;border-radius:16px;padding:20px;margin-bottom:14px}.muted{color:#716d65;font-size:13px}.status{display:inline-block;border-radius:999px;padding:8px 12px;background:#f3ead8;font-weight:bold}.steps{display:grid;gap:14px;margin-top:18px}.step{display:flex;gap:12px;align-items:flex-start}.dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#eeeae1;flex-shrink:0;font-weight:bold}.step.active .dot{background:#c7a66a}.step.done .dot{background:#e2f3e6;color:#216a3e}.label{font-size:12px;color:#716d65;margin-bottom:4px}.value{font-weight:bold;overflow-wrap:anywhere}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.error{background:#fff0f0;color:#9b2222}.center{text-align:center}.hidden{display:none}@media(max-width:420px){.grid{grid-template-columns:1fr}}
+:root{--bg:#0b1019;--panel:#131d2d;--line:#293951;--text:#f5f7fb;--muted:#aab5c6;--accent:#e9a23b;--done:#2c9b70;--danger:#d85b65}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px Arial,sans-serif;min-height:100vh}
+header{padding:24px 16px;text-align:center;border-bottom:1px solid var(--line);background:#0e1624}
+.brand{font-weight:800;letter-spacing:1.5px;font-size:18px}.subbrand{color:var(--muted);font-size:12px;margin-top:7px;letter-spacing:1px}
+main{width:min(100% - 28px,620px);margin:26px auto 40px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:21px;margin-bottom:15px;box-shadow:0 12px 30px #0002}
+h1{font-size:24px;margin:0 0 9px}.muted{color:var(--muted);font-size:14px;line-height:1.55}.center{text-align:center}
+.pill{display:inline-block;padding:10px 15px;border-radius:999px;background:#26344a;color:#fff;font-weight:700;margin:12px 0 2px}.pill.good{background:#174c3c}.pill.bad{background:#51252d}.pill.wait{background:#57401f}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.label{font-size:12px;color:var(--muted);margin-bottom:6px}.value{font-weight:700;overflow-wrap:anywhere;line-height:1.4}
+.steps{display:grid;gap:0;margin-top:20px}.step{display:flex;gap:13px;position:relative;min-height:72px}.step:not(:last-child):before{content:"";position:absolute;left:15px;top:32px;bottom:0;width:2px;background:var(--line)}.dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#26344a;color:#c5cedb;font-weight:700;flex:none;z-index:1}.step.done .dot{background:var(--done);color:white}.step.active .dot{background:var(--accent);color:#1a1a1a}.step-body{padding:5px 0 20px}.step-title{font-weight:700}.step-desc{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.4}
+.error{border-color:#71333b;color:#ffd8dc;background:#321c24}.hidden{display:none!important}.refresh{border:1px solid var(--line);background:#1b2940;color:var(--text);padding:12px 16px;border-radius:11px;font-weight:700;font-size:14px;cursor:pointer}.refresh:disabled{opacity:.6}.foot{text-align:center;color:var(--muted);font-size:12px;line-height:1.5;margin:22px 8px}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr;gap:15px}.card{padding:18px}h1{font-size:22px}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script></head>
-<body><header><strong>BARBEARIA DOMICILIAR PREMIUM</strong><div style="font-size:12px;color:#ccc;margin-top:6px">Acompanhamento do atendimento</div></header>
-<main><section class="card center"><h1 style="font-size:23px;margin-top:0">Acompanhe sua solicitação</h1><p class="muted">Consulte o andamento do seu atendimento por esta página.</p><div id="status" class="status">Carregando...</div><p id="updated" class="muted"></p></section>
-<section id="details" class="card hidden"><div class="grid">
-<div><div class="label">Código da solicitação</div><div id="code" class="value"></div></div><div><div class="label">Serviço</div><div id="service" class="value"></div></div>
-<div><div class="label">Data confirmada</div><div id="date" class="value"></div></div><div><div class="label">Horário confirmado</div><div id="time" class="value"></div></div>
-<div><div class="label">Valor do serviço</div><div id="serviceValue" class="value"></div></div><div><div class="label">Deslocamento</div><div id="travelValue" class="value"></div></div>
-<div><div class="label">Valor total</div><div id="total" class="value"></div></div></div></section>
-<section id="timelineCard" class="card hidden"><h2 style="font-size:18px;margin-top:0">Etapas do atendimento</h2><div id="timeline" class="steps"></div></section>
-<section id="message" class="card muted">Carregando os dados do pedido...</section><p class="muted center">Por segurança, esta página não exibe seu endereço nem telefone.</p></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header><div class="brand">LOS VISIONÁRIOS</div><div class="subbrand">NOVA TENDÊNCIA • ATENDIMENTO DOMICILIAR</div></header>
+<main>
+<section class="card center">
+<h1>Acompanhe seu atendimento</h1>
+<p class="muted">Veja por aqui a confirmação e cada etapa do seu atendimento.</p>
+<div id="status" class="pill wait">Carregando solicitação...</div>
+<p id="updated" class="muted"></p>
+<button id="refreshBtn" class="refresh" type="button">↻ Atualizar agora</button>
+</section>
+<section id="details" class="card hidden">
+<div class="grid">
+<div><div class="label">Código da solicitação</div><div id="code" class="value">—</div></div>
+<div><div class="label">Serviço</div><div id="service" class="value">—</div></div>
+<div><div class="label">Data</div><div id="date" class="value">—</div></div>
+<div><div class="label">Horário</div><div id="time" class="value">—</div></div>
+<div><div class="label">Valor do serviço</div><div id="serviceValue" class="value">—</div></div>
+<div><div class="label">Deslocamento</div><div id="travelValue" class="value">—</div></div>
+<div><div class="label">Valor total</div><div id="total" class="value">—</div></div>
+</div>
+</section>
+<section id="timelineCard" class="card hidden"><h2 style="font-size:19px;margin:0">Etapas do atendimento</h2><div id="timeline" class="steps"></div></section>
+<section id="message" class="card muted">Estamos buscando sua solicitação...</section>
+<p class="foot">Por segurança, esta página não mostra seu endereço nem seu telefone.<br>Los Visionários • Seu estilo. Seu espaço. Seu tempo.</p>
+</main>
 <script>
-const $=id=>document.getElementById(id),cfg=window.APP_CONFIG||{};
-const client=window.supabase&&cfg.SUPABASE_URL&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes("COLE_AQUI")?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;
-const labels={pendente:"Solicitação recebida",confirmado:"Atendimento confirmado",em_deslocamento:"Barbeiro em deslocamento",concluido:"Atendimento concluído",cancelado:"Atendimento cancelado"};
-const stages=["pendente","confirmado","em_deslocamento","concluido"];
-function safeText(id,value){$(id).textContent=value??"—"}function money(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
-function fmtDate(v){if(!v)return "Aguardando confirmação";const p=v.split("-");return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:v}
-function renderTimeline(status){$("timeline").innerHTML="";if(status==="cancelado"){const d=document.createElement("div");d.className="step active";d.innerHTML='<div class="dot">!</div><div><b>Atendimento cancelado</b><div class="muted">Entre em contato com a barbearia se precisar de ajuda.</div></div>';$("timeline").appendChild(d);return}
-const current=stages.indexOf(status);stages.forEach((s,i)=>{const d=document.createElement("div");d.className="step "+(i<current?"done":i===current?"active":"");const dot=document.createElement("div");dot.className="dot";dot.textContent=i<current?"✓":String(i+1);const body=document.createElement("div"),title=document.createElement("b"),desc=document.createElement("div");title.textContent=labels[s];desc.className="muted";desc.textContent=({pendente:"Recebemos sua solicitação.",confirmado:"A data e o horário foram definidos.",em_deslocamento:"O barbeiro iniciou o deslocamento.",concluido:"O atendimento foi finalizado."})[s];body.append(title,desc);d.append(dot,body);$("timeline").appendChild(d)})}
-async function init(){const token=new URLSearchParams(location.search).get("token");if(!client){$("status").textContent="Indisponível";$("message").className="card error";$("message").textContent="A configuração do Supabase não foi encontrada. Confira o config.js.";return}
-if(!token){$("status").textContent="Link inválido";$("message").className="card error";$("message").textContent="Este link não contém um código de acompanhamento válido.";return}
-const {data,error}=await client.rpc("acompanhar_agendamento",{p_token:token});if(error||!data||!data.length){$("status").textContent="Pedido não encontrado";$("message").className="card error";$("message").textContent="Não foi possível localizar este acompanhamento. Confira o link recebido no WhatsApp.";return}
-const r=Array.isArray(data)?data[0]:data;$("status").textContent=labels[r.status]||"Status atualizado";safeText("updated",r.updated_at?"Última atualização: "+new Date(r.updated_at).toLocaleString("pt-BR"):"");
-safeText("code",r.codigo_solicitacao);safeText("service",r.servico);safeText("date",fmtDate(r.data_confirmada||r.data_preferida));safeText("time",r.horario_confirmado||r.horario_preferido||"Aguardando confirmação");
-safeText("serviceValue",money(r.valor_servico));safeText("travelValue",money(r.valor_deslocamento));safeText("total",money(r.valor_total??(Number(r.valor_servico||0)+Number(r.valor_deslocamento||0))));
-$("details").classList.remove("hidden");$("timelineCard").classList.remove("hidden");$("message").textContent=r.status==="cancelado"?"Este atendimento foi cancelado. Entre em contato com a barbearia se tiver dúvidas.":r.status==="concluido"?"Atendimento concluído. Obrigado pela preferência!":"Esta página será atualizada quando o status do atendimento mudar.";renderTimeline(r.status)}
-init();
-</script></body></html>
+const SUPABASE_URL="https://cdechrtprerblmhllqav.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjZGVjaHJ0cHJlcmJsbWhsbHFhdiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc2MDI3NzIzLCJleHAiOjIwOTE2MDM3MjN9.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+const $=id=>document.getElementById(id);
+const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const token=new URLSearchParams(location.search).get("token");
+const steps=[
+ {id:"pendente",title:"Solicitação recebida",desc:"Recebemos sua solicitação e ela aguarda confirmação."},
+ {id:"confirmado",title:"Atendimento confirmado",desc:"A data e o horário do atendimento foram confirmados."},
+ {id:"barbeiro_saiu",title:"Barbeiro saiu",desc:"O profissional iniciou o deslocamento até você."},
+ {id:"esta_proximo",title:"Está próximo",desc:"O profissional está chegando ao endereço."},
+ {id:"chegou",title:"Chegou ao endereço",desc:"O profissional chegou ao local combinado."},
+ {id:"em_atendimento",title:"Atendimento iniciado",desc:"Seu atendimento está em andamento."},
+ {id:"concluido",title:"Atendimento concluído",desc:"Atendimento finalizado. Obrigado pela preferência!"}
+];
+const statusNames={pendente:"Solicitação recebida",confirmado:"Atendimento confirmado",barbeiro_saiu:"Barbeiro saiu",em_deslocamento:"Barbeiro em deslocamento",esta_proximo:"Está próximo",chegou:"Chegou ao endereço",em_atendimento:"Atendimento iniciado",concluido:"Atendimento concluído",recusado:"Solicitação recusada",cancelado:"Atendimento cancelado"};
+function put(id,v){$(id).textContent=v??"—"}
+function money(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function dateBR(v){if(!v)return "Aguardando confirmação";const p=String(v).slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:v}
+function showError(msg){put("status","Não foi possível carregar");$("status").className="pill bad";$("message").className="card error";put("message",msg)}
+function renderTimeline(status){const terminal=["recusado","cancelado"].includes(status);const container=$("timeline");container.replaceChildren();if(terminal){const el=document.createElement("div");el.className="step active";const dot=document.createElement("div");dot.className="dot";dot.textContent="!";const body=document.createElement("div");body.className="step-body";const title=document.createElement("div");title.className="step-title";title.textContent=statusNames[status]||"Solicitação encerrada";const desc=document.createElement("div");desc.className="step-desc";desc.textContent=status==="recusado"?"No momento não foi possível aceitar esta solicitação. Entre em contato com a equipe para mais informações.":"Este atendimento foi cancelado. Entre em contato com a equipe se precisar de ajuda.";body.append(title,desc);el.append(dot,body);container.append(el);return}
+let current=steps.findIndex(x=>x.id===status);if(status==="em_deslocamento")current=2;if(current<0)current=0;steps.forEach((s,i)=>{const el=document.createElement("div");el.className="step "+(i<current?"done":i===current?"active":"");const dot=document.createElement("div");dot.className="dot";dot.textContent=i<current?"✓":String(i+1);const body=document.createElement("div");body.className="step-body";const title=document.createElement("div");title.className="step-title";title.textContent=s.title;const desc=document.createElement("div");desc.className="step-desc";desc.textContent=s.desc;body.append(title,desc);el.append(dot,body);container.append(el)})}
+async function load(){if(!db){showError("A conexão com o sistema não foi inicializada.");return}if(!token){showError("Este link está incompleto. Abra o link de acompanhamento recebido no WhatsApp.");return}$("refreshBtn").disabled=true;try{const {data,error}=await db.rpc("acompanhar_agendamento",{p_token:token});if(error)throw error;const r=Array.isArray(data)?data[0]:data;if(!r){showError("Não encontramos uma solicitação com este link. Confira se o endereço foi copiado por completo.");return}
+const status=String(r.status||"").toLowerCase();put("status",statusNames[status]||"Status do atendimento");$("status").className="pill "+(status==="concluido"?"good":["recusado","cancelado"].includes(status)?"bad":status==="pendente"?"wait":"");
+put("updated",r.updated_at?"Última atualização: "+new Date(r.updated_at).toLocaleString("pt-BR"):"");put("code",r.codigo_solicitacao);put("service",r.servico);put("date",dateBR(r.data_confirmada||r.data_preferida));put("time",r.horario_confirmado||r.horario_preferido||"Aguardando confirmação");put("serviceValue",money(r.valor_servico));put("travelValue",money(r.valor_deslocamento));put("total",money(r.valor_total??(Number(r.valor_servico||0)+Number(r.valor_deslocamento||0))));
+$("details").classList.remove("hidden");$("timelineCard").classList.remove("hidden");$("message").className="card muted";put("message",status==="concluido"?"Tudo certo! Seu atendimento foi concluído.":["recusado","cancelado"].includes(status)?"Esta solicitação foi encerrada.":"Esta página consulta automaticamente as atualizações do profissional.");renderTimeline(status);
+}catch(e){console.error(e);showError("O acompanhamento não respondeu. Tente novamente em alguns instantes.")}finally{$("refreshBtn").disabled=false}}
+$("refreshBtn").addEventListener("click",load);load();setInterval(load,15000);
+</script>
+</body>
+</html>
