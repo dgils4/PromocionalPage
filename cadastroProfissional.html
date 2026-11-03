@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>Seja um Visionário | Los Visionários</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#090e1b;--panel:#111a2d;--line:#293c5d;--text:#f5f7ff;--muted:#a1aec5;--blue:#2858df;--gold:#d4b474;--green:#2dbd83;--red:#ff7785}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Arial}button,input,select{font:inherit}.top{padding:18px 22px;border-bottom:1px solid var(--line);background:#0c1323}.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.06em}.mark{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--gold);border-radius:13px;color:var(--gold);font-size:22px}.brand small{display:block;font-size:10px;letter-spacing:.16em;color:var(--muted);font-weight:500}.wrap{max-width:850px;margin:35px auto;padding:0 16px 40px}.intro{text-align:center;margin-bottom:24px}.eyebrow{font-size:11px;letter-spacing:.18em;color:var(--gold);font-weight:800;text-transform:uppercase}.intro h1{font-size:clamp(27px,5vw,42px);line-height:1.12;margin:10px 0}.intro p{max-width:620px;margin:auto;color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,4vw,30px);box-shadow:0 22px 70px #0003}.section-title{margin:22px 0 12px;padding-bottom:9px;border-bottom:1px solid var(--line);font-size:17px}.section-title:first-child{margin-top:0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:6px}.full{grid-column:1/-1}label{font-size:13px;color:#c9d4e9;font-weight:700}input,select{width:100%;min-width:0;border:1px solid #354968;border-radius:11px;padding:12px;background:#0a1324;color:var(--text);outline:none}input:focus,select:focus{border-color:#7293ff;box-shadow:0 0 0 3px #2858df30}input[type=file]{padding:10px;background:#0d1729}small,.help{color:var(--muted);font-size:12px}.document-box{border:1px dashed #52688d;border-radius:14px;padding:15px;background:#0c1526}.check{display:flex;gap:10px;align-items:flex-start;margin:20px 0}.check input{width:18px;margin-top:3px;flex-shrink:0}.check label{font-weight:400;line-height:1.45}.btn{width:100%;border:0;border-radius:12px;background:var(--blue);color:white;font-weight:800;padding:14px}.btn:disabled{opacity:.55}.status{margin:14px 0;padding:13px;border-radius:11px;background:#182943;color:#d2e0ff;white-space:pre-wrap}.status.ok{background:#103527;color:#a1f2cb}.status.err{background:#3b1822;color:#ffc0c8}.status.warn{background:#3a2e16;color:#ffe0a0}.privacy{font-size:12px;color:var(--muted);margin:14px 0}.success{display:none;text-align:center;padding:20px}.success h2{font-size:25px}.success .checkmark{width:56px;height:56px;display:grid;place-items:center;border-radius:50%;background:#123b2d;color:#9bf0c4;font-size:28px;margin:auto}.foot{text-align:center;color:#7485a1;font-size:12px;margin-top:20px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.wrap{margin:24px auto}.top{padding:14px}.card{border-radius:17px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><div class="mark">✂</div><div>LOS VISIONÁRIOS<small>NOVA TENDÊNCIA • OPORTUNIDADE PROFISSIONAL</small></div></div></header>
+<main class="wrap">
+  <div class="intro"><div class="eyebrow">Faça parte da equipe</div><h1>Seja um Visionário.</h1><p>Preencha seus dados para solicitar uma vaga como profissional parceiro da Los Visionários. Nossa equipe analisará seu cadastro antes de liberar o acesso ao painel.</p></div>
+  <section class="card" id="formCard">
+    <form id="applyForm">
+      <h2 class="section-title">1. Informações pessoais</h2>
+      <div class="grid">
+        <div class="field full"><label for="nome">Nome completo *</label><input id="nome" name="nome" autocomplete="name" maxlength="120" required placeholder="Seu nome completo"></div>
+        <div class="field"><label for="sexo">Sexo *</label><select id="sexo" name="sexo" required><option value="">Selecione</option><option value="masculino">Masculino</option><option value="feminino">Feminino</option></select></div>
+        <div class="field"><label for="telefone">WhatsApp / telefone *</label><input id="telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required placeholder="(81) 99999-9999"></div>
+        <div class="field full"><label for="email">E-mail *</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="voce@email.com"></div>
+        <div class="field"><label for="senha">Crie uma senha *</label><input id="senha" name="senha" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo de 8 caracteres"><small>A senha será gerenciada pelo sistema de autenticação; não será salva na tabela de solicitações.</small></div>
+        <div class="field"><label for="senha2">Confirme a senha *</label><input id="senha2" name="senha2" type="password" autocomplete="new-password" minlength="8" required placeholder="Digite novamente"></div>
+      </div>
+      <h2 class="section-title">2. Documento de identificação</h2>
+      <div class="document-box">
+        <div class="field"><label for="documento">Foto do documento com foto (RG ou CNH) *</label><input id="documento" name="documento" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required><small>Envie uma imagem nítida ou PDF. Máximo de 5 MB. O arquivo deve ser analisado apenas pelo administrador autorizado.</small></div>
+        <p class="help">Por segurança, o documento ficará em armazenamento privado, não em uma pasta pública.</p>
+      </div>
+      <div class="check"><input id="consent" type="checkbox" required><label for="consent">Autorizo o uso dos dados informados e do documento enviado para análise desta solicitação de cadastro, contato sobre a oportunidade e eventual habilitação da minha conta, conforme a política de privacidade.</label></div>
+      <div class="privacy">Não envie senhas por WhatsApp. O documento e os dados serão tratados para análise do cadastro. Evite compartilhar este formulário com terceiros.</div>
+      <div id="status" class="status" role="status" aria-live="polite" style="display:none"></div>
+      <button class="btn" id="submitBtn" type="submit">Enviar solicitação de cadastro →</button>
+    </form>
+  </section>
+  <section id="successCard" class="card success"><div class="checkmark">✓</div><h2>Solicitação enviada!</h2><p class="help">Seu cadastro foi recebido para análise. Se aprovado, você receberá uma mensagem no WhatsApp com as próximas instruções para acessar o painel.</p><p class="help">O envio não significa aprovação automática.</p></section>
+  <div class="foot">Los Visionários — Nova Tendência • Cadastro sujeito à aprovação</div>
+</main>
+<script>
+const SUPABASE_URL="https://cdechrtprerblmhllqav.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZWNocnRwcmVyYmxtaGxscWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMjc3MjMsImV4cCI6MjA5MTYwMzcyM30.m-RFl-dDWFsjbWqSZw-y0BDqnpHX5hMH8Z361MCT_Rk";
+const TABLE="solicitacoes_profissionais";
+const BUCKET="documentos-profissionais";
+const sb=window.supabase?.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+function showStatus(message,type=""){const el=$("status");el.textContent=message;el.className="status "+type;el.style.display="block"}
+$("applyForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!sb){showStatus("Não foi possível iniciar o sistema. Tente novamente mais tarde.","err");return}
+ const nome=$("nome").value.trim(),sexo=$("sexo").value,telefone=$("telefone").value.trim(),email=$("email").value.trim().toLowerCase(),senha=$("senha").value,senha2=$("senha2").value,file=$("documento").files[0];
+ if(senha.length<8){showStatus("A senha precisa ter pelo menos 8 caracteres.","err");return}
+ if(senha!==senha2){showStatus("As senhas não conferem.","err");return}
+ if(!file){showStatus("Selecione a foto do documento.","err");return}
+ if(file.size>5*1024*1024){showStatus("O documento deve ter no máximo 5 MB.","err");return}
+ if(!["image/jpeg","image/png","image/webp","application/pdf"].includes(file.type)){showStatus("Formato não aceito. Use JPG, PNG, WEBP ou PDF.","err");return}
+ const btn=$("submitBtn");btn.disabled=true;btn.textContent="Enviando solicitação...";
+ try{
+   // Supabase Auth gerencia a senha. Ela nunca é gravada na tabela da solicitação.
+   const {data:authData,error:authError}=await sb.auth.signUp({email,password:senha,options:{data:{nome,telefone,sexo}}});
+   if(authError)throw new Error("Não foi possível criar o acesso: "+authError.message);
+   const uid=authData.user?.id;
+   if(!uid)throw new Error("O sistema não retornou o identificador da conta.");
+   if(!authData.session){
+     throw new Error("A conta foi criada, mas o Supabase exige confirmação de e-mail antes de permitir o envio seguro do documento. Confirme o e-mail e entre novamente para concluir o envio, ou configure um fluxo de cadastro no servidor antes de publicar este formulário. Não envie o documento por WhatsApp.");
+   }
+   const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
+   const path=`${uid}/documento-${Date.now()}.${ext}`;
+   const {error:uploadError}=await sb.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
+   if(uploadError)throw new Error("Conta criada, mas o documento não foi enviado: "+uploadError.message);
+   const {error:rowError}=await sb.from(TABLE).insert({auth_user_id:uid,nome,sexo,telefone,email,documento_path:path,status:"pendente"});
+   if(rowError)throw new Error("Documento enviado, mas não foi possível registrar a solicitação: "+rowError.message);
+   $("formCard").classList.add("hide");$("successCard").style.display="block";
+ }catch(err){showStatus(err.message||"Ocorreu um erro ao enviar. Tente novamente.","err")}
+ finally{btn.disabled=false;btn.textContent="Enviar solicitação de cadastro →"}
+});
+</script>
+</body></html>
