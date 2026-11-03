@@ -896,7 +896,7 @@ if(n===2) ids=[
   if(n===2 && $("data").value < localToday){showStatus("Escolha uma data de hoje em diante.","error");return false;}
 
 
-if (n === 2 && !coordenadasEndereco) {
+if (n === 2 && !coordenadasValidas()) {
   const botaoMapa = $("buscarMapa");
   const statusMapa = $("mapStatus");
 
@@ -981,6 +981,23 @@ function normalizePhone(v){return v.replace(/\D/g,"");}
 let mapaEndereco = null;
 let marcadorEndereco = null;
 let coordenadasEndereco = null;
+
+
+  function coordenadasValidas() {
+  if (!coordenadasEndereco) return false;
+
+  const latitude = Number(coordenadasEndereco.latitude);
+  const longitude = Number(coordenadasEndereco.longitude);
+
+  return (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    longitude >= -180 &&
+    longitude <= 180
+  );
+  }
 
 function iniciarMapa() {
   if (mapaEndereco || !window.L) return;
@@ -1150,6 +1167,23 @@ $("buscarMapa").addEventListener("click", buscarEnderecoNoMapa);
 form.addEventListener("submit",async e=>{
   e.preventDefault();
   if(!validateStep(3))return;
+
+
+  if (!coordenadasValidas()) {
+    showStatus(
+      "Não foi possível confirmar a localização. Volte ao endereço e pesquise novamente no mapa.",
+      "error"
+    );
+
+    $("mapStatus").textContent =
+      "⚠ Pesquise novamente o endereço no mapa antes de enviar.";
+
+    $("mapStatus").classList.add("alerta-texto");
+
+    return;
+  }
+
+  
   const btn=$("submitBtn");
   const s=selectedService();
   const requestCode=makeRequestCode();
@@ -1174,8 +1208,8 @@ cep: $("cep").value.trim() || null,
     origem: "site",
     consentimento_dados: true,
     
-    latitude: coordenadasEndereco?.latitude ?? null,
-longitude: coordenadasEndereco?.longitude ?? null
+    latitude: Number(coordenadasEndereco.latitude),
+longitude: Number(coordenadasEndereco.longitude)
     
   };
   btn.disabled=true; btn.textContent="Enviando...";
@@ -1184,8 +1218,49 @@ longitude: coordenadasEndereco?.longitude ?? null
     if(!supabaseClient){
       throw new Error("O site ainda não está conectado ao Supabase. Insira a URL e a chave publishable/anon no final do arquivo HTML.");
     }
-    const {error}=await supabaseClient.from(TABLE_NAME).insert(payload);
-    if(error) throw error;
+    // Token individual para autorizar o cálculo deste agendamento.
+    const trackingToken = crypto.randomUUID();
+
+    // Salva o agendamento e recupera o ID criado pelo banco.
+    const { data: agendamento, error } = await supabaseClient
+      .from(TABLE_NAME)
+      .insert({
+        ...payload,
+        tracking_token: trackingToken
+      })
+      .select("id, tracking_token")
+      .single();
+
+    if (error) throw error;
+    if (!agendamento?.id || !agendamento?.tracking_token) {
+      throw new Error("Agendamento salvo, mas não foi possível recuperar os dados para calcular o deslocamento.");
+    }
+
+    // Solicita o cálculo usando a autorização individual do agendamento.
+    const { data: calculo, error: erroCalculo } =
+      await supabaseClient.functions.invoke("calcular-deslocamento", {
+        body: {
+          id: agendamento.id,
+          tracking_token: agendamento.tracking_token
+        }
+      });
+
+    if (erroCalculo) {
+      console.error("Agendamento salvo, mas o cálculo de deslocamento falhou:", erroCalculo);
+      showStatus(
+        "Sua solicitação foi recebida, mas o deslocamento ainda precisa ser calculado pela equipe.",
+        "error"
+      );
+    } else if (calculo?.sucesso) {
+      console.log("Deslocamento calculado:", calculo);
+    } else {
+      console.error("Resposta inesperada do cálculo:", calculo);
+      showStatus(
+        "Sua solicitação foi recebida, mas o deslocamento ainda precisa ser confirmado pela equipe.",
+        "error"
+      );
+    }
+
     $("successCode").textContent=requestCode;
     form.classList.add("hidden");
     $("successPanel").classList.add("show");
