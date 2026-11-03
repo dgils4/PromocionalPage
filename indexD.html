@@ -609,9 +609,9 @@
               <div class="field"><label for="complemento">Complemento</label><input id="complemento" name="complemento" placeholder="Apartamento, bloco, casa..."></div>
               <div class="field"><label for="referencia">Ponto de referência</label><input id="referencia" name="referencia" placeholder="Opcional"></div>
               <div class="field"><label for="data">Data desejada *</label><input id="data" name="data" type="date" required></div>
-              <div class="field"><label for="horario">Horário preferido *</label><select id="horario" name="horario" required><option value="">Escolha um horário</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option><option>19:00</option></select></div>
+              <div class="field"><label for="horario">Horário preferido *</label><select id="horario" name="horario" required disabled><option value="">Escolha primeiro o profissional e a data</option></select></div>
             </div>
-            <div class="notice">A data e o horário escolhidos são uma preferência, não uma confirmação automática. A empresa verificará a agenda e o deslocamento.</div>
+            <div id="availabilityStatus" class="notice">Escolha um profissional e uma data para consultar os horários disponíveis. A solicitação ainda dependerá da confirmação da equipe.</div>
             <div class="form-actions"><button class="btn btn-outline" type="button" data-back="1">← Voltar</button><button class="btn btn-primary" type="button" data-next="3">Continuar →</button></div>
           </div>
 
@@ -782,6 +782,75 @@ async function loadProfessionals() {
   status.textContent = "Escolha um profissional para carregar os serviços disponíveis.";
 }
 
+let availabilityRequest = 0;
+function resetAvailableTimes(message = "Escolha primeiro o profissional e a data") {
+  const select = $("horario");
+  select.innerHTML = "";
+  const option = document.createElement("option");
+  option.value = "";
+  option.textContent = message;
+  select.appendChild(option);
+  select.disabled = true;
+  select.dataset.loadedFor = "";
+  updateSummary();
+}
+
+async function loadAvailableTimes() {
+  const select = $("horario");
+  const status = $("availabilityStatus");
+  const professionalId = selectedProfessional?.id;
+  const date = $("data").value;
+  const requestId = ++availabilityRequest;
+
+  resetAvailableTimes("Consultando horários...");
+  if (!professionalId || !date) {
+    status.textContent = "Escolha um profissional e uma data para consultar os horários disponíveis.";
+    return;
+  }
+  if (date < localToday) {
+    status.textContent = "Escolha uma data de hoje em diante.";
+    resetAvailableTimes("Data inválida");
+    return;
+  }
+  if (!supabaseClient) {
+    status.textContent = "Não foi possível conectar ao sistema de agendamento.";
+    resetAvailableTimes("Indisponível no momento");
+    return;
+  }
+
+  status.textContent = "Buscando os horários deste profissional...";
+  const { data, error } = await supabaseClient.rpc("consultar_horarios_disponiveis", {
+    p_profissional_id: professionalId,
+    p_data: date
+  });
+  if (requestId !== availabilityRequest) return;
+  if (error) {
+    console.error("Erro ao consultar disponibilidade:", error);
+    status.textContent = "Não foi possível consultar a agenda. Tente novamente em instantes.";
+    resetAvailableTimes("Falha ao consultar horários");
+    return;
+  }
+
+  const horarios = [...new Set((data || []).map(item => String(item.horario || "").slice(0,5)).filter(Boolean))].sort();
+  select.innerHTML = "";
+  const first = document.createElement("option");
+  first.value = "";
+  first.textContent = horarios.length ? "Escolha um horário disponível" : "Nenhum horário disponível nesta data";
+  select.appendChild(first);
+  horarios.forEach(horario => {
+    const option = document.createElement("option");
+    option.value = horario;
+    option.textContent = horario;
+    select.appendChild(option);
+  });
+  select.disabled = horarios.length === 0;
+  select.dataset.loadedFor = professionalId + "|" + date;
+  status.textContent = horarios.length
+    ? "Horários disponíveis conforme a agenda deste profissional. A solicitação será confirmada pela equipe."
+    : "Este profissional não possui horários livres nessa data. Escolha outra data.";
+  updateSummary();
+}
+
 async function chooseProfessional(id) {
   const profissional = professionals.find(p => p.id === id);
   if (!profissional) return;
@@ -792,6 +861,7 @@ async function chooseProfessional(id) {
   });
   $("professionalStatus").textContent = "Profissional selecionado: " + profissional.nome + ".";
   await loadServicesForProfessional(id);
+  if ($("data").value) await loadAvailableTimes(); else resetAvailableTimes();
   updateSummary();
   document.querySelector(".services-heading")?.scrollIntoView({
     behavior: "smooth",
@@ -813,7 +883,8 @@ async function loadServicesForProfessional(professionalId) {
     .select("id,nome,descricao,preco,ativo")
     .eq("profissional_id", professionalId)
     .eq("ativo", true)
-    .order("nome");
+    .order("preco", { ascending: false })
+    .order("nome", { ascending: true });
   if (error || !data || data.length === 0) {
     list.innerHTML = '<p class="hint">Este profissional ainda não possui serviços cadastrados.</p>';
     status.textContent = error ? "Não foi possível carregar os serviços. Verifique as permissões da tabela no Supabase." : "Cadastre os serviços deste profissional para que apareçam aqui.";
@@ -919,6 +990,7 @@ if(n===2) ids=[
     if(!el.checkValidity()){el.reportValidity();return false;}
   }
   if(n===2 && $("data").value < localToday){showStatus("Escolha uma data de hoje em diante.","error");return false;}
+  if(n===2 && (!$("horario").value || $("horario").disabled || $("horario").dataset.loadedFor !== ($("barbeiro_id").value + "|" + $("data").value))){showStatus("Consulte e escolha um horário disponível para o profissional e a data selecionados.","error");return false;}
 
 
 if (n === 2 && !coordenadasValidas()) {
@@ -989,7 +1061,8 @@ document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",(
   if(validateStep(currentStep)) showStep(target);
 }));
 document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",()=>showStep(Number(b.dataset.back))));
-["endereco","complemento","bairro","data","horario"].forEach(id=>$(id).addEventListener("change",updateSummary));
+["endereco","complemento","bairro","horario"].forEach(id=>$(id).addEventListener("change",updateSummary));
+$("data").addEventListener("change", () => { loadAvailableTimes(); updateSummary(); });
 $("cep").addEventListener("input",e=>{
   let v=e.target.value.replace(/\D/g,"").slice(0,8);
   if(v.length>5)v=v.slice(0,5)+"-"+v.slice(5);
@@ -1303,6 +1376,7 @@ $("newRequest").addEventListener("click", () => {
   setTimeout(() => {
     form.reset();
     selectedProfessional = null;
+    resetAvailableTimes();
     $("barbeiro_id").value = "";
     document.querySelectorAll(".professional-card").forEach(card => card.classList.remove("selected"));
     $("servicesList").innerHTML = '<p class="hint">Escolha um profissional para carregar os serviços.</p>';
