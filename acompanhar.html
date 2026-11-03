@@ -71,7 +71,7 @@ async function load(){if(!db){showError("A conexão com o sistema não foi inici
 const status=String(r.status||"").toLowerCase();put("status",statusNames[status]||"Status do atendimento");$("status").className="pill "+(status==="concluido"?"good":["recusado","cancelado"].includes(status)?"bad":status==="pendente"?"wait":"");
 put("updated",r.updated_at?"Última atualização: "+new Date(r.updated_at).toLocaleString("pt-BR"):"");put("code",r.codigo_solicitacao);put("service",r.servico);put("date",dateBR(r.data_confirmada||r.data_preferida));put("time",r.horario_confirmado||r.horario_preferido||"Aguardando confirmação");put("serviceValue",money(r.valor_servico));put("travelValue",money(r.valor_deslocamento));put("total",money(r.valor_total??(Number(r.valor_servico||0)+Number(r.valor_deslocamento||0))));
 $("details").classList.remove("hidden");$("timelineCard").classList.remove("hidden");$("message").className="card muted";put("message",status==="concluido"?"Tudo certo! Seu atendimento foi concluído.":["recusado","cancelado"].includes(status)?"Esta solicitação foi encerrada.":"Esta página consulta automaticamente as atualizações do profissional.");renderTimeline(status);
-}catch(e){console.error(e);showError("O acompanhamento não respondeu. Tente novamente em alguns instantes.")}finally{$("refreshBtn").disabled=false}}
+}catch(e){console.error(e);showError("Erro: " + (e.message || JSON.stringify(e)))}finally{$("refreshBtn").disabled=false}}
 $("refreshBtn").addEventListener("click",load);load();setInterval(load,15000);
 </script>
 </body>
