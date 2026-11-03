@@ -1,12 +1,12 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administração | Los Visionários</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><style>
-*{box-sizing:border-box}body{margin:0;background:#f3f4f6;font:15px Arial;color:#171717}header{background:#171717;color:white;padding:22px 20px;border-bottom:4px solid #d58a35}header b{letter-spacing:1px}main{max-width:1280px;margin:auto;padding:20px}.card{background:white;border:1px solid #e5e7eb;border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 4px 16px #11111108}.hidden{display:none!important}input,select{padding:11px;border:1px solid #d5d0c6;border-radius:8px;font:inherit}.btn{border:0;border-radius:8px;padding:10px 13px;background:#d58a35;color:#171717;font-weight:bold;cursor:pointer}.btn:hover{filter:brightness(.96)}.navbtn{background:#252525;color:#fff}.navbtn.active{background:#d58a35;color:#171717}.application{border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin:10px 0;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap}.application h3{margin:0 0 6px}.application p{margin:4px 0}.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#fff2df;font-size:12px;font-weight:bold}.app-actions{display:flex;gap:8px;flex-wrap:wrap}.section-title{margin:8px 0 4px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.light{background:#eeeae1}.red{background:#f6e0de}.row{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.row input,.row select{flex:1;min-width:170px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{background:white;border:1px solid #e5e0d6;border-radius:12px;padding:14px}.metric strong{display:block;font-size:24px;margin-top:8px}table{border-collapse:collapse;width:100%;min-width:920px}th,td{padding:12px;border-bottom:1px solid #e5e0d6;text-align:left;vertical-align:top;font-size:13px}th{background:#f7f5ef}.wrap{overflow:auto;border:1px solid #e5e0d6;border-radius:12px;background:white}.status{padding:10px;border-radius:8px;margin:10px 0}.err{background:#fff0f0;color:#9b2222}.ok{background:#eaf7ee;color:#216a3e}.muted{color:#716d65;font-size:12px}@media(max-width:700px){.metrics{grid-template-columns:1fr 1fr}}
+*{box-sizing:border-box}body{margin:0;background:#f3f4f6;font:15px Arial;color:#171717}header{background:#171717;color:white;padding:22px 20px;border-bottom:4px solid #d58a35}header b{letter-spacing:1px}main{max-width:1280px;margin:auto;padding:20px}.card{background:white;border:1px solid #e5e7eb;border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 4px 16px #11111108}.hidden{display:none!important}input,select{padding:11px;border:1px solid #d5d0c6;border-radius:8px;font:inherit}.btn{border:0;border-radius:8px;padding:10px 13px;background:#d58a35;color:#171717;font-weight:bold;cursor:pointer}.btn:hover{filter:brightness(.96)}.navbtn{background:#252525;color:#fff}.navbtn.active{background:#d58a35;color:#171717}.application{border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin:10px 0;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap}.application h3{margin:0 0 6px}.application p{margin:4px 0}.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#fff2df;font-size:12px;font-weight:bold}.app-actions{display:flex;gap:8px;flex-wrap:wrap}.section-title{margin:8px 0 4px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.light{background:#eeeae1}.red{background:#f6e0de}.danger-btn{background:#b42318;color:#fff}.row{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}.row input,.row select{flex:1;min-width:170px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{background:white;border:1px solid #e5e0d6;border-radius:12px;padding:14px}.metric strong{display:block;font-size:24px;margin-top:8px}table{border-collapse:collapse;width:100%;min-width:920px}th,td{padding:12px;border-bottom:1px solid #e5e0d6;text-align:left;vertical-align:top;font-size:13px}th{background:#f7f5ef}.wrap{overflow:auto;border:1px solid #e5e0d6;border-radius:12px;background:white}.status{padding:10px;border-radius:8px;margin:10px 0}.err{background:#fff0f0;color:#9b2222}.ok{background:#eaf7ee;color:#216a3e}.muted{color:#716d65;font-size:12px}@media(max-width:700px){.metrics{grid-template-columns:1fr 1fr}}
 </style></head><body><header><b>BARBEARIA DOMICILIAR PREMIUM</b><div style="font-size:12px;color:#ccc;margin-top:5px">Painel administrativo</div></header><main>
 <div id="login" class="card" style="max-width:420px;margin:35px auto"><h2>Entrar</h2><p class="muted"></p><p><input id="email" type="email" placeholder="E-mail" style="width:100%"></p><p><input id="password" type="password" placeholder="Senha" style="width:100%"></p><button id="loginBtn" class="btn">Entrar no painel</button><div id="loginMsg"></div></div>
 <div id="app" class="hidden"><div class="row" style="justify-content:space-between"><div><h1>Agenda domiciliar</h1><p class="muted">Pedidos, horários e status de atendimento.</p></div><button id="logout" class="btn light">Sair</button></div>
-<nav class="tabs"><button class="btn navbtn active" data-tab="agendaPanel">Agendamentos</button><button class="btn navbtn" data-tab="applicationsPanel">Solicitações de profissionais <span id="applicationsCount"></span></button></nav><section id="agendaPanel"><div class="metrics"><div class="metric">Pendentes<strong id="pending">0</strong></div><div class="metric">Confirmados<strong id="confirmed">0</strong></div><div class="metric">Concluídos<strong id="done">0</strong></div><div class="metric">Faturamento concluído<strong id="revenue">R$ 0</strong></div></div>
-<div class="card"><div class="row"><input id="search" placeholder="Buscar nome, telefone, bairro"><select id="statusFilter"><option value="">Todos os status</option><option value="pendente">Pendente</option><option value="confirmado">Confirmado</option><option value="em_deslocamento">Em deslocamento</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><input id="dateFilter" type="date"><button id="refresh" class="btn light">Atualizar</button></div><div id="msg"></div><div class="wrap"><table><thead><tr><th>Cliente</th><th>Serviço</th><th>Data / hora</th><th>Endereço</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="rows"><tr><td colspan="7">Carregando...</td></tr></tbody></table></div></div></section><section id="applicationsPanel" class="hidden"><div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div><h2 class="section-title">Solicitações de profissionais</h2><p class="muted">Analise os dados e documentos antes de aprovar o cadastro.</p></div><div class="row"><select id="applicationFilter"><option value="pendente">Pendentes</option><option value="aprovado">Aprovados</option><option value="recusado">Recusados</option><option value="">Todos</option></select><button id="refreshApplications" class="btn light">Atualizar</button></div></div><div id="applicationsMsg"></div><div id="applicationsList">Carregando solicitações...</div></div></section></div></main>
+<nav class="tabs"><button class="btn navbtn active" data-tab="agendaPanel">Agendamentos</button><button class="btn navbtn" data-tab="applicationsPanel">Solicitações de profissionais <span id="applicationsCount"></span></button><button class="btn navbtn" data-tab="professionalsPanel">Profissionais cadastrados <span id="professionalsCount"></span></button></nav><section id="agendaPanel"><div class="metrics"><div class="metric">Pendentes<strong id="pending">0</strong></div><div class="metric">Confirmados<strong id="confirmed">0</strong></div><div class="metric">Concluídos<strong id="done">0</strong></div><div class="metric">Faturamento concluído<strong id="revenue">R$ 0</strong></div></div>
+<div class="card"><div class="row"><input id="search" placeholder="Buscar nome, telefone, bairro"><select id="statusFilter"><option value="">Todos os status</option><option value="pendente">Pendente</option><option value="confirmado">Confirmado</option><option value="em_deslocamento">Em deslocamento</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select><input id="dateFilter" type="date"><button id="refresh" class="btn light">Atualizar</button></div><div id="msg"></div><div class="wrap"><table><thead><tr><th>Cliente</th><th>Serviço</th><th>Data / hora</th><th>Endereço</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="rows"><tr><td colspan="7">Carregando...</td></tr></tbody></table></div></div></section><section id="applicationsPanel" class="hidden"><div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div><h2 class="section-title">Solicitações de profissionais</h2><p class="muted">Analise os dados e documentos antes de aprovar o cadastro.</p></div><div class="row"><select id="applicationFilter"><option value="pendente">Pendentes</option><option value="aprovado">Aprovados</option><option value="recusado">Recusados</option><option value="">Todos</option></select><button id="refreshApplications" class="btn light">Atualizar</button></div></div><div id="applicationsMsg"></div><div id="applicationsList">Carregando solicitações...</div></div></section><section id="professionalsPanel" class="hidden"><div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div><h2 class="section-title">Profissionais cadastrados</h2><p class="muted">Gerencie os barbeiros vinculados à barbearia. A exclusão remove o cadastro e os dados dependentes configurados em cascata.</p></div><button id="refreshProfessionals" class="btn light">Atualizar lista</button></div><div class="row"><input id="professionalSearch" placeholder="Buscar profissional por nome ou ID"></div><div id="professionalsMsg"></div><div id="professionalsList">Carregando profissionais...</div></div></section></div></main>
 <script>
-const cfg=window.APP_CONFIG,$=id=>document.getElementById(id);const db=window.supabase&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes("COLE_AQUI")?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;let all=[], applications=[], currentUserId=null;
+const cfg=window.APP_CONFIG,$=id=>document.getElementById(id);const db=window.supabase&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes("COLE_AQUI")?window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY):null;let all=[], applications=[], professionals=[], currentUserId=null;
 function show(id,t,c){$(id).innerHTML=t;$(id).className="status "+c}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function money(n){return Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
@@ -312,7 +312,86 @@ async function handleApplicationClick(e){
 }
 $("applicationsList").addEventListener("click",handleApplicationClick);
 $("refreshApplications").onclick=loadApplications;$("applicationFilter").onchange=loadApplications;
-document.querySelectorAll("[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===btn));$("agendaPanel").classList.toggle("hidden",btn.dataset.tab!=="agendaPanel");$("applicationsPanel").classList.toggle("hidden",btn.dataset.tab!=="applicationsPanel");if(btn.dataset.tab==="applicationsPanel")loadApplications();}));
+
+async function loadProfessionals(){
+  const host=$("professionalsList");
+  if(!host)return;
+  host.textContent="Carregando profissionais...";
+  const {data,error}=await db
+    .from("profissionais_domicilio")
+    .select("id,nome,auth_user_id,ativo")
+    .order("nome",{ascending:true});
+  if(error){
+    host.textContent="";
+    show("professionalsMsg","Não foi possível carregar os profissionais: "+esc(error.message),"err");
+    return;
+  }
+  professionals=data||[];
+  $("professionalsCount").textContent=" ("+professionals.length+")";
+  $("professionalsMsg").innerHTML="";
+  renderProfessionals();
+}
+function renderProfessionals(){
+  const host=$("professionalsList");
+  if(!host)return;
+  const term=($("professionalSearch")?.value||"").trim().toLowerCase();
+  const list=professionals.filter(p=>
+    String(p.nome||"").toLowerCase().includes(term)||
+    String(p.id||"").toLowerCase().includes(term)
+  );
+  if(!list.length){
+    host.innerHTML='<p class="muted">Nenhum profissional encontrado.</p>';
+    return;
+  }
+  host.innerHTML=list.map(p=>`
+    <article class="application">
+      <div>
+        <h3>${esc(p.nome||"Sem nome")}</h3>
+        <p class="muted">ID: ${esc(p.id)}</p>
+        <p class="muted">Conta vinculada: ${p.auth_user_id?"Sim":"Não"}</p>
+        <span class="pill">${p.ativo===false?"Inativo":"Ativo"}</span>
+      </div>
+      <div class="app-actions">
+        <button class="btn danger-btn" data-delete-professional="${esc(p.id)}">Excluir profissional</button>
+      </div>
+    </article>`).join("");
+}
+$("professionalsList").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-delete-professional]");
+  if(!btn)return;
+  const id=btn.dataset.deleteProfessional;
+  const professional=professionals.find(p=>String(p.id)===String(id));
+  if(!professional)return;
+  const accepted=confirm(
+    "ATENÇÃO: excluir "+(professional.nome||"este profissional")+"?\n\n"+
+    "O cadastro será removido. Disponibilidade, bloqueios, configurações e serviços vinculados serão excluídos em cascata.\n"+
+    "Os agendamentos antigos serão preservados, mas perderão o vínculo com este profissional.\n\n"+
+    "Esta ação não pode ser desfeita."
+  );
+  if(!accepted)return;
+  btn.disabled=true;
+  const {data,error}=await db
+    .from("profissionais_domicilio")
+    .delete()
+    .eq("id",id)
+    .select("id");
+  if(error){
+    btn.disabled=false;
+    show("professionalsMsg","Não foi possível excluir. Verifique as permissões RLS: "+esc(error.message),"err");
+    return;
+  }
+  if(!data||!data.length){
+    btn.disabled=false;
+    show("professionalsMsg","Nenhum registro foi excluído. A política de segurança pode não permitir esta operação.","err");
+    return;
+  }
+  show("professionalsMsg","Profissional excluído com sucesso.","ok");
+  await loadProfessionals();
+});
+$("refreshProfessionals").onclick=loadProfessionals;
+$("professionalSearch").oninput=renderProfessionals;
+
+document.querySelectorAll("[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===btn));$("agendaPanel").classList.toggle("hidden",btn.dataset.tab!=="agendaPanel");$("applicationsPanel").classList.toggle("hidden",btn.dataset.tab!=="applicationsPanel");$("professionalsPanel").classList.toggle("hidden",btn.dataset.tab!=="professionalsPanel");if(btn.dataset.tab==="applicationsPanel")loadApplications();if(btn.dataset.tab==="professionalsPanel")loadProfessionals();}));
 
   $("refresh").onclick=load;$("statusFilter").onchange=load;$("dateFilter").onchange=load;$("search").oninput=render;check();
 </script></body></html>
