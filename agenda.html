@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Los Visionários Agenda</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="style2.css" />
+  <link rel="stylesheet" href="stylo.css" />
+  <link rel="stylesheet" href="stylo1.css" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
   <script>
   window.onload = ()=>{
@@ -108,6 +108,170 @@
     </div>
   </div>
 
+<!-- 💳 TELA Cálculo -->
+<div id="telaCalculo" class="telaSistema">
+
+  <div class="topTela">
+    <button onclick="fecharTela('telaCalculo')">← Voltar</button>
+    <h2>💳 Cálculo Plano</h2>
+  </div>
+
+  <div class="conteudoTela">
+
+    <div class="calculoPlano">
+
+      <div class="filtroDatasCalculo">
+
+        <div>
+          <label>Data inicial</label>
+          <input
+            type="date"
+            id="calculoDataInicial"
+          >
+        </div>
+
+        <div>
+          <label>Data final</label>
+          <input
+            type="date"
+            id="calculoDataFinal"
+          >
+        </div>
+
+      </div>
+
+
+      <div class="potesCalculo">
+
+        <h3>💰 Valor dos potes</h3>
+
+        <div class="campoPote">
+          <label>Cabelo</label>
+
+          <div class="inputPote">
+            <span>R$</span>
+            <input
+              type="number"
+              id="poteCabelo"
+              value="0"
+              min="0"
+              step="0.01"
+            >
+          </div>
+        </div>
+
+
+        <div class="campoPote">
+          <label>Barba</label>
+
+          <div class="inputPote">
+            <span>R$</span>
+            <input
+              type="number"
+              id="poteBarba"
+              value="0"
+              min="0"
+              step="0.01"
+            >
+          </div>
+        </div>
+
+      </div>
+
+
+      <button
+        class="btnCalcularPlano"
+        onclick="calcularFechamentoPlano()"
+      >
+        CALCULAR FECHAMENTO
+      </button>
+
+
+      <div id="resultadoCalculoPlano"></div>
+
+    </div>
+
+  </div>
+</div>
+
+
+  <!-- 🔔 TELA finansas -->
+  <div id="telaFinanceiros" class="telaSistema">
+    <div class="topTela">
+      <button onclick="fecharTela('telaFinanceiros')">← Voltar</button>
+      <h2>🔔 Financeiro</h2>
+    </div>
+    <div class="conteudoTela">
+      <div class="financeiroPlanos">
+
+  <h3>💰 Entradas de Planos</h3>
+
+  <div class="periodoFinanceiro">
+
+    <div>
+      <label>Data inicial</label>
+      <input
+        type="date"
+        id="dataInicialPlanos"
+      >
+    </div>
+
+    <div>
+      <label>Data final</label>
+      <input
+        type="date"
+        id="dataFinalPlanos"
+      >
+    </div>
+
+  </div>
+
+  <button
+    type="button"
+    onclick="carregarEntradasPlanos()"
+  >
+    🔎 Consultar
+  </button>
+
+  <div id="resultadoEntradasPlanos">
+
+  <div class="linhaPlano">
+    <span>Plano Básico</span>
+    <strong>R$ 0,00</strong>
+  </div>
+
+  <div class="linhaPlano">
+    <span>Plano Intermediário</span>
+    <strong>R$ 0,00</strong>
+  </div>
+
+  <div class="linhaPlano">
+    <span>Plano Premium</span>
+    <strong>R$ 0,00</strong>
+  </div>
+
+  <div class="linhaPlano">
+    <span>Plano Flexível</span>
+    <strong>R$ 0,00</strong>
+  </div>
+
+  <hr>
+
+  <div class="totalPlanos">
+    <span>Total de planos</span>
+    <strong>R$ 0,00</strong>
+  </div>
+
+</div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+  
+
   <!-- 🔔 TELA VENCIMENTOS -->
   <div id="telaVencimentos" class="telaSistema">
     <div class="topTela">
@@ -126,10 +290,62 @@
       <h2>👥 Clientes</h2>
     </div>
     <div class="conteudoTela">
-      <input type="text" id="buscarCliente" placeholder="Buscar cliente">
-      <div id="resultadoClientes"></div>
+      <div class="conteudoTela">
+
+  <div class="filtrosClientes">
+
+    <select id="filtroTipoCliente">
+      <option value="todos">👥 Todos</option>
+      <option value="plano">🟢 Plano ativo</option>
+      <option value="avulso">🔵 Avulsos</option>
+    </select>
+
+    <input
+      type="text"
+      id="buscarCliente"
+      placeholder="🔎 Digite nome ou telefone..."
+      autocomplete="off"
+    >
+
+  </div>
+
+  <div
+    id="resultadoClientes"
+    class="resultadoClientes"
+  >
+
+    <div class="msgClientes">
+      🔎 Digite o nome ou telefone para consultar um cliente.
+    </div>
+
+  </div>
+
+      </div>
     </div>
   </div>
+
+
+  <!-- 👤 TELA DETALHE DO CLIENTE -->
+<div id="telaDetalheCliente" class="telaSistema">
+
+  <div class="topTela">
+
+    <button onclick="voltarDaDetalheCliente()">
+  ← Voltar
+</button>
+
+    <h2>👤 Cliente</h2>
+
+  </div>
+
+  <div
+    class="conteudoTela"
+    id="conteudoDetalheCliente"
+  >
+
+  </div>
+
+</div>
 
   <!-- 💰 TELA FINANCEIRO -->
   <div id="telaFinanceiro" class="telaSistema">
@@ -314,6 +530,18 @@
       <label for="planoPreco">Preço</label>
       <input id="planoPreco" type="text" placeholder="Ex.: R$ 64,99">
 
+      <label for="planoQuantidadeCortes">
+  Quantidade de cortes
+</label>
+
+<input
+  id="planoQuantidadeCortes"
+  type="number"
+  min="1"
+  placeholder="Ex.: 4"
+  value="4"
+>
+
       <label for="planoLinkPagamento">Link de Pagamento</label>
       <input id="planoLinkPagamento" type="url" placeholder="Cole aqui o link do Mercado Pago">
 
@@ -420,6 +648,34 @@
     </div>
   </div>
 
+  <!-- 🔥 MODAL DE DECISÃO -->
+<div id="modalDecisao" class="modalDecisao">
+
+  <div class="caixaDecisao">
+
+    <div id="tituloDecisao" class="tituloDecisao">
+      Escolha uma opção
+    </div>
+
+    <div id="mensagemDecisao" class="mensagemDecisao">
+    </div>
+
+    <div id="opcoesDecisao" class="opcoesDecisao">
+    </div>
+
+    <button
+      id="cancelarDecisao"
+      class="btnCancelarDecisao"
+      type="button"
+    >
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
+
+  
   <!-- ========================================== -->
   <!-- 📌 SIDEBAR / MENU LATERAL                  -->
   <!-- ========================================== -->
@@ -441,13 +697,16 @@
 
     <button onclick="abrirCalendario()">📆 Buscar Período</button>
     <button onclick="abrirPlanos()">💳 Clientes Plano</button>
+
+    <button onclick="abrirCalculo()">💳 Calculo Plano</button>
+    
     <button onclick="abrirDespesas()">📊 Despesas</button>
     <button onclick="abrirTelaVencimentos()">
       🔔 Vencimentos
       <span id="badgeNotif" style="background:#dc2626; padding:3px 8px; border-radius:999px; margin-left:8px; font-size:12px;">0</span>
     </button>
     <button onclick="abrirClientes()">👥 Clientes</button>
-    <button onclick="abrirFinanceiro()">💰 Financeiro</button>
+    <button onclick="abrirFinanceiros()">💰 Financeiro</button>
     <button onclick="abrirProfissionais()">👤 Profissionais</button>
     <button onclick="abrirServicos()">💈 Serviços</button>
     <button onclick="abrirFidelidade()">🎁 Fidelidade</button>
@@ -567,27 +826,37 @@ visibility
 
       <div id="boxPlanoAdmin" style="display:none;">
         <input type="date" id="adesaoPlano" style="margin-right:4px">
-        <select id="statusPlano" style="margin-left:4px">
-          <option value="ativo">Plano Ativo</option>
-          <option value="inativo">Plano Inativo</option>
-        </select>
+        
+        <div
+  id="statusPlano"
+  style="
+    margin-left:4px;
+    padding:10px;
+    font-weight:bold;
+          width:100%;
+  "
+>
+</div>
+        
       </div>
 
       <div class="row">
         <select id="corte">
           <option value="">Não alterar</option>
-          <option value="1">Corte 1/4</option>
-          <option value="2">Corte 2/4</option>
-          <option value="3">Corte 3/4</option>
-          <option value="4">Corte 4/4</option>
+          <option value="1">Corte 1/0</option>
+          <option value="2">Corte 2/0</option>
+          <option value="3">Corte 3/0</option>
+          <option value="4">Corte 4/0</option>
+          <option value="5">Corte 5/0</option>
+          <option value="6">Corte 6/0</option>
         </select>
         <select id="pag">
-          <option>Pix</option>
-          <option>Dinheiro</option>
-          <option>Debito</option>
-          <option>Crédito</option>
-          <option>Plano Mensal</option>
-        </select>
+  <option>Pix</option>
+  <option>Dinheiro</option>
+  <option>Débito</option>
+  <option>Crédito</option>
+          <option>Recorrente</option>
+</select>
       </div>
 
       <input id="valor" placeholder="Clique para escolher um serviço" readonly>
@@ -635,7 +904,7 @@ visibility
   <!-- ========================================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js"></script>
-  <script src="script.js"></script>
+  <script src="scripti.js"></script>
   <script src="script2.js"></script>
 
 </body>
