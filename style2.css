@@ -1,412 +1,328 @@
-.tabela-container {
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
+/* =========================================================
+   CÁLCULO PLANO MENSAL
+========================================================= */
 
-.tabela-despesas {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-/* Divisórias do Cabeçalho */
-.tabela-despesas th {
-  background-color: #f8fafc;
-  color: #475569;
-  font-weight: 600;
-  padding: 12px 14px;
-  text-align: left;
-  border-bottom: 2px solid #cbd5e1;
-  border-right: 1px solid #e2e8f0;
-  text-transform: uppercase;
-  font-size: 12px;
-}
-
-/* Divisórias das Linhas e Células */
-.tabela-despesas td {
-  padding: 12px 14px;
-  border-bottom: 1px solid #e2e8f0;
-  border-right: 1px solid #e2e8f0;
-  color: #334155;
-  vertical-align: middle;
-}
-
-.tabela-despesas th:last-child,
-.tabela-despesas td:last-child {
-  border-right: none;
-}
-
-.tabela-despesas tbody tr:hover {
-  background-color: #f1f5f9;
-}
-
-/* Estilização dos elementos internos da tabela */
-.col-data {
-  display: flex;
-  flex-direction: column;
-}
-
-.col-data small {
-  color: #64748b;
-  font-size: 11px;
-}
-
-.badge-categoria {
-  background-color: #e0e7ff;
-  color: #3730a3;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.val-despesa {
-  color: #dc2626;
-  font-weight: 700;
-}
-
-.col-obs {
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #64748b;
-}
-
-.text-right { text-align: right; }
-.text-center { text-align: center; }
-
-.sem-registros {
-  text-align: center;
-  padding: 24px;
-  color: #94a3b8;
-}
-
-/* Botões de Ação */
-.btn-acao {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 4px 6px;
-  font-size: 16px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.btn-acao:hover {
-  background-color: #cbd5e1;
-}
-
-
-
-
-/* Container de sobreposição escuro (Modal Overlay) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999999999999999999;
-}
-
-/* Card central do modal */
-.modal-content {
-  background-color: #ffffff;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  overflow: hidden;
-  animation: fadeIn 0.2s ease-out;
-  
-}
-
-.modal-header {
-  padding: 16px 20px;
-  background-color: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.modal-header h2 {
-  font-size: 18px;
-  margin: 0;
-  color: #1e293b;
-  
-}
-
-.btn-fechar {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #64748b;
-}
-
-#formDespesa {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.form-row {
-  display: flex;
-  gap: 12px;
-}
-
-.form-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.form-group label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-  text-transform: uppercase;
-}
-
-.form-group input,.form-group select ,.form-group textarea{
-  width: 100%;
- padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none; 
-  margin-bottom: 6px;
-}
-
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.btn-cancelar {
-  background-color: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-salvar {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-.cardDespesa{
-  background:var(--bg-card);
-  border:1px solid var(--borda);
-  border-radius:14px;
-
-  padding:14px;
-  margin-bottom:12px;
-}
-
-.topoDespesa{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-
-  margin-bottom:10px;
-}
-
-.topoDespesa strong{
-  font-size:17px;
-  color:var(--texto);
-}
-
-.valorDespesa{
-  color:#22c55e;
-  font-size:18px;
-  font-weight:bold;
-  white-space:nowrap;
-}
-
-.infoDespesa{
-  color:var(--texto);
-  opacity:.8;
-  font-size:14px;
-  margin-top:6px;
-}
-
-.acoesDespesa{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-}
-
-.acoesDespesa button{
-  border:none;
-  border-radius:8px;
-  padding:8px 12px;
-  cursor:pointer;
-}
-
-
-.acoesDespesa button{
-
-  background:#334155;
-
-  color:white;
-
-  border:none;
-
-  border-radius:8px;
-
-  padding:8px 12px;
-
-}
-
-
-.resumoDespesas{
-  display:grid;
-  grid-template-columns:repeat(2, 1fr);
-  gap:10px;
-  margin:15px 0;
-}
-
-.resumoItem{
-  background:var(--bg-card);
-  border:1px solid var(--borda);
-  border-radius:12px;
-  padding:12px;
-
-  display:flex;
-  flex-direction:column;
-  gap:5px;
-}
-
-.resumoItem span{
-  color:var(--texto);
-  font-size:14px;
-}
-
-.resumoItem strong{
-  color:var(--texto);
-  font-size:19px;
-}
-
-/* ==========================================
-   CALENDÁRIO EXCLUSIVO DAS DESPESAS
-   ========================================== */
-
-.dataDespesas{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
+.calculoPlano{
   width:100%;
+  max-width:700px;
+  margin:auto;
+  padding:15px;
+  box-sizing:border-box;
+  color:#111827;
+}
+
+
+/* ==========================
+   DATAS
+========================== */
+
+.filtroDatasCalculo{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.filtroDatasCalculo label,
+.campoPote label{
+  display:block;
+  color:#111827;
+  font-size:13px;
+  margin-bottom:6px;
+  font-weight:600;
+}
+
+.filtroDatasCalculo input,
+.inputPote input{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:#fff;
+  color:#111827;
+  font-size:15px;
+}
+
+
+/* ==========================
+   POTES
+========================== */
+
+.potesCalculo{
+  background:#f5f5f5;
+  color:#111827;
+  border-radius:14px;
+  padding:15px;
   margin-bottom:15px;
 }
 
-.campoDataDespesa{
+.potesCalculo h3{
+  color:#111827;
+  margin-top:0;
+  margin-bottom:15px;
+}
+
+.campoPote{
+  margin-bottom:12px;
+}
+
+.campoPote:last-child{
+  margin-bottom:0;
+}
+
+.inputPote{
   display:flex;
   align-items:center;
-  gap:8px;
-
-  background:var(--bg-elemento);
-  border:1px solid var(--borda);
-
+  background:#fff;
+  border:1px solid #ccc;
   border-radius:10px;
-  padding:7px 10px;
-
-  flex:1;
-  max-width:250px;
+  overflow:hidden;
 }
 
-.campoDataDespesa span{
-  font-size:20px;
-  line-height:1;
+.inputPote span{
+  color:#111827;
+  padding-left:12px;
+  font-weight:bold;
 }
 
-.inputDataDespesa{
-  width:100% !important;
-  min-width:0 !important;
-
-  margin:0 !important;
-  padding:3px !important;
-
-  border:none !important;
-  outline:none !important;
-
-  background:transparent !important;
-  color:var(--texto) !important;
-
-  font-size:15px !important;
-  font-family:inherit !important;
-
-  box-shadow:none !important;
+.inputPote input{
+  border:0;
+  outline:none;
 }
 
-/* Remove estilos de foco herdados */
-.inputDataDespesa:focus{
-  border:none !important;
-  outline:none !important;
-  box-shadow:none !important;
-}
 
-/* Botões de navegação */
-.btnDataDespesa{
-  width:42px;
-  height:42px;
+/* ==========================
+   BOTÃO
+========================== */
 
-  border:none;
-  border-radius:10px;
-
-  background:var(--bg-elemento);
-  color:var(--texto);
-
-  border:1px solid var(--borda);
-
-  font-size:16px;
+.btnCalcularPlano{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:#2457d6;
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
   cursor:pointer;
+}
 
+
+/* ==========================
+   RESULTADO
+========================== */
+
+#resultadoCalculoPlano{
+  margin-top:20px;
+  color:#111827;
+}
+
+
+/* ==========================
+   CARDS DE SERVIÇO
+========================== */
+
+.blocoServicoCalculo{
+  background:#fff;
+  color:#111827;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.blocoServicoCalculo h3{
+  color:#111827;
+  margin:0 0 10px;
+}
+
+.infoServicoCalculo{
+  color:#374151;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:12px;
+}
+
+.infoServicoCalculo strong{
+  color:#111827;
+}
+
+
+/* ==========================
+   PROFISSIONAIS
+========================== */
+
+.linhaProfissionalCalculo{
   display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-top:1px solid #e5e7eb;
+  color:#111827;
+}
+
+.linhaProfissionalCalculo span{
+  color:#111827;
+}
+
+.linhaProfissionalCalculo small{
+  color:#6b7280;
+}
+
+.linhaProfissionalCalculo strong{
+  color:#111827;
+}
+
+
+/* ==========================
+   TOTAL
+========================== */
+
+.totalProfissionaisCalculo{
+  background:#fff;
+  color:#111827;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.totalProfissionaisCalculo h3{
+  color:#111827;
+  margin-top:0;
+}
+
+.totalProfissional{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid #e5e7eb;
+  color:#111827;
+}
+
+.totalProfissional:last-child{
+  border-bottom:0;
+  font-weight:bold;
+}
+
+.totalProfissional span{
+  color:#111827;
+}
+
+.totalProfissional strong{
+  color:#111827;
+}
+
+
+/* ==========================
+   SEM RESULTADO
+========================== */
+
+.semResultadoCalculo{
+  text-align:center;
+  padding:25px;
+  background:#fff;
+  color:#374151;
+  border-radius:14px;
+}
+
+.modalDecisao{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:99999;
+
+  background:rgba(0,0,0,.65);
+
   align-items:center;
   justify-content:center;
+
+  padding:20px;
 }
 
-.btnDataDespesa:active{
-  transform:scale(.95);
+.caixaDecisao{
+  width:100%;
+  max-width:420px;
+
+  background:#fff;
+
+  border-radius:18px;
+
+  padding:22px;
+
+  box-shadow:0 15px 50px rgba(0,0,0,.35);
+}
+
+.tituloDecisao{
+  font-size:20px;
+  font-weight:bold;
+
+  margin-bottom:12px;
+
+  color:#222;
+}
+
+.mensagemDecisao{
+  font-size:15px;
+  line-height:1.5;
+
+  margin-bottom:18px;
+
+  color:#555;
+}
+
+.opcoesDecisao{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.opcaoDecisao{
+  width:100%;
+
+  padding:14px;
+
+  border:0;
+  border-radius:12px;
+
+  background:#f2f2f2;
+
+  font-size:16px;
+  font-weight:bold;
+
+  text-align:left;
+
+  cursor:pointer;
+}
+
+.opcaoDecisao:active{
+  transform:scale(.98);
+}
+
+.btnCancelarDecisao{
+  width:100%;
+
+  margin-top:14px;
+
+  padding:13px;
+
+  border:0;
+  border-radius:12px;
+
+  background:#ddd;
+
+  font-size:15px;
+  font-weight:bold;
+
+  cursor:pointer;
+}
+
+
+input,
+textarea,
+select{
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
