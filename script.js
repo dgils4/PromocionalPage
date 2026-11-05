@@ -95,20 +95,22 @@ let servicosSelecionados = [];
 });
 
 function liberarAudio(){
+
   somSucesso.play()
-  .then(()=>{
-    somSucesso.pause();
-    somSucesso.currentTime = 0;
-  });
+    .then(()=>{
+      somSucesso.pause();
+      somSucesso.currentTime = 0;
+    })
+    .catch(()=>{});
 
   exCluir.play()
-  .then(()=>{
-    exCluir.pause();
-    exCluir.currentTime = 0;
-  });
+    .then(()=>{
+      exCluir.pause();
+      exCluir.currentTime = 0;
+    })
+    .catch(()=>{});
 
 }
-     
      
      
      
@@ -493,15 +495,60 @@ abrirLoading();
    
  }
 
- let soma = 0;
 
- data.forEach(item => {
-   soma += Number(item.valor || 0);
- });
+  const clienteIds = [
+  ...new Set(
+    data
+      .filter(item => item.cliente_id)
+      .map(item => item.cliente_id)
+  )
+];
 
- document.getElementById('totalDia').textContent =
- 'R$' + soma.toFixed(2).replace('.', ',');
+let clientesPlanos = {};
 
+if(clienteIds.length > 0){
+
+  const { data: clientes } = await db
+    .from("clientes")
+    .select("id,data_adesao_plano,tipo_plano")
+    .eq("empresa_id", empresaId)
+    .in("id", clienteIds);
+
+  if(clientes){
+
+    clientes.forEach(cliente => {
+
+clientesPlanos[cliente.id] = {
+  data: cliente.data_adesao_plano,
+  plano: cliente.tipo_plano
+};
+    });
+
+  }
+
+}
+
+ // ==========================
+// 💰 FATURAMENTO AVULSO DO DIA
+// ==========================
+
+let soma = 0;
+
+data.forEach(item => {
+
+  if(item.tipo_cliente !== "plano"){
+
+    soma += Number(item.valor || 0);
+
+  }
+
+});
+
+document.getElementById('totalDia').textContent =
+  'R$' + soma.toFixed(2).replace('.', ',');
+
+
+  
  qtd.textContent = data.length;
 
  planos.textContent =
@@ -543,8 +590,79 @@ data.forEach(i => {
 
 const item = mapa[h];
 
-   const d = document.createElement('div');
-   d.className = 'slot';
+
+   let formaPagamentoAbrev = item?.forma_pagamento || "";
+
+if(formaPagamentoAbrev === "Crédito"){
+  formaPagamentoAbrev = "CT";
+}
+else if(formaPagamentoAbrev === "Débito"){
+  formaPagamentoAbrev = "DB";
+}
+else if(formaPagamentoAbrev === "Pix"){
+  formaPagamentoAbrev = "PIX";
+}
+else if(formaPagamentoAbrev === "Dinheiro"){
+  formaPagamentoAbrev = "DN";
+}
+
+
+   
+
+const d = document.createElement('div');
+
+let dataAdesao = "";
+
+if(
+  item &&
+  item.tipo_cliente === "plano" &&
+  item.cliente_id
+){
+
+const dataPlano =
+  clientesPlanos[item.cliente_id]?.data;
+
+if(dataPlano){
+
+  const partes =
+    dataPlano.split("-");
+
+  dataAdesao =
+    `${partes[2]}/${partes[1]}`;
+
+}
+
+}
+
+
+   let planoAbrev = "";
+
+const nomePlano =
+  item && item.cliente_id
+    ? clientesPlanos[item.cliente_id]?.plano || ""
+    : "";
+
+if(nomePlano.includes("Básico")){
+  planoAbrev = "PB";
+}
+else if(nomePlano.includes("Intermediário")){
+  planoAbrev = "PI";
+}
+else if(nomePlano.includes("Premium")){
+  planoAbrev = "PP";
+}
+else if(nomePlano.includes("Fléxivel")){
+  planoAbrev = "PF";
+}
+
+
+
+
+   
+
+d.className = 'slot';
+
+   
 
    if(item){
 
@@ -563,23 +681,38 @@ const item = mapa[h];
      <div class="time">${h}</div>
    <div
  data-id="${item.id}"
- style="background:${cor};color:${txt}"
+ style="
+  background:${cor};
+  color:${txt};
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+"
  class="cell"
  ontouchstart="segurarExcluir(event,'${item.id}')"
  ontouchmove="moverDedo(event)"
  ontouchend="cancelarSegurar()"
  onclick="cliqueCard('${item.id}')">
-       ${item.nome_cliente || 'desconhecido'}<br>
+       ${item.nome_cliente || 'desconhecido'}
+${item.tipo_cliente === 'plano' && dataAdesao
+  ? ` • ${dataAdesao}`
+  : ''
+}
+<br>
 
-       <small style="font-size:11px">
+<small style="font-size:11px">
        ${item.tipo_cliente === 'plano'
          ? 'Corte ' + item.numero_corte + '/4 • '
          : ''
        }
 
-       ${item.servico} •
-       ${item.forma_pagamento} •
-       R$${item.valor}
+    ${item.servico} •
+${item.tipo_cliente === 'plano' && planoAbrev
+  ? planoAbrev + ' • '
+  : ''
+}
+${formaPagamentoAbrev} •
+R$${item.valor}
        </small>
      </div>
      `;
@@ -638,6 +771,23 @@ function pausarPlayer(){
 
   clearTimeout(tempoPlayer);
 
+  // Verifica se existe player
+  if(!player) return;
+
+  // Verifica se existe vídeo carregado
+  const videoId =
+    player.getVideoData()?.video_id;
+
+  if(!videoId) return;
+
+  // Verifica se estava realmente tocando
+  const estavaTocando =
+    player.getPlayerState() === YT.PlayerState.PLAYING;
+
+  // Se não estava tocando, não faz nada
+  if(!estavaTocando) return;
+
+  // Pausa
   player.pauseVideo();
 
   tempoPlayer = setTimeout(() => {
@@ -652,15 +802,15 @@ function pausarPlayer(){
 
 
 async function salvarAtendimento(){
- pausarPlayer(); 
+ 
   
   abrirLoading("Processando...")
   
   
-const tipoCliente =
-  pag.value === "Plano Mensal"
-    ? "plano"
-    : "avulso";  
+let tipoCliente = "avulso";
+let planoDetectado = null;
+let atendimentoDoPlano = false;
+  let renovacaoConfirmadaGratis = false;
   
 if(valorr.value.trim() === ""){
   valorr.value = 0;
@@ -720,12 +870,781 @@ console.log(nomeFinal);
    clienteId = novoCliente.id;
  }
 
+function abrirDecisaoVisual({
+  titulo = "Escolha uma opção",
+  mensagem = "",
+  opcoes = [],
+  permitirCancelar = true
+}){
+
+  return new Promise(resolve => {
+
+    const modal =
+      document.getElementById("modalDecisao");
+
+    const tituloEl =
+      document.getElementById("tituloDecisao");
+
+    const mensagemEl =
+      document.getElementById("mensagemDecisao");
+
+    const opcoesEl =
+      document.getElementById("opcoesDecisao");
+
+    const cancelar =
+      document.getElementById("cancelarDecisao");
+
+    tituloEl.textContent = titulo;
+
+    mensagemEl.innerHTML = mensagem;
+
+    opcoesEl.innerHTML = "";
+
+    modal.style.display = "flex";
+
+    function finalizar(valor){
+
+      modal.style.display = "none";
+
+      opcoesEl.innerHTML = "";
+
+      cancelar.onclick = null;
+
+      resolve(valor);
+    }
+
+    opcoes.forEach(opcao => {
+
+      const botao =
+        document.createElement("button");
+
+      botao.type = "button";
+
+      botao.className =
+        "opcaoDecisao";
+
+      botao.innerHTML =
+        opcao.texto;
+
+      botao.onclick = () => {
+
+  if(typeof opcao.aoClicar === "function"){
+    opcao.aoClicar();
+  }
+
+  finalizar(opcao.valor);
+
+};
+      opcoesEl.appendChild(botao);
+
+    });
+
+    if(permitirCancelar){
+
+      cancelar.style.display = "block";
+
+      cancelar.onclick = () => {
+
+        finalizar(null);
+
+      };
+
+    }else{
+
+      cancelar.style.display = "none";
+
+    }
+
+  });
+
+}
+
+modal.addEventListener("selectstart", function(e){
+  e.preventDefault();
+});
+
+
+
+
+
+  
+
+  // ==========================
+// 🔥 IDENTIFICA PLANO PELO VALOR
+// ==========================
+
+const valorTexto =
+  String(valorr.value || "0")
+    .replace("R$", "")
+    .trim();
+
+const valorInformado =
+  valorTexto.includes(",")
+    ? Number(
+        valorTexto
+          .replace(/\./g, "")
+          .replace(",", ".")
+      )
+    : Number(valorTexto);
+
+if(valorInformado > 0){
+
+  const { data: planos, error: erroPlanos } = await db
+    .from("planos_site")
+    .select("id,nome,preco,ativo,quantidade_cortes")
+    .eq("empresa_id", empresaId)
+    .eq("ativo", true);
+
+  if(erroPlanos){
+    console.log("Erro ao buscar planos:", erroPlanos);
+  }
+
+  if(planos){
+
+  // Pega TODOS os planos que possuem o valor informado
+  const planosCompativeis = planos.filter(plano => {
+
+    const precoPlano =
+      Number(
+        String(plano.preco || "0")
+          .replace("R$", "")
+          .replace(/\./g, "")
+          .replace(",", ".")
+          .trim()
+      );
+
+    return precoPlano === valorInformado;
+
+  });
+
+
+  // Nenhum plano encontrado
+  if(planosCompativeis.length === 0){
+
+    console.log(
+      "Nenhum plano encontrado para o valor:",
+      valorInformado
+    );
+
+  }
+
+
+  // Apenas um plano com esse valor
+  else if(planosCompativeis.length === 1){
+
+    planoDetectado =
+      planosCompativeis[0];
+
+
+    console.log(
+  "PLANO DETECTADO:",
+  planoDetectado
+);
+
+    tipoCliente = "plano";
+    atendimentoDoPlano = true;
+
+    console.log(
+      "Plano identificado:",
+      planoDetectado.nome
+    );
+
+  }
+
+
+  // Existem vários planos com o mesmo valor
+  else {
+
+    // Busca o plano atual do cliente
+    let planoAtual = null;
+
+    if(clienteId){
+
+      const { data: clienteAtual } = await db
+        .from("clientes")
+        .select("tipo_plano,status_plano")
+        .eq("empresa_id", empresaId)
+        .eq("id", clienteId)
+        .single();
+
+      planoAtual = clienteAtual;
+
+    }
+
+
+    // Verifica se o plano atual está entre os planos
+    // que possuem o mesmo preço
+    const planoAtualCompativel =
+      planosCompativeis.find(plano =>
+        planoAtual?.tipo_plano === plano.nome
+      );
+
+
+    // Se já possui um desses planos,
+    // usamos automaticamente o plano atual
+    if(planoAtualCompativel){
+
+      planoDetectado =
+        planoAtualCompativel;
+
+
+      console.log(
+  "PLANO ATUAL DETECTADO:",
+  planoDetectado
+);
+
+      tipoCliente = "plano";
+      atendimentoDoPlano = true;
+
+  
+
+      console.log(
+        "Mantendo plano atual:",
+        planoDetectado.nome
+      );
+
+      
+
+    }
+
+    else {
+
+      // Mostra as opções para escolher o novo plano
+      let opcoes = "";
+
+      planosCompativeis.forEach((plano, index) => {
+
+        opcoes +=
+          `${index + 1} - ${plano.nome}\n`;
+
+      });
+
+
+      const opcoesVisuais =
+  planosCompativeis.map((plano, index) => {
+
+    return {
+      valor: index,
+      texto: `
+        📋 ${plano.nome}
+        <br>
+        <small>${plano.preco}</small>
+      `
+    };
+
+  });
+
+
+const escolha =
+  await abrirDecisaoVisual({
+
+    titulo: "Escolha o plano",
+
+    mensagem:
+      "Existem vários planos com este valor.<br><br>" +
+      "Selecione qual plano deve ser utilizado neste atendimento.",
+
+    opcoes: opcoesVisuais,
+
+    permitirCancelar: true
+
+  });
+
+
+if(escolha === null){
+
+  fecharLoading();
+
+  return;
+
+}
+
+
+planoDetectado =
+  planosCompativeis[escolha];
+
+tipoCliente = "plano";
+
+atendimentoDoPlano = true;
+
+
+console.log(
+  "Novo plano selecionado:",
+  planoDetectado.nome
+);
+
+      tipoCliente = "plano";
+      atendimentoDoPlano = true;
+
+
+      console.log(
+        "Novo plano selecionado:",
+        planoDetectado.nome
+      );
+
+    }
+
+  }
+
+}
+}
+
+
+
+  // ==========================
+// 🔥 ATENDIMENTO COM R$ 0
+// ==========================
+
+if(
+  valorInformado === 0 &&
+  clienteId
+){
+
+  const { data: clientePlano, error: erroClientePlano } =
+    await db
+      .from("clientes")
+      .select("tipo_plano,status_plano")
+      .eq("empresa_id", empresaId)
+      .eq("id", clienteId)
+      .single();
+
+  if(erroClientePlano){
+
+    console.log(
+      "Erro ao consultar plano do cliente:",
+      erroClientePlano
+    );
+
+  }
+
+  // ==========================================
+  // CLIENTE TEM PLANO ATIVO E JÁ TEM O PLANO DEFINIDO
+  // ==========================================
+
+  if(
+    clientePlano?.tipo_plano &&
+    clientePlano?.status_plano === "ativo"
+  ){
+
+    const usarPlano =
+      await abrirDecisaoVisual({
+
+        titulo: "Atendimento do plano?",
+
+        mensagem:
+          `Cliente possui o plano <b>"${clientePlano.tipo_plano}"</b>.<br><br>` +
+          `Este atendimento será descontado do plano?`,
+
+        opcoes: [
+
+          {
+            valor: true,
+            texto: "🟢 Sim, usar o plano"
+          },
+
+          {
+            valor: false,
+            texto: "🔵 Não, atendimento avulso"
+          }
+
+        ],
+
+        permitirCancelar: true
+
+      });
+
+
+    if(usarPlano === null){
+
+      fecharLoading();
+
+      return;
+
+    }
+
+
+    if(usarPlano){
+
+      const { data: planoCliente } =
+        await db
+          .from("planos_site")
+          .select("nome,preco,quantidade_cortes")
+          .eq("empresa_id", empresaId)
+          .eq("nome", clientePlano.tipo_plano)
+          .eq("ativo", true)
+          .single();
+
+      if(planoCliente){
+  planoDetectado = planoCliente;
+      }
+
+
+      const limiteCortes =
+        Number(planoCliente?.quantidade_cortes) === 0
+          ? 0
+          : Number(planoCliente?.quantidade_cortes) || 4;
+
+
+      const { data: ultimoAtendimento } =
+        await db
+          .from("atendimentos")
+          .select("numero_corte,data,hora,id")
+          .eq("empresa_id", empresaId)
+          .eq("cliente_id", clienteId)
+          .eq("tipo_cliente", "plano")
+          .order("data", { ascending:false })
+          .order("hora", { ascending:false })
+          .order("id", { ascending:false })
+          .limit(1);
+
+
+      const ultimoCorte =
+        Number(
+          ultimoAtendimento?.[0]?.numero_corte
+        ) || 0;
+
+
+      // 0 = ilimitado
+      if(
+        limiteCortes > 0 &&
+        ultimoCorte >= limiteCortes
+      ){
+
+        const continuarMesmoAssim =
+          await abrirDecisaoVisual({
+
+            titulo: "⚠️ Plano consumido",
+
+            mensagem:
+              `<b>Cliente:</b> ${nomeFinal}<br>` +
+              `<b>Plano:</b> ${clientePlano.tipo_plano}<br><br>` +
+
+              `✂️ Cortes utilizados: ` +
+              `<b>${ultimoCorte}/${limiteCortes}</b><br><br>` +
+
+              `O próximo atendimento será o corte ` +
+              `<b>1/${limiteCortes}</b>.<br><br>` +
+
+              `💰 Valor para renovação: ` +
+              `<b>${planoCliente?.preco || "valor não informado"}</b><br><br>` +
+
+              `Deseja registrar a renovação GRATUITA?`,
+
+            opcoes: [
+
+              {
+                valor: true,
+                texto: "🟢 Renovar"
+              }
+
+            ],
+
+            permitirCancelar: true
+
+          });
+
+
+        if(continuarMesmoAssim !== true){
+
+  fecharLoading();
+  return;
+
+}
+
+renovacaoConfirmadaGratis = true;
+      }
+
+
+      tipoCliente = "plano";
+
+      atendimentoDoPlano = true;
+
+    }
+
+    else{
+
+      tipoCliente = "avulso";
+
+      atendimentoDoPlano = false;
+
+    }
+
+  }
+
+
+  // ==========================================
+  // CLIENTE ANTIGO:
+  // PLANO ATIVO, MAS SEM TIPO DE PLANO
+  // ==========================================
+
+  else if(
+    clientePlano?.status_plano === "ativo" &&
+    !clientePlano?.tipo_plano
+  ){
+
+    const { data: planosAntigos, error: erroPlanosAntigos } =
+      await db
+        .from("planos_site")
+        .select("id,nome,preco,quantidade_cortes")
+        .eq("empresa_id", empresaId)
+        .eq("ativo", true)
+        .order("ordem", { ascending:true });
+
+
+    if(
+      erroPlanosAntigos ||
+      !planosAntigos ||
+      planosAntigos.length === 0
+    ){
+
+      mostrarToast(
+        "⚠️ Cliente possui plano ativo, mas nenhum plano está cadastrado."
+      );
+
+      fecharLoading();
+
+      return;
+
+    }
+
+
+    const opcoesPlanosAntigos =
+      planosAntigos.map((plano, index) => {
+
+        return {
+
+          valor: index,
+
+          texto:
+            `📋 ${plano.nome}` +
+            `<br>` +
+            `<small>${plano.preco}</small>`
+
+        };
+
+      });
+
+
+    const escolhaPlanoAntigo =
+      await abrirDecisaoVisual({
+
+        titulo: "📋 Definir plano do cliente",
+
+        mensagem:
+          `<b>${nomeFinal}</b> possui um plano ativo, ` +
+          `mas o tipo de plano ainda não foi definido.<br><br>` +
+
+          `Selecione qual plano o cliente possui:`,
+
+        opcoes: opcoesPlanosAntigos,
+
+        permitirCancelar: true
+
+      });
+
+
+    if(escolhaPlanoAntigo === null){
+
+      fecharLoading();
+
+      return;
+
+    }
+
+
+    const planoEscolhido =
+      planosAntigos[escolhaPlanoAntigo];
+
+
+    // Guarda o plano escolhido
+    planoDetectado =
+      planoEscolhido;
+
+
+    tipoCliente = "plano";
+
+    atendimentoDoPlano = true;
+
+
+    // Salva o tipo de plano no cliente
+    const { error: erroSalvarTipoPlano } =
+      await db
+        .from("clientes")
+        .update({
+          tipo_plano: planoEscolhido.nome
+        })
+        .eq("empresa_id", empresaId)
+        .eq("id", clienteId);
+
+
+    if(erroSalvarTipoPlano){
+
+      console.log(
+        "Erro ao salvar tipo do plano:",
+        erroSalvarTipoPlano
+      );
+
+    }
+
+  }
+
+}
+
+
+
+  // ==========================
+// 🔥 RECOMENDAÇÃO AO RENOVAR
+// ==========================
+
+if(
+  planoDetectado &&
+  clienteId &&
+  !editandoId
+){
+
+  const { data: ultimoAtendimento } = await db
+    .from("atendimentos")
+    .select("numero_corte")
+    .eq("empresa_id", empresaId)
+    .eq("cliente_id", clienteId)
+    .eq("tipo_cliente", "plano")
+    .order("data", { ascending:false })
+    .order("hora", { ascending:false })
+    .order("id", { ascending:false })
+    .limit(1);
+
+const { data: clientePlanoData } = await db
+  .from("clientes")
+  .select("data_adesao_plano,ultima_renovacao")
+  .eq("empresa_id", empresaId)
+  .eq("id", clienteId)
+  .single();
+
+const vencimentoPlano =
+  clientePlanoData?.data_adesao_plano
+    ? calcularVencimentoComRenovacao(
+        clientePlanoData.data_adesao_plano,
+        clientePlanoData.ultima_renovacao
+      )
+    : null;
+
+const hoje = new Date();
+hoje.setHours(0, 0, 0, 0);
+
+const planoEstaVencido =
+  vencimentoPlano
+    ? hoje > new Date(
+        vencimentoPlano.getFullYear(),
+        vencimentoPlano.getMonth(),
+        vencimentoPlano.getDate()
+      )
+    : false;
+
+  const ultimoCorte =
+    Number(
+      ultimoAtendimento?.[0]?.numero_corte
+    ) || 0;
+
+  const limiteCortes =
+    Number(planoDetectado.quantidade_cortes) === 0
+      ? 0
+      : Number(planoDetectado.quantidade_cortes) || 4;
+
+
+  // ==========================
+  // VERIFICA SE JÁ É O ÚLTIMO
+  // ==========================
+
+  const ultimoDoCiclo =
+    limiteCortes > 0 &&
+    ultimoCorte >= limiteCortes;
+
+
+  // ==========================
+  // MOSTRA RECOMENDAÇÃO
+  // SOMENTE SE:
+  // - já existe corte
+  // - não é o corte 1
+  // - não é o último corte
+  // ==========================
+
+  if(
+  ultimoDoCiclo ||
+  planoEstaVencido
+){
+
+    const textoCorte =
+      limiteCortes === 0
+        ? "1/0"
+        : `1/${limiteCortes}`;
+
+
+    const continuar =
+      await abrirDecisaoVisual({
+
+        titulo: "🔄 Renovação do plano",
+
+        mensagem:
+          `<b>Cliente:</b> ${nomeFinal}<br>` +
+          `<b>Plano:</b> ${planoDetectado.nome}<br><br>` +
+
+          `O último atendimento foi o corte ` +
+          `<b>${ultimoCorte}/${limiteCortes}</b>.<br><br>` +
+
+          `Ao renovar, é recomendado iniciar um novo ciclo pelo ` +
+          `<b>corte ${textoCorte}</b>.<br><br>` +
+
+          `Deseja alterar o corte para o início do novo ciclo?`,
+
+        opcoes: [
+
+          {
+            valor: true,
+            texto: `🔄 Alterar para ${textoCorte}`
+          },
+
+          {
+            valor: false,
+            texto: "➡️ Continuar sem alterar"
+          }
+
+        ],
+
+        permitirCancelar: true
+
+      });
+
+
+    // Cancelou
+    if(continuar === null){
+
+      fecharLoading();
+      return;
+
+    }
+
+
+    // Usuário aceitou iniciar novo ciclo
+    if(continuar === true){
+
+      corte.value = "1";
+
+    }
+
+  }
+
+}
+
+
+  
+  
+
  // ==========================
  // 🔥 CORTE (PLANO)
  // ==========================
  let numeroCorteFinal = corte.value;
-
- if(tipoCliente === "plano" && clienteId){
+  
+if(atendimentoDoPlano && clienteId){
 
    if(numeroCorteFinal === ""){
 
@@ -740,15 +1659,69 @@ console.log(nomeFinal);
      .order("id", { ascending:false })
      .limit(1);
 
-     if(historico && historico.length > 0){
 
-       let ultimo = parseInt(historico[0].numero_corte,10) || 0;
+if(historico && historico.length > 0){
 
-       numeroCorteFinal = ultimo >= 4 ? 1 : ultimo + 1;
+  let ultimo =
+    parseInt(historico[0].numero_corte, 10) || 0;
 
-     } else {
-       numeroCorteFinal = 1;
-     }
+  // Busca a quantidade de cortes do plano atual
+  let limiteCortes = 4;
+
+  let nomePlanoLimite = planoDetectado?.nome || null;
+
+  // Se não veio planoDetectado, pega o plano atual do cliente
+  if(!nomePlanoLimite){
+
+    const { data: clientePlanoAtual } = await db
+      .from("clientes")
+      .select("tipo_plano")
+      .eq("empresa_id", empresaId)
+      .eq("id", clienteId)
+      .single();
+
+    nomePlanoLimite =
+      clientePlanoAtual?.tipo_plano || null;
+  }
+
+  if(nomePlanoLimite){
+
+    const { data: planoAtual } = await db
+      .from("planos_site")
+      .select("quantidade_cortes")
+      .eq("empresa_id", empresaId)
+      .eq("nome", nomePlanoLimite)
+      .eq("ativo", true)
+      .single();
+
+    limiteCortes =
+  Number(planoAtual?.quantidade_cortes) === 0
+    ? 0
+    : Number(planoAtual?.quantidade_cortes) || 4;
+  }
+
+  if(limiteCortes === 0){
+
+  // 0 = ilimitado
+  numeroCorteFinal = ultimo + 1;
+
+}else{
+
+  numeroCorteFinal =
+    ultimo >= limiteCortes
+      ? 1
+      : ultimo + 1;
+
+}
+
+} else {
+
+  numeroCorteFinal = 1;
+
+}
+
+
+     
    }
 
  } else {
@@ -756,7 +1729,87 @@ console.log(nomeFinal);
  }
  
 
- 
+
+// ==========================
+// 🔥 CONFIRMA TROCA DE PLANO
+// ==========================
+
+if(
+  planoDetectado &&
+  clienteId
+){
+
+  const { data: clienteAtual } = await db
+    .from("clientes")
+    .select("tipo_plano")
+    .eq("empresa_id", empresaId)
+    .eq("id", clienteId)
+    .single();
+
+  if(
+    clienteAtual?.tipo_plano &&
+    clienteAtual.tipo_plano !== planoDetectado.nome
+  ){
+
+const trocarPlano =
+  await abrirDecisaoVisual({
+
+    titulo: "🔄 Alterar plano do cliente",
+
+    mensagem:
+      `O cliente está atualmente no plano ` +
+      `<b>"${clienteAtual.tipo_plano}"</b>.<br><br>` +
+
+      `O valor informado corresponde ao plano ` +
+      `<b>"${planoDetectado.nome}"</b>.<br><br>` +
+
+      `Deseja transferir o cliente para este novo plano?`,
+
+    opcoes: [
+      {
+        valor: true,
+        texto: "🟢 Sim, transferir para o novo plano"
+      },
+      {
+        valor: false,
+        texto: "🔵 Não, manter o plano atual"
+      }
+    ],
+
+    permitirCancelar: true
+
+  });
+
+
+if(trocarPlano === null){
+
+  // Cancelou a operação
+  fecharLoading();
+  return;
+
+}
+
+if(trocarPlano === false){
+
+  // Não quer transferir.
+  // Mantém o plano atual do cliente.
+
+  planoDetectado = null;
+
+  tipoCliente = "plano";
+
+  atendimentoDoPlano = true;
+
+}
+  }
+}
+
+
+  
+
+
+
+  
 
  // ==========================
  // 🔥 DADOS
@@ -765,22 +1818,140 @@ console.log(nomeFinal);
   valor.value.trim() === ""
     ? "sem serviço"
     : valor.value.trim();
+
+
+// ==========================
+// 🔄 VERIFICA ÚLTIMA FORMA DE PAGAMENTO
+// ==========================
+
+if(
+  !editandoId &&
+  tipoCliente === "plano" &&
+  clienteId &&
+  ["Pix", "Crédito", "Débito", "Dinheiro"].includes(pag.value)
+){
+
+  const { data: ultimoPagamento, error: erroUltimoPagamento } =
+    await db
+      .from("atendimentos")
+      .select("forma_pagamento")
+      .eq("empresa_id", empresaId)
+      .eq("cliente_id", clienteId)
+      .eq("tipo_cliente", "plano")
+      .order("data", { ascending:false })
+      .order("hora", { ascending:false })
+      .order("id", { ascending:false })
+      .limit(1);
+
+  if(erroUltimoPagamento){
+
+    console.log(
+      "Erro ao verificar último pagamento:",
+      erroUltimoPagamento
+    );
+
+  }
+
+  const ultimaFormaPagamento =
+    ultimoPagamento?.[0]?.forma_pagamento || null;
+
+  console.log(
+    "Última forma de pagamento:",
+    ultimaFormaPagamento
+  );
+
+  if(ultimaFormaPagamento === "Recorrente"){
+
+    const continuarMesmoAssim =
+      await abrirDecisaoVisual({
+
+        titulo: "⚠️ Forma de pagamento diferente",
+
+        mensagem:
+          `<b>Este cliente possui uma renovação Recorrente.</b><br><br>` +
+          `A última forma de pagamento foi <b>Recorrente</b>.<br><br>` +
+          `Agora foi selecionado <b>${pag.value}</b>.<br><br>` +
+          `Se continuar, a <b>data de adesão do plano será alterada</b> ` +
+          `e o ciclo recorrente poderá ser perdido.<br><br>` +
+          `Deseja realmente continuar?`,
+
+        opcoes: [
+          {
+            valor: false,
+            texto: "🔴 Corrigir pagamento"
+          },
+          {
+            valor: true,
+            texto: "🟢 Continuar mesmo assim"
+          }
+        ],
+
+        permitirCancelar: true
+
+      });
+
+    if(continuarMesmoAssim !== true){
+
+      fecharLoading();
+      return;
+
+    }
+
+  }
+
+}
+
+// ======================================
+// 📲 PREPARA NOTIFICAÇÃO DA RENOVAÇÃO
+// ======================================
+
+let telefoneWhatsAppRenovacao = null;
+
+const houveRenovacao =
+  !editandoId &&
+  atendimentoDoPlano &&
+  (
+    (planoDetectado && valorInformado > 0) ||
+    renovacaoConfirmadaGratis
+  );
+
+if(houveRenovacao && clienteId){
+
+  const { data: clienteWhatsApp } = await db
+    .from("clientes")
+    .select("telefone")
+    .eq("empresa_id", empresaId)
+    .eq("id", clienteId)
+    .single();
+
+  telefoneWhatsAppRenovacao =
+    (telefoneLimpo || clienteWhatsApp?.telefone || "")
+      .replace(/\D/g, "");
+
+  if(telefoneWhatsAppRenovacao.length !== 11){
+    telefoneWhatsAppRenovacao = null;
+  }
+
+}
+
+  
  
- const dados = {
-   empresa_id: empresaId,
-   cliente_id: clienteId,
-   data: dataInput.value,
-   hora: hora.value,
-   nome_cliente: nomeFinal,
-   telefone: telefoneLimpo,
-   barbeiro: barbeiro.value,
-   tipo_cliente: tipoCliente,
-   numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
-   forma_pagamento: pag.value,
-   valor: valorr.value,
-   observacao: obs.value,
-   servico: servicoFinal,
- };
+const dados = {
+  empresa_id: empresaId,
+  cliente_id: clienteId,
+  data: dataInput.value,
+  hora: hora.value,
+  nome_cliente: nomeFinal,
+  telefone: telefoneLimpo,
+  barbeiro: barbeiro.value,
+  tipo_cliente: tipoCliente,
+  tipo_plano: planoDetectado?.nome || null,
+  numero_corte: numeroCorteFinal === "" ? null : Number(numeroCorteFinal),
+  forma_pagamento: pag.value,
+  valor: valorr.value,
+  observacao: obs.value,
+  servico: servicoFinal,
+};
 
  let resposta;
 
@@ -821,40 +1992,68 @@ atendimentoSalvoId;
  
  
  
- if(clienteId){
+if(clienteId){
 
- await db
- .from("clientes")
- .update({
-   nome: nomeFinal,
-   telefone: fone.value.trim() || null
- })
-  .eq("empresa_id", empresaId)
- .eq("id", clienteId);
+  const { error: erroAtualizarCliente } = await db
+    .from("clientes")
+    .update({
+      nome: nomeFinal,
+      telefone: telefoneLimpo || null
+    })
+    .eq("empresa_id", empresaId)
+    .eq("id", clienteId);
+
+  if(erroAtualizarCliente){
+    console.log(
+      "ERRO AO ATUALIZAR TELEFONE DO CLIENTE:",
+      erroAtualizarCliente
+    );
+  }
 
 }
 
 
 if(tipoCliente === "plano" && clienteId){
 
-   const { data: cli } = await db
-   .from("clientes")
-   .select(
-     "data_adesao_plano,status_plano,ultima_renovacao"
-   )
+
+const { data: cli } = await db
+  .from("clientes")
+  .select(
+    "data_adesao_plano,status_plano,ultima_renovacao,tipo_plano"
+  )
+
+
+  
    .eq("empresa_id", empresaId)
    .eq("id", clienteId)
    .single();
 
+
+  
    let dadosUpdate = {
-     status_plano: statusPlano.value
+     
    };
 
+if(planoDetectado && atendimentoDoPlano){
+
+  dadosUpdate.tipo_plano =
+    planoDetectado.nome;
+
+  dadosUpdate.status_plano =
+    "ativo";
+
+}
+
+
+  
+
    // 🔥 RENOVAÇÃO AUTOMÁTICA
-   if(
-     !editandoId &&
-     Number(numeroCorteFinal) === 1
-   ){
+if(
+  !editandoId &&
+  planoDetectado &&
+  atendimentoDoPlano &&
+  valorInformado > 0
+){
       dadosUpdate.ultima_renovacao =
        dataInput.value;
 
@@ -884,7 +2083,8 @@ const { data, error } = await db
 
   tipo: "plano",
 
-  descricao: "Mensalidade Plano",
+  descricao:
+  `Mensalidade ${planoDetectado.nome}`,
 
   valor: Number(valorr.value || 0),
 
@@ -892,7 +2092,7 @@ const { data, error } = await db
 
   status: "pendente",
 
-  forma_pagamento: "Plano Mensal",
+  forma_pagamento: pag.value,
 
   observacao:
   "Cobrança automática do plano"
@@ -918,13 +2118,47 @@ console.log(error);
 
    }
 
-   // 🔥 NOVO CLIENTE
-   else if(!cli?.data_adesao_plano){
+// 🔥 DATA DE ADESÃO DO PLANO
 
-     dadosUpdate.data_adesao_plano =
-       adesaoPlano.value || dataInput.value;
+// Renovação manual
+if(
+  !editandoId &&
+  planoDetectado &&
+  atendimentoDoPlano &&
+  valorInformado > 0
+){
+  if(
+    pag.value === "Pix" ||
+    pag.value === "Débito" ||
+    pag.value === "Crédito" ||
+    pag.value === "Dinheiro"
+  ){
 
-   }
+    dadosUpdate.data_adesao_plano = dataInput.value;
+    dadosUpdate.ultima_renovacao = dataInput.value;
+
+  }
+}
+
+
+// 🔥 RENOVAÇÃO GRATUITA CONFIRMADA
+if(
+  !editandoId &&
+  renovacaoConfirmadaGratis &&
+  atendimentoDoPlano
+){
+  dadosUpdate.data_adesao_plano = dataInput.value;
+  dadosUpdate.ultima_renovacao = dataInput.value;
+}
+
+
+// Novo cliente sem data
+else if(!cli?.data_adesao_plano){
+
+  dadosUpdate.data_adesao_plano =
+    dataInput.value;
+
+}
 
    await db
    .from("clientes")
@@ -934,14 +2168,115 @@ console.log(error);
 }
 
 
- somSucesso.currentTime = 0;
-somSucesso.play().catch(()=>{});
+
+
+
+
+  
+
+pausarPlayer(); 
+  
+ somSucesso.pause();
+somSucesso.currentTime = 0;
+
+somSucesso.play().catch(erro => {
+  console.log("Erro ao tocar som de sucesso:", erro);
+});
+  
 fecharLoading();
 mostrarToast("✅ Salvo ")
  editandoId = null;
  modal.style.display = "none";
 
  carregarHoje();
+
+// ======================================
+// 📲 NOTIFICAÇÃO DE RENOVAÇÃO PELO WHATSAPP
+// ======================================
+
+if(houveRenovacao && telefoneWhatsAppRenovacao){
+
+  const { data: dadosPlanoNotificacao } = await db
+    .from("clientes")
+    .select("data_adesao_plano,ultima_renovacao,tipo_plano")
+    .eq("empresa_id", empresaId)
+    .eq("id", clienteId)
+    .single();
+
+  const vencimentoNotificacao =
+    dadosPlanoNotificacao?.data_adesao_plano
+      ? calcularVencimentoComRenovacao(
+          dadosPlanoNotificacao.data_adesao_plano,
+          dadosPlanoNotificacao.ultima_renovacao
+        )
+      : null;
+
+  const formatarDataWhatsApp = (data) => {
+    if(!data) return "Não informado";
+
+    const partes = String(data).split("-");
+
+    return partes.length === 3
+      ? `${partes[2]}/${partes[1]}/${partes[0]}`
+      : data;
+  };
+
+  const vencimentoFormatado = vencimentoNotificacao
+    ? `${String(vencimentoNotificacao.getDate()).padStart(2,"0")}/${String(vencimentoNotificacao.getMonth()+1).padStart(2,"0")}/${vencimentoNotificacao.getFullYear()}`
+    : "Não informado";
+
+  const nomePlanoNotificacao =
+    dadosPlanoNotificacao?.tipo_plano ||
+    planoDetectado?.nome ||
+    "Plano ativo";
+
+  const valorRenovacao = renovacaoConfirmadaGratis
+    ? "Renovação gratuita - R$ 0,00"
+    : Number(valorInformado).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+
+  const mensagemWhatsApp =
+`Olá, ${nomeFinal}! ✂️
+
+Seu plano na Los Visionários foi renovado com sucesso!
+
+📋 Plano: ${nomePlanoNotificacao}
+
+📅 Data da renovação: ${formatarDataWhatsApp(dataInput.value)}
+
+📅 Próximo vencimento: ${vencimentoFormatado}
+
+💰 ${valorRenovacao}
+
+Agradecemos pela confiança!
+
+Los Visionários - Seu estilo, nossa visão!`;
+
+  const urlWhatsApp =
+    `https://wa.me/55${telefoneWhatsAppRenovacao}?text=${encodeURIComponent(mensagemWhatsApp)}`;
+
+  await abrirDecisaoVisual({
+    titulo: "📲 Renovação concluída",
+    mensagem: `O plano de <b>${nomeFinal}</b> foi renovado com sucesso.<br><br>Deseja avisar o cliente pelo WhatsApp?`,
+    opcoes: [
+      {
+        valor: true,
+        texto: "🟢 Sim, enviar",
+        aoClicar: () => {
+          window.open(urlWhatsApp, "_blank");
+        }
+      },
+      {
+        valor: false,
+        texto: "Não, obrigado"
+      }
+    ],
+    permitirCancelar: true
+  });
+}
+
 }
 
 
@@ -974,6 +2309,7 @@ if(valorr.value.trim() === ""){
  }
 
  editandoId = id;
+  
 
  // ==========================
  // ABRE MODAL
@@ -982,7 +2318,7 @@ if(valorr.value.trim() === ""){
 
  document.querySelector(".box h3").innerText =
  "Editar Atendimento";
-fecharLoading()
+
  // ==========================
  // PREENCHE CAMPOS
  // ==========================
@@ -1003,7 +2339,7 @@ inputNome.dataset.id = data.cliente_id || "";
  // ==========================
  // SE FOR PLANO
  // ==========================
- if(pag.value === "Plano Mensal"){
+ if(data.tipo_cliente === "plano"){
 
    document.getElementById("boxPlanoAdmin").style.display = "flex";
 
@@ -1019,8 +2355,10 @@ inputNome.dataset.id = data.cliente_id || "";
      adesaoPlano.value =
        cli.data_adesao_plano || "";
 
-     statusPlano.value =
-       cli.status_plano || "ativo";
+     statusPlano.innerText =
+  cli.status_plano === "ativo"
+    ? "🟢 Plano Ativo"
+    : "🔴 Plano Inativo";
 
    }else{
 
@@ -1036,6 +2374,7 @@ inputNome.dataset.id = data.cliente_id || "";
    adesaoPlano.value = "";
    statusPlano.value = "ativo";
  }
+  fecharLoading()
 
 }
 
@@ -1341,14 +2680,53 @@ inputNome.addEventListener("input", async () => {
      <small>${cliente.telefone || ''}</small>
    `;
 
-   div.onclick = () => {
-     inputNome.value = cliente.nome;
-     fone.value = cliente.telefone || "";
-     inputNome.dataset.id = cliente.id;
-     sugestoes.innerHTML = "";
-     inputNome.blur();
-   };
+   div.onclick = async () => {
 
+  inputNome.value = cliente.nome;
+  fone.value = cliente.telefone || "";
+  inputNome.dataset.id = cliente.id;
+
+  sugestoes.innerHTML = "";
+  inputNome.blur();
+
+
+  // ==========================
+  // 🔥 BUSCA ÚLTIMO ATENDIMENTO
+  // ==========================
+
+  const { data: ultimoAtendimento } = await db
+    .from("atendimentos")
+    .select("servico,valor")
+    .eq("empresa_id", empresaId)
+    .eq("cliente_id", cliente.id)
+    .order("data", { ascending:false })
+    .order("hora", { ascending:false })
+    .order("id", { ascending:false })
+    .limit(1);
+
+
+     
+
+
+  if(ultimoAtendimento?.length > 0){
+
+    const ultimo =
+      ultimoAtendimento[0];
+
+    // Preenche o último serviço
+    valor.value =
+      ultimo.servico || "";
+
+
+    
+
+    // Mantém sempre o valor real do último atendimento
+valorr.value =
+  ultimo.valor ?? "";
+
+  }
+
+};
    sugestoes.appendChild(div);
  });
 
@@ -1622,96 +3000,284 @@ function aplicarOcultacao(){
 
 }
 
-function calcularVencimento(
-  ultimaRenovacao
-){
+function calcularVencimento(dataAdesao){
 
-  const data =
-  new Date(ultimaRenovacao);
+  if(!dataAdesao) return null;
 
-  data.setDate(
-    data.getDate() + 30
+  const partes =
+    String(dataAdesao).split("-");
+
+  if(partes.length !== 3) return null;
+
+  const ano = Number(partes[0]);
+  const mes = Number(partes[1]) - 1;
+  const dia = Number(partes[2]);
+
+  // Primeiro dia do mês seguinte
+  const proximoMes =
+    new Date(ano, mes + 1, 1);
+
+  // Último dia do mês seguinte
+  const ultimoDia =
+    new Date(
+      proximoMes.getFullYear(),
+      proximoMes.getMonth() + 1,
+      0
+    ).getDate();
+
+  // Mantém o mesmo dia ou usa o último dia disponível
+  const diaVencimento =
+    Math.min(dia, ultimoDia);
+
+  return new Date(
+    proximoMes.getFullYear(),
+    proximoMes.getMonth(),
+    diaVencimento
   );
-
-  return data;
-
 }
 
 
-function planoVencido(ultimaRenovacao){
+
+
+
+
+function planoVencido(dataAdesao){
 
   const vencimento =
-  calcularVencimento(ultimaRenovacao);
+    calcularVencimento(dataAdesao);
 
   if(!vencimento) return false;
 
   return new Date() > vencimento;
-
 }
-function diasRestantesPlano(
-  ultimaRenovacao
-){
+
+
+function diasRestantesPlano(dataAdesao){
 
   const vencimento =
-  calcularVencimento(
-    ultimaRenovacao
-  );
+    calcularVencimento(dataAdesao);
+
+  if(!vencimento) return 0;
 
   const hoje = new Date();
 
   const diff =
-  vencimento - hoje;
+    vencimento - hoje;
 
   return Math.ceil(
-    diff / (1000*60*60*24)
+    diff / (1000 * 60 * 60 * 24)
   );
-
 }
+
+function calcularVencimentoComRenovacao(
+  dataAdesao,
+  ultimaRenovacao
+){
+
+  if(!dataAdesao) return null;
+
+  const partes =
+    String(dataAdesao).split("-");
+
+  if(partes.length !== 3) return null;
+
+  const diaFixo = Number(partes[2]);
+
+  const partesRenovacao =
+    ultimaRenovacao
+      ? String(ultimaRenovacao).split("-")
+      : null;
+
+  if(
+    !partesRenovacao ||
+    partesRenovacao.length !== 3
+  ){
+    return calcularVencimento(dataAdesao);
+  }
+
+  const anoRenovacao =
+    Number(partesRenovacao[0]);
+
+  const mesRenovacao =
+    Number(partesRenovacao[1]) - 1;
+
+  const proximoMes =
+    new Date(
+      anoRenovacao,
+      mesRenovacao + 1,
+      1
+    );
+
+  const ultimoDia =
+    new Date(
+      proximoMes.getFullYear(),
+      proximoMes.getMonth() + 1,
+      0
+    ).getDate();
+
+  const diaVencimento =
+    Math.min(
+      diaFixo,
+      ultimoDia
+    );
+
+  return new Date(
+    proximoMes.getFullYear(),
+    proximoMes.getMonth(),
+    diaVencimento
+  );
+}
+
 
 
 async function buscarVencimentos(){
 
   const { data, error } =
-  await db
-  .from("clientes")
-  .select(`
-    nome,
-    ultima_renovacao,
-    status_plano
-  `)
-  .eq("empresa_id", empresaId);
+    await db
+      .from("clientes")
+ .select(`
+  id,
+  nome,
+  data_adesao_plano,
+  ultima_renovacao,
+  status_plano,
+  tipo_plano
+`)
+      .eq("empresa_id", empresaId)
+      .eq("status_plano", "ativo");
 
   if(error){
+    console.log(error);
     return [];
   }
 
+  const { data: planos } =
+  await db
+    .from("planos_site")
+    .select("nome,preco,quantidade_cortes")
+    .eq("empresa_id", empresaId)
+    .eq("ativo", true);
+
   const lista = [];
 
+
+  const { data: atendimentosPlano } =
+  await db
+    .from("atendimentos")
+    .select("cliente_id,data,hora,id,tipo_cliente,numero_corte,forma_pagamento")
+    .eq("empresa_id", empresaId)
+    .eq("tipo_cliente", "plano");
+  
+
   data.forEach(cliente => {
+    
+    const plano =
+  (planos || []).find(
+    p => p.nome === cliente.tipo_plano
+  );
 
-    if(
-      !cliente.ultima_renovacao
-    ) return;
+const valorPlano =
+  plano?.preco || "0";
 
-    const dias =
-    diasRestantesPlano(
-      cliente.ultima_renovacao
-    );
 
-    if(dias <= 7){
+    const limiteCortes =
+  Number(plano?.quantidade_cortes) || 4;
 
-      lista.push({
+const cortesDoCliente =
+  (atendimentosPlano || [])
+    .filter(atendimento => {
 
-        nome: cliente.nome,
+      if(atendimento.cliente_id !== cliente.id){
+        return false;
+      }
 
-        dias,
+      if(!cliente.data_adesao_plano){
+        return false;
+      }
 
-        vencimento:
-        calcularVencimento(
-          cliente.ultima_renovacao
-        )
+      return (
+        atendimento.data >= cliente.data_adesao_plano
+      );
 
-      });
+    })
+    .sort((a, b) => {
+
+      const dataA =
+        `${a.data || ""} ${a.hora || ""}`;
+
+      const dataB =
+        `${b.data || ""} ${b.hora || ""}`;
+
+      return dataB.localeCompare(dataA);
+
+    });
+
+const ultimoCorte =
+  cortesDoCliente[0]?.numero_corte;
+
+const cortesUtilizados =
+  Number(ultimoCorte) || 0;
+
+const cortesEsgotados =
+  cortesUtilizados >= limiteCortes;
+
+    const renovacaoRecorrente =
+  (cortesDoCliente || []).find(
+    atendimento =>
+      atendimento.forma_pagamento === "Recorrente"
+  );
+
+const assinanteRecorrente =
+  !!renovacaoRecorrente;
+
+    
+
+    if(!cliente.data_adesao_plano) return;
+
+const vencimentoAtual =
+  calcularVencimentoComRenovacao(
+    cliente.data_adesao_plano,
+    cliente.ultima_renovacao
+  );
+
+const hoje = new Date();
+
+const dias =
+  Math.ceil(
+    (vencimentoAtual - hoje) /
+    (1000 * 60 * 60 * 24)
+  );
+
+    if(dias <= 7 || cortesEsgotados){
+
+lista.push({
+
+  id: cliente.id,
+
+  nome: cliente.nome,
+
+  plano: cliente.tipo_plano || "Plano não informado",
+
+  valor: valorPlano,
+
+  dataAdesao:
+    cliente.data_adesao_plano,
+  
+  assinanteRecorrente,
+
+  ultimaRenovacao:
+  cliente.ultima_renovacao,
+
+  dias,
+
+  cortesUtilizados,
+limiteCortes,
+cortesEsgotados,
+
+  vencimento:
+  vencimentoAtual
+
+});
 
     }
 
@@ -1747,9 +3313,8 @@ async function abrirVencimentos(){
 
   const venc =
   new Date(c.vencimento);
-
-  const vencido =
-  c.dias <= 0;
+const vencido =
+  c.dias <= 0 || c.cortesEsgotados;
 
   lista.innerHTML += `
 
@@ -1784,6 +3349,26 @@ async function abrirVencimentos(){
         color:#fff;
       ">
         ${c.nome}
+
+<div style="
+  margin-top:8px;
+  color:#e5e7eb;
+  font-size:14px;
+  font-weight:600;
+">
+  📋 ${c.plano}
+</div>
+
+<div style="
+  margin-top:5px;
+  color:#facc15;
+  font-size:15px;
+  font-weight:700;
+">
+  💰 ${c.valor}
+</div>
+
+        
       </strong>
 
       <span style="
@@ -1815,12 +3400,57 @@ async function abrirVencimentos(){
       line-height:1.6;
     ">
 
+    <div>
+  🗓️ Adesão:
+  <strong style="color:#fff">
+    ${new Date(
+      c.dataAdesao + "T00:00:00"
+    ).toLocaleDateString()}
+  </strong>
+</div>
+
+${
+  c.assinanteRecorrente
+  ? `
+    <div style="
+      margin-top:6px;
+      color:#86efac;
+      font-weight:700;
+    ">
+      🔄 Assinante Recorrente
+    </div>
+
+    <div style="
+      margin-top:6px;
+    ">
+      🔄 Renovação:
+      <strong style="color:#fff">
+        ${new Date(
+  c.ultimaRenovacao + "T00:00:00"
+).toLocaleDateString()}
+      </strong>
+    </div>
+  `
+  : ""
+}
+
       <div>
         📅 Vencimento:
         <strong style="color:#fff">
           ${venc.toLocaleDateString()}
         </strong>
       </div>
+
+      <div style="
+  margin-top:6px;
+  color:#cbd5e1;
+  font-weight:600;
+">
+  ✂️ Cortes:
+  <strong style="color:#fff">
+    ${c.cortesUtilizados}/${c.limiteCortes}
+  </strong>
+</div>
 
       <div style="
         margin-top:6px;
@@ -1838,6 +3468,25 @@ async function abrirVencimentos(){
           : "Plano próximo do vencimento"
         }
          </div>
+
+<button
+  onclick="desativarPlanoVencimento('${c.id}', '${c.nome.replace(/'/g, "\\'")}')"
+  style="
+    margin-top:12px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:#dc2626;
+    color:#fff;
+    font-weight:700;
+  "
+>
+  🔴 Desativar plano
+</button>
+
+
+         
          ${
   vencido
   ? `
@@ -2038,8 +3687,7 @@ abrirTela("telaRifa");
 async function abrirDespesas(){
 
   abrirTela("telaDespesas");
-inicializarDataDespesas();
-await carregarDespesas();
+
 
 
 
@@ -2054,6 +3702,16 @@ function abrirPlanos(){
   abrirTela("telaPlanos");
 
 }
+
+function abrirCalculo(){
+
+  abrirTela("telaCalculo");
+
+}
+
+
+
+
 
 // =========================
 // ABRIR CALENDÁRIO
@@ -2084,6 +3742,15 @@ async function abrirFinanceiro(){
   abrirTela("telaFinanceiro");
 
   await carregarFinanceiro();
+
+}
+
+
+async function abrirFinanceiros(){
+
+  abrirTela("telaFinanceiros");
+
+  
 
 }
 
@@ -2208,121 +3875,570 @@ if(
 
 }
 
+let clientesCache = [];
 
 async function carregarClientes(){
 
-  const busca =
-  document.getElementById("buscarCliente").value.trim();
-
-  let query = db
+  const { data: clientes, error } = await db
     .from("clientes")
     .select("*")
     .eq("empresa_id", empresaId)
     .order("nome");
-
-  if(busca){
-    query = query.ilike("nome", `%${busca}%`);
-  }
-
-  const { data: clientes, error } = await query;
 
   if(error){
     console.log(error);
     return;
   }
 
-  const { data: atendimentosRaw } = await db
-    .from("atendimentos")
-    .select("cliente_id,data,numero_corte,tipo_cliente")
-    .eq("empresa_id", empresaId)
-    .order("data", { ascending: false });
+  clientesCache = clientes || [];
 
-  const atendimentos = atendimentosRaw || [];
+  renderizarClientes();
+}
 
-  // 🔥 MAPA ÚLTIMO ATENDIMENTO
-  const ultimoMap = {};
 
-  atendimentos.forEach(a => {
-    if(!a.cliente_id) return;
-    if(!ultimoMap[a.cliente_id]){
-      ultimoMap[a.cliente_id] = a;
-    }
-  });
+function renderizarClientes(){
 
-  const lista = document.getElementById("resultadoClientes");
+  const lista =
+    document.getElementById("resultadoClientes");
+
+  const busca =
+    document
+      .getElementById("buscarCliente")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const filtro =
+    document.getElementById("filtroTipoCliente")
+      .value;
+
+  let clientesFiltrados =
+    clientesCache.filter(cli => {
+
+      // ==========================
+      // FILTRO PLANO / AVULSO
+      // ==========================
+
+      if(filtro === "plano"){
+
+        if(
+          cli.status_plano !== "ativo"
+        ){
+          return false;
+        }
+
+      }
+
+      if(filtro === "avulso"){
+
+        if(
+          cli.status_plano === "ativo"
+        ){
+          return false;
+        }
+
+      }
+
+      // ==========================
+      // PESQUISA
+      // ==========================
+
+      if(!busca){
+        return true;
+      }
+
+      const nome =
+        String(cli.nome || "")
+          .toLowerCase();
+
+      const telefone =
+        String(cli.telefone || "")
+          .toLowerCase();
+
+      return (
+        nome.includes(busca) ||
+        telefone.includes(busca)
+      );
+
+    });
+
+
   lista.innerHTML = "";
 
-  if(!clientes.length){
-    lista.innerHTML = "<div class='msg'>Nenhum cliente encontrado</div>";
+
+  if(!clientesFiltrados.length){
+
+    lista.innerHTML = `
+      <div class="msgClientes">
+        🔎 Nenhum cliente encontrado.
+      </div>
+    `;
+
     return;
   }
 
-  clientes.forEach(cli => {
 
-    const ultimo = ultimoMap[cli.id];
+  // ==========================
+  // CARDS
+  // ==========================
 
-    // 🔥 ÚLTIMA VISITA
-    const ultimaVisita = ultimo?.data
-      ? new Date(ultimo.data).toLocaleDateString("pt-BR")
-      : "Sem visitas";
+  clientesFiltrados.forEach(cli => {
 
-    // 🔥 ÚLTIMO CORTE (derivado)
-    const numeroCorte =
-      ultimo?.numero_corte
-      ? `${ultimo.numero_corte}/4`
-      : "Sem corte";
-
-    // 🔥 STATUS PLANO
-    const statusPlano =
-      cli.status_plano || "não informado";
-
-    // 🔥 DATA ADESÃO
-    const adesao = cli.data_adesao_plano || "-";
-
-    // 🔥 RENOVAÇÃO
-    const renovacao = cli.ultima_renovacao || "-";
-
-    // 🔥 VENCIMENTO
-    const vencimento = cli.vencimento_plano || "-";
-
-    // 🔥 FIDELIDADE
-    const fidelidadeInicio = cli.fidelidade_inicio || "-";
-    const fidelidadeUsados = cli.fidelidade_usados || 0;
+    const planoAtivo =
+      cli.status_plano === "ativo";
 
     lista.innerHTML += `
-      <div class="cardCliente">
+
+      <div
+  class="cardCliente"
+  onclick="abrirDetalheCliente('${cli.id}')"
+  style="cursor:pointer;"
+>
 
         <div class="nomeCliente">
           👤 ${cli.nome}
         </div>
 
-        <div>📞 ${cli.telefone || "-"}</div>
+        <div class="infoCliente">
+          📞 ${cli.telefone || "Telefone não informado"}
+        </div>
 
         <hr>
 
-        <div>📌 Plano: <b>${statusPlano}</b></div>
-        <div>📅 Adesão: ${adesao}</div>
-        <div>🔁 Renovação: ${renovacao}</div>
-        <div>⏳ Vencimento: ${vencimento}</div>
-
-        <hr>
-
-        <div>✂️ Último corte: <b>${numeroCorte}</b></div>
-        <div>📅 Última visita: <b>${ultimaVisita}</b></div>
-
-        <hr>
-
-        <div>🎁 Fidelidade início: ${fidelidadeInicio}</div>
-        <div>🎁 Fidelidade usados: ${fidelidadeUsados}</div>
+        <div>
+          ${
+            planoAtivo
+            ? "🟢 Cliente com plano ativo"
+            : "🔵 Cliente avulso"
+          }
+        </div>
 
       </div>
+
     `;
+
   });
+
 }
 
+
+
+
+
 document
-.getElementById("buscarCliente")
-.addEventListener("input", carregarClientes);
+  .getElementById("buscarCliente")
+  .addEventListener(
+    "input",
+    renderizarClientes
+  );
+
+
+document
+  .getElementById("filtroTipoCliente")
+  .addEventListener(
+    "change",
+    renderizarClientes
+  );
+
+async function abrirDetalheCliente(clienteId){
+
+  const tela =
+    document.getElementById("telaDetalheCliente");
+
+  const conteudo =
+    document.getElementById("conteudoDetalheCliente");
+
+  if(!tela || !conteudo) return;
+
+  conteudo.innerHTML = `
+    <div class="msgClientes">
+      ⏳ Carregando informações do cliente...
+    </div>
+  `;
+
+  tela.style.display = "flex";
+
+  // ==========================
+  // BUSCA CLIENTE
+  // ==========================
+
+  const { data: cliente, error: erroCliente } =
+    await db
+      .from("clientes")
+      .select("*")
+      .eq("empresa_id", empresaId)
+      .eq("id", clienteId)
+      .single();
+
+  if(erroCliente || !cliente){
+
+    conteudo.innerHTML = `
+      <div class="msgClientes">
+        ❌ Não foi possível carregar o cliente.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  // ==========================
+  // BUSCA ATENDIMENTOS
+  // ==========================
+
+  const { data: atendimentos, error: erroAtendimentos } =
+    await db
+      .from("atendimentos")
+      .select("*")
+      .eq("empresa_id", empresaId)
+      .eq("cliente_id", clienteId)
+      .order("data", { ascending:false })
+      .order("hora", { ascending:false })
+      .limit(10);
+
+
+  if(erroAtendimentos){
+
+    console.log(erroAtendimentos);
+
+  }
+
+
+  const listaAtendimentos =
+    atendimentos || [];
+
+
+  // ==========================
+  // PLANO
+  // ==========================
+
+  let plano = null;
+
+  if(
+    cliente.status_plano === "ativo" &&
+    cliente.tipo_plano
+  ){
+
+    const { data: planoEncontrado } =
+      await db
+        .from("planos_site")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .eq("nome", cliente.tipo_plano)
+        .eq("ativo", true)
+        .single();
+
+    plano = planoEncontrado || null;
+  }
+
+
+  // ==========================
+  // CORTES DO PLANO
+  // ==========================
+
+  const cortesPlano =
+    listaAtendimentos.filter(a =>
+      a.tipo_cliente === "plano"
+    );
+
+  const limiteCortes =
+    Number(plano?.quantidade_cortes) || 4;
+
+  const ultimoCorte =
+    cortesPlano.length
+      ? Number(cortesPlano[0].numero_corte) || 0
+      : 0;
+
+
+  // ==========================
+  // VENCIMENTO
+  // ==========================
+
+  let vencimento = null;
+
+  if(cliente.data_adesao_plano){
+
+  vencimento =
+    calcularVencimentoComRenovacao(
+      cliente.data_adesao_plano,
+      cliente.ultima_renovacao
+    );
+
+}
+
+
+  const vencimentoTexto =
+    vencimento
+      ? vencimento.toLocaleDateString("pt-BR")
+      : "-";
+
+
+  // ==========================
+  // TOTAL GASTO
+  // ==========================
+
+  const totalGasto =
+    listaAtendimentos.reduce(
+      (total, atendimento) =>
+        total +
+        (Number(atendimento.valor) || 0),
+      0
+    );
+
+
+  // ==========================
+  // HTML
+  // ==========================
+
+  conteudo.innerHTML = `
+
+    <!-- ===================== -->
+    <!-- DADOS DO CLIENTE -->
+    <!-- ===================== -->
+
+    <div class="cardCliente">
+
+      <div class="nomeCliente">
+        👤 ${cliente.nome}
+      </div>
+
+      <div class="infoCliente">
+        📞 ${cliente.telefone || "Telefone não informado"}
+      </div>
+
+      <hr>
+
+      ${
+        cliente.status_plano === "ativo"
+
+        ? `
+          <div>
+            🟢 <b>Plano ativo</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            📋 Plano:
+            <b>${cliente.tipo_plano || "-"}</b>
+          </div>
+        `
+
+        : `
+          <div>
+            🔵 <b>Cliente avulso</b>
+          </div>
+        `
+      }
+
+    </div>
+
+
+    <!-- ===================== -->
+    <!-- INFORMAÇÕES DO PLANO -->
+    <!-- ===================== -->
+
+    ${
+      cliente.status_plano === "ativo"
+
+      ? `
+
+        <div class="cardCliente">
+
+          <h3>📋 Informações do plano</h3>
+
+          <div style="margin-top:10px;">
+            💰 Valor:
+            <b>${plano?.preco || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            ✂️ Cortes:
+            <b>${ultimoCorte}/${limiteCortes}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            📅 Adesão:
+            <b>${cliente.data_adesao_plano || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            🔄 Última renovação:
+            <b>${cliente.ultima_renovacao || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            ⏳ Vencimento:
+            <b>${vencimentoTexto}</b>
+          </div>
+
+        </div>
+
+      `
+
+      : `
+
+        <div class="cardCliente">
+
+          <h3>🎁 Fidelidade</h3>
+
+          <div style="margin-top:10px;">
+            📅 Início:
+            <b>${cliente.fidelidade_inicio || "-"}</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            ✂️ Cortes acumulados:
+            <b>${cliente.cortes_fidelidade || 0}/10</b>
+          </div>
+
+          <div style="margin-top:8px;">
+            🎁 Cortes gratuitos usados:
+            <b>${cliente.fidelidade_usados || 0}</b>
+          </div>
+
+        </div>
+
+      `
+    }
+
+
+    <!-- ===================== -->
+    <!-- RESUMO FINANCEIRO -->
+    <!-- ===================== -->
+
+    <div class="cardCliente">
+
+      <h3>💰 Resumo</h3>
+
+      <div style="margin-top:10px;">
+        👣 Atendimentos registrados:
+        <b>${listaAtendimentos.length}</b>
+      </div>
+
+      <div style="margin-top:8px;">
+        💵 Total dos últimos atendimentos:
+        <b>
+          R$ ${totalGasto.toFixed(2).replace(".", ",")}
+        </b>
+      </div>
+
+    </div>
+
+
+    <!-- ===================== -->
+    <!-- HISTÓRICO -->
+    <!-- ===================== -->
+
+    <div class="cardCliente">
+
+      <h3>📋 Últimos atendimentos</h3>
+
+      ${
+        listaAtendimentos.length
+
+        ? listaAtendimentos.map(a => `
+
+          <div
+            style="
+              padding:12px 0;
+              border-bottom:1px solid #ddd;
+            "
+          >
+
+            <div>
+              📅
+              <b>
+                ${
+                  a.data
+                    ? String(a.data).split("-").reverse().join("/")
+                    : "-"
+                }
+              </b>
+
+              ${
+                a.hora
+                  ? ` • ${a.hora}`
+                  : ""
+              }
+            </div>
+
+            <div style="margin-top:5px;">
+  ✂️
+  ${a.servico || "Serviço não informado"}
+
+  ${
+    a.tipo_cliente === "plano"
+      ? ` • Corte: ${a.numero_corte || 0}/${limiteCortes}`
+      : ""
+  }
+</div>
+
+            <div style="margin-top:5px;">
+              👨‍💼
+              ${a.barbeiro || "Profissional não informado"}
+            </div>
+
+            <div style="margin-top:5px;">
+              ${
+                a.tipo_cliente === "plano"
+                  ? "🟢 Plano"
+                  : "🔵 Avulso"
+              }
+
+              ${
+                a.valor != null
+                  ? ` • R$ ${Number(a.valor)
+                      .toFixed(2)
+                      .replace(".", ",")}`
+                  : ""
+              }
+            </div>
+
+            ${
+              a.forma_pagamento
+                ? `
+                  <div style="margin-top:5px;">
+                    💳 ${a.forma_pagamento}
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+
+        `).join("")
+
+        : `
+
+          <div
+            style="
+              padding:15px 0;
+              text-align:center;
+            "
+          >
+            Nenhum atendimento encontrado.
+          </div>
+
+        `
+      }
+
+    </div>
+
+  `;
+
+}
+
+function voltarDaDetalheCliente(){
+
+  const tela =
+    document.getElementById("telaDetalheCliente");
+
+  if(tela){
+    tela.style.display = "none";
+  }
+
+}
+
+
 
 
 function abrirLembrete(){
@@ -2379,40 +4495,36 @@ async function carregarFidelidade(){
 
   }
   
-const { data: atendimentos } =
-await db
-.from("atendimentos")
-.select(
-  "cliente_id,tipo_cliente,data"
-)
-.eq("empresa_id", empresaId)
-.eq("tipo_cliente","avulso");
-
 const mapaCortes = {};
 
-data.forEach(cli=>{
+for(const cli of data){
 
-  const inicio =
-  cli.fidelidade_inicio;
+  if(!cli.tem_fidelidade){
+    mapaCortes[cli.id] = 0;
+    continue;
+  }
 
-const total =
+  const { data: atendimentosCliente, error: erroAtendimentos } =
+    await db
+      .from("atendimentos")
+      .select("cliente_id,tipo_cliente,data")
+      .eq("empresa_id", empresaId)
+      .eq("cliente_id", cli.id)
+      .eq("tipo_cliente", "avulso");
 
-!cli.tem_fidelidade
+  if(erroAtendimentos){
+    console.log(erroAtendimentos);
+    mapaCortes[cli.id] = 0;
+    continue;
+  }
 
-? 0
+  const total =
+    (atendimentosCliente || []).filter(a =>
+      a.data >= cli.fidelidade_inicio
+    ).length;
 
-: atendimentos.filter(a =>
-
-    a.cliente_id == cli.id &&
-
-    a.data >= cli.fidelidade_inicio
-
-  ).length;
-
-  mapaCortes[cli.id] =
-  total;
-
-});
+  mapaCortes[cli.id] = total;
+}
 
   const lista =
   document.getElementById(
@@ -3309,6 +5421,164 @@ async function abrirFinanceiro(){
   });
 
 }
+
+
+async function carregarEntradasPlanos(){
+
+  const dataInicial =
+    document.getElementById("dataInicialPlanos").value;
+
+  const dataFinal =
+    document.getElementById("dataFinalPlanos").value;
+
+  if(!dataInicial || !dataFinal){
+
+    mostrarToast("⚠️ Informe a data inicial e a data final.");
+
+    return;
+  }
+
+  if(dataInicial > dataFinal){
+
+    mostrarToast("⚠️ A data inicial não pode ser maior que a data final.");
+
+    return;
+  }
+
+  abrirLoading("Consultando planos...");
+
+  const { data, error } = await db
+    .from("atendimentos")
+    .select(`
+      id,
+      data,
+      valor,
+      tipo_cliente,
+      tipo_plano,
+      forma_pagamento
+    `)
+    .eq("empresa_id", empresaId)
+    .eq("tipo_cliente", "plano")
+    .gte("data", dataInicial)
+    .lte("data", dataFinal)
+    .order("data", { ascending: true });
+
+  fecharLoading();
+
+  if(error){
+
+    console.log(
+      "Erro ao buscar entradas de planos:",
+      error
+    );
+
+    mostrarToast("❌ Erro ao consultar entradas de planos.");
+
+    return;
+  }
+
+  console.log(
+    "ENTRADAS DE PLANOS:",
+    data
+  );
+
+    // ==========================
+  // 📋 BUSCA PLANOS ATIVOS
+  // ==========================
+
+  const { data: planos, error: erroPlanos } = await db
+    .from("planos_site")
+    .select("id,nome,preco")
+    .eq("empresa_id", empresaId)
+    .eq("ativo", true)
+    .order("ordem", { ascending: true });
+
+  if(erroPlanos){
+
+    console.log(
+      "Erro ao buscar planos:",
+      erroPlanos
+    );
+
+    mostrarToast("❌ Erro ao carregar planos.");
+
+    return;
+  }
+
+  console.log(
+    "PLANOS ATIVOS:",
+    planos
+  );
+
+    // ==========================
+  // 💰 MONTA RESULTADO DINÂMICO
+  // ==========================
+
+  let totalGeral = 0;
+
+  let html = "";
+
+  planos.forEach(plano => {
+
+    let totalPlano = 0;
+
+    data.forEach(atendimento => {
+
+      if(atendimento.tipo_plano === plano.nome){
+
+        const valor = Number(atendimento.valor) || 0;
+
+        totalPlano += valor;
+
+      }
+
+    });
+
+    totalGeral += totalPlano;
+
+    html += `
+      <div class="linhaPlano">
+
+        <span>${plano.nome}</span>
+
+        <strong>
+          ${totalPlano.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+          })}
+        </strong>
+
+      </div>
+    `;
+
+  });
+
+
+  html += `
+    <hr>
+
+    <div class="totalPlanos">
+
+      <span>Total de planos</span>
+
+      <strong>
+        ${totalGeral.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        })}
+      </strong>
+
+    </div>
+  `;
+
+
+  document.getElementById(
+    "resultadoEntradasPlanos"
+  ).innerHTML = html;
+
+}
+
+
 
 async function carregarFinanceiro(){
 
@@ -4512,6 +6782,13 @@ async function salvarPlano(){
   const preco =
   document.getElementById("planoPreco").value.trim();
 
+  const quantidadeCortes =
+  Number(
+    document.getElementById(
+      "planoQuantidadeCortes"
+    ).value
+  ) || 0;
+
   const linkPagamento =
   document.getElementById("planoLinkPagamento").value.trim();
 
@@ -4546,6 +6823,11 @@ async function salvarPlano(){
     return;
   }
 
+if(quantidadeCortes < 0){
+  alert("Informe uma quantidade de cortes válida.");
+  return;
+}
+
   if(linkPagamento === ""){
     alert("Informe o link de pagamento.");
     return;
@@ -4561,7 +6843,8 @@ if(planoEditando){
         subtitulo,
         descricao,
         preco,
-        link_pagamento: linkPagamento,
+    quantidade_cortes: quantidadeCortes,
+    link_pagamento: linkPagamento,
         link_detalhes: linkDetalhes,
         ordem,
         ativo
@@ -4589,7 +6872,8 @@ if(planoEditando){
         subtitulo,
         descricao,
         preco,
-        link_pagamento: linkPagamento,
+quantidade_cortes: quantidadeCortes,
+link_pagamento: linkPagamento,
         link_detalhes: linkDetalhes,
         ordem,
         ativo
@@ -4625,6 +6909,8 @@ function limparFormularioPlano(){
 }
 
 async function carregarPlanos(){
+
+  
 
   const { data, error } = await db
   .from("planos_site")
@@ -4673,6 +6959,13 @@ onmouseleave="cancelarExcluirPlano()">
           ${plano.preco}
         </div>
 
+        <div class="subPlano">
+  ✂️${plano.quantidade_cortes === 0
+  ? "Ilimitado"
+  : (plano.quantidade_cortes || 4) + " cortes por mês"
+}
+</div>
+
         <div class="statusPlano">
           ${plano.ativo ? "🟢 Ativo" : "🔴 Inativo"}
         </div>
@@ -4705,6 +6998,11 @@ async function editarPlano(id){
     document.getElementById("planoSubtitulo").value = data.subtitulo;
     document.getElementById("planoDescricao").value = data.descricao;
     document.getElementById("planoPreco").value = data.preco;
+
+  document.getElementById("planoQuantidadeCortes").value =
+  data.quantidade_cortes ?? 4;
+
+  
     document.getElementById("planoLinkPagamento").value = data.link_pagamento;
     document.getElementById("planoLinkDetalhes").value = data.link_detalhes;
     document.getElementById("planoOrdem").value = data.ordem;
@@ -5185,10 +7483,7 @@ else if(item.tipo_repeticao === "intervalo"){
   
 
 }
-// Executa assim que a estrutura do documento estiver pronta
-document.addEventListener("DOMContentLoaded", () => {
-  carregarDespesas();
-});
+carregarClientes();
 
 carregarPlanos();
 carregarProfissionaisFiltro();
@@ -5212,19 +7507,18 @@ iniciarFiltro()
  setTimeout(async () => {
 
   await verificarLembretesHoje();
+   document
+  .getElementById("bootLoading")
+  .classList.add("hide");
+
+   
 
 }, 1000);
 
 },2000);
 
 
-setTimeout(()=>{
 
-  document
-  .getElementById("bootLoading")
-  .classList.add("hide");
-
-},300);
 
 document.getElementById("sidebar").addEventListener("mousemove", iniciarAutoFecharMenu);
 document.getElementById("sidebar").addEventListener("click", iniciarAutoFecharMenu);
